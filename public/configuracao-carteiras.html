@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Configuração de Carteiras - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+        
+<style>
+        .carteira-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        .carteira-card:hover {
+            border-color: #10B981;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+        }
+        .carteira-ativa {
+            border-color: #10B981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        }
+        .btn-carteira {
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        .codigo-input {
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: bold;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .metodo-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row bg-white shadow-sm py-3 mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-wallet me-2"></i>Configuração de Carteiras
+                    </h2>
+                    <a href="pagamentos.html" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="row">
+            <!-- Coluna Esquerda - Lista de Carteiras -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-credit-card me-2"></i>Minhas Carteiras
+                            </h5>
+                            <button class="btn btn-primary" onclick="abrirModalNovaCarteira()">
+                                <i class="fas fa-plus me-2"></i>Nova Carteira
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="lista-carteiras">
+                            <!-- Carteiras serão carregadas aqui -->
+                        </div>
+                        
+                        <div id="sem-carteiras" class="text-center py-5" style="display: none;">
+                            <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhuma carteira configurada</h5>
+                            <p class="text-muted">Configure sua primeira carteira para poder fazer saques</p>
+                            <button class="btn btn-primary" onclick="abrirModalNovaCarteira()">
+                                <i class="fas fa-plus me-2"></i>Configurar Primeira Carteira
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita - Informações e Status -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Informações
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Máximo de 2 carteiras por vendedor
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                Código de autenticação por email
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-clock text-warning me-2"></i>
+                                Código expira em 10 minutos
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Status de Saque
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="status-saque">
+                            <!-- Status será carregado aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Carteira -->
+    <div class="modal fade" id="modalNovaCarteira" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Nova Carteira
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNovaCarteira">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nomeCarteira" class="form-label">Nome da Carteira *</label>
+                                <input type="text" class="form-control" id="nomeCarteira" required 
+                                       placeholder="Ex: Carteira Principal">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="metodoSaque" class="form-label">Método de Saque *</label>
+                                <select class="form-select" id="metodoSaque" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Mpesa">Mpesa</option>
+                                    <option value="Emola">Emola</option>
+                                    <option value="BancABC">BancABC</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="contacto" class="form-label">Contacto *</label>
+                                <input type="tel" class="form-control" id="contacto" required 
+                                       placeholder="Ex: +258867792543">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="nomeTitular" class="form-label">Nome do Titular *</label>
+                                <input type="text" class="form-control" id="nomeTitular" required 
+                                       placeholder="Nome completo">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="emailTitular" class="form-label">Email do Titular *</label>
+                            <input type="email" class="form-control" id="emailTitular" required 
+                                   placeholder="email@exemplo.com">
+                            <small class="text-muted">Para receber códigos de autenticação</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="criarCarteira()">
+                        <i class="fas fa-save me-2"></i>Criar Carteira
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Código de Autenticação -->
+    <div class="modal fade" id="modalCodigo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>Verificação de Segurança
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                        <h6>Verifique seu email</h6>
+                        <p class="text-muted">Enviamos um código de 6 dígitos para <span id="emailDestino" class="fw-bold"></span></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="codigoVerificacao" class="form-label">Código de Verificação</label>
+                        <input type="text" class="form-control codigo-input" id="codigoVerificacao" 
+                               maxlength="6" placeholder="000000">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="verificarCodigo()">
+                            <i class="fas fa-check me-2"></i>Verificar Código
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="reenviarCodigo()">
+                            <i class="fas fa-redo me-2"></i>Reenviar Código
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        let carteiraAtual = null;
+        let modalNovaCarteira = null;
+        let modalCodigo = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            modalNovaCarteira = new bootstrap.Modal(document.getElementById('modalNovaCarteira'));
+            modalCodigo = new bootstrap.Modal(document.getElementById('modalCodigo'));
+            
+            carregarCarteiras();
+            verificarStatusSaque();
+        });
+
+        // Carregar carteiras do vendedor
+        async function carregarCarteiras() {
+            try {
+                const response = await fetch('/api/carteiras', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderizarCarteiras(data.carteiras);
+                } else {
+                    throw new Error('Erro ao carregar carteiras');
+                }
+            } catch (error) {
+                console.error('? Erro:', error);
+                mostrarErro('Erro ao carregar carteiras');
+            }
+        }
+
+        // Renderizar lista de carteiras
+        function renderizarCarteiras(carteiras) {
+            const container = document.getElementById('lista-carteiras');
+            const semCarteiras = document.getElementById('sem-carteiras');
+
+            if (carteiras.length === 0) {
+                container.style.display = 'none';
+                semCarteiras.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'block';
+            semCarteiras.style.display = 'none';
+
+            container.innerHTML = carteiras.map(carteira => `
+                <div class="carteira-card carteira-ativa p-3 mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="metodo-icon text-primary">
+                                    ${getMetodoIcon(carteira.metodo_saque)}
+                                </span>
+                                <h6 class="mb-0">${carteira.nome}</h6>
+                                <span class="badge bg-success status-badge ms-2">Ativa</span>
+                            </div>
+                            <p class="mb-1 text-muted">
+                                <i class="fas fa-user me-1"></i>${carteira.nome_titular}
+                            </p>
+                            <p class="mb-1 text-muted">
+                                <i class="fas fa-phone me-1"></i>${carteira.contacto}
+                            </p>
+                            <p class="mb-0 text-muted">
+                                <i class="fas fa-envelope me-1"></i>${carteira.email_titular}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-primary btn-carteira me-2" 
+                                    onclick="editarCarteira('${carteira.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-carteira" 
+                                    onclick="desativarCarteira('${carteira.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Obter ícone do método de saque
+        function getMetodoIcon(metodo) {
+            const icons = {
+                'Mpesa': 'fas fa-mobile-alt',
+                'Emola': 'fas fa-university',
+                'BancABC': 'fas fa-university',
+                'Outro': 'fas fa-credit-card'
+            };
+            return icons[metodo] || 'fas fa-credit-card';
+        }
+
+        // Verificar status de saque
+        async function verificarStatusSaque() {
+            try {
+                const response = await fetch('/api/carteiras/saque/disponibilidade', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderizarStatusSaque(data);
+                }
+            } catch (error) {
+                console.error('? Erro ao verificar status:', error);
+            }
+        }
+
+        // Renderizar status de saque
+        function renderizarStatusSaque(data) {
+            const container = document.getElementById('status-saque');
+            
+            if (data.podeSacar) {
+                container.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h6 class="text-success">Pode Realizar Saques</h6>
+                        <p class="text-muted small">Receita disponível: MZN ${data.receitaDisponivel.toFixed(2)}</p>
+                        <a href="pagamentos.html" class="btn btn-success btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>Fazer Saque
+                        </a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                        <h6 class="text-warning">Não Pode Sacar</h6>
+                        <p class="text-muted small">${data.motivo}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Abrir modal de nova carteira
+        function abrirModalNovaCarteira() {
+            document.getElementById('formNovaCarteira').reset();
+            modalNovaCarteira.show();
+        }
+
+        // Criar nova carteira
+        async function criarCarteira() {
+            const form = document.getElementById('formNovaCarteira');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const dados = {
+                nome: document.getElementById('nomeCarteira').value,
+                metodoSaque: document.getElementById('metodoSaque').value,
+                contacto: document.getElementById('contacto').value,
+                nomeTitular: document.getElementById('nomeTitular').value,
+                emailTitular: document.getElementById('emailTitular').value
+            };
+
+            try {
+                const response = await fetch('/api/carteiras', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    modalNovaCarteira.hide();
+                    mostrarSucesso('Carteira criada com sucesso!');
+                    carregarCarteiras();
+                    verificarStatusSaque();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Erro ao criar carteira');
+                }
+            } catch (error) {
+                console.error('? Erro:', error);
+                mostrarErro(error.message);
+            }
+        }
+
+        // Editar carteira
+        function editarCarteira(carteiraId) {
+            // Implementar edição de carteira
+            mostrarInfo('Funcionalidade de edição será implementada em breve');
+        }
+
+        // Desativar carteira
+        async function desativarCarteira(carteiraId) {
+            const result = await Swal.fire({
+                title: 'Confirmar Desativação',
+                text: 'Tem certeza que deseja desativar esta carteira?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, Desativar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/api/carteiras/${carteiraId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        mostrarSucesso('Carteira desativada com sucesso!');
+                        carregarCarteiras();
+                        verificarStatusSaque();
+                    } else {
+                        throw new Error('Erro ao desativar carteira');
+                    }
+                } catch (error) {
+                    console.error('? Erro:', error);
+                    mostrarErro('Erro ao desativar carteira');
+                }
+            }
+        }
+
+        // Verificar código de autenticação
+        async function verificarCodigo() {
+            const codigo = document.getElementById('codigoVerificacao').value;
+            
+            if (codigo.length !== 6) {
+                mostrarErro('Digite o código completo de 6 dígitos');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/carteiras/${carteiraAtual}/verificar-codigo`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ codigo })
+                });
+
+                if (response.ok) {
+                    modalCodigo.hide();
+                    mostrarSucesso('Código verificado com sucesso!');
+                    carregarCarteiras();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Código inválido');
+                }
+            } catch (error) {
+                console.error('? Erro:', error);
+                mostrarErro(error.message);
+            }
+        }
+
+        // Reenviar código
+        async function reenviarCodigo() {
+            try {
+                const response = await fetch(`/api/carteiras/${carteiraAtual}/codigo`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    mostrarSucesso('Código reenviado com sucesso!');
+                } else {
+                    throw new Error('Erro ao reenviar código');
+                }
+            } catch (error) {
+                console.error('? Erro:', error);
+                mostrarErro('Erro ao reenviar código');
+            }
+        }
+
+        // Funções de utilidade
+        function mostrarSucesso(mensagem) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: mensagem,
+                timer: 3000
+            });
+        }
+
+        function mostrarErro(mensagem) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: mensagem
+            });
+        }
+
+        function mostrarInfo(mensagem) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Informação',
+                text: mensagem
+            });
+        }
+    </script>
+    
+</body>
+</html>

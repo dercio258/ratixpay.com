@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Venda com a RatixPay</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importa a fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        
+<style>
+        /* Define a fonte Inter como padrão */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Estilos para a animação de texto */
+        #animated-word-container {
+            /* Garante que o contêiner tenha altura suficiente para evitar "pulos" de layout */
+            min-height: 50px; 
+        }
+
+        @media (min-width: 768px) {
+            #animated-word-container {
+                min-height: 60px;
+            }
+        }
+        
+        #animated-word {
+            /* Aplica a transição de opacidade e transformação (para um leve fade-up) */
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            display: inline-block;
+            /* Cor laranja para a palavra animada */
+            color: #F64C00; 
+        }
+        
+        /* Estilos para as abas interativas */
+        .tab-button {
+            border-color: transparent; /* Borda padrão transparente */
+            color: #4b5563; /* Cor de texto padrão (cinza) */
+        }
+        .tab-button.active-tab {
+            color: #F64C00; /* Cor de texto ativa (laranja) */
+            border-color: #F64C00; /* Cor da borda ativa (laranja) */
+        }
+
+        /* Estilos para o ícone do accordion */
+        .accordion-header[aria-expanded="true"] .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        /* NOVOS ESTILOS PARA O FAQ */
+        .faq-answer {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease-in-out;
+        }
+        .faq-answer.open {
+            /* Um valor alto para garantir que todo o conteúdo caiba */
+            max-height: 500px; 
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+
+    <!-- Wrapper Principal -->
+    <div class="min-h-screen flex flex-col">
+
+        <!-- Header (Cabeçalho) -->
+        <header class="w-full border-b border-gray-200 sticky top-0 bg-white z-30">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <!-- Seção Esquerda: Logo e Navegação Principal -->
+                <div class="flex items-center space-x-8">
+                    <!-- Logo -->
+                    <a href="#" class="flex-shrink-0">
+                        <img class="h-10 w-auto" src="https://res.cloudinary.com/dndlqdylc/image/upload/v1757960850/RatixPay_1.1_uq6oya.png" alt="RatixPay Logo">
+                    </a>
+                    
+                    <!-- Links de Navegação (Visível em telas médias e maiores) -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        
+                        <!-- Dropdown de Produto (REMOVIDO) -->
+
+                        <!-- Dropdown de Soluções -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="solutions-dropdown-button" data-desktop-dropdown-button data-target="#solutions-dropdown-menu" class="flex items-center text-gray-600 hover:text-gray-900 font-medium transition duration-200 focus:outline-none">
+                                <span>Soluções</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="solutions-dropdown-menu" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-screen max-w-sm px-4 sm:px-0 z-20">
+                                <div class="bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden">
+                                    <div class="relative p-7 space-y-5">
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Cadastro Rápido e Gratuito</p>
+                                            <p class="text-sm text-gray-500">Comece a vender em minutos, sem custo inicial.</p>
+                                        </a>
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Criação de Produto Personalizada</p>
+                                            <p class="text-sm text-gray-500">Interface fácil para cadastrar seu curso ou e-book.</p>
+                                        </a>
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Ferramentas de Marketing Prontas</p>
+                                            <p class="text-sm text-gray-500">Páginas de venda e e-mails fáceis de configurar.</p>
+                                        </a>
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Hospedagem Gratuita</p>
+                                            <p class="text-sm text-gray-500">Armazene seus produtos e arquivos sem pagar mais por isso.</p>
+                                        </a>
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Venda Global</p>
+                                            <p class="text-sm text-gray-500">Seus produtos acessíveis em qualquer canto do mundo.</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown de Taxa -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="fees-dropdown-button" data-desktop-dropdown-button data-target="#fees-dropdown-menu" class="flex items-center text-gray-600 hover:text-gray-900 font-medium transition duration-200 focus:outline-none">
+                                <span>Taxa</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="fees-dropdown-menu" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-screen max-w-xs px-4 sm:px-0 z-20">
+                                <div class="bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden">
+                                    <div class="relative p-7 space-y-4">
+                                        <div class="text-center">
+                                            <p class="text-base font-medium text-gray-900">10% por Venda Aprovada</p>
+                                            <p class="text-sm text-gray-500">Só pague quando vender. Simples e transparente.</p>
+                                        </div>
+                                        <div class="border-t border-gray-100"></div>
+                                        <div class="text-center">
+                                            <p class="text-base font-medium text-gray-900">5% por Saque Realizado</p>
+                                            <p class="text-sm text-gray-500">Transfira seu saldo para sua conta M-Pesa ou E-Mola.</p>
+                                        </div>
+                                        <div class="border-t border-gray-100"></div>
+                                        <div class="text-center">
+                                            <p class="text-base font-medium text-gray-900">Nenhuma taxa escondida</p>
+                                            <p class="text-sm text-gray-500">Transparência total nos seus ganhos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown de Afiliados -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="affiliates-dropdown-button" data-desktop-dropdown-button data-target="#affiliates-dropdown-menu" class="flex items-center text-gray-600 hover:text-gray-900 font-medium transition duration-200 focus:outline-none">
+                                <span>Afiliados</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="affiliates-dropdown-menu" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-screen max-w-xs px-4 sm:px-0 z-20">
+                                <div class="bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden">
+                                    <div class="relative p-7 space-y-4">
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Cadastro Rápido de Afiliado</p>
+                                            <p class="text-sm text-gray-500">Junte-se ao nosso programa gratuitamente e sem burocracia.</p>
+                                        </a>
+                                        <a href="#" class="block p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                            <p class="text-base font-medium text-gray-900">Comece a Vender Agora</p>
+                                            <p class="text-sm text-gray-500">Obtenha seus links e ganhe comissões por cada venda.</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Dropdown de Ajuda (REMOVIDO DAQUI) -->
+
+                    </div>
+                </div>
+
+                <!-- Seção Direita: Botões de Ação (Visível em telas médias e maiores) -->
+                <div class="hidden md:flex items-center space-x-4">
+
+                    <!-- Dropdown de Ajuda (MOVIDO PARA CÁ) -->
+                    <div class="relative desktop-dropdown-container">
+                        <button id="help-dropdown-button" data-desktop-dropdown-button data-target="#help-dropdown-menu" class="flex items-center text-gray-600 hover:text-gray-900 font-medium transition duration-200 focus:outline-none">
+                            <span>Ajuda</span>
+                            <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <!-- Painel do Dropdown -->
+                        <div id="help-dropdown-menu" class="hidden absolute top-full right-0 mt-3 w-screen max-w-xs px-4 sm:px-0 z-20">
+                            <div class="bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden">
+                                <div class="relative p-7 space-y-4">
+                                    <h4 class="text-sm font-semibold text-[#F64C00] uppercase tracking-wider text-center">Fale Conosco</h4>
+                                    
+                                    <a href="#" class="flex items-center p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                        <!-- Whatsapp Icon -->
+                                        <svg class="w-6 h-6 text-green-500 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.451-4.437-9.887-9.889-9.888-5.451 0-9.887 4.434-9.889 9.887.001 2.231.612 4.27 1.705 5.947l-1.023 3.75zM8.225 6.963c.333-.167.734-.352 1.092-.352.348 0 .696.167 1.026.498.348.348.564.763.564 1.242 0 .479-.192.934-.352 1.192-.16.25-.324.516-.516.756-.201.24-.412.48-.627.732-.215.24-.438.48-.666.732-.237.24-.48.48-.732.732-.24.24-.504.48-.78.732-.276.24-.576.48-.888.732s-.636.48-.96.732c-.324.24-.648.48-.96.732-.312.24-.612.48-.888.666-.276.192-.528.312-.756.312-.228 0-.438-.048-.624-.132-.192-.084-.348-.204-.468-.36-.12-.156-.18-.348-.18-.564 0-.216.06-.432.18-.636.12-.204.264-.408.432-.612.168-.204.348-.396.54-.576.192-.18.396-.348.612-.504.216-.156.432-.3.66-.432.228-.132.456-.24.684-.348.228-.108.456-.18.684-.252.228-.072.456-.108.684-.108.228 0 .444.036.648.108s.396.18.576.312c.18.132.348.3.504.492.156.192.288.42.396.672.108.252.168.516.168.792 0 .276-.048.54-.144.792-.096.252-.228.492-.396.72s-.36.42-.576.576c-.216.156-.444.276-.684.36s-.48.12-.72.12c-.24 0-.48-.036-.708-.108s-.444-.18-.648-.312c-.204-.132-.396-.288-.576-.468s-.348-.372-.504-.576c-.156-.204-.288-.42-.396-.648s-.192-.468-.252-.72c-.06-.252-.096-.516-.096-.792M15.735 14.893c.168-.276.252-.576.252-.888s-.084-.612-.252-.888c-.168-.276-.384-.516-.648-.72-.264-.204-.552-.36-.864-.468s-.636-.168-.96-.168c-.324 0-.636.06-.924.18s-.552.276-.792.48c-.24.204-.444.444-.612.72s-.288.576-.36.9H18.9c-.072 1.116-.504 2.088-1.296 2.916s-1.776 1.242-2.952 1.242c-1.116 0-2.112-.396-2.988-1.188s-1.44-1.776-1.596-2.952c-.156-1.176.048-2.28.612-3.312.564-1.032 1.44-1.872 2.628-2.52s2.568-.972 4.14-.972c1.08 0 2.112.204 3.096.612s1.836.972 2.568 1.692c.732.72 1.308 1.56 1.728 2.52.42 0.96.648 1.992.648 3.096h-6.6c.072.564.312 1.056.72 1.476.408.42.9.636 1.476.636.564 0 1.044-.204 1.44-.612s.648-.912.756-1.512z"></path></svg>
+                                        <span class="text-base font-medium text-gray-900">Whatsapp</span>
+                                    </a>
+                                    <a href="#" class="flex items-center p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                        <!-- Facebook Icon -->
+                                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path></svg>
+                                        <span class="text-base font-medium text-gray-900">Facebook</span>
+                                    </a>
+                                    <a href="#" class="flex items-center p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                        <!-- Instagram Icon -->
+                                        <svg class="w-6 h-6 text-pink-500 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.172.053 1.905.24 2.525.485.67.255 1.205.59 1.745 1.13C21.75 4.4 22.085 4.935 22.34 5.605c.245.62.43 1.353.485 2.525C22.888 9.416 22.9 9.796 22.9 12s-.012 2.584-.07 3.85c-.053 1.172-.24 1.905-.485 2.525-.255.67-.59 1.205-1.13 1.745-.54.54-1.075.875-1.745 1.13c-.62.245-1.353.43-2.525.485C15.584 21.888 15.204 21.9 12 21.9s-3.584-.012-4.85-.07c-1.172-.053-1.905-.24-2.525-.485-.67-.255-1.205-.59-1.745-1.13C2.25 19.6 1.915 19.065 1.66 18.395c-.245-.62-.43-1.353-.485-2.525C1.112 14.584 1.1 14.204 1.1 12s.012-2.584.07-3.85c.053-1.172.24-1.905.485-2.525.255-.67.59-1.205 1.13-1.745.54-.54 1.075-.875 1.745-1.13C5.195 2.66 5.928 2.475 7.15 2.23c1.267-.058 1.646-.07 4.85-.07M12 0C8.74 0 8.333.014 7.053.072 5.775.132 4.905.333 4.14.63c-.78.297-1.45.717-2.123 1.39C1.343 2.7 1.023 3.37.726 4.14c-.297.765-.498 1.635-.56 2.913C.014 8.333 0 8.74 0 12s.014 3.667.072 4.947c.06 1.277.26 2.15.56 2.913.297.78.717 1.45 1.39 2.123.673.673 1.343.993 2.123 1.29.765.297 1.635.498 2.913.56C8.333 23.986 8.74 24 12 24s3.667-.014 4.947-.072c1.277-.06 2.15-.26 2.913-.56.78-.297 1.45-.717 2.123-1.29.673-.673.993-1.343 1.29-2.123.297-.765.498-1.635.56-2.913C23.986 15.667 24 15.26 24 12s-.014-3.667-.072-4.947c-.06-1.277-.26-2.15-.56-2.913-.297-.78-.717-1.45-1.29-2.123-.673-.673-1.343-.993-2.123-1.29C17.37 1.023 16.63.726 15.86.43c-.765-.297-1.635-.498-2.913-.56C15.667.014 15.26 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z"></path></svg>
+                                        <span class="text-base font-medium text-gray-900">Instagram</span>
+                                    </a>
+                                    <a href="#" class="flex items-center p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                        <!-- Twitter Icon -->
+                                        <svg class="w-6 h-6 text-blue-400 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.27 0 .34.04.67.11.98-3.56-.18-6.73-1.89-8.84-4.48-.37.63-.58 1.37-.58 2.15 0 1.48.75 2.79 1.9 3.55-.7-.02-1.37-.22-1.95-.54v.05c0 2.07 1.47 3.8 3.42 4.19-.36.1-.74.15-1.12.15-.28 0-.54-.03-.8-.08.54 1.7 2.1 2.94 3.96 2.97-1.46 1.14-3.3 1.82-5.3 1.82-.34 0-.68-.02-1.02-.06 1.89 1.2 4.13 1.9 6.56 1.9 7.85 0 12.14-6.5 12.14-12.14 0-.18 0-.37-.01-.55.83-.6 1.56-1.36 2.14-2.23z"></path></svg>
+                                        <span class="text-base font-medium text-gray-900">Twitter / X</span>
+                                    </a>
+                                    <a href="#" class="flex items-center p-3 -m-3 rounded-lg hover:bg-gray-50 transition ease-in-out duration-150">
+                                        <!-- Email Icon -->
+                                        <svg class="w-6 h-6 text-gray-500 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"></path></svg>
+                                        <span class="text-base font-medium text-gray-900">Email</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="#" class="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 font-medium px-4 py-2 rounded-lg transition duration-200">
+                        Entrar
+                    </a>
+                    <a href="#signup" class="bg-[#F64C00] text-white font-medium px-5 py-2.5 rounded-lg shadow-md hover:bg-opacity-90 transition duration-200">
+                        Registar
+                    </a>
+                </div>
+
+                <!-- Botão Hamburger (Visível apenas em telas pequenas) -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Menu Mobile (Escondido por padrão) -->
+            <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 border-b border-gray-200">
+                <!-- Dropdown de Produto (Mobile) (REMOVIDO) -->
+                
+                <!-- Dropdown de Soluções (Mobile) -->
+                <div>
+                    <button id="mobile-solutions-dropdown-button" data-mobile-dropdown-button data-target="#mobile-solutions-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Soluções</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-solutions-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3 space-y-3">
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Cadastro Rápido e Gratuito</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Criação de Produto Personalizada</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Ferramentas de Marketing Prontas</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Hospedagem Gratuita</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Venda Global</a></li>
+                    </div>
+                </div>
+
+                <!-- Dropdown de Taxa (Mobile) -->
+                <div>
+                    <button id="mobile-fees-dropdown-button" data-mobile-dropdown-button data-target="#mobile-fees-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Taxa</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-fees-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3 space-y-3">
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">10% por Venda Aprovada</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">5% por Saque Realizado</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Nenhuma taxa escondida</a></li>
+                    </div>
+                </div>
+
+                <!-- Dropdown de Afiliados (Mobile) -->
+                <div>
+                    <button id="mobile-affiliates-dropdown-button" data-mobile-dropdown-button data-target="#mobile-affiliates-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Afiliados</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-affiliates-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3 space-y-3">
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Cadastro Rápido de Afiliado</a></li>
+                        <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Comece a Vender Agora</a></li>
+                    </div>
+                </div>
+                
+                <!-- Dropdown de Ajuda (Mobile) (REMOVIDO DAQUI) -->
+
+                <div class="border-t border-gray-200 pt-4 mt-4 space-y-3">
+
+                    <!-- Dropdown de Ajuda (Mobile) (MOVIDO PARA CÁ) -->
+                    <div>
+                        <button id="mobile-help-dropdown-button" data-mobile-dropdown-button data-target="#mobile-help-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                            <span>Ajuda</span>
+                            <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <!-- Painel do Dropdown (Mobile) -->
+                        <div id="mobile-help-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3 space-y-3">
+                            <h4 class="text-sm font-semibold text-[#F64C00] uppercase tracking-wider">Fale Conosco</h4>
+                            <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Whatsapp</a></li>
+                            <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Facebook</a></li>
+                            <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Instagram</a></li>
+                            <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Twitter / X</a></li>
+                            <li><a href="#" class="block text-base font-medium text-gray-700 hover:text-gray-900">Email</a></li>
+                        </div>
+                    </div>
+
+                    <a href="#" class="block bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        Entrar
+                    </a>
+                    <a href="#signup" class="block w-full text-center bg-[#F64C00] text-white font-medium px-5 py-2.5 rounded-lg shadow-md hover:bg-opacity-90 transition duration-200">
+                        Registar
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Seção Principal (Hero) -->
+        <main class="flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+                <!-- Grid de 2 Colunas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    
+                    <!-- Coluna Esquerda: Conteúdo -->
+                    <div class="flex flex-col space-y-8 text-center md:text-left items-center md:items-start">
+                        
+                        <!-- Título Principal -->
+                        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                            Venda com a RatixPay
+                        </h1>
+                        
+                        <!-- Subtítulo Animado -->
+                        <div id="animated-word-container" class="h-16 md:h-20">
+                            <h2 class="text-3xl md:text-4xl font-medium text-gray-700">
+                                Transforme sua
+                                <span id="animated-word" class="font-bold">ideia</span>
+                                <br class="hidden md:inline"> em um negócio digital
+                            </h2>
+                        </div>
+                        
+                        <!-- Lista de Descrições -->
+                        <ul class="space-y-4 text-lg text-gray-600">
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Digitalize seu conhecimento e crie um negócio digital lucrativo.</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Todas as ferramentas para o seu sucesso em um só lugar.</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Venda mais com pagamentos locais e marketing automatizado.</span>
+                            </li>
+                        </ul>
+                        
+                        <!-- Botão CTA -->
+                        <a href="#signup" class="inline-block bg-[#F64C00] text-white font-bold text-lg px-10 py-4 rounded-lg shadow-lg hover:bg-opacity-90 transform hover:-translate-y-0.5 transition duration-300 ease-in-out">
+                            Começar Agora
+                        </a>
+                    </div>
+                    
+                    <!-- Coluna Direita: Formulário de Cadastro -->
+                    <div id="signup" class="w-full max-w-md mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-2xl border border-gray-100">
+                        <h3 class="text-2xl font-bold text-center mb-1">
+                            Comece na RatixPay
+                        </h3>
+                        <p class="text-gray-600 text-center mb-6">É rápido e grátis!</p>
+                        
+                        <!-- Botões Sociais (REMOVIDOS) -->
+                        
+                        <!-- Separador "OU" (REMOVIDO) -->
+                        
+                        <!-- Formulário de Email -->
+                        <form action="#" method="POST" class="space-y-5">
+                            <div>
+                                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1.5">Nome completo</label>
+                                <input type="text" name="nome" id="nome" placeholder="Escreva seu nome completo" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F64C00] focus:border-transparent transition duration-200">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Seu e-mail</Labe>
+                                <input type="email" name="email" id="email" placeholder="Escreva seu e-mail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F64C00] focus:border-transparent transition duration-200">
+                            </div>
+                            
+                            <div>
+                                <label for="senha" class="block text-sm font-medium text-gray-700 mb-1.5">Crie uma senha</label>
+                                <input type="password" name="senha" id="senha" placeholder="Escreva sua senha" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F64C00] focus:border-transparent transition duration-200">
+                            </div>
+                            
+                            <!-- Checkbox de Termos -->
+                            <div class="flex items-start space-x-3">
+                                <input id="termos" name="termos" type="checkbox" required class="h-5 w-5 mt-0.5 text-[#F64C00] focus:ring-[#F64C00] border-gray-300 rounded">
+                                <label for="termos" class="text-sm text-gray-600">
+                                    Ao me registrar, declaro que sou maior de idade, e li e aceito os 
+                                    <a href="#" class="font-medium text-[#F64C00] hover:underline">Termos e Condições</a> e a 
+                                    <a href="#" class="font-medium text-[#F64C00] hover:underline">Política de Privacidade</a> da plataforma.
+                                </label>
+                            </div>
+                            
+                            <!-- Botão Criar Conta -->
+                            <div>
+                                <button type="submit" class="w-full bg-green-500 text-white font-bold text-lg py-3.5 px-6 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300">
+                                    Criar conta
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Link para Entrar -->
+                        <div class="text-center mt-6 pt-6 border-t border-gray-100">
+                            <span class="text-sm text-gray-600">Já tem uma conta?</span>
+                            <a href="#" class="ml-1 text-sm font-medium text-[#F64C00] hover:underline">
+                                Entrar
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Benefícios Rápidos -->
+            <section class="bg-gray-50/70 py-16 md:py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-16">
+                        Tudo que você precisa em um só lugar
+                    </h2>
+                    
+                    <!-- Grid de 3 Colunas de Benefícios -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        
+                        <!-- Benefício 1 -->
+                        <div class="flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex-shrink-0">
+                                <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Crie seu negócio digital facilmente</h3>
+                            <p class="text-gray-600 leading-relaxed">Ferramentas intuitivas para colocar sua ideia no ar em minutos.</p>
+                        </div>
+                        
+                        <!-- Benefício 2 -->
+                        <div class="flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex-shrink-0">
+                                <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Receba pagamentos em tempo real</h3>
+                            <p class="text-gray-600 leading-relaxed">Integração direta com as principais formas de pagamento, sem burocracia.</p>
+                        </div>
+                        
+                        <!-- Benefício 3 -->
+                        <div class="flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="flex-shrink-0">
+                                <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Aumente suas vendas</h3>
+                            <p class="text-gray-600 leading-relaxed">Use nosso marketing automatizado para alcançar mais clientes.</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+
+            <!-- NOVA SEÇÃO DE BENEFÍCIOS MODERNOS -->
+            <section id="benefits-modern" class="bg-white py-16 md:py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Títulos -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                            Por que escolher a Ratixpay?
+                        </h2>
+                        <p class="text-lg font-bold text-[#F64C00] uppercase tracking-wider">
+                            VENDA MAIS, VENDA MELHOR
+                        </p>
+                    </div>
+
+                    <!-- Abas de Navegação -->
+                    <div class="border-b border-gray-200 mb-8">
+                        <nav class="flex flex-col md:flex-row -mb-px" aria-label="Tabs">
+                            <button data-tab-button data-target="#tab-vender-mais" class="tab-button active-tab md:flex-1 py-4 px-1 text-center border-b-2 font-semibold text-lg">
+                                Para vender mais
+                            </button>
+                            <button data-tab-button data-target="#tab-cliente" class="tab-button md:flex-1 py-4 px-1 text-center border-b-2 font-semibold text-lg">
+                                Para oferecer o melhor ao seu cliente
+                            </button>
+                            <button data-tab-button data-target="#tab-gestao" class="tab-button md:flex-1 py-4 px-1 text-center border-b-2 font-semibold text-lg">
+                                Para facilitar sua gestão
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Conteúdo das Abas -->
+                    <div class="relative">
+                        <!-- Painel 1: Vender Mais -->
+                        <div id="tab-vender-mais" data-tab-panel class="tab-panel space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Use pagamento inteligente</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Aceita pagamentos locais em Moçambique, como MPesa e Emola, além de integrar cartões e carteiras digitais.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Recuperar vendas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Funcionalidade avançada de remarketing, recuperando clientes que abandonaram o carrinho.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Crie fidelidade do cliente</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Programas de fidelidade e recompensas automáticas, mantendo seus clientes engajados.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 4 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Venda para todo o mundo</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte internacional para múltiplas moedas e integração com gateways globais.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Painel 2: Cliente -->
+                        <div id="tab-cliente" data-tab-panel class="tab-panel hidden space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Experiência</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Checkout simples e intuitivo, proporcionando confiança e rapidez na compra.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Médio</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte e relatórios detalhados ajudam a melhorar a experiência do usuário em cada etapa da venda.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Confiar</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Segurança avançada, compliance e proteção de dados garantem a confiança do seu cliente.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Painel 3: Gestão -->
+                        <div id="tab-gestao" data-tab-panel class="tab-panel hidden space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Ferramentas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Painel completo com relatórios, análise de vendas e métricas de performance em tempo real.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Proteção para sua conta</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Sistemas antifraude, autenticação dupla e monitoramento constante para proteger seu negócio.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-200 rounded-lg bg-white shadow-sm">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none">
+                                    <span class="text-xl font-semibold text-gray-900">Gerente de contas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte personalizado para otimizar resultados, tirar dúvidas e melhorar processos.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão CTA -->
+                    <div class="mt-12 text-center">
+                        <a href="#signup" class="inline-block bg-[#F64C00] text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-opacity-90 transform hover:-translate-y-0.5 transition duration-300 ease-in-out group">
+                            Comece gratuitamente
+                            <span class="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA NOVA SEÇÃO -->
+
+            <!-- NOVA SEÇÃO: 3 MOTIVOS -->
+            <section id="motivos-cadastro" class="bg-gray-50/70 py-16 md:py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Títulos -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 uppercase">
+                            VOCÊ NÃO TEM NADA A PERDER
+                        </h2>
+                        <p class="text-xl md:text-2xl font-medium text-[#F64C00]">
+                            3 motivos para se cadastrar agora na Ratixpay
+                        </p>
+                    </div>
+
+                    <!-- Grid de 3 Colunas de Motivos -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                        
+                        <!-- Motivo 1 -->
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left p-6 bg-white rounded-lg shadow-md">
+                            <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold mb-5 flex-shrink-0">1</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Começar é grátis</h3>
+                            <p class="text-gray-600">
+                                Criar uma conta na Ratixpay é totalmente gratuito; você não precisa de nenhum investimento inicial para começar a vender seus produtos digitais ou físicos.
+                            </p>
+                        </div>
+                        
+                        <!-- Motivo 2 -->
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left p-6 bg-white rounded-lg shadow-md">
+                            <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold mb-5 flex-shrink-0">2</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Nós facilitamos para você</h3>
+                            <p class="text-gray-600">
+                                Desde a criação do produto até a gestão das vendas, nossa plataforma simplifica todo o processo. É intuitiva e pensada para que você venda rapidamente, sem complicações.
+                            </p>
+                        </div>
+                        
+                        <!-- Motivo 3 -->
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left p-6 bg-white rounded-lg shadow-md">
+                            <span class="flex items-center justify-center h-14 w-14 rounded-full bg-[#F64C00] text-white text-2xl font-bold mb-5 flex-shrink-0">3</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Você não precisa de experiência</h3>
+                            <p class="text-gray-600">
+                                A Ratixpay é muito fácil de usar, com suporte completo e recursos 100% em português, garantindo que qualquer pessoa consiga iniciar e gerir seu negócio digital sem dificuldades.
+                            </p>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Botão CTA -->
+                    <div class="mt-12 text-center">
+                        <a href="#signup" class="inline-block bg-[#F64C00] text-white font-bold text-lg px-8 py-4 rounded-lg shadow-lg hover:bg-opacity-90 transform hover:-translate-y-0.5 transition duration-300 ease-in-out group">
+                            Comece gratuitamente
+                            <span class="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA SEÇÃO 3 MOTIVOS -->
+
+            <!-- NOVA SEÇÃO: FAQ -->
+            <section id="faq" class="bg-[#F7F8FA] py-16 md:py-24">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Título -->
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-16">
+                        Tem alguma dúvida? Nós respondemos!
+                    </h2>
+
+                    <!-- Lista de Perguntas -->
+                    <div class="space-y-6">
+                        
+                        <!-- FAQ Item 01 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">01</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        O que é a RatixPay?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    A RatixPay é uma plataforma moçambicana para criar, vender e receber pagamentos por produtos digitais como eBooks e cursos online, com segurança e automação total.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 02 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">02</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        Como a RatixPay funciona?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Você cadastra seu produto, recebe pagamentos via M-Pesa ou e-Mola, e acompanha tudo com notificações em tempo real. O envio do produto é automático por email e WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 03 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">03</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        Quanto custa usar a RatixPay?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Criar conta e cadastrar produtos é gratuito. Cobramos apenas 10% por venda e 5% em cada saque. Sem mensalidades nem taxas ocultas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 04 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">04</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        A RatixPay é segura?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Usamos criptografia e integração direta com M-Pesa e e-Mola para garantir transações 100% seguras.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 05 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">05</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        O que é o programa de afiliados?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Qualquer pessoa pode se afiliar de graça, gerar links de pagamento e ganhar comissões por venda, clique e conversão.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 06 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">06</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        A RatixPay envia notificações de vendas?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Você recebe notificações em tempo real no painel e por WhatsApp sempre que uma venda é concluída ou um saque é feito.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 07 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">07</span>
+                                    <h3 classs="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        Posso sacar quando quiser?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Os saques podem ser feitos a qualquer momento, com taxa de apenas 5%, enviados diretamente para M-Pesa ou e-Mola.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 08 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2">
+                                <span class="flex items-start md:items-center space-x-4">
+                                    <span class="text-2xl font-bold text-[#FF7A00] mt-1 md:mt-0">08</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#FF7A00] transition-colors">
+                                        O suporte é rápido?
+                                    </h3>
+                                </span>
+                                <div class="text-[#FF7A00] w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-10">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Nosso suporte funciona 24h por dia, 7 dias por semana, pronto para ajudar em qualquer dúvida.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA SEÇÃO FAQ -->
+
+        </main>
+
+        <!-- NOVO FOOTER -->
+        <footer class="bg-gray-900 text-gray-400">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+                    
+                    <!-- Coluna 1: Marca e Redes Sociais -->
+                    <div class="col-span-2 md:col-span-1">
+                        <a href="#">
+                            <img class="h-8 w-auto" src="https://res.cloudinary.com/dndlqdylc/image/upload/v1757960850/RatixPay_1.1_uq6oya.png" alt="RatixPay Logo">
+                        </a>
+                        <p class="mt-4 text-sm">
+                            Transforme seu conhecimento em um negócio digital.
+                        </p>
+                        <!-- Ícones de Redes Sociais -->
+                        <div class="flex space-x-5 mt-6">
+                            <!-- Instagram -->
+                            <a href="#" title="Instagram" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.72 14.4H12c-2.481 0-4.4-1.919-4.4-4.4 0-.424.06-1.01.17-1.48h-1.6V8.32h1.56c.1-.48.23-1.04.23-1.52 0-2.481 1.919-4.4 4.4-4.4h4.72v2.88h-1.6c-.48 0-1.04.13-1.52.23v1.56c.47.1 1.05.17 1.48.17 2.481 0 4.4 1.919 4.4 4.4 0 .424-.06 1.01-.17 1.48h1.6v2.18h-1.56c-.1.48-.23 1.04-.23 1.52 0 .4-.02.8-.04 1.2h-2.84c.02-.4.04-.8.04-1.2zm-4.52-2.18c0 1.23-.99 2.22-2.22 2.22s-2.22-.99-2.22-2.22.99-2.22 2.22-2.22 2.22.99 2.22 2.22z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                            <!-- Facebook -->
+                            <a href="#" title="Facebook" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                            <!-- LinkedIn -->
+                            <a href="#" title="LinkedIn" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19 3A2 2 0 0121 5v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zM8.29 17H5.66V9.99h2.63V17zM6.97 8.56a1.56 1.56 0 100-3.12 1.56 1.56 0 000 3.12zm11.33 8.44h-2.55v-4.4c0-1.06-.02-2.42-1.48-2.42-1.48 0-1.71 1.15-1.71 2.34v4.48h-2.55V9.99h2.44v1.11h.03c.34-.64 1.16-1.32 2.4-1.32 2.57 0 3.04 1.69 3.04 3.89v4.54z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">LinkedIn</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Produto -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Produto</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Soluções</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Taxas</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Afiliados</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Coluna 3: Empresa -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Empresa</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Sobre Nós</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Ajuda</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Coluna 4: Legal -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Legal</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Termos de Uso</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Política de Privacidade</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Barra de Copyright -->
+                <div class="mt-16 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+                    <p>&copy; 2025 RatixPay. Todos os direitos reservados. Maputo, Moçambique.</p>
+                </div>
+            </div>
+        </footer>
+        <!-- FIM DO NOVO FOOTER -->
+
+    </div>
+
+    <!-- JavaScript para a Animação -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const words = ["ideia", "paixão", "habilidade", "criação", "experiência"];
+            let currentIndex = 0;
+            const animatedWordElement = document.getElementById('animated-word');
+
+            if (animatedWordElement) {
+                // Inicia a animação
+                setInterval(() => {
+                    // 1. Adiciona classe para "fade out" e mover para cima
+                    animatedWordElement.classList.add('opacity-0', '-translate-y-3');
+
+                    // 2. Espera a transição de fade-out terminar (400ms)
+                    setTimeout(() => {
+                        // 3. Atualiza o índice e o texto
+                        currentIndex = (currentIndex + 1) % words.length;
+                        animatedWordElement.textContent = words[currentIndex];
+                        
+                        // 4. Remove classes para "fade in" e voltar à posição
+                        animatedWordElement.classList.remove('opacity-0', '-translate-y-3');
+                    }, 400); // Deve corresponder à duração da transição no CSS (0.4s)
+
+                }, 3000); // Troca a palavra a cada 3 segundos
+            }
+
+            // --- LÓGICA DOS DROPDOWNS (DESKTOP) ---
+            const desktopDropdownButtons = document.querySelectorAll('[data-desktop-dropdown-button]');
+            const desktopDropdownMenus = document.querySelectorAll('.desktop-dropdown-container [id$="-dropdown-menu"]');
+
+            desktopDropdownButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Impede que o clique feche o menu imediatamente
+                    const targetMenuId = button.getAttribute('data-target');
+                    const targetMenu = document.querySelector(targetMenuId);
+                    
+                    // O menu está abrindo ou fechando?
+                    const isOpening = targetMenu.classList.contains('hidden');
+
+                    // 1. Fecha todos os menus
+                    desktopDropdownMenus.forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+
+                    // 2. Abre o menu alvo (se estava fechado)
+                    if (isOpening) {
+                        targetMenu.classList.remove('hidden');
+                    }
+                    // se já estava aberto, o loop acima já o fechou.
+                });
+            });
+
+            // --- LÓGICA DOS DROPDOWNS (MOBILE) ---
+            const mobileDropdownButtons = document.querySelectorAll('[data-mobile-dropdown-button]');
+            const mobileDropdownMenus = document.querySelectorAll('[id^="mobile-"][id$="-dropdown-menu"]');
+            const mobileDropdownIcons = document.querySelectorAll('[data-mobile-dropdown-button] svg');
+
+            mobileDropdownButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const targetMenuId = button.getAttribute('data-target');
+                    const targetMenu = document.querySelector(targetMenuId);
+                    const targetIcon = button.querySelector('svg');
+                    
+                    const isOpening = targetMenu.classList.contains('hidden');
+
+                    // 1. Fecha todos os menus mobile e reseta ícones
+                    mobileDropdownMenus.forEach(menu => {
+                        if (menu !== targetMenu) {
+                            menu.classList.add('hidden');
+                        }
+                    });
+                    mobileDropdownIcons.forEach(icon => {
+                        if (icon !== targetIcon) {
+                            icon.classList.remove('rotate-180');
+                        }
+                    });
+
+                    // 2. Abre/Fecha o menu alvo e rotaciona o ícone
+                    targetMenu.classList.toggle('hidden');
+                    targetIcon.classList.toggle('rotate-180');
+                });
+            });
+
+
+            // Lógica para o menu mobile (hamburger)
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', () => {
+                    const isClosing = mobileMenu.classList.toggle('hidden');
+                    
+                    // Se o menu principal está fechando, fecha todos os submenus
+                    if (isClosing) {
+                        mobileDropdownMenus.forEach(menu => menu.classList.add('hidden'));
+                        mobileDropdownIcons.forEach(icon => icon.classList.remove('rotate-180'));
+                    }
+                });
+
+                // Fecha o menu se um link de âncora for clicado (ex: Começar Agora)
+                mobileMenu.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        // Garante que o dropdown interno feche também
+                        mobileDropdownMenus.forEach(menu => menu.classList.add('hidden'));
+                        mobileDropdownIcons.forEach(icon => icon.classList.remove('rotate-180'));
+                    });
+                });
+            }
+
+            // --- FECHAR DROPDOWN (DESKTOP) AO CLICAR FORA ---
+            window.addEventListener('click', (event) => {
+                const isClickInside = event.target.closest('.desktop-dropdown-container');
+                if (!isClickInside) {
+                    desktopDropdownMenus.forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                }
+            });
+
+
+            // Lógica para as Abas da Seção "Por que escolher"
+            const tabButtons = document.querySelectorAll('[data-tab-button]');
+            const tabPanels = document.querySelectorAll('[data-tab-panel]');
+
+            if (tabButtons.length > 0) {
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        // 1. Desativa todas as abas
+                        tabButtons.forEach(btn => btn.classList.remove('active-tab'));
+                        
+                        // 2. Ativa a aba clicada
+                        button.classList.add('active-tab');
+                        
+                        // 3. Esconde todos os painéis
+                        const targetPanelId = button.getAttribute('data-target');
+                        tabPanels.forEach(panel => {
+                            if (panel.id === targetPanelId.substring(1)) {
+                                panel.classList.remove('hidden');
+                            } else {
+                                panel.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            }
+
+            // Lógica para o Accordion da Seção "Por que escolher"
+            const accordionToggles = document.querySelectorAll('[data-accordion-toggle]');
+
+            if (accordionToggles.length > 0) {
+                accordionToggles.forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const content = toggle.nextElementSibling;
+                        const isExpanded = content.classList.toggle('hidden');
+                        
+                        // Define o atributo aria-expanded
+                        toggle.setAttribute('aria-expanded', !isExpanded);
+                    });
+                });
+            }
+
+            // Lógica para o Accordion da FAQ
+            const faqToggles = document.querySelectorAll('[data-faq-toggle]');
+            const allFaqAnswers = document.querySelectorAll('[data-faq-answer]');
+
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const answerPanel = toggle.nextElementSibling;
+                    const iconPlus = toggle.querySelector('[data-icon-plus]');
+                    const iconMinus = toggle.querySelector('[data-icon-minus]');
+                    const isCurrentlyOpen = answerPanel.classList.contains('open');
+
+                    // 1. Fechar todos os outros painéis
+                    allFaqAnswers.forEach(panel => {
+                        if (panel !== answerPanel && panel.classList.contains('open')) {
+                            panel.classList.remove('open');
+                            const otherToggle = panel.previousElementSibling;
+                            if (otherToggle) {
+                                otherToggle.querySelector('[data-icon-plus]').classList.remove('hidden');
+                                otherToggle.querySelector('[data-icon-minus]').classList.add('hidden');
+                            }
+                        }
+                    });
+
+                    // 2. Abrir ou fechar o painel clicado
+                    if (isCurrentlyOpen) {
+                        answerPanel.classList.remove('open');
+                        iconPlus.classList.remove('hidden');
+                        iconMinus.classList.add('hidden');
+                    } else {
+                        answerPanel.classList.add('open');
+                        iconPlus.classList.add('hidden');
+                        iconMinus.classList.remove('hidden');
+                    }
+                });
+            });
+
+        });
+    </script>
+
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

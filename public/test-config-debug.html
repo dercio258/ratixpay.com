@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Configurações</title>
+    
+</head>
+<body>
+    <h1>Teste de Configurações</h1>
+    
+    <!-- Campos de configuração -->
+    <div>
+        <h3>Desconto</h3>
+        <select id="discountType">
+            <option value="percentage">Porcentagem</option>
+            <option value="fixed">Valor Fixo</option>
+        </select>
+        <input type="number" id="discountValue" value="20">
+        <input type="text" id="discountMessage" value="Desconto especial!">
+    </div>
+    
+    <div>
+        <h3>Timer</h3>
+        <select id="timerDuration">
+            <option value="0">Desativado</option>
+            <option value="5">5 minutos</option>
+            <option value="10">10 minutos</option>
+            <option value="15">15 minutos</option>
+        </select>
+        <input type="text" id="timerMessage" value="? Oferta expira em: [TEMPO]">
+    </div>
+    
+    <div>
+        <h3>Black Friday</h3>
+        <input type="number" id="blackFridayDiscount" value="30">
+        <input type="text" id="blackFridayMessage" value="?? BLACK FRIDAY">
+    </div>
+    
+    <button onclick="testConfigCollection()">Testar Coleta</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function testConfigCollection() {
+            console.log('?? Testando coleta de configurações...');
+            
+            // Verificar se os elementos existem
+            const discountValueEl = document.getElementById('discountValue');
+            const discountTypeEl = document.getElementById('discountType');
+            const discountMessageEl = document.getElementById('discountMessage');
+            
+            const timerDurationEl = document.getElementById('timerDuration');
+            const timerMessageEl = document.getElementById('timerMessage');
+            
+            const blackFridayDiscountEl = document.getElementById('blackFridayDiscount');
+            const blackFridayMessageEl = document.getElementById('blackFridayMessage');
+            
+            console.log('Elementos encontrados:', {
+                discountValue: !!discountValueEl,
+                discountType: !!discountTypeEl,
+                discountMessage: !!discountMessageEl,
+                timerDuration: !!timerDurationEl,
+                timerMessage: !!timerMessageEl,
+                blackFridayDiscount: !!blackFridayDiscountEl,
+                blackFridayMessage: !!blackFridayMessageEl
+            });
+            
+            // Coletar dados
+            const discountValue = discountValueEl ? parseFloat(discountValueEl.value) || 0 : 0;
+            const discountConfig = {
+                enabled: discountValue > 0,
+                type: discountTypeEl ? discountTypeEl.value : 'percentage',
+                value: discountValue,
+                message: discountMessageEl ? discountMessageEl.value : ''
+            };
+            
+            const timerDuration = timerDurationEl ? parseInt(timerDurationEl.value) || 0 : 0;
+            const timerConfig = {
+                enabled: timerDuration > 0,
+                duration: timerDuration,
+                message: timerMessageEl ? timerMessageEl.value : ''
+            };
+            
+            const blackFridayDiscount = blackFridayDiscountEl ? parseInt(blackFridayDiscountEl.value) || 0 : 0;
+            const blackFridayConfig = {
+                enabled: blackFridayDiscount > 0,
+                discount: blackFridayDiscount,
+                message: blackFridayMessageEl ? blackFridayMessageEl.value : ''
+            };
+            
+            console.log('Configurações coletadas:', {
+                discount: discountConfig,
+                timer: timerConfig,
+                blackFriday: blackFridayConfig
+            });
+            
+            // Mostrar resultado na página
+            document.getElementById('result').innerHTML = `
+                <h3>Resultado:</h3>
+                <pre>${JSON.stringify({
+                    discount: discountConfig,
+                    timer: timerConfig,
+                    blackFriday: blackFridayConfig
+                }, null, 2)}</pre>
+            `;
+        }
+    </script>
+    
+</body>
+</html>

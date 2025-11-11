@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Loader Inline - Aparece imediatamente -->
+    <script>
+        (function(){var p=window.location.pathname.split('/').pop()||'index.html';if(['checkout.html','payment-success.html'].some(e=>p.includes(e)))return;var u='/assets/images/icons/loader-icon-120.png';var h='<div id="loaderContainer" class="loader-container" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;"><img src="'+u+'" alt="RatixPay" class="loader-logo" style="width:120px;height:auto;margin-bottom:30px;opacity:0.9;" onerror="this.style.display=\'none\';"><div class="loader-spinner" style="width:60px;height:60px;border:4px solid rgba(246,76,0,0.1);border-top-color:#F64C00;border-radius:50%;animation:loader-spin 1s linear infinite;margin-bottom:20px;"></div><div class="loader-text" style="font-family:\'Poppins\',\'Segoe UI\',\'Roboto\',Arial,sans-serif;font-size:18px;font-weight:500;color:#333333;letter-spacing:0.5px;animation:loader-pulse 1.5s ease-in-out infinite;">Carregando...</div></div>';document.documentElement.insertAdjacentHTML('afterbegin',h);document.documentElement.classList.add('loading');if(!document.getElementById('loader-critical-styles')){var s=document.createElement('style');s.id='loader-critical-styles';s.textContent='@keyframes loader-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes loader-pulse{0%,100%{opacity:1}50%{opacity:0.6}}html.loading,body.loading{overflow:hidden;height:100%}html.loading>body{opacity:0}';document.head.appendChild(s);}})();
+    </script>
+<title>Venda com a RatixPay</title>
+    <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="RatixPay">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RatixPay">
+    <meta name="description" content="Plataforma completa de pagamentos online com integração de múltiplos métodos de pagamento">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="msapplication-TileColor" content="#F64C00">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#F64C00">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Loader CSS -->
+    <link rel="stylesheet" href="/css/loader.css">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/images/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/assets/images/icons/icon-144x144.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icons/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- CSS Customizado completo para substituir Tailwind -->
+    <style>
+        /* Reset e base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #111827;
+            background-color: #ffffff;
+        }
+        
+        /* Layout utilities */
+        .min-h-screen { min-height: 100vh; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-grow { flex-grow: 1; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .space-x-8 > * + * { margin-left: 2rem; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-x-3 > * + * { margin-left: 0.75rem; }
+        .space-y-8 > * + * { margin-top: 2rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        
+        /* Grid */
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .gap-16 { gap: 4rem; }
+        .gap-12 { gap: 3rem; }
+        .gap-8 { gap: 2rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-4 { gap: 1rem; }
+        
+        /* Spacing */
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+        .py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+        .pt-2 { padding-top: 0.5rem; }
+        .pt-4 { padding-top: 1rem; }
+        .pt-6 { padding-top: 1.5rem; }
+        .pt-8 { padding-top: 2rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pb-6 { padding-bottom: 1.5rem; }
+        .pb-8 { padding-bottom: 2rem; }
+        .pl-8 { padding-left: 2rem; }
+        .pr-3 { padding-right: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-12 { margin-top: 3rem; }
+        .mt-16 { margin-top: 4rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mb-16 { margin-bottom: 4rem; }
+        .ml-1 { margin-left: 0.25rem; }
+        .ml-3 { margin-left: 0.75rem; }
+        .ml-4 { margin-left: 1rem; }
+        .mr-3 { margin-right: 0.75rem; }
+        
+        /* Colors */
+        .bg-white { background-color: #ffffff; }
+        .bg-gray-50 { background-color: #f9fafb; }
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .bg-gray-200 { background-color: #e5e7eb; }
+        .bg-gray-900 { background-color: #111827; }
+        .bg-green-500 { background-color: #10b981; }
+        .bg-green-600 { background-color: #059669; }
+        .text-white { color: #ffffff; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-gray-500 { color: #6b7280; }
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-700 { color: #374151; }
+        .text-gray-900 { color: #111827; }
+        .text-green-500 { color: #10b981; }
+        .text-blue-600 { color: #2563eb; }
+        .text-pink-500 { color: #ec4899; }
+        .text-blue-400 { color: #60a5fa; }
+        
+        /* Brand colors */
+        .bg-orange-500 { background-color: #F64C00; }
+        .text-orange-500 { color: #F64C00; }
+        .border-orange-500 { border-color: #F64C00; }
+        .focus\:ring-orange-500:focus { box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1); }
+        
+        /* Additional brand color classes */
+        .bg-\[#F64C00\] { background-color: #F64C00; }
+        .text-\[#F64C00\] { color: #F64C00; }
+        .border-\[#F64C00\] { border-color: #F64C00; }
+        .focus\:ring-\[#F64C00\]:focus { box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1); }
+        
+        /* Additional colors from indexcopy.html */
+        .bg-\[#F7F8FA\] { background-color: #F7F8FA; }
+        .text-\[#FF7A00\] { color: #FF7A00; }
+        .group:hover .group-hover\:text-\[#FF7A00\] { color: #FF7A00; }
+        
+        /* Typography */
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-5xl { font-size: 3rem; line-height: 1; }
+        .text-6xl { font-size: 3.75rem; line-height: 1; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+        .leading-tight { line-height: 1.25; }
+        .leading-relaxed { line-height: 1.625; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-wider { letter-spacing: 0.05em; }
+        
+        /* Borders */
+        .border { border-width: 1px; }
+        .border-b { border-bottom-width: 1px; }
+        .border-t { border-top-width: 1px; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .border-gray-300 { border-color: #d1d5db; }
+        .border-gray-800 { border-color: #1f2937; }
+        .border-transparent { border-color: transparent; }
+        
+        /* Border radius */
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-full { border-radius: 9999px; }
+        
+        /* Shadows */
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        
+        /* Positioning */
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .sticky { position: sticky; }
+        .top-0 { top: 0; }
+        .right-0 { right: 0; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        
+        /* Sizing */
+        .w-full { width: 100%; }
+        .w-auto { width: auto; }
+        .h-8 { height: 2rem; }
+        .h-10 { height: 2.5rem; }
+        .h-14 { height: 3.5rem; }
+        .h-16 { height: 4rem; }
+        .h-20 { height: 5rem; }
+        .max-w-md { max-width: 28rem; }
+        .max-w-sm { max-width: 24rem; }
+        .max-w-xs { max-width: 20rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-7xl { max-width: 80rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        
+        /* Display */
+        .hidden { display: none; }
+        .block { display: block; }
+        .inline-block { display: inline-block; }
+        .flex-shrink-0 { flex-shrink: 0; }
+        
+        /* Transitions */
+        .transition { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .duration-200 { transition-duration: 200ms; }
+        .duration-300 { transition-duration: 300ms; }
+        .ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Hover effects */
+        .hover\:bg-gray-200:hover { background-color: #e5e7eb; }
+        .hover\:bg-gray-900:hover { background-color: #111827; }
+        .hover\:bg-green-600:hover { background-color: #059669; }
+        .hover\:bg-opacity-90:hover { background-color: rgba(246, 76, 0, 0.9); }
+        .hover\:text-gray-900:hover { color: #111827; }
+        .hover\:text-white:hover { color: #ffffff; }
+        .hover\:underline:hover { text-decoration: underline; }
+        .hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .hover\:-translate-y-1:hover { transform: translateY(-0.25rem); }
+        .hover\:-translate-y-0\.5:hover { transform: translateY(-0.125rem); }
+        
+        /* Focus effects */
+        .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        .focus\:ring-2:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+        .focus\:ring-green-500:focus { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); }
+        .focus\:ring-opacity-50:focus { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5); }
+        .focus\:border-transparent:focus { border-color: transparent; }
+        
+        /* Transform */
+        .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+        .rotate-180 { transform: rotate(180deg); }
+        .-translate-x-1\/2 { transform: translateX(-50%); }
+        .-translate-y-3 { transform: translateY(-0.75rem); }
+        
+        /* Additional transform classes */
+        .opacity-0 { opacity: 0; }
+        
+        /* Additional utility classes */
+        .w-4 { width: 1rem; }
+        .w-6 { width: 1.5rem; }
+        .w-7 { width: 1.75rem; }
+        .h-4 { height: 1rem; }
+        .h-5 { height: 1.25rem; }
+        .h-6 { height: 1.5rem; }
+        .h-7 { height: 1.75rem; }
+        .h-5 { height: 1.25rem; }
+        .w-5 { width: 1.25rem; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        
+        /* Overflow */
+        .overflow-hidden { overflow: hidden; }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .md\:flex { display: flex; }
+            .md\:hidden { display: none; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .md\:col-span-1 { grid-column: span 1 / span 1; }
+            .md\:text-left { text-align: left; }
+            .md\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+            .md\:text-6xl { font-size: 3.75rem; line-height: 1; }
+            .md\:py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+            .md\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .md\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .md\:px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }
+            .md\:items-start { align-items: flex-start; }
+            .md\:flex-1 { flex: 1 1 0%; }
+            .md\:inline { display: inline; }
+            .md\:h-20 { height: 5rem; }
+        }
+        
+        @media (min-width: 640px) {
+            .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+        }
+        
+        /* ========================================
+           ESTILO GERAL E PALETA DE CORES
+           ======================================== */
+        
+        /* Fonte Principal - Inter do Google Fonts */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        /* ========================================
+           CORES PRINCIPAIS DA MARCA
+           ======================================== */
+        
+        /* Cor Primária - Laranja Vibrante (#F64C00) */
+        .brand-primary {
+            color: #F64C00;
+        }
+        .bg-brand-primary {
+            background-color: #F64C00;
+        }
+        .border-brand-primary {
+            border-color: #F64C00;
+        }
+        
+        /* Cor Secundária - Laranja FAQ (#FF7A00) */
+        .brand-secondary {
+            color: #FF7A00;
+        }
+        .bg-brand-secondary {
+            background-color: #FF7A00;
+        }
+        
+        /* Cor de Sucesso - Verde */
+        .success-color {
+            color: #10b981;
+        }
+        .bg-success {
+            background-color: #10b981;
+        }
+        
+        /* ========================================
+           INTERAÇÕES PRINCIPAIS (JAVASCRIPT)
+           ======================================== */
+        
+        /* 1. Animação de Título (Hero) */
+        #animated-word-container {
+            /* Garante que o contêiner tenha altura suficiente para evitar "pulos" de layout */
+            min-height: 50px; 
+        }
+
+        @media (min-width: 768px) {
+            #animated-word-container {
+                min-height: 60px;
+            }
+        }
+        
+        #animated-word {
+            /* Aplica a transição de opacidade e transformação (para um leve fade-up) */
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            display: inline-block;
+            /* Cor laranja para a palavra animada - Cor Primária da Marca */
+            color: #F64C00; 
+        }
+        
+        /* 2. Sistema de Abas Interativas */
+        .tab-button {
+            border-color: transparent; /* Borda padrão transparente */
+            color: #6b7280; /* Cor de texto padrão (cinza médio) */
+            background: none;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease-in-out;
+        }
+        .tab-button.active-tab {
+            color: #F64C00; /* Cor de texto ativa (laranja primário) */
+            border-color: #F64C00; /* Cor da borda ativa (laranja primário) */
+            background: none;
+            background-color: transparent;
+        }
+        .tab-button:hover {
+            color: #F64C00;
+            background: none;
+            background-color: transparent;
+        }
+
+        /* 3. Accordions (Conteúdo Expansível) */
+        .accordion-header {
+            background: none !important;
+            background-color: transparent !important;
+            border: none;
+        }
+        
+        .accordion-header[aria-expanded="true"] .accordion-icon {
+            transform: rotate(45deg);
+        }
+        
+        .accordion-content {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Remover fundos padrão de botões específicos */
+        button[data-faq-toggle],
+        button[data-accordion-toggle],
+        button[data-tab-button] {
+            background: none !important;
+            background-color: transparent !important;
+        }
+
+        /* 4. FAQ com Animação Suave */
+        .faq-answer {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease-in-out;
+        }
+        .faq-answer.open {
+            /* Um valor alto para garantir que todo o conteúdo caiba */
+            max-height: 500px; 
+        }
+        
+        /* ========================================
+           ESTILOS POR SEÇÃO
+           ======================================== */
+        
+        /* Header (Cabeçalho) */
+        .header-nav {
+            background-color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .logo-navbar {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-img-responsive {
+            height: auto;
+            width: auto;
+            max-height: 2.5rem;
+            max-width: 120px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-img-responsive:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Responsivo para navbar logo */
+        @media (max-width: 768px) {
+            .logo-img-responsive {
+                max-height: 2rem;
+                max-width: 100px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .logo-img-responsive {
+                max-height: 1.75rem;
+                max-width: 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-img-responsive {
+                max-height: 1.5rem;
+                max-width: 70px;
+            }
+        }
+        
+        /* Botões do Header */
+        .btn-login {
+            background: transparent;
+            color: #4b5563;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-login:hover {
+            background: rgba(246, 76, 0, 0.05);
+            border-color: #F64C00;
+            color: #F64C00;
+            transform: translateY(-1px);
+        }
+        
+        .btn-register {
+            background-color: #F64C00; /* Laranja primário */
+            color: #ffffff;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-register:hover {
+            background-color: rgba(246, 76, 0, 0.9);
+        }
+        
+        /* Seção Hero (Principal) */
+        .hero-section {
+            background-color: #ffffff;
+        }
+        
+        .hero-form {
+            background-color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+            border: 1px solid #f3f4f6;
+        }
+        
+        /* Seção de Benefícios Rápidos */
+        .benefits-quick-section {
+            background-color: rgba(249, 250, 251, 0.7); /* bg-gray-50/70 */
+        }
+        
+        .benefit-card {
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+        .benefit-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-0.25rem);
+        }
+        
+        /* Números em Círculo - Consistência Visual */
+        .benefit-number {
+            background-color: #F64C00; /* Laranja primário */
+            color: #ffffff;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        /* Seção de Benefícios Modernos */
+        .benefits-modern-section {
+            background-color: #ffffff;
+        }
+        
+        /* Seção 3 Motivos */
+        .reasons-section {
+            background-color: rgba(249, 250, 251, 0.7); /* bg-gray-50/70 */
+        }
+        
+        .reason-card {
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Seção FAQ */
+        .faq-section {
+            background-color: #ffffff; /* Fundo branco */
+        }
+        
+        .faq-number {
+            color: #F64C00; /* Laranja primário para FAQ */
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .faq-icon {
+            color: #F64C00; /* Laranja primário para ícones FAQ */
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        [data-faq-toggle]:hover .faq-icon {
+            transform: scale(1.1);
+        }
+        
+        .faq-item {
+            border: 1px solid #f3f4f6;
+            border-radius: 12px;
+            background-color: #ffffff;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .faq-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #F64C00;
+        }
+        
+        .faq-item[data-open="true"] {
+            border-color: #F64C00;
+            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.15);
+        }
+        
+        /* Footer */
+        .footer-section {
+            background-color: #111827; /* bg-gray-900 */
+            color: #9ca3af; /* text-gray-400 */
+        }
+        
+        /* ========================================
+           BOTÕES E CALL-TO-ACTIONS
+           ======================================== */
+        
+        /* Botão Principal CTA */
+        .btn-primary-cta {
+            background-color: #F64C00; /* Laranja primário */
+            color: #ffffff;
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-primary-cta:hover {
+            background-color: rgba(246, 76, 0, 0.9);
+            transform: translateY(-0.125rem);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Botão de Sucesso (Verde) */
+        .btn-success {
+            background-color: #10b981; /* Verde de sucesso */
+            color: #ffffff;
+            font-weight: 700;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        
+        /* ========================================
+           EFEITOS HOVER E TRANSIÇÕES
+           ======================================== */
+        
+        .hover-lift {
+            transition: transform 0.3s ease-in-out;
+        }
+        .hover-lift:hover {
+            transform: translateY(-0.25rem);
+        }
+        
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        /* ========================================
+           CAMPOS DE FORMULÁRIO ATRAENTES
+           ======================================== */
+        
+        /* Input Fields Modernos */
+        .form-input {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1e293b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #F64C00;
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .form-input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        
+        /* Label dos campos */
+        .form-label {
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Checkbox personalizado */
+        .form-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            background: #ffffff;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .form-checkbox:checked {
+            background: #F64C00;
+            border-color: #F64C00;
+        }
+        
+        .form-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        /* Estilos para validação de formulário */
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .form-input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .strength-weak { color: #ef4444; }
+        .strength-medium { color: #f59e0b; }
+        .strength-strong { color: #10b981; }
+        
+        .strength-bar {
+            height: 4px;
+            background-color: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-fill.weak { 
+            background-color: #ef4444; 
+            width: 33%; 
+        }
+        .strength-fill.medium { 
+            background-color: #f59e0b; 
+            width: 66%; 
+        }
+        .strength-fill.strong { 
+            background-color: #10b981; 
+            width: 100%; 
+        }
+        
+        /* ========================================
+           BOTÕES APRIMORADOS COM GRADIENTES
+           ======================================== */
+        
+        /* Botão Principal com Gradiente */
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #F64C00 0%, #ff6b35 50%, #F64C00 100%);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(246, 76, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(246, 76, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary-gradient:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary-gradient:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(246, 76, 0, 0.3);
+        }
+        
+        /* Botão Secundário Elegante */
+        .btn-secondary-elegant {
+            background: transparent;
+            color: #374151;
+            font-weight: 600;
+            padding: 0.875rem 1.75rem;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-secondary-elegant:hover {
+            background: rgba(246, 76, 0, 0.05);
+            border-color: #F64C00;
+            color: #F64C00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.15);
+        }
+        
+        /* Botão de Sucesso com Gradiente */
+        .btn-success-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #10b981 100%);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-success-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* ========================================
+           ELEMENTOS VISUAIS MODERNOS
+           ======================================== */
+        
+        /* Cards com Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Números com Gradiente */
+        .gradient-number {
+            background: linear-gradient(135deg, #F64C00 0%, #ff6b35 100%);
+            color: #ffffff;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(246, 76, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .gradient-number:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(246, 76, 0, 0.4);
+        }
+        
+        /* ========================================
+           MELHORIAS DE LAYOUT E ESTRUTURA
+           ======================================== */
+        
+        /* Container principal com melhor espaçamento */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        @media (min-width: 640px) {
+            .main-container {
+                padding: 0 1.5rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .main-container {
+                padding: 0 2rem;
+            }
+        }
+        
+        /* Seções com melhor espaçamento vertical */
+        .section-enhanced {
+            padding: 5rem 0;
+            position: relative;
+        }
+        
+        @media (min-width: 768px) {
+            .section-enhanced {
+                padding: 6rem 0;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .section-enhanced {
+                padding: 8rem 0;
+            }
+        }
+        
+        /* Grid melhorado */
+        .grid-enhanced {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .grid-enhanced {
+                gap: 3rem;
+            }
+        }
+        
+        /* ========================================
+           ANIMAÇÕES E EFEITOS AVANÇADOS
+           ======================================== */
+        
+        /* Animação de entrada suave */
+        .fade-in-up {
+                opacity: 0;
+                transform: translateY(30px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animação de escala no hover */
+        .scale-on-hover {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .scale-on-hover:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Efeito de brilho nos botões */
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .shine-effect:hover::after {
+            left: 100%;
+        }
+        
+        /* ========================================
+           NAVBAR E LINKS DE NAVEGAÇÃO
+           ======================================== */
+        
+        /* Links de navegação principais */
+        .nav-link {
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+        }
+        
+        .nav-link:hover {
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.05);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link:focus {
+            outline: none;
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.08);
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
+        }
+        
+        /* Links ativos */
+        .nav-link.active {
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.08);
+            font-weight: 600;
+        }
+        
+        /* Dropdown menus */
+        .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(246, 76, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(246, 76, 0, 0.1);
+            padding: 1rem 0;
+            margin-top: 0.75rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000; /* raised to ensure above content */
+            min-width: 280px;
+            position: absolute;
+            max-width: 90vw;
+            width: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Estilos para tabelas dos dropdowns - sem bordas visíveis */
+        .solutions-table,
+        .fees-table,
+        .affiliates-table,
+        .help-table,
+        .resources-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+        }
+        
+        .solutions-table td,
+        .fees-table td,
+        .affiliates-table td,
+        .help-table td,
+        .resources-table td {
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+        }
+        
+        .solutions-table tr,
+        .fees-table tr,
+        .affiliates-table tr,
+        .help-table tr,
+        .resources-table tr {
+            border: none !important;
+        }
+        
+        /* Espaçamento organizado para tabelas */
+        .solutions-table tr:not(:last-child) td,
+        .fees-table tr:not(:last-child) td,
+        .help-table tr:not(:last-child) td,
+        .resources-table tr:not(:last-child) td {
+            padding-bottom: 12px;
+        }
+        
+        /* Menu de Afiliados - Layout Responsivo */
+        .afiliados-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 0.5rem 0;
+        }
+        
+        .afiliados-coluna {
+            text-align: center;
+        }
+        
+        .afiliados-coluna h4 {
+            font-weight: bold;
+            font-size: 0.875rem;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        
+        .afiliados-coluna p {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        /* Mobile - Layout Vertical */
+        @media screen and (max-width: 768px) {
+            .afiliados-menu {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+            
+            .afiliados-coluna {
+                width: 100%;
+                padding: 0.75rem;
+                text-align: left;
+            }
+            
+            .afiliados-coluna h4 {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .afiliados-coluna p {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Responsividade para dropdowns */
+        /* Estilos para banner responsivo - sem fundo, tamanho aumentado */
+        .banner-wrapper {
+            padding: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        
+        .banner-container {
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: auto;
+            max-width: none;
+            min-width: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 0;
+            background: transparent;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        }
+        
+        /* Remover estilos do glass-card quando usado como banner */
+        #signup.banner-wrapper {
+            padding: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        
+        /* Ocultar banner em dispositivos móveis */
+        @media (max-width: 767px) {
+            #signup.banner-wrapper {
+                display: none !important;
+            }
+            
+            /* Ajustar botões no navbar mobile */
+            .mobile-nav-buttons .btn-secondary-elegant,
+            .mobile-nav-buttons .btn-primary-gradient {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.875rem !important;
+                white-space: nowrap;
+            }
+        }
+        
+        /* Responsividade para banner - mobile */
+        @media (max-width: 768px) {
+            .banner-container {
+                padding: 0;
+                margin: 0;
+            }
+            
+            .banner-image {
+                width: 110%;
+                min-width: 110%;
+                margin-left: -5%;
+                margin-right: -5%;
+                border-radius: 0;
+            }
+            
+            #signup {
+                padding: 0 !important;
+                margin: 0;
+                max-width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .banner-image {
+                width: 115%;
+                min-width: 115%;
+                margin-left: -7.5%;
+                margin-right: -7.5%;
+                border-radius: 0;
+            }
+            
+            #signup {
+                padding: 0 !important;
+                margin: 0;
+                max-width: 100% !important;
+            }
+        }
+        
+        /* Aumentar dimensão em telas médias */
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .banner-image {
+                width: 110%;
+                min-width: 110%;
+                margin-left: -5%;
+                margin-right: -5%;
+            }
+        }
+        
+        /* Aumentar dimensão em telas grandes */
+        @media (min-width: 1024px) {
+            .banner-image {
+                width: 130%;
+                min-width: 130%;
+                margin-left: -15%;
+                margin-right: -15%;
+            }
+            
+            #signup {
+                max-width: 600px !important;
+            }
+        }
+        
+        /* Aumentar dimensão em telas muito grandes */
+        @media (min-width: 1280px) {
+            .banner-image {
+                width: 150%;
+                min-width: 150%;
+                margin-left: -25%;
+                margin-right: -25%;
+            }
+            
+            #signup {
+                max-width: 700px !important;
+            }
+        }
+        
+        /* Aumentar dimensão em telas extra grandes */
+        @media (min-width: 1536px) {
+            .banner-image {
+                width: 160%;
+                min-width: 160%;
+                margin-left: -30%;
+                margin-right: -30%;
+            }
+            
+            #signup {
+                max-width: 800px !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.95);
+                width: 90vw;
+                max-width: 400px;
+                max-height: 80vh;
+                overflow-y: auto;
+                z-index: 1100; /* above any page overlays */
+                margin-top: 0;
+            }
+            
+            .dropdown-menu.show {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            
+            /* Overlay para mobile */
+            .dropdown-menu::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: -1;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .dropdown-menu.show::before {
+                opacity: 1;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .dropdown-menu {
+                position: absolute;
+                z-index: 50;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-15px) scale(0.95);
+                width: auto;
+                min-width: 300px;
+                max-width: 500px;
+            }
+            
+            .dropdown-menu.show {
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+            
+            /* Posicionamento específico para dropdown de Ajuda */
+            #help-dropdown-menu {
+                left: auto;
+                right: 0;
+                transform: translateY(-15px) scale(0.95);
+            }
+            
+            #help-dropdown-menu.show {
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .dropdown-item {
+            color: #374151;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            margin: 0.25rem 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(246, 76, 0, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .dropdown-item:hover {
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.05);
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.1);
+        }
+        
+        .dropdown-item:hover::before {
+            left: 100%;
+        }
+        
+        .dropdown-item:focus {
+            outline: none;
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.08);
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
+        }
+        
+        /* Títulos dos dropdowns */
+        .dropdown-item p:first-child {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+        
+        .dropdown-item p:last-child {
+            font-weight: 400;
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .dropdown-item:hover p:first-child {
+            color: #F64C00;
+        }
+        
+        .dropdown-item:hover p:last-child {
+            color: #374151;
+        }
+        
+        /* Botão dropdown */
+        .dropdown-toggle {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dropdown-toggle::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #6b7280;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dropdown-toggle:hover {
+            color: #F64C00;
+        }
+        
+        .dropdown-toggle:hover::after {
+            border-top-color: #F64C00;
+            transform: scale(1.1);
+        }
+        
+        .dropdown-toggle.open::after {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-toggle.open:hover::after {
+            transform: rotate(180deg) scale(1.1);
+        }
+        
+        /* Menu mobile */
+        .mobile-menu {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .mobile-nav-link {
+            color: #374151;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            margin: 0.25rem 0;
+            background: transparent;
+        }
+        
+        .mobile-nav-link:hover {
+            color: #F64C00;
+            background: rgba(246, 76, 0, 0.05);
+            transform: translateX(8px);
+        }
+        
+        /* Botão hamburger */
+        .hamburger {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        
+        .hamburger:hover {
+            background: rgba(246, 76, 0, 0.05);
+        }
+        
+        .hamburger-line {
+            width: 100%;
+            height: 2px;
+            background: #374151;
+            border-radius: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hamburger.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        
+        /* ========================================
+           RESPONSIVIDADE E LAYOUT
+           ======================================== */
+        
+        /* Garantir que elementos importantes sejam sempre visíveis */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+        
+        /* Espaçamento consistente entre seções */
+        .section-spacing {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+        
+        @media (min-width: 768px) {
+            .section-spacing {
+                padding-top: 6rem;
+                padding-bottom: 6rem;
+            }
+        }
+
+        /* Loader CSS carregado externamente */
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+
+    <!-- Wrapper Principal -->
+    <div class="min-h-screen flex flex-col">
+
+        <!-- Header (Cabeçalho) -->
+        <header class="header-nav w-full">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <!-- Seção Esquerda: Logo e Navegação Principal -->
+                <div class="flex items-center space-x-8">
+                    <!-- Logo -->
+                    <a href="#" class="flex-shrink-0 logo-navbar">
+                        <img class="logo-img-responsive" src="/assets/images/icons/loader-icon-120.png" alt="RatixPay Logo">
+                    </a>
+                    
+                    <!-- Links de Navegação (Visível em telas médias e maiores) -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        
+                        <!-- Dropdown de Soluções -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="solutions-dropdown-button" data-desktop-dropdown-button data-target="#solutions-dropdown-menu" class="nav-link dropdown-toggle flex items-center">
+                                <span>Soluções</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="solutions-dropdown-menu" class="dropdown-menu hidden">
+                                <div class="overflow-hidden">
+                                    <div class="relative p-4">
+                                        <!-- Cabeçalho do Dropdown -->
+                                        <div class="text-center pb-3 border-b border-gray-100 mb-3">
+                                            <h3 class="text-base font-bold text-[#F64C00] mb-1">Nossas Soluções</h3>
+                                            <p class="text-xs text-gray-600">Tudo que você precisa para vender online</p>
+                                        </div>
+                                        
+                                        <!-- Menu de Soluções - Layout de 3 Colunas -->
+                                        <div class="afiliados-menu">
+                                            <div class="afiliados-coluna">
+                                                <h4>Cadastro Rápido</h4>
+                                                <p>Configure em minutos</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>Produto Personalizado</h4>
+                                                <p>Templates profissionais</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>Marketing Pronto</h4>
+                                                <p>Funis e campanhas</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Rodapé do Dropdown -->
+                                        <div class="pt-3 border-t border-gray-100 mt-3 text-center">
+                                            <a href="#" class="text-[#F64C00] font-semibold text-xs hover:underline">
+                                                Ver todas as soluções →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+        </div>
+
+                        <!-- Dropdown de Taxa -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="fees-dropdown-button" data-desktop-dropdown-button data-target="#fees-dropdown-menu" class="nav-link dropdown-toggle flex items-center">
+                                <span>Taxa</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="fees-dropdown-menu" class="dropdown-menu hidden">
+                                <div class="overflow-hidden">
+                                    <div class="relative p-4">
+                                        <!-- Cabeçalho do Dropdown -->
+                                        <div class="text-center pb-3 border-b border-gray-100 mb-3">
+                                            <h3 class="text-base font-bold text-[#F64C00] mb-1">Nossas Taxas</h3>
+                                            <p class="text-xs text-gray-600">Simples e transparente</p>
+                                        </div>
+                                        
+                                        <!-- Menu de Taxas - Layout de 2 Colunas -->
+                                        <div class="afiliados-menu" style="grid-template-columns: repeat(2, 1fr);">
+                                            <div class="afiliados-coluna">
+                                                <h4>10%</h4>
+                                                <p>Venda Aprovada</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>5%</h4>
+                                                <p>Saque Realizado</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Rodapé do Dropdown -->
+                                        <div class="pt-3 border-t border-gray-100 mt-3 text-center">
+                                            <a href="#" class="text-[#F64C00] font-semibold text-xs hover:underline">
+                                                Calcular taxas →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            </div>
+
+                        <!-- Dropdown de Afiliados -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="affiliates-dropdown-button" data-desktop-dropdown-button data-target="#affiliates-dropdown-menu" class="nav-link dropdown-toggle flex items-center">
+                                <span>Afiliados</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="affiliates-dropdown-menu" class="dropdown-menu hidden">
+                                <div class="overflow-hidden">
+                                    <div class="relative p-4">
+                                        <!-- Cabeçalho do Dropdown -->
+                                        <div class="text-center pb-3 border-b border-gray-100 mb-3">
+                                            <h3 class="text-base font-bold text-[#F64C00] mb-1">Programa de Afiliados</h3>
+                                            <p class="text-xs text-gray-600">Ganhe comissões promovendo</p>
+                                        </div>
+                                        
+                                        <!-- Menu de Afiliados - Layout de 3 Colunas -->
+                                        <div class="afiliados-menu">
+                                            <div class="afiliados-coluna">
+                                                <h4>30% de Comissão</h4>
+                                                <p>Por cada venda que você gerar</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>Cadastro Gratuito</h4>
+                                                <p>Sem taxas de adesão</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>Pagamento Semanal</h4>
+                                                <p>Toda sexta-feira</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Rodapé do Dropdown -->
+                                        <div class="pt-3 border-t border-gray-100 mt-3 text-center">
+                                            <a href="#" class="text-[#F64C00] font-semibold text-xs hover:underline">
+                                                Cadastrar-se →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown de Ajuda -->
+                        <div class="relative desktop-dropdown-container">
+                            <button id="help-dropdown-button" data-desktop-dropdown-button data-target="#help-dropdown-menu" class="nav-link dropdown-toggle flex items-center">
+                                <span>Ajuda</span>
+                                <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Painel do Dropdown -->
+                            <div id="help-dropdown-menu" class="dropdown-menu hidden">
+                                <div class="overflow-hidden">
+                                    <div class="relative p-4">
+                                        <!-- Cabeçalho do Dropdown -->
+                                        <div class="text-center pb-3 border-b border-gray-100 mb-3">
+                                            <h3 class="text-base font-bold text-[#F64C00] mb-1">Central de Ajuda</h3>
+                                            <p class="text-xs text-gray-600">Estamos aqui para ajudar</p>
+                                        </div>
+                                        
+                                        <!-- Menu de Ajuda - Layout de 3 Colunas -->
+                                        <div class="afiliados-menu">
+                                            <div class="afiliados-coluna">
+                                                <h4>WhatsApp</h4>
+                                                <p>Resposta rápida</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>Email</h4>
+                                                <p>suporte@ratixpay.com</p>
+                                            </div>
+                                            <div class="afiliados-coluna">
+                                                <h4>FAQ</h4>
+                                                <p>Perguntas frequentes</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Rodapé do Dropdown -->
+                                        <div class="pt-3 border-t border-gray-100 mt-3 text-center">
+                                            <a href="#" class="text-[#F64C00] font-semibold text-xs hover:underline">
+                                                Acessar Central →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Seção Direita: Botões de Ação (Visível em telas médias e maiores) -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="login.html" class="btn-secondary-elegant">
+                        Entrar
+                    </a>
+                    <a href="/register.html" class="btn-primary-gradient shine-effect">
+                        Registar
+                    </a>
+                </div>
+
+                <!-- Botões de Ação Mobile e Hamburger (Visível apenas em telas pequenas) -->
+                <div class="mobile-nav-buttons md:hidden flex items-center space-x-3">
+                    <a href="login.html" class="btn-secondary-elegant text-sm px-4 py-2">
+                        Entrar
+                    </a>
+                    <a href="/register.html" class="btn-primary-gradient shine-effect text-sm px-4 py-2">
+                        Registar
+                    </a>
+                    <button id="mobile-menu-button" class="hamburger ml-2">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Menu Mobile (Escondido por padrão) -->
+            <div id="mobile-menu" class="mobile-menu hidden md:hidden">
+                <!-- Dropdown de Soluções (Mobile) -->
+                <div>
+                    <button id="mobile-solutions-dropdown-button" data-mobile-dropdown-button data-target="#mobile-solutions-dropdown-menu" class="mobile-nav-link flex justify-between items-center w-full">
+                        <span>Soluções</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-solutions-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3 space-y-3">
+                        <li><a href="#" class="mobile-nav-link block text-sm">
+                            <div class="font-medium text-gray-900">Cadastro Rápido e Gratuito</div>
+                            <div class="text-xs text-gray-500">Comece a vender em minutos</div>
+                        </a></li>
+                        <li><a href="#" class="mobile-nav-link block text-sm">
+                            <div class="font-medium text-gray-900">Criação de Produto Personalizada</div>
+                            <div class="text-xs text-gray-500">Interface intuitiva para seus produtos</div>
+                        </a></li>
+                        <li><a href="#" class="mobile-nav-link block text-sm">
+                            <div class="font-medium text-gray-900">Ferramentas de Marketing Prontas</div>
+                            <div class="text-xs text-gray-500">Páginas de venda otimizadas</div>
+                        </a></li>
+                        <li><a href="#" class="mobile-nav-link block text-sm">
+                            <div class="font-medium text-gray-900">Hospedagem Gratuita</div>
+                            <div class="text-xs text-gray-500">CDN global incluído</div>
+                        </a></li>
+                        <li><a href="#" class="mobile-nav-link block text-sm">
+                            <div class="font-medium text-gray-900">Venda Global</div>
+                            <div class="text-xs text-gray-500">Múltiplas moedas e idiomas</div>
+                        </a></li>
+                    </div>
+                </div>
+
+                <!-- Dropdown de Taxa (Mobile) -->
+                <div>
+                    <button id="mobile-fees-dropdown-button" data-mobile-dropdown-button data-target="#mobile-fees-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Taxa</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-fees-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3">
+                        <div class="afiliados-menu" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="afiliados-coluna">
+                                <h4>10%</h4>
+                                <p>Venda Aprovada</p>
+                            </div>
+                            <div class="afiliados-coluna">
+                                <h4>5%</h4>
+                                <p>Saque Realizado</p>
+                            </div>
+                        </div>
+                        <div class="pt-3 mt-3 border-t border-gray-200">
+                            <a href="#" class="block text-center text-[#F64C00] font-semibold text-xs hover:underline">
+                                Calcular taxas →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdown de Afiliados (Mobile) -->
+                <div>
+                    <button id="mobile-affiliates-dropdown-button" data-mobile-dropdown-button data-target="#mobile-affiliates-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Afiliados</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-affiliates-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3">
+                        <div class="afiliados-menu">
+                            <div class="afiliados-coluna">
+                                <h4>30% de Comissão</h4>
+                                <p>Por cada venda que você gerar</p>
+                            </div>
+                            <div class="afiliados-coluna">
+                                <h4>Cadastro Gratuito</h4>
+                                <p>Sem taxas de adesão</p>
+                            </div>
+                            <div class="afiliados-coluna">
+                                <h4>Pagamento Semanal</h4>
+                                <p>Toda sexta-feira</p>
+                            </div>
+                        </div>
+                        <div class="pt-3 mt-3 border-t border-gray-200">
+                            <a href="#" class="block text-center text-[#F64C00] font-semibold text-xs hover:underline">
+                                Cadastrar-se →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dropdown de Ajuda (Mobile) -->
+                <div>
+                    <button id="mobile-help-dropdown-button" data-mobile-dropdown-button data-target="#mobile-help-dropdown-menu" class="flex justify-between items-center w-full text-gray-600 hover:text-gray-900 font-medium px-3 py-2 rounded-md">
+                        <span>Ajuda</span>
+                        <svg class="w-4 h-4 ml-1.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Painel do Dropdown (Mobile) -->
+                    <div id="mobile-help-dropdown-menu" class="hidden pl-8 pr-3 pt-2 pb-3">
+                        <div class="afiliados-menu">
+                            <div class="afiliados-coluna">
+                                <h4>WhatsApp</h4>
+                                <p>Resposta rápida</p>
+                            </div>
+                            <div class="afiliados-coluna">
+                                <h4>Email</h4>
+                                <p>suporte@ratixpay.com</p>
+                            </div>
+                            <div class="afiliados-coluna">
+                                <h4>FAQ</h4>
+                                <p>Perguntas frequentes</p>
+                            </div>
+                        </div>
+                        <div class="pt-3 mt-3 border-t border-gray-200">
+                            <a href="#" class="block text-center text-[#F64C00] font-semibold text-xs hover:underline">
+                                Acessar Central →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mt-4 space-y-3">
+                    <a href="login.html" class="btn-secondary-elegant block">
+                        Entrar
+                    </a>
+                    <a href="/register.html" class="btn-primary-gradient shine-effect block w-full text-center">
+                        Registar
+                </a>
+            </div>
+            </div>
+        </header>
+
+        <!-- Seção Principal (Hero) -->
+        <main class="flex-grow hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 section-spacing">
+                <!-- Grid de 2 Colunas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    
+                    <!-- Coluna Esquerda: Conteúdo -->
+                    <div class="flex flex-col space-y-8 text-center md:text-left items-center md:items-start fade-in-up">
+                        
+                        <!-- Título Principal -->
+                        <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                            Venda com a RatixPay
+                        </h1>
+                        
+                        <!-- Subtítulo Animado -->
+                        <div id="animated-word-container" class="h-16 md:h-20">
+                            <h2 class="text-3xl md:text-4xl font-medium text-gray-700">
+                                Transforme sua
+                                <span id="animated-word" class="font-bold">ideia</span>
+                                <br class="hidden md:inline"> em um negócio digital
+                            </h2>
+                    </div>
+                        
+                        <!-- Lista de Descrições -->
+                        <ul class="space-y-4 text-lg text-gray-600">
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Digitalize seu conhecimento e crie um negócio digital lucrativo.</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Todas as ferramentas para o seu sucesso em um só lugar.</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                <span>Venda mais com pagamentos locais e marketing automatizado.</span>
+                            </li>
+                        </ul>
+                        
+                        <!-- Botão CTA -->
+                        <a href="/register.html" class="btn-primary-gradient shine-effect inline-block text-lg px-10 py-4 rounded-lg">
+                            Começar Agora
+                        </a>
+                    </div>
+                    
+                    <!-- Coluna Direita: Banner RatixPay -->
+                    <div id="signup" class="banner-wrapper w-full max-w-lg mx-auto fade-in-up" style="padding: 0; overflow: visible; background: transparent; box-shadow: none;">
+                        <div class="banner-container" style="width: 100%; height: auto; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; background: transparent;">
+                            <img 
+                                src="/assets/images/external/Banner_ratixpay.png" 
+                                alt="Banner RatixPay" 
+                                class="banner-image"
+                                style="width: 100%; height: auto; max-width: none; min-width: 100%; object-fit: contain; display: block; border-radius: 0; background: transparent; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));"
+                                loading="lazy"
+                            >
+                    </div>
+                    </div>
+        </div>
+    </div>
+
+            <!-- Seção de Benefícios Rápidos -->
+            <section class="benefits-quick-section section-spacing">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-16">
+                        Tudo que você precisa em um só lugar
+                    </h2>
+                    
+                    <!-- Grid de 3 Colunas de Benefícios -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        
+                        <!-- Benefício 1 -->
+                        <div class="glass-card flex flex-col items-center text-center p-8 rounded-xl scale-on-hover">
+                            <div class="flex-shrink-0">
+                                <span class="gradient-number">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Crie seu negócio digital facilmente</h3>
+                            <p class="text-gray-600 leading-relaxed">Ferramentas intuitivas para colocar sua ideia no ar em minutos.</p>
+                        </div>
+                        
+                        <!-- Benefício 2 -->
+                        <div class="glass-card flex flex-col items-center text-center p-8 rounded-xl scale-on-hover">
+                            <div class="flex-shrink-0">
+                                <span class="gradient-number">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Receba pagamentos em tempo real</h3>
+                            <p class="text-gray-600 leading-relaxed">Integração direta com as principais formas de pagamento, sem burocracia.</p>
+                        </div>
+                        
+                        <!-- Benefício 3 -->
+                        <div class="glass-card flex flex-col items-center text-center p-8 rounded-xl scale-on-hover">
+                            <div class="flex-shrink-0">
+                                <span class="gradient-number">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Aumente suas vendas</h3>
+                            <p class="text-gray-600 leading-relaxed">Use nosso marketing automatizado para alcançar mais clientes.</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+
+            <!-- NOVA SEÇÃO DE BENEFÍCIOS MODERNOS -->
+            <section id="benefits-modern" class="benefits-modern-section section-spacing">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Títulos -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                            Por que escolher a Ratixpay?
+                        </h2>
+                        <div class="flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4">
+                            <span class="text-lg font-bold text-[#F64C00] uppercase tracking-wider">VENDA MAIS</span>
+                            <span class="text-lg font-bold text-[#F64C00] uppercase tracking-wider">VENDA MELHOR</span>
+                        </div>
+                    </div>
+
+                    <!-- Abas de Navegação -->
+                    <div class="mb-8">
+                        <nav class="flex flex-row justify-center items-center gap-2 md:gap-4 -mb-px" aria-label="Tabs">
+                            <button data-tab-button data-target="#tab-vender-mais" class="tab-button active-tab flex-1 max-w-xs py-4 px-4 text-center border-b-2 font-semibold text-base md:text-lg rounded-t-lg transition-all duration-300">
+                                Para vender mais
+                            </button>
+                            <button data-tab-button data-target="#tab-cliente" class="tab-button flex-1 max-w-xs py-4 px-4 text-center border-b-2 font-semibold text-base md:text-lg rounded-t-lg transition-all duration-300">
+                                Para oferecer o melhor ao seu cliente
+                            </button>
+                            <button data-tab-button data-target="#tab-gestao" class="tab-button flex-1 max-w-xs py-4 px-4 text-center border-b-2 font-semibold text-base md:text-lg rounded-t-lg transition-all duration-300">
+                                Para facilitar sua gestão
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Conteúdo das Abas -->
+                    <div class="relative">
+                        <!-- Painel 1: Vender Mais -->
+                        <div id="tab-vender-mais" data-tab-panel class="tab-panel space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Use pagamento inteligente</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Aceita pagamentos locais em Moçambique, como MPesa e Emola, além de integrar cartões e carteiras digitais.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Recuperar vendas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Funcionalidade avançada de remarketing, recuperando clientes que abandonaram o carrinho.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Crie fidelidade do cliente</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Programas de fidelidade e recompensas automáticas, mantendo seus clientes engajados.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 4 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Venda para todo o mundo</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte internacional para múltiplas moedas e integração com gateways globais.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Painel 2: Cliente -->
+                        <div id="tab-cliente" data-tab-panel class="tab-panel hidden space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Experiência</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Checkout simples e intuitivo, proporcionando confiança e rapidez na compra.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Médio</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte e relatórios detalhados ajudam a melhorar a experiência do usuário em cada etapa da venda.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Confiar</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Segurança avançada, compliance e proteção de dados garantem a confiança do seu cliente.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Painel 3: Gestão -->
+                        <div id="tab-gestao" data-tab-panel class="tab-panel hidden space-y-4">
+                            <!-- Accordion Item 1 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Ferramentas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Painel completo com relatórios, análise de vendas e métricas de performance em tempo real.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 2 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Proteção para sua conta</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Sistemas antifraude, autenticação dupla e monitoramento constante para proteger seu negócio.
+                                </div>
+                            </div>
+                            <!-- Accordion Item 3 -->
+                            <div class="border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 mb-3">
+                                <button data-accordion-toggle class="accordion-header flex justify-between items-center w-full px-6 py-5 text-left focus:outline-none rounded-xl transition-colors duration-200" style="background: none; background-color: transparent;">
+                                    <span class="text-xl font-semibold text-gray-900">Gerente de contas</span>
+                                    <svg class="accordion-icon w-6 h-6 text-[#F64C00] transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                                <div class="accordion-content hidden px-6 pb-5 text-gray-600 text-base">
+                                    Suporte personalizado para otimizar resultados, tirar dúvidas e melhorar processos.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão CTA -->
+                    <div class="mt-12 text-center">
+                        <a href="/register.html" class="btn-primary-gradient shine-effect inline-block text-lg px-8 py-4 rounded-lg group">
+                            Comece gratuitamente
+                            <span class="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA NOVA SEÇÃO -->
+
+            <!-- NOVA SEÇÃO: 3 MOTIVOS -->
+            <section id="motivos-cadastro" class="reasons-section section-spacing">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Títulos -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 uppercase">
+                            VOCÊ NÃO TEM NADA A PERDER
+                        </h2>
+                        <p class="text-xl md:text-2xl font-medium text-[#F64C00]">
+                            3 motivos para se cadastrar agora na Ratixpay
+                        </p>
+                    </div>
+
+                    <!-- Grid de 3 Colunas de Motivos -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                        
+                        <!-- Motivo 1 -->
+                        <div class="glass-card flex flex-col items-center md:items-start text-center md:text-left p-6 rounded-lg scale-on-hover">
+                            <span class="gradient-number mb-5 flex-shrink-0">1</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Começar é grátis</h3>
+                            <p class="text-gray-600">
+                                Criar uma conta na Ratixpay é totalmente gratuito; você não precisa de nenhum investimento inicial para começar a vender seus produtos digitais ou físicos.
+                            </p>
+                        </div>
+                        
+                        <!-- Motivo 2 -->
+                        <div class="glass-card flex flex-col items-center md:items-start text-center md:text-left p-6 rounded-lg scale-on-hover">
+                            <span class="gradient-number mb-5 flex-shrink-0">2</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Nós facilitamos para você</h3>
+                            <p class="text-gray-600">
+                                Desde a criação do produto até a gestão das vendas, nossa plataforma simplifica todo o processo. É intuitiva e pensada para que você venda rapidamente, sem complicações.
+                            </p>
+                        </div>
+                        
+                        <!-- Motivo 3 -->
+                        <div class="glass-card flex flex-col items-center md:items-start text-center md:text-left p-6 rounded-lg scale-on-hover">
+                            <span class="gradient-number mb-5 flex-shrink-0">3</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Você não precisa de experiência</h3>
+                            <p class="text-gray-600">
+                                A Ratixpay é muito fácil de usar, com suporte completo e recursos 100% em português, garantindo que qualquer pessoa consiga iniciar e gerir seu negócio digital sem dificuldades.
+                            </p>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Botão CTA -->
+                    <div class="mt-12 text-center">
+                        <a href="/register.html" class="btn-primary-gradient shine-effect inline-block text-lg px-8 py-4 rounded-lg group">
+                            Comece gratuitamente
+                            <span class="inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA SEÇÃO 3 MOTIVOS -->
+
+            <!-- NOVA SEÇÃO: FAQ -->
+            <section id="faq" class="faq-section section-spacing">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Título -->
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-16">
+                        Tem alguma dúvida? Nós respondemos!
+                    </h2>
+
+                    <!-- Lista de Perguntas -->
+                    <div class="space-y-4">
+                        
+                        <!-- FAQ Item 01 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">01</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        O que é a RatixPay?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    A RatixPay é uma plataforma moçambicana para criar, vender e receber pagamentos por produtos digitais como eBooks e cursos online, com segurança e automação total.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 02 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">02</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        Como a RatixPay funciona?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Você cadastra seu produto, recebe pagamentos via M-Pesa ou e-Mola, e acompanha tudo com notificações em tempo real. O envio do produto é automático por email e WhatsApp.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 03 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">03</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        Quanto custa usar a RatixPay?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Criar conta e cadastrar produtos é gratuito. Cobramos apenas 10% por venda e 5% em cada saque. Sem mensalidades nem taxas ocultas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 04 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">04</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        A RatixPay é segura?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Usamos criptografia e integração direta com M-Pesa e e-Mola para garantir transações 100% seguras.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 05 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">05</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        O que é o programa de afiliados?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Qualquer pessoa pode se afiliar de graça, gerar links de pagamento e ganhar comissões por venda, clique e conversão.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 06 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">06</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        A RatixPay envia notificações de vendas?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Você recebe notificações em tempo real no painel e por WhatsApp sempre que uma venda é concluída ou um saque é feito.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 07 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">07</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        Posso sacar quando quiser?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Os saques podem ser feitos a qualquer momento, com taxa de apenas 5%, enviados diretamente para M-Pesa ou e-Mola.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 08 -->
+                        <div class="faq-item">
+                            <button data-faq-toggle class="flex justify-between items-start w-full text-left group py-2" style="background: none; background-color: transparent; border: none;">
+                                <span class="flex items-start md:items-center space-x-4 flex-1">
+                                    <span class="faq-number mt-1 md:mt-0 flex-shrink-0">08</span>
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#F64C00] transition-colors">
+                                        O suporte é rápido?
+                                    </h3>
+                                </span>
+                                <div class="faq-icon w-6 h-6 flex-shrink-0 ml-4 mt-1 md:mt-0">
+                                    <svg data-icon-plus class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    <svg data-icon-minus class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                </div>
+                            </button>
+                            <div data-faq-answer class="faq-answer mt-4 pl-12">
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Sim. Nosso suporte funciona 24h por dia, 7 dias por semana, pronto para ajudar em qualquer dúvida.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <!-- FIM DA SEÇÃO FAQ -->
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+                    
+                    <!-- Coluna 1: Marca e Redes Sociais -->
+                    <div class="col-span-2 md:col-span-1">
+                        <a href="#">
+                            <img class="h-8 w-auto" src="/assets/images/icons/loader-icon-120.png" alt="RatixPay Logo">
+                        </a>
+                        <p class="mt-4 text-sm">
+                            Transforme seu conhecimento em um negócio digital.
+                        </p>
+                        <!-- Ícones de Redes Sociais -->
+                        <div class="flex space-x-5 mt-6">
+                            <!-- Instagram -->
+                            <a href="#" title="Instagram" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.72 14.4H12c-2.481 0-4.4-1.919-4.4-4.4 0-.424.06-1.01.17-1.48h-1.6V8.32h1.56c.1-.48.23-1.04.23-1.52 0-2.481 1.919-4.4 4.4-4.4h4.72v2.88h-1.6c-.48 0-1.04.13-1.52.23v1.56c.47.1 1.05.17 1.48.17 2.481 0 4.4 1.919 4.4 4.4 0 .424-.06 1.01-.17 1.48h1.6v2.18h-1.56c-.1.48-.23 1.04-.23 1.52 0 .4-.02.8-.04 1.2h-2.84c.02-.4.04-.8.04-1.2zm-4.52-2.18c0 1.23-.99 2.22-2.22 2.22s-2.22-.99-2.22-2.22.99-2.22 2.22-2.22 2.22.99 2.22 2.22z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">Instagram</span>
+                            </a>
+                            <!-- Facebook -->
+                            <a href="#" title="Facebook" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">Facebook</span>
+                            </a>
+                            <!-- LinkedIn -->
+                            <a href="#" title="LinkedIn" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19 3A2 2 0 0121 5v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zM8.29 17H5.66V9.99h2.63V17zM6.97 8.56a1.56 1.56 0 100-3.12 1.56 1.56 0 000 3.12zm11.33 8.44h-2.55v-4.4c0-1.06-.02-2.42-1.48-2.42-1.48 0-1.71 1.15-1.71 2.34v4.48h-2.55V9.99h2.44v1.11h.03c.34-.64 1.16-1.32 2.4-1.32 2.57 0 3.04 1.69 3.04 3.89v4.54z" clip-rule="evenodd"></path></svg>
+                                <span class="sr-only">LinkedIn</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Produto -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Produto</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Soluções</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Taxas</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Afiliados</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Coluna 3: Empresa -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Empresa</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Sobre Nós</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Ajuda</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Coluna 4: Legal -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-100 uppercase tracking-wider">Legal</h4>
+                        <ul class="mt-4 space-y-3">
+                            <li><a href="#" class="hover:text-white transition-colors">Termos de Uso</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Política de Privacidade</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Barra de Copyright -->
+                <div class="mt-16 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+                    <p>&copy; 2025 RatixPay. Todos os direitos reservados. Maputo, Moçambique.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript para a Animação -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const words = ["ideia", "paixão", "habilidade", "criação", "experiência"];
+            let currentIndex = 0;
+            const animatedWordElement = document.getElementById('animated-word');
+
+            if (animatedWordElement) {
+                // Inicia a animação
+                setInterval(() => {
+                    // 1. Adiciona classe para "fade out" e mover para cima
+                    animatedWordElement.classList.add('opacity-0', '-translate-y-3');
+
+                    // 2. Espera a transição de fade-out terminar (400ms)
+                    setTimeout(() => {
+                        // 3. Atualiza o índice e o texto
+                        currentIndex = (currentIndex + 1) % words.length;
+                        animatedWordElement.textContent = words[currentIndex];
+                        
+                        // 4. Remove classes para "fade in" e voltar à posição
+                        animatedWordElement.classList.remove('opacity-0', '-translate-y-3');
+                    }, 400); // Deve corresponder à duração da transição no CSS (0.4s)
+
+                }, 3000); // Troca a palavra a cada 3 segundos
+            }
+
+            // --- LÓGICA DOS DROPDOWNS (DESKTOP) ---
+            const desktopDropdownButtons = document.querySelectorAll('[data-desktop-dropdown-button]');
+            const desktopDropdownMenus = document.querySelectorAll('.desktop-dropdown-container [id$="-dropdown-menu"]');
+
+            desktopDropdownButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Impede que o clique feche o menu imediatamente
+                    const targetMenuId = button.getAttribute('data-target');
+                    const targetMenu = document.querySelector(targetMenuId);
+                    
+                    // O menu está abrindo ou fechando?
+                    const isOpening = targetMenu.classList.contains('hidden');
+
+                    // 1. Fecha todos os menus
+                    desktopDropdownMenus.forEach(menu => {
+                        menu.classList.add('hidden');
+                        menu.classList.remove('show');
+                    });
+
+                    // 2. Abre o menu alvo (se estava fechado)
+                    if (isOpening) {
+                        targetMenu.classList.remove('hidden');
+                        targetMenu.classList.add('show');
+                    }
+                    // se já estava aberto, o loop acima já o fechou.
+                });
+            });
+
+            // --- LÓGICA DOS DROPDOWNS (MOBILE) ---
+            const mobileDropdownButtons = document.querySelectorAll('[data-mobile-dropdown-button]');
+            const mobileDropdownMenus = document.querySelectorAll('[id^="mobile-"][id$="-dropdown-menu"]');
+            const mobileDropdownIcons = document.querySelectorAll('[data-mobile-dropdown-button] svg');
+
+            mobileDropdownButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const targetMenuId = button.getAttribute('data-target');
+                    const targetMenu = document.querySelector(targetMenuId);
+                    const targetIcon = button.querySelector('svg');
+                    
+                    const isOpening = targetMenu.classList.contains('hidden');
+
+                    // 1. Fecha todos os menus mobile e reseta ícones
+                    mobileDropdownMenus.forEach(menu => {
+                        if (menu !== targetMenu) {
+                            menu.classList.add('hidden');
+                        }
+                    });
+                    mobileDropdownIcons.forEach(icon => {
+                        if (icon !== targetIcon) {
+                            icon.classList.remove('rotate-180');
+                        }
+                    });
+
+                    // 2. Abre/Fecha o menu alvo e rotaciona o ícone
+                    targetMenu.classList.toggle('hidden');
+                    targetIcon.classList.toggle('rotate-180');
+            });
+        });
+
+            // Lógica para o menu mobile (hamburger)
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', () => {
+                    const isClosing = mobileMenu.classList.toggle('hidden');
+                    
+                    // Se o menu principal está fechando, fecha todos os submenus
+                    if (isClosing) {
+                        mobileDropdownMenus.forEach(menu => menu.classList.add('hidden'));
+                        mobileDropdownIcons.forEach(icon => icon.classList.remove('rotate-180'));
+                    }
+                });
+
+                // Fecha o menu se um link de âncora for clicado (ex: Começar Agora)
+                mobileMenu.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        // Garante que o dropdown interno feche também
+                        mobileDropdownMenus.forEach(menu => menu.classList.add('hidden'));
+                        mobileDropdownIcons.forEach(icon => icon.classList.remove('rotate-180'));
+                    });
+                });
+            }
+
+            // --- FECHAR DROPDOWN (DESKTOP) AO CLICAR FORA ---
+            window.addEventListener('click', (event) => {
+                const isClickInside = event.target.closest('.desktop-dropdown-container');
+                if (!isClickInside) {
+                    desktopDropdownMenus.forEach(menu => {
+                        menu.classList.add('hidden');
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+
+            // Lógica para as Abas da Seção "Por que escolher"
+            const tabButtons = document.querySelectorAll('[data-tab-button]');
+            const tabPanels = document.querySelectorAll('[data-tab-panel]');
+
+            if (tabButtons.length > 0) {
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        // 1. Desativa todas as abas
+                        tabButtons.forEach(btn => btn.classList.remove('active-tab'));
+                        
+                        // 2. Ativa a aba clicada
+                        button.classList.add('active-tab');
+                        
+                        // 3. Esconde todos os painéis
+                        const targetPanelId = button.getAttribute('data-target');
+                        tabPanels.forEach(panel => {
+                            if (panel.id === targetPanelId.substring(1)) {
+                                panel.classList.remove('hidden');
+                            } else {
+                                panel.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            }
+
+            // Lógica para o Accordion da Seção "Por que escolher"
+            const accordionToggles = document.querySelectorAll('[data-accordion-toggle]');
+
+            if (accordionToggles.length > 0) {
+                accordionToggles.forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const content = toggle.nextElementSibling;
+                        const isExpanded = content.classList.toggle('hidden');
+                        
+                        // Define o atributo aria-expanded
+                        toggle.setAttribute('aria-expanded', !isExpanded);
+                    });
+                });
+            }
+
+            // Lógica para o Accordion da FAQ
+            const faqToggles = document.querySelectorAll('[data-faq-toggle]');
+            const allFaqAnswers = document.querySelectorAll('[data-faq-answer]');
+
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const answerPanel = toggle.nextElementSibling;
+                    const iconPlus = toggle.querySelector('[data-icon-plus]');
+                    const iconMinus = toggle.querySelector('[data-icon-minus]');
+                    const isCurrentlyOpen = answerPanel.classList.contains('open');
+
+                    // 1. Fechar todos os outros painéis
+                    allFaqAnswers.forEach(panel => {
+                        if (panel !== answerPanel && panel.classList.contains('open')) {
+                            panel.classList.remove('open');
+                            const otherToggle = panel.previousElementSibling;
+                            if (otherToggle) {
+                                otherToggle.querySelector('[data-icon-plus]').classList.remove('hidden');
+                                otherToggle.querySelector('[data-icon-minus]').classList.add('hidden');
+                            }
+                        }
+                    });
+
+                    // 2. Abrir ou fechar o painel clicado
+                    if (isCurrentlyOpen) {
+                        answerPanel.classList.remove('open');
+                        iconPlus.classList.remove('hidden');
+                        iconMinus.classList.add('hidden');
+                    } else {
+                        answerPanel.classList.add('open');
+                        iconPlus.classList.add('hidden');
+                        iconMinus.classList.remove('hidden');
+                    }
+                });
+            });
+
+        });
+
+        // Redirecionar #signup para register.html
+        (function() {
+            if (window.location.hash === '#signup') {
+                window.location.replace('/register.html');
+                            }
+        })();
+
+        /* Loader JS carregado externamente */
+    </script>
+
+    <!-- Loader Script -->
+    <script src="/js/loader.js"></script>
+    <!-- Service Worker Updater (deve vir antes dos outros scripts) -->
+    <script src="/js/sw-updater.js"></script>
+    <!-- Otimizadores de Performance -->
+    <script src="/js/image-optimizer.js"></script>
+    <script src="/js/payment-optimizer.js"></script>
+
+</body>
+</html>

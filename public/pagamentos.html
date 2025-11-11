@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RatixPay - Pagamentos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+<style>
+        
+
+        /* Main Content */
+        .main-content {
+            padding-top: 0;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-pagamentos {
+                padding: 15px 20px;
+                min-height: 70px;
+            }
+
+            .header-pagamentos h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-pagamentos {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+
+            .header-pagamentos h2 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Estilos específicos para a página de pagamentos */
+        .receita-total {
+            background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .receita-total h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .receita-valor {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .receita-principal {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .receita-detalhes {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .receita-detalhes small {
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .btn-saque {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-saque:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-saque:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .receita-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn-configuracoes {
+            background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-configuracoes:hover {
+            background: linear-gradient(135deg, #D35400 0%, #E67E22 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Modal de Saque */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Estilos para carteiras */
+        .carteira-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .carteira-item:hover {
+            border-color: #10B981;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .carteira-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .carteira-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .carteira-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .carteira-details h6 {
+            margin: 0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .carteira-details p {
+            margin: 3px 0 0 0;
+            color: #718096;
+            font-size: 12px;
+        }
+        
+        .carteira-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-carteira {
+            border-radius: 15px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .metodo-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #718096;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .carteira-info-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .carteira-info-display h6 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .carteira-info-display p {
+            margin: 5px 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #E67E22;
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .taxa-aviso {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-cancelar {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-cancelar:hover {
+            background: #5a6268;
+        }
+
+        .btn-confirmar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-confirmar:hover {
+            background: #218838;
+        }
+
+        .btn-confirmar:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Saque Atual */
+        .saque-atual {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .saque-atual h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .saque-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .saque-detail {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #E67E22;
+        }
+
+        .saque-detail strong {
+            display: block;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .saque-detail span {
+            color: #666;
+        }
+
+        .valor-liquido {
+            color: #28a745 !important;
+            font-weight: bold !important;
+            font-size: 1.1em;
+        }
+
+        .btn-cancelar-saque {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-cancelar-saque:hover {
+            background: #c82333;
+        }
+
+        /* Histórico de Saques */
+        .historico-saques {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .historico-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .btn-atualizar {
+            background: #E67E22;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-atualizar:hover {
+            background: #D35400;
+            transform: translateY(-1px);
+        }
+
+        .btn-atualizar:active {
+            transform: translateY(0);
+        }
+
+        .btn-atualizar i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-atualizar.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Estilos de botão de confirmar pagamento removidos - sistema agora processa saques automaticamente */
+
+        /* Modal de Confirmação */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f64c00 0%, #ff6b35 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .btn-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .confirmation-content {
+            text-align: center;
+        }
+
+        .confirmation-icon {
+            font-size: 3rem;
+            color: #f64c00;
+            margin-bottom: 1rem;
+        }
+
+        .confirmation-message h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .confirmation-message p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Status badges */
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .saques-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .saques-table th,
+        .saques-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .saques-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .saques-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-aprovado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pago {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-aprovado {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .saque-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-status {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-cancelar-saque {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancelar-saque:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-ver-status {
+            background: #E67E22;
+            color: white;
+        }
+
+        .btn-ver-status:hover {
+            background: #D35400;
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .receita-valor {
+                font-size: 2rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 1.5rem;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-header h3 {
+                font-size: 1.3rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            .taxa-aviso {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .btn-cancelar,
+            .btn-confirmar {
+                width: 100%;
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .saque-details {
+                grid-template-columns: 1fr;
+            }
+
+            .saques-table {
+                font-size: 0.8rem;
+            }
+
+            .saques-table th,
+            .saques-table td {
+                padding: 0.4rem;
+            }
+
+            /* Tabela responsiva para mobile */
+            .saques-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+                padding: 1rem;
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                margin-bottom: 1rem;
+            }
+
+            .modal-header h3 {
+                font-size: 1.2rem;
+            }
+
+            .receita-total {
+                padding: 1.5rem;
+            }
+
+            .receita-valor {
+                font-size: 1.8rem;
+            }
+
+            .btn-saque {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .historico-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .table-wrapper {
+                margin: 0 -1rem;
+                border-radius: 0;
+            }
+
+            .saques-table {
+                font-size: 0.75rem;
+            }
+
+            .saques-table th,
+            .saques-table td {
+                padding: 0.3rem;
+            }
+
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.5rem;
+            }
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            
+            <!-- Receita Disponível -->
+            <div class="receita-total">
+                <h2>Saldo</h2>
+                <div class="receita-valor" id="receitaTotal">MZN 0,00</div>
+                <div class="receita-actions">
+                    <button class="btn-saque" id="btnSaque" onclick="abrirModalSaque()">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Solicitar Saque
+                    </button>
+                    <button class="btn-configuracoes" onclick="abrirModalConfiguracoes()">
+                        <i class="fas fa-cog"></i>
+                        Configurações de Pagamento
+                    </button>
+                </div>
+            </div>
+
+            <!-- Saque Atual (se houver) -->
+            <div class="saque-atual" id="saqueAtual" style="display: none;">
+                <h3>
+                    <i class="fas fa-clock"></i>
+                    <span id="saqueStatusTitle">Saque Pendente</span>
+                </h3>
+                <div class="saque-details" id="saqueDetails">
+                    <!-- Detalhes do saque serão inseridos aqui -->
+                </div>
+                <div class="saque-actions" id="saqueActions">
+                    <!-- Ações baseadas no status serão inseridas aqui -->
+                </div>
+            </div>
+            
+            <!-- Histórico de Saques -->
+            <div class="historico-saques">
+                <div class="historico-header">
+                    <h2>Histórico de Saques</h2>
+                    <button id="btnAtualizarDados" class="btn-atualizar" title="Atualizar dados">
+                        <i class="fas fa-sync-alt"></i>
+                        Atualizar
+                    </button>
+                </div>
+                
+                <div id="historicoSaques">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando histórico de saques...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Saque -->
+    <div id="modalSaque" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Solicitar Saque</h3>
+                <span class="close" onclick="fecharModalSaque()">&times;</span>
+            </div>
+            
+            <form id="formSaque" onsubmit="solicitarSaque(event)">
+                <div class="form-group">
+                    <label for="carteiraSaque">Selecionar Carteira *</label>
+                    <select id="carteiraSaque" name="carteiraSaque" required>
+                        <option value="">Carregando carteiras...</option>
+                    </select>
+                    <small>Escolha uma carteira configurada para o saque</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="valorSaque">Valor do Saque (MZN) *</label>
+                    <input type="number" id="valorSaque" name="valorSaque" min="1" step="0.01" required>
+                    <small>Valor mínimo: MZN 1,00</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="codigoAutenticacao">Código de Autenticação *</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="codigoAutenticacao" name="codigoAutenticacao" maxlength="6" placeholder="000000" required style="flex: 1;">
+                        <button type="button" class="btn btn-outline-primary" onclick="solicitarCodigoSaque()" id="btnSolicitarCodigo">
+                            <i class="fas fa-paper-plane"></i> Solicitar Código
+                        </button>
+                    </div>
+                    <small>Digite o código de 6 dígitos enviado para seu email</small>
+                </div>
+
+                <div class="carteira-info" id="carteiraInfo" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Informações da Carteira:</strong>
+                        <div id="carteiraDetalhes"></div>
+                    </div>
+                </div>
+
+                <div class="taxa-aviso">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Importante:</strong> O saque possui taxa de 5%. Aguarde até 48h para o valor refletir na sua conta.
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModalSaque()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-confirmar" id="btnConfirmarSaque">
+                        <i class="fas fa-check"></i>
+                        Confirmar Saque
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Configurações de Pagamento -->
+    <div id="modalConfiguracoes" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-cog me-2"></i>Configurações de Pagamento
+                </h3>
+                <span class="close" onclick="fecharModalConfiguracoes()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Lista de Carteiras -->
+                <div class="carteiras-section mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Minhas Carteiras</h5>
+                        <button class="btn btn-primary btn-sm" onclick="abrirModalNovaCarteira()">
+                            <i class="fas fa-plus me-1"></i>Adicionar Carteira
+                        </button>
+                    </div>
+                    
+                    <div id="lista-carteiras-config">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando carteiras...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações -->
+                <div class="info-section">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Informações</h6>
+                        <ul class="mb-0">
+                            <li>Máximo de <strong>2 carteiras</strong> por vendedor</li>
+                            <li>Código de autenticação enviado por <strong>email</strong></li>
+                            <li>Código expira em <strong>10 minutos</strong></li>
+                            <li>Suporte a <strong>Mpesa, Emola, BancABC</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Carteira -->
+    <div id="modalNovaCarteira" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-plus me-2"></i>Nova Carteira
+                </h3>
+                <span class="close" onclick="fecharModalNovaCarteira()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <form id="formNovaCarteira">
+                    <div class="form-group">
+                        <label for="nomeCarteira">Nome da Carteira *</label>
+                        <input type="text" class="form-control" id="nomeCarteira" required 
+                               placeholder="Ex: Carteira Principal">
+                        <small class="text-muted">Identifique sua carteira facilmente</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metodoSaque">Método de Pagamento *</label>
+                        <select class="form-control" id="metodoSaque" required>
+                            <option value="">Selecione...</option>
+                            <option value="Mpesa">Mpesa</option>
+                            <option value="Emola">Emola</option>
+                            <option value="BancABC">BancABC</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contacto">Número de Contacto *</label>
+                        <input type="tel" class="form-control" id="contacto" required 
+                               placeholder="Ex: +258867792543">
+                        <small class="text-muted">Número onde receberá os pagamentos</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nomeTitular">Nome do Titular *</label>
+                        <input type="text" class="form-control" id="nomeTitular" required 
+                               placeholder="Nome completo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emailTitular">Email do Titular *</label>
+                        <input type="email" class="form-control" id="emailTitular" required 
+                               placeholder="email@exemplo.com">
+                        <small class="text-muted">Para receber códigos de autenticação</small>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModalNovaCarteira()">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="criarCarteira()">
+                    <i class="fas fa-save me-2"></i>Criar Carteira
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Código de Autenticação -->
+    <div id="modalCodigo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-shield-alt me-2"></i>Verificação de Segurança
+                </h3>
+                <span class="close" onclick="fecharModalCodigo()">&times;</span>
+            </div>
+            
+            <div class="modal-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <h6>Verifique seu email</h6>
+                    <p class="text-muted">Enviamos um código de 6 dígitos para <span id="emailDestino" class="fw-bold"></span></p>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="codigoVerificacao" class="form-label">Código de Verificação</label>
+                    <input type="text" class="form-control form-control-lg text-center" id="codigoVerificacao" 
+                           maxlength="6" placeholder="000000" style="font-size: 24px; letter-spacing: 8px; font-weight: bold;">
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary" onclick="verificarCodigo()">
+                        <i class="fas fa-check me-2"></i>Verificar Código
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="reenviarCodigo()">
+                        <i class="fas fa-redo me-2"></i>Reenviar Código
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/login.js"></script>
+    <!-- Sidebar Component -->
+    <script src="js/sidebar-component.js"></script>
+    <script src="js/pagamentos.js"></script>
+    
+    <script>
+        // Inicializar sidebar com seção ativa
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('pagamentos');
+        });
+    </script>
+</body>
+</html>

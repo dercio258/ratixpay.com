@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Painel do Afiliado - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+        
+<style>
+        :root {
+            --primary-color: #F64C00;
+            --secondary-color: #E04500;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 20px rgba(246, 76, 0, 0.3);
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link.active {
+            background: rgba(255,255,255,0.3);
+            color: white !important;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            height: 100%;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(246, 76, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .stats-card.primary {
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .stats-card.success {
+            border-left: 5px solid var(--success-color);
+        }
+
+        .stats-card.warning {
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .stats-card.info {
+            border-left: 5px solid var(--info-color);
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge-success {
+            background: var(--success-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-warning {
+            background: var(--warning-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-info {
+            background: var(--info-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .btn-action {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-action:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-action {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-action:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .stats-card {
+                margin-bottom: 20px;
+            }
+            
+            .table-container {
+                padding: 20px;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/afiliados.html">
+                <i class="fas fa-handshake"></i> RatixPay Afiliados
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-produtos.html">
+                            <i class="fas fa-box"></i> Produtos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-vendas.html">
+                            <i class="fas fa-shopping-cart"></i> Vendas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-saque.html">
+                            <i class="fas fa-money-bill-wave"></i> Saque
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white" id="afiliadoNome">Carregando...</span>
+                    <button class="btn btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="welcome-title">
+                    <i class="fas fa-chart-line"></i> Dashboard do Afiliado
+                </h1>
+                <p class="welcome-subtitle">Acompanhe suas vendas e comissões em tempo real</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card primary">
+                    <div class="stats-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stats-number" id="totalVendas">0</div>
+                    <div class="stats-label">Total de Vendas</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card success">
+                    <div class="stats-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stats-number" id="totalComissoes">MZN 0.00</div>
+                    <div class="stats-label">Comissões Ganhas</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card warning">
+                    <div class="stats-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stats-number" id="saldoDisponivel">MZN 0.00</div>
+                    <div class="stats-label">Saldo Disponível</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card info">
+                    <div class="stats-icon">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </div>
+                    <div class="stats-number" id="totalCliques">0</div>
+                    <div class="stats-label">Total de Cliques</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links de Afiliado -->
+        <div class="table-container">
+            <h3 class="table-title">
+                <i class="fas fa-link"></i> Meus Links de Afiliado
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Referência (Ref)</th>
+                                <th>Link de Afiliado</th>
+                                <th>Cliques</th>
+                                <th>Vendas</th>
+                                <th>Taxa de Conversão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                    <tbody id="linksTable">
+                        <!-- Dados carregados via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Carregando dados...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configurações
+        window.API_BASE = 'http://localhost:4000/api';
+        
+        // Variáveis globais
+        let afiliado = null;
+        let links = [];
+        let estatisticas = {};
+
+        // Carregar dados iniciais
+        async function carregarDados() {
+            try {
+                console.log('?? Carregando dados do afiliado...');
+                mostrarLoading(true);
+                
+                // Verificar se está logado
+                const token = localStorage.getItem('afiliado_token');
+                const afiliadoData = localStorage.getItem('afiliado_data');
+                
+                if (!token || !afiliadoData) {
+                    // Redirecionar para página de afiliados se não estiver logado
+                    window.location.href = '/afiliados.html';
+                    return;
+                }
+                
+                // Carregar dados do afiliado
+                afiliado = JSON.parse(afiliadoData);
+                
+                // Carregar links primeiro, depois estatísticas
+                await carregarLinks();
+                await carregarEstatisticas();
+                
+                atualizarInterface();
+                
+                // Configurar atualização automática
+                configurarAtualizacaoAutomatica();
+                
+                mostrarLoading(false);
+                
+            } catch (error) {
+                console.error('? Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+                mostrarLoading(false);
+            }
+        }
+
+        // Carregar estatísticas
+        async function carregarEstatisticas() {
+            try {
+                // Calcular total de cliques baseado nos links carregados
+                const totalCliques = links.reduce((total, link) => total + (link.cliques || 0), 0);
+                
+                estatisticas = {
+                    totalVendas: afiliado.total_vendas || 0,
+                    totalComissoes: afiliado.total_comissoes || 0,
+                    saldoDisponivel: afiliado.saldo_disponivel || 0,
+                    totalCliques: totalCliques
+                };
+                
+                console.log('? Estatísticas carregadas - Total de cliques:', totalCliques);
+                console.log('?? Links disponíveis para cálculo:', links.length);
+                console.log('?? Dados dos links:', links.map(link => ({ cliques: link.cliques })));
+            } catch (error) {
+                console.error('? Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        // Carregar links
+        async function carregarLinks() {
+            try {
+                // Carregar links reais da API
+                const token = localStorage.getItem('afiliado_token');
+                if (!token) {
+                    console.log('? Token não encontrado');
+                    return;
+                }
+
+                console.log('?? Carregando links com token:', token.substring(0, 20) + '...');
+
+                const response = await fetch(`${window.API_BASE}/afiliados/meus-links`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('?? Status da resposta:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    links = data.data || [];
+                    console.log('? Links carregados da API:', links.length);
+                    console.log('?? Dados dos links:', links);
+                    
+                    // Renderizar tabela automaticamente após carregar
+                    renderizarTabelaLinks();
+                    
+                    // Atualizar estatísticas com os novos dados
+                    await carregarEstatisticas();
+                    atualizarInterface();
+                } else {
+                    console.log('?? Erro ao carregar links - Status:', response.status);
+                    const errorText = await response.text();
+                    console.log('Erro:', errorText);
+                    links = [];
+                    
+                    // Renderizar tabela vazia em caso de erro
+                    renderizarTabelaLinks();
+                }
+                
+            } catch (error) {
+                console.error('? Erro ao carregar links:', error);
+                links = [];
+            }
+        }
+
+        // Atualizar interface
+        function atualizarInterface() {
+            // Atualizar navbar
+            document.getElementById('afiliadoNome').textContent = afiliado.nome;
+            
+            // Atualizar estatísticas
+            document.getElementById('totalVendas').textContent = estatisticas.totalVendas;
+            document.getElementById('totalComissoes').textContent = `MZN ${parseFloat(estatisticas.totalComissoes).toFixed(2)}`;
+            document.getElementById('saldoDisponivel').textContent = `MZN ${parseFloat(estatisticas.saldoDisponivel).toFixed(2)}`;
+            document.getElementById('totalCliques').textContent = estatisticas.totalCliques;
+            console.log('?? Atualizando totalCliques no DOM:', estatisticas.totalCliques);
+            
+            // A renderização da tabela será feita automaticamente pelo carregarLinks
+        }
+
+        // Renderizar tabela de links
+        function renderizarTabelaLinks() {
+            const tbody = document.getElementById('linksTable');
+            if (!tbody) return;
+            
+            if (links.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-link"></i>
+                            <p>Nenhum link criado ainda</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = links.map(link => {
+                // Extrair referência do link
+                const refMatch = link.link_afiliado.match(/ref=([^&]+)/);
+                const referencia = refMatch ? refMatch[1] : 'N/A';
+                
+                return `
+                    <tr>
+                        <td><strong>${link.produto?.nome || 'Produto'}</strong></td>
+                        <td>
+                            <code style="font-size: 0.8rem; background: #e3f2fd; padding: 4px 8px; border-radius: 4px; color: #1976d2; font-weight: bold;">${referencia}</code>
+                        </td>
+                        <td>
+                            <code style="font-size: 0.8rem; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${link.link_afiliado}</code>
+                        </td>
+                        <td><span class="badge badge-info">${link.cliques || 0}</span></td>
+                        <td><span class="badge badge-success">${link.conversoes || 0}</span></td>
+                        <td><span class="badge ${parseFloat(link.taxa_conversao) >= 15 ? 'badge-success' : parseFloat(link.taxa_conversao) >= 10 ? 'badge-warning' : 'badge-info'}">${link.taxa_conversao || '0.00%'}</span></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-action btn-sm" onclick="copiarLink('${link.link_afiliado}')" title="Copiar Link">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-outline-action btn-sm" onclick="verEstatisticas('${link.id}')" title="Ver Estatísticas">
+                                    <i class="fas fa-chart-bar"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Copiar link
+        function copiarLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copiado para a área de transferência!');
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar link. Tente selecionar e copiar manualmente.');
+            });
+        }
+
+        // Ver estatísticas
+        function verEstatisticas(linkId) {
+            const link = links.find(l => l.id === linkId);
+            if (!link) return;
+            
+            // Extrair referência do link
+            const refMatch = link.link_afiliado.match(/ref=([^&]+)/);
+            const referencia = refMatch ? refMatch[1] : 'N/A';
+            
+            alert(`Estatísticas do Link:\n\n` +
+                  `Produto: ${link.produto?.nome || 'Produto'}\n` +
+                  `Referência: ${referencia}\n` +
+                  `Cliques: ${link.cliques || 0}\n` +
+                  `Vendas: ${link.conversoes || 0}\n` +
+                  `Taxa de Conversão: ${link.taxa_conversao || '0.00%'}\n` +
+                  `Último Clique: ${link.ultimo_clique ? new Date(link.ultimo_clique).toLocaleString() : 'Nunca'}\n` +
+                  `Link: ${link.link_afiliado}`);
+        }
+
+        // Mostrar loading
+        function mostrarLoading(mostrar) {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        // Configurar atualização automática
+        function configurarAtualizacaoAutomatica() {
+            // Atualizar links a cada 30 segundos
+            setInterval(async () => {
+                console.log('?? Atualizando links automaticamente...');
+                await carregarLinks();
+                // A renderização será feita automaticamente pelo carregarLinks
+            }, 30000);
+        }
+        
+        // Função para adicionar novo link à tabela
+        function adicionarNovoLink(linkData) {
+            console.log('? Adicionando novo link:', linkData);
+            
+            // Adicionar à lista de links
+            links.unshift(linkData);
+            
+            // Atualizar tabela
+            renderizarTabelaLinks();
+            
+            // Mostrar notificação
+            mostrarNotificacao('Link gerado com sucesso!', 'success');
+        }
+        
+        // Mostrar notificação
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            // Criar elemento de notificação
+            const notificacao = document.createElement('div');
+            notificacao.className = `alert alert-${tipo} alert-dismissible fade show`;
+            notificacao.style.position = 'fixed';
+            notificacao.style.top = '20px';
+            notificacao.style.right = '20px';
+            notificacao.style.zIndex = '9999';
+            notificacao.innerHTML = `
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notificacao);
+            
+            // Remover após 5 segundos
+            setTimeout(() => {
+                if (notificacao.parentNode) {
+                    notificacao.parentNode.removeChild(notificacao);
+                }
+            }, 5000);
+        }
+
+        // Logout
+        function logout() {
+            // Limpar dados do localStorage
+            localStorage.removeItem('afiliado_token');
+            localStorage.removeItem('afiliado_data');
+            
+            // Redirecionar para página de afiliados
+            window.location.href = '/afiliados.html';
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('?? Inicializando dashboard do afiliado...');
+            carregarDados();
+        });
+    </script>
+    
+</body>
+</html>

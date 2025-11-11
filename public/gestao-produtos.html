@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatixPay - Gestão de Produtos</title>
+    <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1>Gestão de Produtos</h1>
+            </div>
+            
+        <div class="products-header">
+            <h1 class="products-title">Gestão de Produtos</h1>
+            <a href="criar-produto.html" class="new-product-btn">
+                <i class="fas fa-plus"></i> Novo Produto
+            </a>
+        </div>
+
+        <div id="loading" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Carregando produtos...</p>
+        </div>
+
+        <div id="produtos-container">
+            <!-- Produtos serão carregados aqui -->
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <h3>Nenhum produto encontrado</h3>
+            <p>Comece criando seu primeiro produto para venda.</p>
+            <a href="criar-produto.html" class="btn">
+                <i class="fas fa-plus"></i> Criar Primeiro Produto
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="modal-confirmacao" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Confirmar Exclusão</h3>
+            <p id="modal-mensagem"></p>
+            
+            <div class="confirmation-input-group">
+                <label for="confirmation-text">Para confirmar a exclusão, digite:</label>
+                <div class="confirmation-text-display">
+                    <code id="confirmation-text-display">DELETE#{ID_Custom}</code>
+                </div>
+                <input type="text" id="confirmation-text" placeholder="Digite o texto de confirmação" autocomplete="off">
+                <small class="confirmation-help">Digite exatamente o texto mostrado acima para confirmar a exclusão</small>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="btn-confirmar" class="btn btn-danger" disabled>Confirmar Exclusão</button>
+                <button id="btn-cancelar" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </div>
+
+    <style>
+        /* Estilos para o modal de confirmação */
+        .confirmation-input-group {
+            margin: 20px 0;
+        }
+
+        .confirmation-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .confirmation-text-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Estilos para checkboxes do pixel */
+        .pixel-event-checkbox {
+            margin: 0;
+            transform: scale(1.1);
+            accent-color: #007bff;
+        }
+
+        .pixel-event-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pixel-event-label:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+        }
+
+        .pixel-event-label input[type="checkbox"]:checked + div {
+            color: #007bff;
+        }
+
+        .confirmation-text-display code {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc3545;
+            background: none;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: none;
+        }
+
+        #confirmation-text {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        #confirmation-text:focus {
+            outline: none;
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+
+        #confirmation-text.valid {
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        #confirmation-text.invalid {
+            border-color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .confirmation-help {
+            display: block;
+            margin-top: 8px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .modal-content {
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/login.js"></script>
+    <!-- Sidebar Component -->
+    <script src="js/sidebar-component.js"></script>
+    <script src="js/gestao-produtos.js"></script>
+    
+    <script>
+        // Inicializar sidebar com seção ativa
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('produtos');
+        });
+    </script>
+</body>
+</html>
+

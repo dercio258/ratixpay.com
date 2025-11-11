@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Saldos e Receitas - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card.receita-disponivel {
+            border-left: 5px solid var(--success-color);
+        }
+
+        .stats-card.receita-total {
+            border-left: 5px solid var(--info-color);
+        }
+
+        .stats-card.saldo-adm {
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .stats-card.saldo-transferencias {
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .stats-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .stats-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .btn-voltar {
+            background: linear-gradient(135deg, var(--info-color) 0%, var(--primary-color) 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-voltar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .btn-atualizar {
+            background: linear-gradient(135deg, var(--success-color) 0%, #2ecc71 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-atualizar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .last-update {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .icon-large {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .text-success { color: var(--success-color) !important; }
+        .text-info { color: var(--info-color) !important; }
+        .text-warning { color: var(--warning-color) !important; }
+        .text-danger { color: var(--secondary-color) !important; }
+
+        .details-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .details-table {
+            margin-top: 20px;
+        }
+
+        .details-table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1><i class="fas fa-chart-line"></i> Saldos e Receitas</h1>
+            <p class="mb-0">Visão organizada dos dados financeiros do sistema</p>
+            <div class="mt-3">
+                <button class="btn btn-voltar me-2" onclick="voltarParaDashboard()">
+                    <i class="fas fa-arrow-left"></i> Voltar para Dashboard
+                </button>
+                <button class="btn btn-atualizar" onclick="carregarDados()">
+                    <i class="fas fa-sync-alt"></i> Atualizar Dados
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingData" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-2">Carregando dados financeiros...</p>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="row" id="statsCards" style="display: none;">
+            <!-- Receita Disponível -->
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card receita-disponivel text-center">
+                    <i class="fas fa-wallet icon-large text-success"></i>
+                    <div class="stats-label">Saldo</div>
+                    <div class="stats-value text-success" id="receitaDisponivel">MZN 0.00</div>
+                    <div class="stats-description">
+                        Valor disponível para saque de todos os vendedores
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receita Total -->
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card receita-total text-center">
+                    <i class="fas fa-chart-bar icon-large text-info"></i>
+                    <div class="stats-label">Receita Total</div>
+                    <div class="stats-value text-info" id="receitaTotal">MZN 0.00</div>
+                    <div class="stats-description">
+                        Valor total gerado por todos os vendedores
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saldo ADM -->
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card saldo-adm text-center">
+                    <i class="fas fa-piggy-bank icon-large text-warning"></i>
+                    <div class="stats-label">Saldo ADM</div>
+                    <div class="stats-value text-warning" id="saldoAdm">MZN 0.00</div>
+                    <div class="stats-description">
+                        Soma de valores sacados pelos vendedores
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saldo Transferências B2C -->
+            <div class="col-md-6 col-lg-3">
+                <div class="stats-card saldo-transferencias text-center">
+                    <i class="fas fa-exchange-alt icon-large text-danger"></i>
+                    <div class="stats-label">Transferências B2C</div>
+                    <div class="stats-value text-danger" id="saldoTransferencias">MZN 0.00</div>
+                    <div class="stats-description">
+                        Valor total levantado via transferências B2C
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Detalhes -->
+        <div class="details-section" id="detailsSection" style="display: none;">
+            <h4><i class="fas fa-info-circle"></i> Detalhes das Estatísticas</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-success">Receita Disponível</h6>
+                    <p>Este valor representa o total de receita que os vendedores ainda podem sacar. É calculado como: <strong>Receita Total - Saques Processados</strong></p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-info">Receita Total</h6>
+                    <p>Este valor representa o total de vendas aprovadas de todos os vendedores no sistema.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <h6 class="text-warning">Saldo ADM</h6>
+                    <p>Este valor representa o total de saques que foram processados e pagos aos vendedores. Este valor fica disponível para transferências B2C.</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-danger">Transferências B2C</h6>
+                    <p>Este valor representa o total de transferências B2C realizadas (levantamentos) via Emola e M-Pesa.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Última Atualização -->
+        <div class="last-update" id="lastUpdate" style="display: none;">
+            Última atualização: <span id="lastUpdateTime"></span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <script>
+        // Configuração da API (definida em config.js)
+
+        // Verificar autenticação
+        function verificarAutenticacao() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            if (!token) {
+                alert('Usuário não autenticado. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            if (token === 'null' || token === 'undefined' || token.trim() === '') {
+                console.error('? Token inválido encontrado:', token);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                localStorage.removeItem('adminToken');
+                alert('Token inválido. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            return token;
+        }
+
+        // Carregar dados ao inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (verificarAutenticacao()) {
+                carregarDados();
+            }
+        });
+
+        // Função para carregar dados
+        async function carregarDados() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                document.getElementById('loadingData').style.display = 'block';
+                document.getElementById('statsCards').style.display = 'none';
+                document.getElementById('detailsSection').style.display = 'none';
+                document.getElementById('lastUpdate').style.display = 'none';
+
+                console.log('?? Carregando dados de saldos e receitas...');
+
+                const response = await fetch(`${API_BASE}/admin/resumo-saldos-receitas`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        preencherDados(data.data);
+                        document.getElementById('loadingData').style.display = 'none';
+                        document.getElementById('statsCards').style.display = 'block';
+                        document.getElementById('detailsSection').style.display = 'block';
+                        document.getElementById('lastUpdate').style.display = 'block';
+                        
+                        // Atualizar timestamp
+                        const lastUpdate = new Date(data.data.ultima_atualizacao);
+                        document.getElementById('lastUpdateTime').textContent = lastUpdate.toLocaleString('pt-BR');
+                        
+                        console.log('? Dados carregados com sucesso');
+                    } else {
+                        throw new Error(data.message || 'Erro ao carregar dados');
+                    }
+                } else {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar dados:', error);
+                document.getElementById('loadingData').style.display = 'none';
+                alert('Erro ao carregar dados: ' + error.message);
+            }
+        }
+
+        // Função para preencher os dados
+        function preencherDados(data) {
+            // Formatar valores monetários
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('pt-MZ', {
+                    style: 'currency',
+                    currency: 'MZN',
+                    minimumFractionDigits: 2
+                }).format(value);
+            };
+
+            // Preencher cards
+            document.getElementById('receitaDisponivel').textContent = formatCurrency(data.receita_disponivel_todos);
+            document.getElementById('receitaTotal').textContent = formatCurrency(data.receita_total_todos);
+            document.getElementById('saldoAdm').textContent = formatCurrency(data.saldo_adm);
+            document.getElementById('saldoTransferencias').textContent = formatCurrency(data.saldo_transferencias_b2c);
+
+            console.log('?? Dados preenchidos:');
+            console.log(`   - Receita Disponível: ${formatCurrency(data.receita_disponivel_todos)}`);
+            console.log(`   - Receita Total: ${formatCurrency(data.receita_total_todos)}`);
+            console.log(`   - Saldo ADM: ${formatCurrency(data.saldo_adm)}`);
+            console.log(`   - Transferências B2C: ${formatCurrency(data.saldo_transferencias_b2c)}`);
+        }
+
+        // Voltar para dashboard
+        function voltarParaDashboard() {
+            window.location.href = '/admin-dashboard.html';
+        }
+    </script>
+    
+</body>
+</html>

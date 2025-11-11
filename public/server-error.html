@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidor Indisponível - RatixPay</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .error-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 60px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .retry-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .retry-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 30px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">??</div>
+        <h1>Servidor Indisponível</h1>
+        <p>Não foi possível conectar ao servidor RatixPay. Isso pode ocorrer devido a manutenção programada ou problemas temporários de conexão.</p>
+        <p>Por favor, tente novamente em alguns instantes.</p>
+        
+        <button id="retryBtn" class="retry-btn">
+            <span id="retryText">Tentar Novamente</span>
+            <span id="loadingSpinner" class="loading"></span>
+        </button>
+        
+        <div class="status-text">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Servidor offline</span>
+        </div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const retryBtn = document.getElementById('retryBtn');
+        const retryText = document.getElementById('retryText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        // Função para verificar conexão com o servidor
+        async function checkServerConnection() {
+            try {
+                // Mostrar loading
+                retryBtn.disabled = true;
+                retryText.style.opacity = '0.7';
+                loadingSpinner.style.display = 'inline-block';
+                
+                // Determinar a URL base da API
+                const apiBase = window.location.hostname === 'www.ratixpay.com' || window.location.hostname === 'ratixpay.com' 
+                    ? window.location.origin + '/api' 
+                    : window.location.origin + '/api';
+                
+                // Tentar fazer uma requisição para o endpoint de health check
+                const response = await fetch(`${apiBase}/health`, {
+                    method: 'GET',
+                    cache: 'no-cache',
+                    credentials: 'include', // Importante para permitir cookies de sessão
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                // Esconder loading
+                retryBtn.disabled = false;
+                retryText.style.opacity = '1';
+                loadingSpinner.style.display = 'none';
+                
+                // Se a resposta for ok, redirecionar para página anterior ou dashboard
+                if (response.ok) {
+                    // Atualizar indicador de status
+                    statusIndicator.style.backgroundColor = '#10b981';
+                    statusText.textContent = 'Servidor online - Redirecionando...';
+                    
+                    // Redirecionar após 1 segundo
+                    setTimeout(() => {
+                        // Verificar se há uma página para redirecionar após reconexão
+                        const redirectPage = sessionStorage.getItem('redirectAfterReconnect');
+                        if (redirectPage) {
+                            sessionStorage.removeItem('redirectAfterReconnect');
+                            window.location.href = redirectPage;
+                        } else {
+                            window.location.href = '/index.html';
+                        }
+                    }, 1000);
+                    
+                    return true;
+                } else {
+                    throw new Error(`Servidor indisponível: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Erro ao conectar com o servidor:', error);
+                
+                // Esconder loading
+                retryBtn.disabled = false;
+                retryText.style.opacity = '1';
+                loadingSpinner.style.display = 'none';
+                
+                // Atualizar indicador de status
+                statusIndicator.style.backgroundColor = '#dc3545';
+                statusText.textContent = 'Servidor offline - Tente novamente';
+                
+                return false;
+            }
+        }
+        
+        // Adicionar evento de clique ao botão de tentar novamente
+        retryBtn.addEventListener('click', checkServerConnection);
+        
+        // Verificar conexão a cada 10 segundos
+        setInterval(checkServerConnection, 10000);
+        
+        // Verificar conexão ao carregar a página
+        document.addEventListener('DOMContentLoaded', checkServerConnection);
+    </script>
+    
+</body>
+</html>

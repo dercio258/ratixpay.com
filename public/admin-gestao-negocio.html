@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https: https://static.cloudflareinsights.com; img-src 'self' data: https:;">
+    <title>Gest�o de Neg�cio - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-left: 5px solid #5a67d8;
+        }
+
+        .stats-card.info .stats-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .stats-card.info .stats-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-card.info .stats-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stats-card.info .stats-label {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stats-card.info .stats-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card.success { border-left-color: var(--success-color); }
+        .stats-card.warning { border-left-color: var(--warning-color); }
+        .stats-card.danger { border-left-color: var(--danger-color); }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .btn-custom {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
+        }
+        
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+        
+        .table tbody tr td code {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            background-color: #f1f3f5;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success { background-color: #d4edda; color: #155724; }
+        .status-warning { background-color: #fff3cd; color: #856404; }
+        .status-danger { background-color: #f8d7da; color: #721c24; }
+
+        /* Estilos espec�ficos para colunas da tabela */
+        .table tbody td:nth-child(4) {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .table tbody td:nth-child(5) {
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        /* Estilo para data e hora */
+        .datetime-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .datetime-date {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .datetime-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        /* Cores espec�ficas para status */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .status-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+        }
+
+        .status-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+        }
+
+        .status-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+        }
+
+        .status-approved {
+            background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+        }
+
+        /* Hover effects para as colunas */
+        .table tbody tr:hover td:nth-child(4) {
+            background-color: #e3f2fd;
+            transition: background-color 0.3s ease;
+        }
+
+        .table tbody tr:hover td:nth-child(5) {
+            background-color: #f3e5f5;
+            transition: background-color 0.3s ease;
+        }
+    </style>
+
+    <!-- Sistema de Autentica��o Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+    <!-- CSS da sidebar removido -->
+</head>
+<body>
+    
+    <!-- Sidebar removida -->
+
+    <!-- Bot�es de Navega��o -->
+    <div class="back-button">
+        <a href="admin-dashboard.html" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+        </a>
+        
+    </div>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-chart-line"></i>
+                Gest�o de Neg�cio
+            </h1>
+            <p class="admin-subtitle">Vis�o geral completa do neg�cio e transa��es</p>
+        </div>
+
+        <!-- Estat�sticas Principais -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="stats-card success">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number" id="totalTransacoes">0</div>
+                        <div class="stats-label">Total de Transa��es</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="stats-card info">
+                    <div class="stats-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number" id="receitaTotal">MZN 0.00</div>
+                        <div class="stats-label">Receita Total</div>
+                    </div>
+                </div>
+            </div>
+                </div>
+
+
+
+        <!-- Tabela de Transa��es -->
+        <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="card-title">
+                    <i class="fas fa-history"></i>
+                    Hist�rico de Transa��es (PayMoz)
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" id="totalRegistros">0 registros</span>
+                    <button class="btn btn-primary btn-sm" onclick="carregarTransacoesPayMoz()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="exportarTransacoes()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controles de Filtro -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="filtroStatus" class="form-label">Status:</label>
+                    <select class="form-select" id="filtroStatus" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="Success">Sucesso</option>
+                        <option value="Error">Erro</option>
+                        <option value="Pending">Pendente</option>
+                        <option value="completed">Completado</option>
+                        <option value="pending">Pendente</option>
+                        <option value="failed">Falhou</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filtroData" class="form-label">Data:</label>
+                    <input type="date" class="form-control" id="filtroData" onchange="aplicarFiltros()">
+                </div>
+                <div class="col-md-4">
+                    <label for="buscaTransacao" class="form-label">Buscar:</label>
+                    <input type="text" class="form-control" id="buscaTransacao" placeholder="ID, produto, cliente, telefone..." onkeyup="aplicarFiltros()">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="transacoesTable">
+                    <thead>
+                        <tr>
+                            <th>ID da Transa��o</th>
+                            <th>Data e Hora</th>
+                            <th>Nome do Produto</th>
+                            <th>ID do Produto</th>
+                            <th>Nome do Cliente</th>
+                            <th>Telefone do Cliente</th>
+                            <th>Valor Pago</th>
+                            <th>M�todo de Pagamento</th>
+                            <th>Status da Transa��o</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transacoesBody">
+                        <!-- Dados ser�o carregados dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <script>
+        // Vari�veis globais para PayMoz
+        let transacoesPayMoz = [];
+
+        // Carregar dados ao iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGestaoNegocio();
+            carregarTransacoesPayMoz(); // Carregar transa��es do PayMoz
+            
+            // Bot�es j� t�m onclick inline, n�o precisam de event listeners
+        });
+
+        // Fun��o principal
+        async function loadGestaoNegocio() {
+            try {
+                console.log('?? Carregando dados de gest�o de neg�cio...');
+                
+                // N�o mostrar carregamento na tabela - apenas carregar estat�sticas
+                // A tabela ser� atualizada por carregarTransacoesPayMoz()
+
+                // Carregar dados reais da API
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                console.log('?? Token encontrado:', token ? 'Sim' : 'N�o');
+                
+                const response = await fetch('/api/admin/gestao-negocio', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const responseData = await response.json();
+                
+                if (responseData.success) {
+                    // Atualizar apenas as estat�sticas (receita total e total de transa��es)
+                    updateEstatisticas(responseData.data.estatisticas);
+                    
+                    // N�o atualizar a tabela aqui - ela ser� atualizada por carregarTransacoesPayMoz()
+                    // A tabela s� deve ser atualizada com dados do PayMoz
+                    
+                    mostrarNotificacao('Dados atualizados com sucesso!', 'success');
+                } else {
+                    throw new Error(responseData.message || 'Erro ao carregar dados');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                mostrarNotificacao('Erro ao carregar dados: ' + error.message, 'error');
+                
+                // Fallback para dados mock se API falhar
+                loadMockData();
+            }
+        }
+
+        // Atualizar estat�sticas
+        function updateEstatisticas(data) {
+            const receitaTotalEl = document.getElementById('receitaTotal');
+            const totalTransacoesEl = document.getElementById('totalTransacoes');
+            
+            if (receitaTotalEl) {
+                receitaTotalEl.textContent = formatCurrency(data.receitaTotal);
+            }
+            
+            if (totalTransacoesEl) {
+                totalTransacoesEl.textContent = data.totalTransacoes || '0';
+            }
+            
+            // Elementos vendedoresAtivos e mediaVenda n�o existem mais no HTML
+            // Removidos para manter apenas as estat�sticas principais
+        }
+
+        // Fun��o de fallback para dados mock
+        // Exportar transa��es do PayMoz
+        function exportarTransacoes() {
+            try {
+                if (!transacoesPayMoz || transacoesPayMoz.length === 0) {
+                    mostrarNotificacao('Nenhuma transa��o para exportar. Carregue os dados primeiro.', 'warning');
+                    return;
+                }
+
+                mostrarNotificacao('Gerando arquivo CSV...', 'info');
+                const csv = gerarCSVPayMoz(transacoesPayMoz);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `transacoes-paymoz-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                mostrarNotificacao('Transa��es do PayMoz exportadas com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao exportar transa��es:', error);
+                mostrarNotificacao('Erro ao exportar transa��es: ' + error.message, 'error');
+            }
+        }
+
+        // Gerar CSV das transa��es do PayMoz
+        function gerarCSVPayMoz(transacoes) {
+            const headers = [
+                'ID da Transa��o',
+                'Data',
+                'Hora',
+                'Produto',
+                'Custom ID',
+                'Cliente',
+                'Telefone',
+                'Valor',
+                'M�todo de Pagamento',
+                'Status'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...transacoes.map(transacao => {
+                    const dataCriacao = new Date(transacao.created_at || Date.now());
+                    const dataFormatada = dataCriacao.toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    const horaFormatada = dataCriacao.toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    
+                    return [
+                        transacao.transaction_id || transacao.trans_id || `TXN${String(transacao.id).padStart(6, '0')}`,
+                        dataFormatada,
+                        horaFormatada,
+                        transacao.produto_nome || 'N/A',
+                        transacao.produto_custom_id || transacao.reference || 'N/A',
+                        transacao.cliente_nome || 'N/A',
+                        transacao.cliente_telefone || transacao.from || 'N/A',
+                        parseFloat(transacao.amount || 0).toFixed(2),
+                        transacao.metodo_pagamento || transacao.metodo || 'N/A',
+                        transacao.status || 'N/A'
+                    ].map(field => `"${field}"`).join(',');
+                })
+            ].join('\n');
+            
+            return csvContent;
+        }
+
+        // Gerar CSV das transa��es (fun��o original mantida para compatibilidade)
+        function gerarCSVTransacoes(transacoes) {
+            const headers = [
+                'ID',
+                'Vendedor Nome',
+                'Produto Nome',
+                'Valor',
+                'Transa��o ID',
+                'Data/Hora',
+                'Status',
+                'Cliente Nome',
+                'Cliente Email',
+                'Cliente Telefone',
+                'Cliente WhatsApp'
+            ];
+            
+            const rows = transacoes.map(transacao => [
+                transacao.id || '',
+                transacao.vendedor_nome || '',
+                transacao.produto_nome || '',
+                parseFloat(transacao.valor || 0).toFixed(2),
+                transacao.transacao_id || '',
+                new Date(transacao.data_hora || '').toLocaleString('pt-PT'),
+                transacao.status || '',
+                transacao.cliente_nome || '',
+                transacao.cliente_email || '',
+                transacao.cliente_telefone || '',
+                transacao.cliente_whatsapp || ''
+            ]);
+            
+            return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+        }
+
+        function loadMockData() {
+            console.log('Carregando dados mock como fallback...');
+            updateEstatisticas({
+                receitaTotal: 0,
+                totalTransacoes: 0
+            });
+            // N�o atualizar a tabela aqui - ela ser� atualizada por carregarTransacoesPayMoz()
+        }
+
+
+
+        // Fun��o updateTransacoesTable removida - agora usamos apenas atualizarTabelaPayMoz()
+
+        // Fun��es antigas removidas - agora usamos apenas as fun��es do PayMoz abaixo
+
+        // Atualizar total
+        function updateTotalRegistros(total) {
+            document.getElementById('totalRegistros').textContent = `${total} registros`;
+        }
+
+        // Exportar relat�rio completo
+        function exportarRelatorio() {
+            try {
+                // Coletar dados das estat�sticas
+                const receitaTotalEl = document.getElementById('receitaTotal');
+                const totalTransacoesEl = document.getElementById('totalTransacoes');
+                
+                const estatisticas = {
+                    receitaTotal: receitaTotalEl ? receitaTotalEl.textContent : 'MZN 0.00',
+                    totalTransacoes: totalTransacoesEl ? totalTransacoesEl.textContent : '0'
+                };
+
+                // Gerar relat�rio em texto
+                const relatorio = `
+RELAT�RIO DE GEST�O DE NEG�CIO - RATIXPAY
+Data: ${new Date().toLocaleString('pt-PT')}
+
+ESTAT�STICAS GERAIS:
+- Receita Total: ${estatisticas.receitaTotal}
+- Total de Transa��es: ${estatisticas.totalTransacoes}
+
+TRANSA��ES RECENTES:
+${window.transacoesAtuais ? window.transacoesAtuais.length : 0} transa��es encontradas
+
+---
+Relat�rio gerado automaticamente pelo sistema RatixPay
+                `;
+
+                // Download do relat�rio
+                const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `relatorio-gestao-negocio-${new Date().toISOString().split('T')[0]}.txt`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                mostrarNotificacao('Relat�rio exportado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao exportar relat�rio:', error);
+                mostrarNotificacao('Erro ao exportar relat�rio: ' + error.message, 'error');
+            }
+        }
+
+        // Fun��es de formata��o
+        function formatCurrency(value) {
+            if (!value || isNaN(value)) return 'MZN 0.00';
+            return `MZN ${parseFloat(value).toFixed(2)}`;
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            
+            const dateStr = date.toLocaleDateString('pt-PT', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            
+            const timeStr = date.toLocaleTimeString('pt-PT', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            return `
+                <div class="datetime-cell">
+                    <div class="datetime-date">${dateStr}</div>
+                    <div class="datetime-time">${timeStr}</div>
+                </div>
+            `;
+        }
+
+        function formatStatus(status) {
+            if (!status) return 'status-pending';
+            
+            const statusLower = status.toLowerCase();
+            
+            if (statusLower.includes('aprovado') || statusLower.includes('aprovada') || statusLower.includes('pago') || statusLower.includes('sucesso') || statusLower.includes('conclu�do')) {
+                return 'status-success';
+            } else if (statusLower.includes('pendente') || statusLower.includes('aguardando') || statusLower.includes('processando')) {
+                return 'status-warning';
+            } else if (statusLower.includes('cancelado') || statusLower.includes('rejeitado') || statusLower.includes('erro') || statusLower.includes('falha')) {
+                return 'status-danger';
+            } else if (statusLower.includes('confirmado') || statusLower.includes('validado')) {
+                return 'status-approved';
+            }
+            
+            return 'status-pending';
+        }
+
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            // Criar elemento de notifica��o
+            const notificacao = document.createElement('div');
+            notificacao.className = `alert alert-${tipo === 'error' ? 'danger' : tipo === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notificacao.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notificacao.innerHTML = `
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notificacao);
+            
+            // Remover automaticamente ap�s 5 segundos
+            setTimeout(() => {
+                if (notificacao.parentNode) {
+                    notificacao.remove();
+                }
+            }, 5000);
+        }
+
+        function mostrarCarregamento() {
+            // N�o atualizar a tabela aqui - ela ser� atualizada por carregarTransacoesPayMoz()
+            // Esta fun��o apenas mostra o indicador de carregamento das estat�sticas
+        }
+
+        // ===== FUN��ES PAYMOZ =====
+        
+        // Carregar transa��es do PayMoz
+        async function carregarTransacoesPayMoz() {
+            try {
+                console.log('?? Carregando todas as transa��es do PayMoz...');
+                
+                // Mostrar indicador de carregamento
+                mostrarCarregamentoPayMoz();
+                
+                // Obter token de autentica��o
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                
+                console.log('?? Token de autentica��o:', token ? 'Presente' : 'Ausente');
+                console.log('?? Enviando requisi��o para /api/admin/paymoz/transacoes');
+                
+                // Fazer requisi��o para a API do PayMoz (carregar TODAS as transa��es sem limite)
+                const response = await fetch(`/api/admin/paymoz/transacoes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({})
+                    // Sem par�metros de pagina��o - carregar todas as transa��es
+                });
+                
+                console.log('?? Resposta recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    url: response.url
+                });
+                
+                if (!response.ok) {
+                    // Tentar ler a resposta de erro para mais detalhes
+                    let errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || errorData.message || errorMessage;
+                        console.error('? Detalhes do erro:', errorData);
+                    } catch (e) {
+                        const errorText = await response.text();
+                        console.error('? Resposta de erro (texto):', errorText);
+                        errorMessage = errorText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const responseData = await response.json();
+                
+                if (responseData.success) {
+                    // A API retorna todas as transa��es
+                    const dados = responseData.data;
+                    transacoesPayMoz = dados.data || [];
+                    
+                    console.log('? Transa��es PayMoz carregadas:', transacoesPayMoz.length);
+                    console.log('?? Total de transa��es:', dados.total || transacoesPayMoz.length);
+                    
+                    // Atualizar tabela
+                    atualizarTabelaPayMoz(transacoesPayMoz);
+                    atualizarInfoPagina();
+                    
+                    // Atualizar estat�sticas
+                    atualizarEstatisticas();
+                    
+                    mostrarNotificacao(`${transacoesPayMoz.length} transa��es do PayMoz carregadas com sucesso!`, 'success');
+                } else {
+                    throw new Error(responseData.error || 'Erro ao carregar transa��es');
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar transa��es do PayMoz:', error);
+                mostrarNotificacao('Erro ao carregar transa��es: ' + error.message, 'error');
+                
+                // Mostrar mensagem de erro na tabela
+                document.getElementById('transacoesBody').innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-danger py-4">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                            <br>Erro ao carregar transa��es: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Mostrar carregamento para PayMoz
+        function mostrarCarregamentoPayMoz() {
+            const tbody = document.getElementById('transacoesBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Carregando todas as transa��es do PayMoz...</p>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // Atualizar tabela com dados do PayMoz
+        function atualizarTabelaPayMoz(transacoes) {
+            const tbody = document.getElementById('transacoesBody');
+            
+            if (!transacoes || transacoes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <br>Nenhuma transa��o encontrada
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = transacoes.map(transacao => {
+                // Formatar data de cria��o
+                const dataCriacao = new Date(transacao.created_at || Date.now());
+                const dataFormatada = dataCriacao.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                const horaFormatada = dataCriacao.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Formatar status
+                const status = getStatusBadge(transacao.status);
+                
+                // Formatar valor
+                const valor = formatCurrency(parseFloat(transacao.amount) || 0);
+                
+                // Dados do cliente
+                const telefone = transacao.cliente_telefone || transacao.from || 'N/A';
+                const clienteNome = transacao.cliente_nome || 'N/A';
+                
+                // ID da transa��o formatado
+                const transacaoId = transacao.transaction_id || transacao.trans_id || `TXN${String(transacao.id).padStart(6, '0')}`;
+                
+                // M�todo de pagamento
+                const metodoPagamento = transacao.metodo_pagamento || transacao.metodo || 'N/A';
+                const metodoBadge = metodoPagamento === 'e-Mola' || metodoPagamento === 'eMola' 
+                    ? '<span class="badge bg-success">e-Mola</span>'
+                    : metodoPagamento === 'M-Pesa' || metodoPagamento === 'MPesa'
+                    ? '<span class="badge bg-primary">M-Pesa</span>'
+                    : `<span class="badge bg-secondary">${metodoPagamento}</span>`;
+                
+                // Dados do produto
+                const produtoNome = transacao.produto_nome || 'N/A';
+                const produtoCustomId = transacao.produto_custom_id || transacao.reference || 'N/A';
+                
+                return `
+                    <tr>
+                        <td>
+                            <code class="text-primary fw-bold">${transacaoId}</code>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-semibold text-dark">${dataFormatada}</span>
+                                <small class="text-muted">${horaFormatada}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <strong class="text-dark">${produtoNome}</strong>
+                        </td>
+                        <td>
+                            <code class="text-info bg-light px-2 py-1 rounded">${produtoCustomId}</code>
+                        </td>
+                        <td>
+                            <span class="text-dark">${clienteNome}</span>
+                        </td>
+                        <td>
+                            <span class="text-muted font-monospace">${telefone}</span>
+                        </td>
+                        <td>
+                            <strong class="text-success">${valor}</strong>
+                        </td>
+                        <td>${metodoBadge}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Buscar informa��es do produto baseado na refer�ncia
+        function buscarInfoProduto(referencia) {
+            // Retornar apenas o custom_id como identificador do produto
+            return referencia;
+        }
+        
+        // Obter badge de status
+        function getStatusBadge(status) {
+            if (!status) return '<span class="badge bg-secondary">Desconhecido</span>';
+            
+            const statusLower = status.toLowerCase();
+            
+            // Status de sucesso
+            if (statusLower === 'success' || statusLower === 'aprovada' || statusLower === 'pago' || statusLower === 'completed') {
+                return '<span class="badge bg-success">Sucesso</span>';
+            }
+            
+            // Status de erro
+            if (statusLower === 'error' || statusLower === 'failed' || statusLower === 'cancelada' || statusLower === 'rejeitada') {
+                return '<span class="badge bg-danger">Erro</span>';
+            }
+            
+            // Status pendente
+            if (statusLower === 'pending' || statusLower === 'pendente' || statusLower === 'aguardando') {
+                return '<span class="badge bg-warning">Pendente</span>';
+            }
+            
+            // Status padr�o
+            return `<span class="badge bg-secondary">${status}</span>`;
+        }
+        
+        // Atualizar informa��es da p�gina
+        function atualizarInfoPagina() {
+            const totalRegistros = transacoesPayMoz.length;
+            document.getElementById('totalRegistros').textContent = `${totalRegistros} registros`;
+        }
+        
+        // Atualizar estat�sticas principais
+        function atualizarEstatisticas() {
+            const totalTransacoes = transacoesPayMoz.length;
+            
+            // Calcular receita total (apenas transa��es com sucesso)
+            let receitaTotal = 0;
+            transacoesPayMoz.forEach(transacao => {
+                if (transacao.status === 'Success' || transacao.status === 'success' || transacao.status === 'Aprovada' || transacao.status === 'Pago') {
+                    receitaTotal += parseFloat(transacao.amount) || 0;
+                }
+            });
+            
+            // Atualizar elementos na p�gina (verificar se existem)
+            const totalTransacoesEl = document.getElementById('totalTransacoes');
+            const receitaTotalEl = document.getElementById('receitaTotal');
+            
+            if (totalTransacoesEl) {
+                totalTransacoesEl.textContent = totalTransacoes;
+            }
+            if (receitaTotalEl) {
+                receitaTotalEl.textContent = `MZN ${receitaTotal.toFixed(2)}`;
+            }
+            
+            console.log('?? Estat�sticas atualizadas:', {
+                totalTransacoes,
+                receitaTotal: `MZN ${receitaTotal.toFixed(2)}`
+            });
+        }
+        
+        // Aplicar filtros
+        function aplicarFiltros() {
+            const filtroStatus = document.getElementById('filtroStatus').value;
+            const filtroData = document.getElementById('filtroData').value;
+            const buscaTransacao = document.getElementById('buscaTransacao').value.toLowerCase();
+            
+            let transacoesFiltradas = [...transacoesPayMoz];
+            
+            // Filtro por status
+            if (filtroStatus) {
+                transacoesFiltradas = transacoesFiltradas.filter(t => {
+                    const statusLower = (t.status || '').toLowerCase();
+                    const filtroLower = filtroStatus.toLowerCase();
+                    
+                    // Mapear status do PayMoz para filtros
+                    if (filtroLower === 'success' || filtroLower === 'completado') {
+                        return statusLower === 'success' || statusLower === 'aprovada' || statusLower === 'pago';
+                    } else if (filtroLower === 'pending' || filtroLower === 'pendente') {
+                        return statusLower === 'pending' || statusLower === 'pendente';
+                    } else if (filtroLower === 'error' || filtroLower === 'failed' || filtroLower === 'falhou') {
+                        return statusLower === 'error' || statusLower === 'failed' || statusLower === 'cancelada';
+                    }
+                    return statusLower.includes(filtroLower);
+                });
+            }
+            
+            // Filtro por data
+            if (filtroData) {
+                transacoesFiltradas = transacoesFiltradas.filter(t => {
+                    const dataTransacao = new Date(t.created_at || Date.now()).toISOString().split('T')[0];
+                    return dataTransacao === filtroData;
+                });
+            }
+            
+            // Filtro por busca
+            if (buscaTransacao) {
+                transacoesFiltradas = transacoesFiltradas.filter(t => 
+                    (t.transaction_id && t.transaction_id.toLowerCase().includes(buscaTransacao)) ||
+                    (t.trans_id && t.trans_id.toLowerCase().includes(buscaTransacao)) ||
+                    (t.produto_custom_id && t.produto_custom_id.toLowerCase().includes(buscaTransacao)) ||
+                    (t.produto_nome && t.produto_nome.toLowerCase().includes(buscaTransacao)) ||
+                    (t.cliente_telefone && t.cliente_telefone.includes(buscaTransacao)) ||
+                    (t.cliente_nome && t.cliente_nome.toLowerCase().includes(buscaTransacao)) ||
+                    (t.from && t.from.includes(buscaTransacao))
+                );
+            }
+            
+            atualizarTabelaPayMoz(transacoesFiltradas);
+            updateTotalRegistros(transacoesFiltradas.length);
+        }
+        
+        
+        // Fun��o de fallback (mantida para compatibilidade)
+        function carregarTransacoes() {
+            carregarTransacoesPayMoz();
+        }
+        
+    </script>
+    
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h3>RatixPay</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="/criar-produto.html" class="nav-link"><i class="fas fa-plus"></i> Criar Produto</a></li>
+                    <li><a href="/marketing-avancado.html" class="nav-link"><i class="fas fa-chart-line"></i> Marketing</a></li>
+                    <li><a href="/checkout.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Checkout</a></li>
+                    <li><a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-cog"></i> Admin</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2024 RatixPay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de sidebar removido -->
+    
+</body>
+</html>

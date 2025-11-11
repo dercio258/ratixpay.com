@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RatixPay - Modo Offline</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+    
+    .offline-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    .offline-icon {
+      font-size: 80px;
+      color: #ff6b6b;
+      margin-bottom: 20px;
+    }
+    
+    .offline-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    
+    .offline-message {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .retry-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin: 10px;
+    }
+    
+    .retry-button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .features {
+      margin-top: 30px;
+      text-align: left;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      margin: 15px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .feature-icon {
+      font-size: 24px;
+      margin-right: 15px;
+      color: #667eea;
+    }
+    
+    .status-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff6b6b;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .online {
+      background: #51cf66;
+    }
+  </style>
+    
+</head>
+<body>
+  <div class="status-indicator" id="statusIndicator">
+    ?? Offline
+  </div>
+  
+  <div class="offline-container">
+    <div class="offline-icon">??</div>
+    <h1 class="offline-title">Você está offline</h1>
+    <p class="offline-message">
+      Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.
+    </p>
+    
+    <button class="retry-button" onclick="retryConnection()">
+      ?? Tentar Novamente
+    </button>
+    
+    <button class="retry-button" onclick="goToDashboard()">
+      ?? Ir para Dashboard
+    </button>
+    
+    <div class="features">
+      <h3 style="margin-bottom: 20px; color: #333;">Funcionalidades disponíveis offline:</h3>
+      
+      <div class="feature">
+        <div class="feature-icon">??</div>
+        <div>
+          <strong>Visualizar produtos</strong><br>
+          <small>Produtos em cache podem ser visualizados</small>
+        </div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">??</div>
+        <div>
+          <strong>Processar pagamentos</strong><br>
+          <small>Pagamentos serão sincronizados quando online</small>
+        </div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">??</div>
+        <div>
+          <strong>Ver relatórios</strong><br>
+          <small>Dados em cache podem ser acessados</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Verificar status da conexão
+    function updateConnectionStatus() {
+      const statusIndicator = document.getElementById('statusIndicator');
+      
+      if (navigator.onLine) {
+        statusIndicator.textContent = '?? Online';
+        statusIndicator.className = 'status-indicator online';
+        
+        // Redirecionar para a página principal após 2 segundos
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 2000);
+      } else {
+        statusIndicator.textContent = '?? Offline';
+        statusIndicator.className = 'status-indicator';
+      }
+    }
+    
+    // Tentar reconectar
+    function retryConnection() {
+      const button = event.target;
+      button.textContent = '?? Conectando...';
+      button.disabled = true;
+      
+      // Simular tentativa de conexão
+      setTimeout(() => {
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          button.textContent = '? Falha na conexão';
+          setTimeout(() => {
+            button.textContent = '?? Tentar Novamente';
+            button.disabled = false;
+          }, 2000);
+        }
+      }, 2000);
+    }
+    
+    // Ir para dashboard (mesmo offline)
+    function goToDashboard() {
+      window.location.href = '/dashboard.html';
+    }
+    
+    // Event listeners
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    // Verificar status inicial
+    updateConnectionStatus();
+    
+    // Verificar periodicamente
+    setInterval(updateConnectionStatus, 5000);
+  </script>
+    
+</body>
+</html>

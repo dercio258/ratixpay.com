@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Gestão de Vendedores - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stats-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stats-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stats-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        .stats-card.primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+
+        .btn-custom {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background: var(--light-bg);
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-blocked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .vendedor-id {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #6c757d;
+            background: var(--light-bg);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .amount {
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--info-color);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 5px solid var(--danger-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-title {
+            font-weight: bold;
+        }
+
+        .close {
+            color: white;
+            opacity: 0.8;
+        }
+
+        /* Estilos para Controle de Registro */
+        .registration-control-panel {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .registration-status {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            background: white;
+            border: 2px solid #dee2e6;
+        }
+
+        .status-indicator.enabled {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .status-indicator.disabled {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .status-indicator i {
+            font-size: 1.2rem;
+        }
+
+        .status-indicator.enabled i {
+            color: #28a745;
+        }
+
+        .status-indicator.disabled i {
+            color: #dc3545;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .registration-schedule {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .registration-schedule h6 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .schedule-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .registration-message {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .registration-message h6 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .form-control-sm {
+            font-size: 0.875rem;
+        }
+
+        .btn-sm {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .registration-control-panel {
+                padding: 15px;
+            }
+            
+            .status-actions {
+                flex-direction: column;
+            }
+            
+            .schedule-controls {
+                gap: 8px;
+            }
+        }
+
+        /* Estilos para Acesso Negado */
+
+        .access-denied-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .access-denied-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .access-denied-card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .access-denied-card p {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .authorized-email {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .authorized-email i {
+            font-size: 1.2rem;
+        }
+
+        .access-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .access-actions .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .access-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .access-denied-card {
+                padding: 30px 20px;
+            }
+            
+            .access-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .access-actions .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        .close:hover {
+            color: white;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .stats-number {
+                font-size: 2rem;
+            }
+            
+            .btn-custom {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+
+        /* Estilos para botões de suspensão */
+        .btn-suspender {
+            background-color: #ffc107 !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-suspender:hover {
+            background-color: #e0a800 !important;
+            color: white !important;
+        }
+
+        .btn-ativar {
+            background-color: #28a745 !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-ativar:hover {
+            background-color: #218838 !important;
+            color: white !important;
+        }
+
+        .btn-reativar:hover {
+            background-color: #218838 !important;
+            color: white !important;
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="admin-title">
+                <i class="fas fa-users-cog"></i>
+                Gestão de Vendedores
+            </div>
+            <div class="admin-subtitle">Painel Administrativo RatixPay</div>
+        </div>
+
+        <!-- Estatísticas Principais -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card success">
+                    <div class="stats-number" id="totalVendedores">0</div>
+                    <div class="stats-label">Total de Vendedores</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card info">
+                    <div class="stats-number" id="vendedoresAtivos">0</div>
+                    <div class="stats-label">Vendedores Ativos</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card warning">
+                    <div class="stats-number" id="vendedoresSuspensos">0</div>
+                    <div class="stats-label">Vendedores Suspensos</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-card danger">
+                    <div class="stats-number" id="vendedoresExcluidos">0</div>
+                    <div class="stats-label">Vendedores Excluídos</div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Botão para Dashboard -->
+        <div class="row mb-4">
+            <div class="col-12">
+            <a href="admin-dashboard.html" class="btn btn-secondary btn-custom">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao Dashboard
+            </a>
+            </div>
+        </div>
+
+        <!-- Controle de Registro -->
+        <div class="content-card">
+            <div class="card-title">
+                <i class="fas fa-user-plus"></i>
+                Controle de Registro de Vendedores
+            </div>
+            <div class="registration-control-panel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="registration-status">
+                            <div class="status-indicator" id="registrationStatusIndicator">
+                                <i class="fas fa-circle"></i>
+                                <span id="registrationStatusText">Carregando...</span>
+                            </div>
+                            <div class="status-actions">
+                                <button class="btn btn-success btn-sm" id="enableRegistrationBtn" style="display: none;">
+                                    <i class="fas fa-check"></i> Habilitar Registro
+                                </button>
+                                <button class="btn btn-danger btn-sm" id="disableRegistrationBtn" style="display: none;">
+                                    <i class="fas fa-times"></i> Desabilitar Registro
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="registration-schedule">
+                            <h6><i class="fas fa-clock"></i> Agendamento</h6>
+                            <div class="schedule-controls">
+                                <div class="mb-2">
+                                    <label class="form-label small">Habilitar em:</label>
+                                    <input type="datetime-local" class="form-control form-control-sm" id="scheduleStart">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Desabilitar em:</label>
+                                    <input type="datetime-local" class="form-control form-control-sm" id="scheduleEnd">
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm" id="saveScheduleBtn">
+                                    <i class="fas fa-save"></i> Salvar Agendamento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="registration-message">
+                            <h6><i class="fas fa-message"></i> Mensagem Personalizada</h6>
+                            <textarea class="form-control" id="adminMessage" rows="3" 
+                                placeholder="Mensagem exibida quando registro está desabilitado..."></textarea>
+                            <div class="mt-2">
+                                <button class="btn btn-outline-secondary btn-sm" id="saveMessageBtn">
+                                    <i class="fas fa-save"></i> Salvar Mensagem
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="content-card">
+            <div class="card-title">
+                <i class="fas fa-filter"></i>
+                Filtros de Busca
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="filtroNome" class="form-label">Nome do Vendedor</label>
+                    <input type="text" class="form-control" id="filtroNome" placeholder="Digite o nome...">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="filtroStatus" class="form-label">Status</label>
+                    <select class="form-select" id="filtroStatus">
+                        <option value="">Todos os status</option>
+                        <option value="Ativa">Ativa</option>
+                        <option value="Bloqueada">Bloqueada</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-outline-secondary w-100" id="btnLimparFiltros">
+                        <i class="fas fa-times"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Vendedores -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="card-title">
+                    <i class="fas fa-list"></i>
+                    Lista de Vendedores
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" id="totalRegistros">0 registros</span>
+                    <button class="btn btn-primary btn-sm" onclick="carregarVendedores()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="exportarVendedores()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div id="loadingMessage" class="loading-spinner" style="display: none;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p class="mt-2">Carregando vendedores...</p>
+            </div>
+
+            <div id="errorMessage" class="error-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p id="errorText" class="mb-0">Erro ao carregar dados</p>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-users-slash"></i>
+                <h4>Nenhum vendedor encontrado</h4>
+                <p>Não há vendedores cadastrados ou os filtros aplicados não retornaram resultados.</p>
+            </div>
+
+            <div class="table-responsive" id="tableContainer" style="display: none;">
+                <table class="table table-hover" id="vendedoresTable">
+                    <thead>
+                        <tr>
+                            <th>Nome Completo</th>
+                            <th>Email/Telefone</th>
+                            <th>Status</th>
+                            <th>Receita Total</th>
+                            <th>Receita Disponível</th>
+                            <th>Data de Registro</th>
+                            <th>Ativo/Inativo</th>
+                            <th>Apagar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendedoresBody">
+                        <!-- Dados serão carregados dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            <nav aria-label="Paginação" id="pagination" style="display: none;">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" id="btnAnterior">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-left"></i> Anterior</a>
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link" id="paginationInfo">Página 1 de 1</span>
+                    </li>
+                    <li class="page-item" id="btnProximo">
+                        <a class="page-link" href="#">Próximo <i class="fas fa-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modal removido - agora usa página separada -->
+
+    <!-- Modal removido - agora usa página separada -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/server-check.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/admin-utils.js"></script>
+    <script>
+        // Configuração
+        let currentPage = 1;
+        let totalPages = 1;
+        let vendedores = [];
+        let filteredVendedores = [];
+        let transacoes = [];
+        let saques = [];
+
+        // Elementos do DOM
+        const loadingMessage = document.getElementById('loadingMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const emptyState = document.getElementById('emptyState');
+        const tableContainer = document.getElementById('tableContainer');
+        const vendedoresBody = document.getElementById('vendedoresBody');
+        const pagination = document.getElementById('pagination');
+        const totalRegistros = document.getElementById('totalRegistros');
+
+        // Estatísticas
+        const totalVendedoresEl = document.getElementById('totalVendedores');
+        const vendedoresAtivosEl = document.getElementById('vendedoresAtivos');
+        const vendedoresSuspensosEl = document.getElementById('vendedoresSuspensos');
+        const vendedoresExcluidosEl = document.getElementById('vendedoresExcluidos');
+
+        // Filtros
+        const filtroNome = document.getElementById('filtroNome');
+        const filtroStatus = document.getElementById('filtroStatus');
+        const btnLimparFiltros = document.getElementById('btnLimparFiltros');
+
+        // Botões de ação
+        const btnAtualizar = document.getElementById('btnAtualizar');
+        const btnAtualizarEstatisticas = document.getElementById('btnAtualizarEstatisticas');
+        const btnExportar = document.getElementById('btnExportar');
+        // Botões agora são links para páginas separadas
+        const btnAnterior = document.getElementById('btnAnterior');
+        const btnProximo = document.getElementById('btnProximo');
+
+        // Função para obter token válido
+        function getValidToken() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            
+            if (!token) {
+                return null;
+            }
+            
+            // Verificar se o token tem formato válido (JWT tem 3 partes separadas por pontos)
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                console.error('Token malformado, limpando...');
+                clearInvalidTokens();
+                return null;
+            }
+            
+            return token;
+        }
+
+        // Limpar tokens inválidos
+        function clearInvalidTokens() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('userData');
+        }
+
+        // ==================== CONTROLE DE REGISTRO ====================
+        
+        let registrationControlData = null;
+
+        // Carregar status do controle de registro
+        async function carregarStatusRegistro() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/registration-control/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        registrationControlData = result.data;
+                        atualizarInterfaceControleRegistro();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar status de registro:', error);
+            }
+        }
+
+        // Atualizar interface do controle de registro
+        function atualizarInterfaceControleRegistro() {
+            if (!registrationControlData) return;
+
+            const statusIndicator = document.getElementById('registrationStatusIndicator');
+            const statusText = document.getElementById('registrationStatusText');
+            const enableBtn = document.getElementById('enableRegistrationBtn');
+            const disableBtn = document.getElementById('disableRegistrationBtn');
+            const adminMessage = document.getElementById('adminMessage');
+
+            if (registrationControlData.registration_enabled) {
+                statusIndicator.className = 'status-indicator enabled';
+                statusText.textContent = 'Registro Habilitado';
+                enableBtn.style.display = 'none';
+                disableBtn.style.display = 'inline-block';
+            } else {
+                statusIndicator.className = 'status-indicator disabled';
+                statusText.textContent = 'Registro Desabilitado';
+                enableBtn.style.display = 'inline-block';
+                disableBtn.style.display = 'none';
+            }
+
+            if (adminMessage) {
+                adminMessage.value = registrationControlData.admin_message || '';
+            }
+
+            // Atualizar campos de agendamento se existirem
+            const scheduleStart = document.getElementById('scheduleStart');
+            const scheduleEnd = document.getElementById('scheduleEnd');
+            
+            if (scheduleStart && registrationControlData.scheduled_start) {
+                const startDate = new Date(registrationControlData.scheduled_start);
+                scheduleStart.value = startDate.toISOString().slice(0, 16);
+            }
+            
+            if (scheduleEnd && registrationControlData.scheduled_end) {
+                const endDate = new Date(registrationControlData.scheduled_end);
+                scheduleEnd.value = endDate.toISOString().slice(0, 16);
+            }
+        }
+
+        // Alternar status de registro
+        async function toggleRegistrationStatus() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/registration-control/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        registrationControlData = result.data;
+                        atualizarInterfaceControleRegistro();
+                        showAlert('Status de registro atualizado com sucesso!', 'success');
+                    }
+                } else {
+                    showAlert('Erro ao atualizar status de registro', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao alternar status de registro:', error);
+                showAlert('Erro ao atualizar status de registro', 'error');
+            }
+        }
+
+        // Salvar agendamento
+        async function salvarAgendamento() {
+            try {
+                const scheduleStart = document.getElementById('scheduleStart').value;
+                const scheduleEnd = document.getElementById('scheduleEnd').value;
+
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/registration-control/config`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        registration_enabled: registrationControlData?.registration_enabled || true,
+                        scheduled_start: scheduleStart || null,
+                        scheduled_end: scheduleEnd || null,
+                        admin_message: registrationControlData?.admin_message || '',
+                        admin_email: registrationControlData?.admin_email || 'sistema@ratixpay.com',
+                        admin_contact: registrationControlData?.admin_contact || '+258842363948'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        registrationControlData = result.data;
+                        atualizarInterfaceControleRegistro();
+                        showAlert('Agendamento salvo com sucesso!', 'success');
+                    }
+                } else {
+                    showAlert('Erro ao salvar agendamento', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar agendamento:', error);
+                showAlert('Erro ao salvar agendamento', 'error');
+            }
+        }
+
+        // Salvar mensagem personalizada
+        async function salvarMensagem() {
+            try {
+                const adminMessage = document.getElementById('adminMessage').value;
+
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/registration-control/config`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        registration_enabled: registrationControlData?.registration_enabled || true,
+                        scheduled_start: registrationControlData?.scheduled_start || null,
+                        scheduled_end: registrationControlData?.scheduled_end || null,
+                        admin_message: adminMessage,
+                        admin_email: registrationControlData?.admin_email || 'sistema@ratixpay.com',
+                        admin_contact: registrationControlData?.admin_contact || '+258842363948'
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        registrationControlData = result.data;
+                        showAlert('Mensagem salva com sucesso!', 'success');
+                    }
+                } else {
+                    showAlert('Erro ao salvar mensagem', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar mensagem:', error);
+                showAlert('Erro ao salvar mensagem', 'error');
+            }
+        }
+
+        // Configurar event listeners do controle de registro
+        function setupRegistrationControl() {
+            const enableBtn = document.getElementById('enableRegistrationBtn');
+            const disableBtn = document.getElementById('disableRegistrationBtn');
+            const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+            const saveMessageBtn = document.getElementById('saveMessageBtn');
+
+            if (enableBtn) {
+                enableBtn.addEventListener('click', toggleRegistrationStatus);
+            }
+            if (disableBtn) {
+                disableBtn.addEventListener('click', toggleRegistrationStatus);
+            }
+            if (saveScheduleBtn) {
+                saveScheduleBtn.addEventListener('click', salvarAgendamento);
+            }
+            if (saveMessageBtn) {
+                saveMessageBtn.addEventListener('click', salvarMensagem);
+            }
+        }
+
+        // Função para mostrar alertas
+        function showAlert(message, type) {
+            // Criar elemento de alerta
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            // Inserir no topo da página
+            const container = document.querySelector('.admin-container');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Remover automaticamente após 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Função de teste para debug (pode ser chamada do console)
+        window.testAuth = async function() {
+            console.log('?? Testando autenticação...');
+            const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+            console.log('?? Token:', token ? 'Encontrado' : 'Não encontrado');
+            console.log('?? API_BASE:', window.API_BASE);
+            
+            if (token) {
+                try {
+                    const response = await fetch(`${window.API_BASE}/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log('?? Resposta:', response.status, response.statusText);
+                    const data = await response.json();
+                    console.log('?? Dados:', data);
+                } catch (error) {
+                    console.error('? Erro:', error);
+                }
+            }
+        };
+
+        // Função para criar token de teste (apenas para debug)
+        window.createTestToken = function() {
+            const testPayload = {
+                id: 'test-admin-id',
+                username: 'test-admin',
+                email: 'admin@test.com',
+                role: 'admin',
+                tipo_conta: 'admin',
+                exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 horas
+            };
+            
+            const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+            const payload = btoa(JSON.stringify(testPayload));
+            const signature = 'test-signature';
+            
+            const testToken = `${header}.${payload}.${signature}`;
+            localStorage.setItem('authToken', testToken);
+            console.log('? Token de teste criado:', testToken);
+            console.log('?? Recarregue a página para testar');
+        };
+
+        // Função para limpar todos os tokens
+        window.clearTokens = function() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('token');
+            console.log('? Todos os tokens removidos');
+        };
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('?? Página carregada, iniciando verificação de acesso...');
+            
+            // Verificar se é administrador
+            checkAdminAccess();
+            
+            // Carregar dados iniciais
+            carregarDados();
+            
+            // Configurar filtros
+            setupFilters();
+            
+            // Configurar botões
+            setupButtons();
+            
+            // Configurar controle de registro
+            setupRegistrationControl();
+            carregarStatusRegistro();
+        });
+
+        // Verificar acesso de administrador
+        async function checkAdminAccess() {
+            console.log('?? Iniciando verificação de acesso...');
+            
+            const authToken = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+            console.log('?? Token encontrado:', authToken ? 'Sim' : 'Não');
+            
+            if (!authToken) {
+                console.log('? Nenhum token encontrado, redirecionando para login');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Verificação local do token primeiro
+            console.log('?? Verificando token localmente...');
+            const isTokenValid = verificarTokenLocal(authToken);
+            console.log('? Token válido localmente:', isTokenValid);
+            
+            if (!isTokenValid) {
+                console.log('? Token inválido localmente, redirecionando para login');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Se o token é válido localmente, permitir acesso
+            console.log('? Acesso autorizado baseado na verificação local');
+            
+            // Tentar verificação no servidor em background (opcional)
+            try {
+                console.log('?? Verificando no servidor em background...');
+                const isAuthorized = await verificarAdminAutorizado();
+                console.log('?? Verificação no servidor:', isAuthorized ? 'Sucesso' : 'Falhou');
+            } catch (error) {
+                console.log('?? Erro na verificação do servidor (ignorado):', error.message);
+            }
+        }
+
+        // Verificação local do token (fallback)
+        function verificarTokenLocal(token) {
+            try {
+                console.log('?? Verificando token localmente...');
+                console.log('?? Token (primeiros 20 chars):', token ? token.substring(0, 20) + '...' : 'null');
+                
+                if (!token) {
+                    console.log('? Token não fornecido');
+                    return false;
+                }
+                
+                // Verificar se o token tem formato JWT válido
+                const parts = token.split('.');
+                console.log('?? Partes do token:', parts.length);
+                
+                if (parts.length !== 3) {
+                    console.log('? Token não tem formato JWT válido');
+                    return false;
+                }
+                
+                // Decodificar payload
+                const payload = JSON.parse(atob(parts[1]));
+                console.log('?? Payload do token:', payload);
+                
+                // Verificar se não expirou
+                const now = Math.floor(Date.now() / 1000);
+                if (payload.exp && payload.exp < now) {
+                    console.log('? Token expirado');
+                    console.log('? Expira em:', new Date(payload.exp * 1000));
+                    console.log('? Agora:', new Date(now * 1000));
+                    return false;
+                }
+                
+                // Verificação especial para email administrativo principal
+                const isMainAdmin = payload.email === 'ratixpay.mz@gmail.com';
+                const isAdmin = payload.role === 'admin' || payload.tipo_conta === 'admin' || isMainAdmin;
+                console.log('?? Role:', payload.role);
+                console.log('?? Tipo conta:', payload.tipo_conta);
+                console.log('? É admin?', isAdmin);
+                
+                return isAdmin;
+            } catch (error) {
+                console.error('? Erro na verificação local do token:', error);
+                return false;
+            }
+        }
+
+        // Mostrar mensagem de acesso negado
+        function showAccessDeniedMessage() {
+            const container = document.querySelector('.admin-container');
+            if (container) {
+                container.innerHTML = `
+                    <div>
+                        <div class="access-denied-card">
+                            <div class="access-denied-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h2>Acesso Restrito</h2>
+                            <p>Esta área é restrita apenas para administradores.</p>
+                            <p>Para acessar, você deve fazer login com uma conta de administrador.</p>
+                            <div class="access-actions">
+                                <a href="login.html" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Fazer Login
+                                </a>
+                                <button onclick="window.location.href='index.html'" class="btn btn-outline-secondary">
+                                    <i class="fas fa-home"></i>
+                                    Voltar ao Início
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Verificar se o usuário é admin autorizado
+        async function verificarAdminAutorizado() {
+            try {
+                const authToken = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+                console.log('?? Token encontrado:', authToken ? 'Sim' : 'Não');
+                
+                if (!authToken) {
+                    console.log('? Nenhum token encontrado');
+                    return false;
+                }
+
+                console.log('?? Verificando autenticação com servidor...');
+                console.log('?? API_BASE:', window.API_BASE);
+                
+                if (!window.API_BASE) {
+                    console.error('? API_BASE não definido');
+                    return false;
+                }
+
+                const response = await fetch(`${window.API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('?? Resposta do servidor:', response.status, response.statusText);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('?? Dados do usuário:', result);
+                    
+                    // A resposta pode ter os dados do usuário diretamente ou em result.user
+                    const user = result.user || result;
+                    
+                    if (result.success && user) {
+                        console.log('?? Usuário:', user.nome_completo || user.email);
+                        console.log('?? Role:', user.role);
+                        console.log('?? Tipo conta:', user.tipo_conta);
+                        
+                        // Verificação especial para email administrativo principal
+                        const isMainAdmin = user.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = (user.role === 'admin' || user.tipo_conta === 'admin' || isMainAdmin);
+                        console.log('? É admin?', isAdmin);
+                        return isAdmin;
+                    } else {
+                        console.log('? Resposta inválida do servidor');
+                        console.log('?? Estrutura da resposta:', Object.keys(result));
+                        return false;
+                    }
+                } else {
+                    console.log('? Erro na resposta do servidor:', response.status);
+                    if (response.status === 401) {
+                        console.log('?? Token inválido ou expirado');
+                        // Limpar tokens inválidos
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('adminToken');
+                        localStorage.removeItem('token');
+                }
+                return false;
+                }
+            } catch (error) {
+                console.error('? Erro ao verificar admin autorizado:', error);
+                return false;
+            }
+        }
+
+        // Carregar dados iniciais
+        async function carregarDados() {
+            await Promise.all([
+                carregarVendedores(),
+                carregarEstatisticas()
+            ]);
+        }
+
+        // Carregar vendedores
+        async function carregarVendedores() {
+            try {
+                showLoading();
+                
+                const authToken = localStorage.getItem('authToken');
+                console.log('?? Token encontrado:', !!authToken);
+                console.log('?? Token (primeiros 20 chars):', authToken ? authToken.substring(0, 20) + '...' : 'N/A');
+                
+                const response = await fetch(`${window.API_BASE}/admin/vendedores`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showAccessDeniedMessage();
+                        return;
+                    }
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    vendedores = data.vendedores || [];
+                    aplicarFiltros();
+                    renderizarTabela();
+                } else {
+                    throw new Error(data.message || 'Erro ao carregar vendedores');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar vendedores:', error);
+                showError('Erro ao carregar dados dos vendedores: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Carregar estatísticas
+        async function carregarEstatisticas() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/dashboard/vendedores/estatisticas`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        atualizarEstatisticas(data.data);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        // Carregar saques
+        async function carregarSaques() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/saques`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        saques = data.saques || [];
+                        atualizarEstatisticasSaques();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar saques:', error);
+            }
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas(data) {
+            if (data.sistema) {
+                if (totalVendedoresEl) {
+                    totalVendedoresEl.textContent = data.sistema.totalVendedores || 0;
+                }
+                if (vendedoresAtivosEl) {
+                    vendedoresAtivosEl.textContent = data.sistema.vendedoresAtivos || 0;
+                }
+                if (vendedoresSuspensosEl) {
+                    vendedoresSuspensosEl.textContent = data.sistema.vendedoresSuspensos || 0;
+                }
+                if (vendedoresExcluidosEl) {
+                    vendedoresExcluidosEl.textContent = data.sistema.vendedoresExcluidos || 0;
+                }
+            }
+            
+            // Fallback para formato antigo
+            if (!data.sistema) {
+                if (totalVendedoresEl) {
+                    totalVendedoresEl.textContent = data.totalVendedores || 0;
+                }
+            }
+        }
+
+        // Atualizar estatísticas de saques
+        function atualizarEstatisticasSaques() {
+            const pendentes = saques.filter(s => s.status === 'Pendente').length;
+            const aprovados = saques.filter(s => s.status === 'Aprovado').length;
+            const rejeitados = saques.filter(s => s.status === 'Rejeitado').length;
+
+            // Log para debug
+            console.log(`Saques: ${pendentes} pendentes, ${aprovados} aprovados, ${rejeitados} rejeitados`);
+        }
+
+        // Configurar filtros
+        function setupFilters() {
+            filtroNome.addEventListener('input', aplicarFiltros);
+            filtroStatus.addEventListener('change', aplicarFiltros);
+            btnLimparFiltros.addEventListener('click', limparFiltros);
+        }
+
+        // Aplicar filtros
+        function aplicarFiltros() {
+            const nome = filtroNome.value.toLowerCase();
+            const status = filtroStatus.value;
+
+            filteredVendedores = vendedores.filter(vendedor => {
+                const nomeAtual = vendedor.vendedorNome || vendedor.nome_completo || vendedor.nome || '';
+                const statusAtual = vendedor.status || 'ativo';
+                
+                const nomeMatch = !nome || nomeAtual.toLowerCase().includes(nome);
+                const statusMatch = !status || statusAtual === status;
+
+                return nomeMatch && statusMatch;
+            });
+
+            currentPage = 1;
+            renderizarTabela();
+        }
+
+        // Limpar filtros
+        function limparFiltros() {
+            filtroNome.value = '';
+            filtroStatus.value = '';
+            aplicarFiltros();
+        }
+
+        // Configurar botões
+        function setupButtons() {
+            if (btnAtualizar) {
+                btnAtualizar.addEventListener('click', carregarDados);
+            }
+            if (btnAtualizarEstatisticas) {
+                btnAtualizarEstatisticas.addEventListener('click', atualizarEstatisticasVendedores);
+            }
+            if (btnExportar) {
+                btnExportar.addEventListener('click', exportarDados);
+            }
+                    // Event listeners removidos - agora são links
+            
+            if (btnAnterior) {
+                btnAnterior.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderizarTabela();
+                    }
+                });
+            }
+            
+            if (btnProximo) {
+                btnProximo.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderizarTabela();
+                    }
+                });
+            }
+        }
+
+        // Renderizar tabela
+        function renderizarTabela() {
+            const itemsPerPage = 10;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedVendedores = filteredVendedores.slice(startIndex, endIndex);
+            
+            totalPages = Math.ceil(filteredVendedores.length / itemsPerPage);
+
+            if (filteredVendedores.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            vendedoresBody.innerHTML = '';
+
+            paginatedVendedores.forEach(vendedor => {
+                const row = document.createElement('tr');
+                const nomeVendedor = vendedor.vendedorNome || vendedor.nome_completo || vendedor.nome || 'N/A';
+                const emailVendedor = vendedor.vendedorEmail || vendedor.email || '';
+                const telefoneVendedor = vendedor.vendedorTelefone || vendedor.telefone || '';
+                const statusVendedor = vendedor.status || 'ativo';
+                const idVendedor = vendedor.vendedorId || vendedor.id || '';
+                const dataCadastro = vendedor.dataCadastro || vendedor.createdAt || vendedor.created_at || '';
+                
+                row.innerHTML = `
+                    <td>
+                        <strong>${nomeVendedor}</strong>
+                    </td>
+                    <td>
+                        ${emailVendedor ? `<div><i class="fas fa-envelope"></i> ${emailVendedor}</div>` : ''}
+                        ${telefoneVendedor ? `<div><i class="fas fa-phone"></i> ${telefoneVendedor}</div>` : ''}
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusVendedor === 'ativo' ? 'status-active' : 'status-blocked'}">
+                            ${statusVendedor}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="amount">MZN ${parseFloat(vendedor.receitaTotal || 0).toFixed(2)}</span>
+                    </td>
+                    <td>
+                        <span class="amount">MZN ${parseFloat(vendedor.receitaDisponivel || 0).toFixed(2)}</span>
+                    </td>
+                    <td>
+                        ${formatarData(dataCadastro)}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm ${statusVendedor === 'ativo' ? 'btn-suspender' : 'btn-ativar'}" 
+                                onclick="toggleStatusVendedor('${idVendedor}', '${statusVendedor}')" 
+                                title="${statusVendedor === 'ativo' ? 'Suspender' : 'Ativar'}">
+                            <i class="fas ${statusVendedor === 'ativo' ? 'fa-ban' : 'fa-check'}"></i>
+                            ${statusVendedor === 'ativo' ? 'Suspender' : 'Ativar'}
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="excluirVendedor('${idVendedor}')" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                            Apagar
+                        </button>
+                    </td>
+                `;
+                vendedoresBody.appendChild(row);
+            });
+
+            atualizarPaginacao();
+            showTable();
+        }
+
+        // Atualizar paginação
+        function atualizarPaginacao() {
+            const paginationInfo = document.getElementById('paginationInfo');
+            paginationInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+
+            btnAnterior.classList.toggle('disabled', currentPage <= 1);
+            btnProximo.classList.toggle('disabled', currentPage >= totalPages);
+
+            pagination.style.display = totalPages > 1 ? 'block' : 'none';
+        }
+
+        // Funções de modal removidas - agora usa páginas separadas
+
+        // Carregar dados do negócio
+        async function carregarDadosNegocio() {
+            try {
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/sales`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        transacoes = data.data || [];
+                        atualizarEstatisticasNegocio();
+                        renderizarTransacoes();
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do negócio:', error);
+            }
+        }
+
+        // Carregar saques para o modal
+        async function carregarSaquesModal() {
+            try {
+                await carregarSaques();
+                renderizarSaques();
+            } catch (error) {
+                console.error('Erro ao carregar saques:', error);
+            }
+        }
+
+        // Atualizar estatísticas do negócio
+        function atualizarEstatisticasNegocio() {
+            const receitaTotal = transacoes.reduce((total, t) => total + parseFloat(t.valor_final || 0), 0);
+            const totalTransacoes = transacoes.length;
+            const vendedoresUnicos = new Set(transacoes.map(t => t.vendedor_id)).size;
+            const mediaPorVenda = totalTransacoes > 0 ? receitaTotal / totalTransacoes : 0;
+
+            // Atualizar elementos de estatísticas se existirem
+            const receitaTotalEl = document.getElementById('receitaTotal');
+            if (receitaTotalEl) {
+                receitaTotalEl.textContent = `MZN ${receitaTotal.toFixed(2)}`;
+            }
+        }
+
+        // Renderizar transações
+        function renderizarTransacoes() {
+            const transacoesBody = document.getElementById('transacoesBody');
+            if (!transacoesBody) return;
+            
+            transacoesBody.innerHTML = '';
+
+            if (transacoes.length === 0) {
+                return;
+            }
+
+            transacoes.forEach(transacao => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <span class="vendedor-id">${transacao.vendedor?.vendedor_id || 'N/A'}</span>
+                    </td>
+                    <td>
+                        <strong>${transacao.vendedor?.nome_completo || 'N/A'}</strong>
+                    </td>
+                    <td>
+                        <span class="amount">MZN ${parseFloat(transacao.valor_final || 0).toFixed(2)}</span>
+                    </td>
+                    <td>
+                        <span class="vendedor-id">${transacao.id_transacao || transacao.id}</span>
+                    </td>
+                    <td>
+                        ${formatarData(transacao.created_at)}
+                    </td>
+                    <td>
+                        <span class="status-badge status-approved">Concluída</span>
+                    </td>
+                `;
+                transacoesBody.appendChild(row);
+            });
+        }
+
+        // Renderizar saques
+        function renderizarSaques() {
+            const saquesBody = document.getElementById('saquesBody');
+            if (!saquesBody) return;
+            
+            saquesBody.innerHTML = '';
+
+            if (saques.length === 0) {
+                return;
+            }
+
+            saques.forEach(saque => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${saque.vendedor?.nome_completo || 'N/A'}</strong>
+                        <br>
+                        <small class="text-muted">${saque.vendedor?.vendedor_id || 'N/A'}</small>
+                    </td>
+                    <td>
+                        <span class="amount">MZN ${parseFloat(saque.valor || 0).toFixed(2)}</span>
+                    </td>
+                    <td>
+                        ${formatarData(saque.created_at)}
+                    </td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(saque.status)}">
+                            ${saque.status}
+                        </span>
+                    </td>
+                    <td>
+                        ${saque.status === 'Pendente' ? `
+                            <button class="btn btn-sm btn-success me-1" onclick="aprovarSaque('${saque.id}')">
+                                <i class="fas fa-check"></i> Aprovar
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="rejeitarSaque('${saque.id}')">
+                                <i class="fas fa-times"></i> Rejeitar
+                            </button>
+                        ` : '-'}
+                    </td>
+                `;
+                saquesBody.appendChild(row);
+            });
+        }
+
+        // Obter classe CSS para status
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Pendente': return 'status-pending';
+                case 'Aprovado': return 'status-approved';
+                case 'Rejeitado': return 'status-blocked';
+                default: return 'status-active';
+            }
+        }
+
+        // Aprovar saque
+        async function aprovarSaque(saqueId) {
+            if (confirm('Confirmar aprovação do saque?')) {
+                try {
+                                    const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/saques/${saqueId}/aprovar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                    if (response.ok) {
+                        alert('Saque aprovado com sucesso!');
+                        await carregarSaquesModal();
+                        await carregarEstatisticas();
+                    } else {
+                        alert('Erro ao aprovar saque');
+                    }
+                } catch (error) {
+                    console.error('Erro ao aprovar saque:', error);
+                    alert('Erro ao aprovar saque');
+                }
+            }
+        }
+
+        // Rejeitar saque
+        async function rejeitarSaque(saqueId) {
+            if (confirm('Confirmar rejeição do saque?')) {
+                try {
+                                    const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/saques/${saqueId}/cancelar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                    if (response.ok) {
+                        alert('Saque rejeitado com sucesso!');
+                        await carregarSaquesModal();
+                        await carregarEstatisticas();
+                    } else {
+                        alert('Erro ao rejeitar saque');
+                    }
+                } catch (error) {
+                    console.error('Erro ao rejeitar saque:', error);
+                    alert('Erro ao rejeitar saque');
+                }
+            }
+        }
+
+        // Exportar dados
+        function exportarDados() {
+            const csvContent = gerarCSV(filteredVendedores);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `vendedores_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Gerar CSV
+        function gerarCSV(data) {
+            const headers = ['Nome Completo', 'Email', 'Telefone', 'Status', 'Data de Registro'];
+            const csvRows = [headers.join(',')];
+
+            data.forEach(vendedor => {
+                const row = [
+                    vendedor.nome_completo,
+                    vendedor.email || '',
+                    vendedor.telefone || '',
+                    vendedor.status,
+                    formatarData(vendedor.created_at)
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            return csvRows.join('\n');
+        }
+
+        // Gerenciar vendedor
+        function gerenciarVendedor(vendedorId) {
+            // Redirecionar para a página de gestão de saques com o ID do vendedor
+            window.location.href = `admin-gestao-saques.html?vendedor=${vendedorId}`;
+        }
+
+
+        // Suspender/Reativar vendedor
+        async function toggleStatusVendedor(vendedorId, statusAtual) {
+            const isAtivo = statusAtual === 'ativo';
+            const acao = isAtivo ? 'suspender' : 'ativar';
+            
+            const confirmacao = confirm(`Tem certeza que deseja ${acao} este vendedor?\n\n${isAtivo ? 'O vendedor será suspenso e não poderá acessar o sistema.' : 'O vendedor será ativado e poderá acessar normalmente.'}`);
+            
+            if (!confirmacao) return;
+
+            try {
+                const token = getValidToken();
+                if (!token) {
+                    alert('Token de autenticação inválido. Faça login novamente.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const response = await fetch(`${window.API_BASE}/admin/vendedores/${vendedorId}/toggle-status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        ativo: !isAtivo,
+                        status: !isAtivo ? 'ativo' : 'inativo',
+                        data_alteracao: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(data.message || `Vendedor ${acao}do com sucesso!`);
+                    
+                    carregarVendedores(); // Recarregar lista
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || `Erro ao ${acao} vendedor`);
+                }
+            } catch (error) {
+                console.error(`Erro ao ${acao} vendedor:`, error);
+                alert(`Erro ao ${acao} vendedor: ${error.message}`);
+            }
+        }
+
+        // Função para bloquear acesso do vendedor
+        async function bloquearAcessoVendedor(vendedorId, motivoSuspensao) {
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/vendedores/${vendedorId}/bloquear-acesso`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        motivo_suspensao: motivoSuspensao,
+                        data_suspensao: new Date().toISOString(),
+                        botoes_bloqueados: ['new-product-btn', 'btnSaque']
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Acesso do vendedor bloqueado com sucesso');
+                }
+            } catch (error) {
+                console.error('Erro ao bloquear acesso do vendedor:', error);
+            }
+        }
+
+        // Função para desbloquear acesso do vendedor
+        async function desbloquearAcessoVendedor(vendedorId) {
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/vendedores/${vendedorId}/desbloquear-acesso`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        data_reativacao: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Acesso do vendedor desbloqueado com sucesso');
+                }
+            } catch (error) {
+                console.error('Erro ao desbloquear acesso do vendedor:', error);
+            }
+        }
+
+        // Excluir vendedor
+        async function excluirVendedor(vendedorId) {
+            const confirmacao = confirm('ATENÇÃO: Esta ação irá excluir permanentemente o vendedor, seus produtos e todas as vendas associadas. Tem certeza?');
+            
+            if (!confirmacao) return;
+
+            const confirmacao2 = confirm('Esta ação é IRREVERSÍVEL. Digite "CONFIRMAR" para continuar.');
+            
+            if (!confirmacao2) return;
+
+            try {
+                const token = getValidToken();
+                if (!token) {
+                    alert('Token de autenticação inválido. Faça login novamente.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const response = await fetch(`${window.API_BASE}/admin/vendedores/${vendedorId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(data.message || 'Vendedor excluído com sucesso!');
+                    carregarVendedores(); // Recarregar lista
+                } else {
+                    throw new Error('Erro ao excluir vendedor');
+                }
+            } catch (error) {
+                console.error('Erro ao excluir vendedor:', error);
+                alert('Erro ao excluir vendedor');
+            }
+        }
+
+        // Exportar vendedores
+        function exportarVendedores() {
+            try {
+                const csv = gerarCSVVendedores();
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `vendedores-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Erro ao exportar vendedores:', error);
+                alert('Erro ao exportar vendedores');
+            }
+        }
+
+        // Gerar CSV dos vendedores
+        function gerarCSVVendedores() {
+            const headers = [
+                'ID',
+                'Nome',
+                'Email',
+                'Telefone',
+                'Status',
+                'Receita Total',
+                'Receita Disponível',
+                'Data de Registro'
+            ];
+            
+            const rows = vendedores.map(vendedor => [
+                vendedor.id || '',
+                vendedor.nome_completo || '',
+                vendedor.email || '',
+                vendedor.telefone || '',
+                vendedor.status || '',
+                parseFloat(vendedor.receitaTotal || 0).toFixed(2),
+                parseFloat(vendedor.receitaDisponivel || 0).toFixed(2),
+                new Date(vendedor.created_at || '').toLocaleDateString('pt-PT')
+            ]);
+            
+            return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+        }
+
+        // Formatar data
+        function formatarData(data) {
+            if (!data) return '-';
+            const date = new Date(data);
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Funções de exibição
+        function showLoading() {
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            emptyState.style.display = 'none';
+            tableContainer.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loadingMessage.style.display = 'none';
+        }
+
+        function showError(message) {
+            errorMessage.style.display = 'block';
+            document.getElementById('errorText').textContent = message;
+            emptyState.style.display = 'none';
+            tableContainer.style.display = 'none';
+        }
+
+        function showEmptyState() {
+            emptyState.style.display = 'block';
+            errorMessage.style.display = 'none';
+            tableContainer.style.display = 'none';
+        }
+
+        function showTable() {
+            tableContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+            emptyState.style.display = 'none';
+        }
+
+        // WhatsApp Bot Functions
+        function showWhatsAppBotModal() {
+            const modal = document.getElementById('whatsappBotModal');
+            if (modal) {
+                modal.style.display = 'block';
+                verificarStatusWhatsApp();
+            }
+        }
+
+        function closeWhatsAppBotModal() {
+            const modal = document.getElementById('whatsappBotModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function verificarStatusWhatsApp() {
+            try {
+                const response = await fetch(`${window.API_BASE}/whatsapp-status`);
+                const data = await response.json();
+                atualizarInterfaceWhatsApp(data);
+            } catch (error) {
+                console.error('Erro ao verificar status do WhatsApp:', error);
+                atualizarInterfaceWhatsApp({
+                    connected: false,
+                    error: 'Erro de conexão'
+                });
+            }
+        }
+
+        function atualizarInterfaceWhatsApp(data) {
+            const statusIndicator = document.getElementById('botStatusIndicator');
+            const statusText = document.getElementById('botStatusText');
+            const statusDetails = document.getElementById('botStatusDetails');
+            
+            if (!statusIndicator || !statusText || !statusDetails) return;
+            
+            if (data.connected) {
+                statusIndicator.innerHTML = '<i class="fas fa-circle text-success"></i>';
+                statusText.textContent = 'Conectado';
+                statusText.className = 'text-success';
+                
+                statusDetails.innerHTML = `
+                    <p><strong>Status:</strong> WhatsApp conectado e funcionando</p>
+                    <p><strong>Última verificação:</strong> ${new Date().toLocaleTimeString('pt-BR')}</p>
+                `;
+            } else {
+                statusIndicator.innerHTML = '<i class="fas fa-circle text-danger"></i>';
+                statusText.textContent = 'Desconectado';
+                statusText.className = 'text-danger';
+                
+                statusDetails.innerHTML = `
+                    <p><strong>Status:</strong> WhatsApp não conectado</p>
+                    <p><strong>Erro:</strong> ${data.error || 'Erro desconhecido'}</p>
+                `;
+            }
+        }
+
+        async function testarNotificacaoWhatsApp() {
+            if (!confirm('Deseja enviar uma notificação de teste via WhatsApp?')) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/whatsapp-test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('? Notificação de teste enviada com sucesso!');
+                } else {
+                    alert('? Erro ao enviar notificação de teste');
+                }
+            } catch (error) {
+                console.error('Erro ao testar notificação:', error);
+                alert('? Erro ao enviar notificação de teste');
+            }
+        }
+
+        async function resetarWhatsApp() {
+            if (!confirm('Tem certeza que deseja resetar a conexão do WhatsApp?')) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/whatsapp-reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('? WhatsApp resetado com sucesso!');
+                    setTimeout(verificarStatusWhatsApp, 2000);
+                } else {
+                    alert('? Erro ao resetar WhatsApp');
+                }
+            } catch (error) {
+                console.error('Erro ao resetar WhatsApp:', error);
+                alert('? Erro ao resetar WhatsApp');
+            }
+        }
+
+        // Função para atualizar estatísticas de todos os vendedores
+        async function atualizarEstatisticasVendedores() {
+            if (!confirm('Tem certeza que deseja atualizar as estatísticas de todos os vendedores? Isso pode levar alguns segundos.')) return;
+            
+            try {
+                if (btnAtualizarEstatisticas) {
+                    btnAtualizarEstatisticas.disabled = true;
+                    btnAtualizarEstatisticas.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
+                }
+                
+                const authToken = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE}/admin/vendedores/atualizar-estatisticas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showAccessDeniedMessage();
+                        return;
+                    }
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`? Estatísticas atualizadas com sucesso!\n\nTotal: ${data.data.total}\nSucessos: ${data.data.sucessos}\nErros: ${data.data.erros}`);
+                    
+                    // Recarregar dados após atualização
+                    await carregarDados();
+                } else {
+                    throw new Error(data.message || 'Erro desconhecido');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar estatísticas:', error);
+                alert(`? Erro ao atualizar estatísticas: ${error.message}`);
+            } finally {
+                if (btnAtualizarEstatisticas) {
+                    btnAtualizarEstatisticas.disabled = false;
+                    btnAtualizarEstatisticas.innerHTML = '<i class="fas fa-calculator"></i> Atualizar Estatísticas';
+                }
+            }
+        }
+    </script>
+
+    <!-- WhatsApp Bot Modal -->
+    <div class="modal fade" id="whatsappBotModal" tabindex="-1" aria-labelledby="whatsappBotModalLabel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="whatsappBotModalLabel">
+                        <i class="fab fa-whatsapp"></i> WhatsApp Bot
+                    </h5>
+                    <button type="button" class="btn-close" onclick="closeWhatsAppBotModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-info-circle"></i> Status do Bot</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="botStatusIndicator">
+                                        <i class="fas fa-circle text-warning"></i>
+                                    </div>
+                                    <span id="botStatusText">Verificando...</span>
+                                    <div id="botStatusDetails" class="mt-2">
+                                        <p>Carregando informações...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-cogs"></i> Ações</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary btn-sm w-100 mb-2" onclick="verificarStatusWhatsApp()">
+                                        <i class="fas fa-sync-alt"></i> Verificar Status
+                                    </button>
+                                    <button class="btn btn-success btn-sm w-100 mb-2" onclick="testarNotificacaoWhatsApp()">
+                                        <i class="fas fa-paper-plane"></i> Testar Notificação
+                                    </button>
+                                    <button class="btn btn-warning btn-sm w-100 mb-2" onclick="resetarWhatsApp()">
+                                        <i class="fas fa-redo"></i> Resetar
+                                    </button>
+                                    <a href="/whatsapp-bot" target="_blank" class="btn btn-info btn-sm w-100">
+                                        <i class="fas fa-qrcode"></i> QR Code
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeWhatsAppBotModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

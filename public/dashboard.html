@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://connect.facebook.net https://www.facebook.com https://static.cloudflareinsights.com https://api.utmify.com.br https://api.utmify.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; worker-src 'self' blob:;">
+    <title>RatixPay - Dashboard</title>
+    <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <!-- Chart.js CDN - Versão estável sem source maps -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Configurações do Chart.js após carregamento
+        if (typeof Chart !== 'undefined') {
+            // Configurações padrão do Chart.js
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+        }
+    </script>
+    <style>
+        :root {
+            --primary-orange: #f64c00;
+            --orange-gradient-start: #f64c00;
+            --orange-gradient-middle: #f64c00;
+            --orange-gradient-end: #f64c00;
+            --light-gray: #f5f5f5;
+            --white: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+            --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+            --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+        }
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        
+        .period-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .period-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .period-btn:hover {
+            border-color: #E67E22;
+            color: #E67E22;
+        }
+        
+        .period-btn.active {
+            background: #E67E22;
+            border-color: #E67E22;
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #E67E22;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+            min-height: 100px;
+        }
+        
+        .stat-card.info .stat-label {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+        }
+        
+        .stat-card.info .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fd7e14;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.success {
+            border-left-color: #28a745;
+        }
+        
+        .stat-card.success .stat-number {
+            color: #28a745;
+        }
+        
+        .stat-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .stat-card.warning .stat-number {
+            color: #ffc107;
+        }
+        
+        .stat-card.danger {
+            border-left-color: #dc3545;
+        }
+        
+        .stat-card.danger .stat-number {
+            color: #dc3545;
+        }
+        
+        /* Spinner de carregamento para métricas */
+        .stat-number.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+        
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Spinners com cores específicas para cada tipo de card */
+        .info-spinner {
+            border-top: 3px solid #fd7e14;
+        }
+        
+        .success-spinner {
+            border-top: 3px solid #28a745;
+        }
+        
+        .danger-spinner {
+            border-top: 3px solid #dc3545;
+        }
+        
+        .warning-spinner {
+            border-top: 3px solid #ffc107;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade para stat-cards */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-card {
+                padding: 15px 10px;
+                min-height: 90px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.9rem;
+            }
+            
+            .stat-card.info .stat-number {
+                font-size: 1.4rem;
+            }
+            
+            .stat-card.info .stat-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 12px 8px;
+                min-height: 80px;
+            }
+            
+            .dashboard-header {
+                padding: 10px 15px;
+                min-height: 60px;
+                margin-bottom: 15px;
+            }
+            
+            .chart-container {
+                padding: 15px;
+                max-height: 400px;
+            }
+            
+            .chart-canvas {
+                height: 280px;
+                max-height: 280px;
+            }
+        }
+        
+        
+        .stat-card.info {
+            border-left-color: #fd7e14;
+        }
+        
+        .stat-card.info .stat-number {
+            color: #fd7e14;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        
+        .stat-label {
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: left;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            max-height: 600px;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .chart-container:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333333;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-title i {
+            color: #f64c00;
+            font-size: 1.3rem;
+        }
+        
+        .chart-canvas {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            max-height: 400px;
+            min-height: 300px;
+        }
+        
+        #lastUpdate {
+            margin-top: 20px;
+            padding-top: 15px;
+        }
+        
+        .dashboard-header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+            min-height: 80px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            flex-wrap: wrap;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(246, 76, 0, 0.1) 50%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* Header Layout */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #ffffff;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-weight: 600;
+        }
+
+        /* Progress Section - Menor e mais compacto */
+        .progress-section {
+            max-width: 200px;
+            min-width: 150px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .progress-container {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            backdrop-filter: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+            padding-top: 10px;
+        }
+
+        .current-revenue {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .target-revenue {
+            color: #ffffff;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .progress-fill {
+            height: 100%;
+            max-width: 100%;
+            min-width: 0;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+            position: absolute;
+            left: 0;
+            top: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .progress-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #000000;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            z-index: 2;
+        }
+        
+        /* Ajuste para o main-content */
+        .main-content {
+            padding-top: 0;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Ajustes específicos para o sidebar no dashboard - será aplicado após o sidebar-component */
+        .sidebar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            z-index: 1001 !important;
+        }
+
+        /* Responsividade do sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        .dashboard-welcome-info {
+            position: absolute;
+            bottom: 10px;
+            right: 30px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-weight: 500;
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        /* Notification Panel */
+        .notification-panel {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+            z-index: 2;
+        }
+        
+        .notification-panel:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .notification-panel i {
+            color: #ffffff;
+            font-size: 1.2rem;
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 20px;
+        }
+        
+        /* Notification Container and Dropdown */
+        .notification-container {
+            position: relative;
+            margin-right: 15px;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            max-height: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .notification-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .notification-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: #007bff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+        
+        .mark-all-read:hover {
+            background: rgba(0, 123, 255, 0.1);
+        }
+        
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .notification-icon i {
+            font-size: 1.2rem;
+        }
+        
+        .notification-item:nth-child(1) .notification-icon {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .notification-item:nth-child(2) .notification-icon {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-title {
+            margin: 0 0 4px 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.3;
+        }
+        
+        .notification-time {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        
+        
+        .current-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(246, 76, 0, 0.25) 0%, rgba(246, 76, 0, 0.35) 100%);
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 2px solid rgba(246, 76, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(246, 76, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .badge-icon {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        .badge-name {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        
+        
+        
+        .progress-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .current-revenue {
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .next-threshold {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(246, 76, 0, 0.2);
+            box-sizing: border-box;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            max-width: 100%;
+            min-width: 0;
+            background: linear-gradient(90deg, #f64c00, #ff6b35, #ff8c42);
+            border-radius: 4px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(246, 76, 0, 0.6);
+            box-sizing: border-box;
+        }
+        
+        .progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.4) 25%, 
+                rgba(255, 255, 255, 0.8) 50%, 
+                rgba(255, 255, 255, 0.4) 75%, 
+                transparent 100%);
+            animation: fireShimmer 2.5s infinite;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, 
+                rgba(246, 76, 0, 0.4) 0%, 
+                rgba(255, 107, 53, 0.7) 50%, 
+                rgba(246, 76, 0, 0.4) 100%);
+            border-radius: 6px;
+            animation: fireGlow 1.8s infinite alternate;
+        }
+        
+        @keyframes fireShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes fireGlow {
+            0% { 
+                opacity: 0.6;
+                transform: scaleY(0.8);
+            }
+            100% { 
+                opacity: 1;
+                transform: scaleY(1.2);
+            }
+        }
+        
+        /* Animação de pulso quando a barra aumenta */
+        .progress-fill.animating {
+            animation: progressPulse 0.6s ease-out;
+        }
+        
+        @keyframes progressPulse {
+            0% { 
+                transform: scaleY(1);
+                box-shadow: 0 0 10px rgba(246, 76, 0, 0.6);
+            }
+            50% { 
+                transform: scaleY(1.1);
+                box-shadow: 0 0 20px rgba(246, 76, 0, 0.9);
+            }
+            100% { 
+                transform: scaleY(1);
+                box-shadow: 0 0 10px rgba(246, 76, 0, 0.6);
+            }
+        }
+        
+        .progress-percentage {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #ffffff;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        
+        
+        /* Avatar do Usuário */
+        .user-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-avatar:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-initials {
+            color: #6c757d;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .avatar-initials span {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        
+        .avatar-level-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Cores dos níveis */
+        .avatar-level-default .avatar-level-indicator {
+            background: #e0e0e0;
+        }
+        
+        .avatar-level-bronze .avatar-level-indicator {
+            background: #cd7f32;
+        }
+        
+        .avatar-level-silver .avatar-level-indicator {
+            background: #c0c0c0;
+        }
+        
+        .avatar-level-gold .avatar-level-indicator {
+            background: #ffd700;
+        }
+        
+        .avatar-level-diamond .avatar-level-indicator {
+            background: #00bfff;
+        }
+        
+        /* Painel de Informações do Usuário */
+        .user-info-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            max-width: 250px;
+            z-index: 99999;
+            display: none;
+            animation: panelSlideDown 0.3s ease-out;
+            backdrop-filter: blur(10px);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .user-info-panel.show {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+            animation: panelSlideDown 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        @keyframes panelSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-info-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-info-avatar {
+            position: relative;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .user-info-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .panel-level-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #e0e0e0;
+        }
+        
+        .user-info-details h4 {
+            margin: 0 0 8px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .user-info-details p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .user-info-actions {
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-settings-panel {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            width: 100%;
+                justify-content: center;
+            margin-bottom: 8px;
+        }
+        
+        .btn-settings-panel:hover {
+            background: #e55a00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3);
+        }
+        
+        .btn-logout-panel {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-logout-panel:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        @keyframes panelSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Cores dos níveis para o painel */
+        .panel-level-default .panel-level-indicator {
+            background: #e0e0e0;
+        }
+        
+        .panel-level-bronze .panel-level-indicator {
+            background: #cd7f32;
+        }
+        
+        .panel-level-silver .panel-level-indicator {
+            background: #c0c0c0;
+        }
+        
+        .panel-level-gold .panel-level-indicator {
+            background: #ffd700;
+        }
+        
+        .panel-level-diamond .panel-level-indicator {
+            background: #00bfff;
+        }
+        
+        .profile-section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 8px 12px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: rgba(230, 126, 34, 0.05);
+            z-index: 2;
+        }
+        
+        
+        
+        .profile-info {
+            display: none;
+        }
+        
+        .profile-avatar {
+            font-size: 2.2rem;
+            color: #E67E22;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+            background: rgba(230, 126, 34, 0.08);
+            border: 2px solid rgba(246, 76, 0, 0.2);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .profile-avatar:hover {
+            background: rgba(230, 126, 34, 0.15);
+            transform: scale(1.1);
+            border-color: rgba(246, 76, 0, 0.4);
+        }
+        
+        
+        
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .profile-details {
+            margin-bottom: 15px;
+        }
+        
+        .profile-name {
+            display: block;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .profile-role {
+            display: block;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            display: block;
+            color: #95a5a6;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .profile-actions {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+        
+        
+        /* Media query para tablets - manter layout 2x2 */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .period-filters {
+                justify-content: center;
+            }
+            
+            .period-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .dashboard-header {
+                padding: 15px 20px;
+                min-height: 70px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-left {
+                gap: 10px;
+            }
+
+            .progress-section {
+                max-width: 180px;
+                min-width: 120px;
+            }
+
+            .progress-info {
+                font-size: 0.7rem;
+                margin-bottom: 0;
+            }
+
+            .progress-bar {
+                height: 16px;
+                box-sizing: border-box;
+            }
+            
+            .progress-fill {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .progress-percentage {
+                font-size: 0.7rem;
+            }
+            
+            .dashboard-welcome-info {
+                right: 20px;
+                font-size: 0.8rem;
+            }
+            
+            .notification-panel {
+                width: 35px;
+                height: 35px;
+                margin-right: 10px;
+            }
+            
+            .notification-panel i {
+                font-size: 1rem;
+            }
+
+            .user-info-panel {
+                min-width: 180px;
+                max-width: 220px;
+                right: -10px;
+                padding: 6px;
+            }
+
+            .user-info-header {
+                padding: 6px;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+
+            .user-info-avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .avatar-initials {
+                font-size: 0.9rem;
+            }
+
+            .user-info-details h4 {
+                font-size: 0.9rem;
+            }
+
+            .user-info-details p {
+                font-size: 0.8rem;
+            }
+
+            .user-info-actions {
+                padding: 10px 12px;
+            }
+            
+            .notification-count {
+                width: 18px;
+                height: 18px;
+                font-size: 0.6rem;
+                min-width: 18px;
+            }
+            
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1.8rem;
+            }
+            
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header-left {
+                gap: 8px;
+            }
+
+            .progress-section {
+                max-width: 150px;
+                min-width: 100px;
+            }
+
+            .progress-info {
+                font-size: 0.65rem;
+                margin-bottom: 0;
+            }
+
+            .progress-bar {
+                height: 14px;
+                box-sizing: border-box;
+            }
+            
+            .progress-fill {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .progress-percentage {
+                font-size: 0.65rem;
+            }
+            
+            .dashboard-welcome-info {
+                right: 15px;
+                font-size: 0.7rem;
+                bottom: 5px;
+            }
+            
+            .notification-panel {
+                width: 30px;
+                height: 30px;
+                margin-right: 8px;
+                flex-shrink: 0;
+            }
+            
+            .notification-panel i {
+                font-size: 0.9rem;
+            }
+
+            .user-info-panel {
+                min-width: 160px;
+                max-width: 200px;
+                right: -15px;
+                padding: 5px;
+            }
+
+            .user-info-header {
+                padding: 5px;
+                gap: 6px;
+                margin-bottom: 5px;
+            }
+
+            .user-info-avatar {
+                width: 25px;
+                height: 25px;
+            }
+
+            .avatar-initials {
+                font-size: 0.8rem;
+            }
+
+            .user-info-details h4 {
+                font-size: 0.85rem;
+            }
+
+            .user-info-details p {
+                font-size: 0.75rem;
+            }
+
+            .user-info-actions {
+                padding: 8px 10px;
+            }
+            
+            .notification-count {
+                width: 16px;
+                height: 16px;
+                font-size: 0.5rem;
+                min-width: 16px;
+            }
+            
+            .profile-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 1.5rem;
+            }
+            
+            
+            .profile-name {
+                font-size: 1rem;
+            }
+            
+            .profile-role {
+                font-size: 0.8rem;
+            }
+            
+            .profile-fullname {
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .dashboard-header {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .header-left {
+                gap: 6px;
+            }
+
+            .progress-section {
+                max-width: 120px;
+                min-width: 80px;
+            }
+
+            .progress-info {
+                font-size: 0.6rem;
+                margin-bottom: 0;
+            }
+
+            .progress-bar {
+                height: 12px;
+                box-sizing: border-box;
+            }
+            
+            .progress-fill {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .progress-percentage {
+                font-size: 0.6rem;
+            }
+            
+            .dashboard-welcome-info {
+                font-size: 0.65rem;
+            }
+            
+            .notification-panel {
+                width: 28px;
+            height: 28px;
+                margin-right: 6px;
+            }
+            
+            .notification-panel i {
+                font-size: 0.8rem;
+            }
+
+            .user-info-panel {
+                min-width: 140px;
+                max-width: 180px;
+                right: -20px;
+                padding: 4px;
+            }
+
+            .user-info-header {
+                padding: 4px;
+                gap: 4px;
+                margin-bottom: 4px;
+            }
+
+            .user-info-avatar {
+            width: 20px;
+                height: 20px;
+            }
+
+            .avatar-initials {
+                font-size: 0.7rem;
+            }
+
+            .user-info-details h4 {
+                font-size: 0.8rem;
+            }
+
+            .user-info-details p {
+                font-size: 0.7rem;
+            }
+
+            .user-info-actions {
+                padding: 6px 8px;
+            }
+        }
+        
+        
+        
+        
+        
+        /* Estilos para processamento do logo */
+        .logo-processado {
+            animation: logoProcessado 0.5s ease-out;
+        }
+
+        .logo-carregado {
+            position: relative;
+        }
+
+        .logo-carregado::after {
+            content: '✅';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+            color: #27ae60;
+            animation: logoSucesso 0.3s ease-out;
+        }
+
+        .logo-erro {
+            position: relative;
+        }
+
+        .logo-erro::after {
+            content: '❌';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 12px;
+            color: #e74c3c;
+            animation: logoErro 0.3s ease-out;
+        }
+
+        @keyframes logoProcessado {
+            0% {
+                transform: scale(1);
+                filter: brightness(0) invert(1);
+            }
+            50% {
+                transform: scale(1.05);
+                filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            }
+            100% {
+                transform: scale(1);
+                filter: brightness(0) invert(1);
+            }
+        }
+
+        @keyframes logoSucesso {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes logoErro {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    
+
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header reorganizado -->
+            <div class="dashboard-header">
+                <!-- Lado Esquerdo: Progress Bar -->
+                <div class="header-left">
+                    <div class="progress-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="current-revenue" id="currentRevenue">0 MZN</span>
+                                <span class="target-revenue" id="targetRevenue">25K MZN</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                                <span class="progress-percentage" id="progressPercentage">0%</span>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lado Direito: Notifications, Avatar e User Panel -->
+                <div class="header-right">
+                    <!-- Notification Panel -->
+                    <div class="notification-container">
+                        <div id="notification-panel" class="notification-panel" onclick="toggleNotificationPanel()">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-count" id="notificationCount">0</span>
+                        </div>
+                        
+                        <!-- Notification Dropdown -->
+                        <div id="notificationDropdown" class="notification-dropdown">
+                            <div class="notification-header">
+                                <h4>Notificações</h4>
+                                <button onclick="markAllAsRead()" class="mark-all-read">Marcar todas como lidas</button>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-item">
+                                    <div class="notification-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-title">Venda aprovada</p>
+                                        <p class="notification-time">Há 2 minutos</p>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-title">Pagamento pendente</p>
+                                        <p class="notification-time">Há 5 minutos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Avatar do Usuário -->
+                    <div class="user-avatar-container">
+                    <div class="user-avatar" id="userAvatar" onclick="toggleUserPanel()">
+                        <div id="avatarImage" class="avatar-initials">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Painel de Informações do Usuário -->
+                    <div class="user-info-panel" id="userInfoPanel">
+                        <div class="user-info-header">
+                            <div class="user-info-details">
+                                <h4 id="panelUserName">Carregando...</h4>
+                                <p id="panelUserEmail">Carregando...</p>
+                        </div>
+                        </div>
+                        
+                        <div class="user-info-actions">
+                            <a href="/ferramentas.html" class="btn-settings-panel">
+                                <i class="fas fa-cog"></i>
+                                Configurações
+                            </a>
+                            <button onclick="logout()" class="btn-logout-panel">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Cards de Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card info">
+                    <div class="stat-number loading" id="receitaTotal">
+                        <div class="loading-spinner info-spinner"></div>
+                    </div>
+                    <div class="stat-label">Receita total</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number loading" id="vendasAprovadas">
+                        <div class="loading-spinner success-spinner"></div>
+                    </div>
+                    <div class="stat-label">Vendas Aprovadas</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-number loading" id="vendasCanceladas">
+                        <div class="loading-spinner danger-spinner"></div>
+                    </div>
+                    <div class="stat-label">Vendas Canceladas</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number loading" id="vendasPendentes">
+                        <div class="loading-spinner warning-spinner"></div>
+                    </div>
+                    <div class="stat-label">Vendas Pendentes</div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Vendas Interativo -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        <i class="fas fa-chart-area"></i>
+                        Gráfico de Vendas
+                    </h3>
+                    <div class="period-filters">
+                        <button class="period-btn active" data-period="hoje">Hoje</button>
+                        <button class="period-btn" data-period="ontem">Ontem</button>
+                        <button class="period-btn" data-period="7dias">Últimos 7 dias</button>
+                        <button class="period-btn" data-period="30dias">Últimos 30 dias</button>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <small id="lastUpdate" style="color: #666; font-size: 0.8em; margin-top: 15px; display: block;">Carregando...</small>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Script para verificar conexão com o servidor -->
+    <script src="js/server-check.js"></script>
+    <!-- Carregar config.js para definir API_BASE -->
+    <script src="js/config.js"></script>
+    <!-- Script de verificação de autenticação -->
+    <script src="js/auth-check.js"></script>
+    <!-- Sidebar Component - carregar primeiro -->
+    <script src="js/sidebar-component.js"></script>
+    <!-- Carregar login.js para funções de autenticação -->
+    <script src="js/login.js"></script>
+    <!-- Carregar dashboard.js por último -->
+    <script src="js/dashboard.js"></script>
+    <!-- Notification Panel -->
+    <script src="js/notification-panel.js"></script>
+    
+    <!-- Meta Pixel Integration -->
+    <!-- Meta Pixel Unificado -->
+    <script src="/js/meta-pixel-unified.js?v=2.1"></script>
+    
+    <!-- PWA Scripts -->
+    <script src="js/pwa-manager.js"></script>
+    <script src="js/offline-manager.js"></script>
+    
+    <script>
+        // Remover elementos update-notification e notification-toast se existirem
+        (function() {
+            const removeUpdateNotification = () => {
+                const notification = document.getElementById('update-notification');
+                if (notification) {
+                    notification.remove();
+                    console.log('✅ Elemento update-notification removido do dashboard');
+                }
+            };
+            
+            const removeNotificationToast = () => {
+                const toast = document.querySelector('.notification-toast');
+                if (toast) {
+                    toast.remove();
+                    console.log('✅ Elemento notification-toast removido do dashboard');
+                }
+            };
+            
+            const removeElements = () => {
+                removeUpdateNotification();
+                removeNotificationToast();
+            };
+            
+            // Remover imediatamente se DOM já estiver pronto
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', removeElements);
+            } else {
+                removeElements();
+            }
+            
+            // Remover periodicamente para garantir (caso sejam criados dinamicamente)
+            setInterval(removeElements, 1000);
+        })();
+        
+        // Função para logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        }
+        
+        // Carregar informações do usuário
+        document.addEventListener('DOMContentLoaded', function() {
+            // Google OAuth removido
+            
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    const profileWelcomeText = document.getElementById('profileWelcomeText');
+                    const dashboardWelcomeInfo = document.getElementById('dashboardWelcomeInfo');
+                    
+                    if (profileWelcomeText) {
+                        profileWelcomeText.textContent = `Bem-vindo, ${user.nome || user.email || 'Usuário'}`;
+                    }
+                    
+                    if (dashboardWelcomeInfo) {
+                        dashboardWelcomeInfo.textContent = `Bem-vindo, ${user.nome || user.email || 'Usuário'}`;
+                    }
+                    
+                    // Google Auth removido
+                } catch (error) {
+                    console.error('Erro ao carregar dados do usuário:', error);
+                }
+            }
+            
+        });
+        
+        // Função de teste para verificar o painel
+        function testUserPanel() {
+            const panel = document.getElementById('userInfoPanel');
+            if (panel) {
+                console.log('🔍 Panel found:', panel);
+                console.log('📍 Panel position:', panel.getBoundingClientRect());
+                console.log('🎨 Panel computed styles:', window.getComputedStyle(panel));
+                console.log('📝 Panel HTML:', panel.outerHTML);
+                
+                // Testar visibilidade forçada no centro da tela
+                panel.style.position = 'fixed';
+                panel.style.top = '50%';
+                panel.style.left = '50%';
+                panel.style.transform = 'translate(-50%, -50%)';
+                panel.style.display = 'block';
+                panel.style.opacity = '1';
+                panel.style.visibility = 'visible';
+                panel.style.background = 'red';
+                panel.style.zIndex = '99999';
+                panel.style.width = '300px';
+                panel.style.height = '200px';
+                panel.style.border = '5px solid yellow';
+                panel.style.padding = '20px';
+                
+                console.log('🧪 Panel test styles applied - should be visible in center of screen');
+            } else {
+                console.error('❌ Panel not found in test');
+            }
+        }
+        
+        // Funções do Avatar e Painel de Perfil
+        function toggleUserPanel() {
+            const panel = document.getElementById('userInfoPanel');
+            if (panel) {
+                console.log('🔄 Toggle user panel clicked');
+                if (panel.classList.contains('show')) {
+                    hideUserPanel();
+                } else {
+                    showUserPanel();
+                }
+            } else {
+                console.error('❌ User panel not found');
+            }
+        }
+        
+        function showUserPanel() {
+            const panel = document.getElementById('userInfoPanel');
+            if (panel) {
+                console.log('✅ Showing user panel');
+                console.log('📍 Panel position:', panel.getBoundingClientRect());
+                console.log('🎨 Panel styles:', window.getComputedStyle(panel));
+                
+                // Forçar visibilidade com estilos inline
+                panel.style.position = 'fixed';
+                panel.style.top = '80px';
+                panel.style.right = '20px';
+                panel.style.display = 'block';
+                panel.style.opacity = '1';
+                panel.style.visibility = 'visible';
+                panel.style.transform = 'translateY(0)';
+                panel.style.background = 'rgba(0, 0, 0, 0.95)';
+                panel.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                panel.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.3)';
+                panel.style.zIndex = '99999';
+                
+                panel.classList.add('show');
+                console.log('✅ Panel classes after show:', panel.classList.toString());
+                console.log('🎨 Panel inline styles:', panel.style.cssText);
+                
+                // Verificar posição após aplicar estilos
+                setTimeout(() => {
+                    const rect = panel.getBoundingClientRect();
+                    console.log('📍 Panel final position:', {
+                        top: rect.top,
+                        left: rect.left,
+                        width: rect.width,
+                        height: rect.height,
+                        visible: rect.width > 0 && rect.height > 0
+                    });
+                    console.log('🎨 Panel computed styles after:', window.getComputedStyle(panel));
+                    console.log('📝 Panel innerHTML:', panel.innerHTML);
+                    console.log('📝 Panel outerHTML:', panel.outerHTML);
+                }, 100);
+                
+                loadUserPanelData();
+            } else {
+                console.error('❌ User panel not found in showUserPanel');
+            }
+        }
+        
+        function hideUserPanel() {
+            const panel = document.getElementById('userInfoPanel');
+            if (panel) {
+                console.log('✅ Hiding user panel');
+                panel.classList.remove('show');
+                
+                // Limpar estilos inline
+                panel.style.position = '';
+                panel.style.top = '';
+                panel.style.right = '';
+                panel.style.display = 'none';
+                panel.style.opacity = '';
+                panel.style.visibility = '';
+                panel.style.transform = '';
+                panel.style.background = '';
+                panel.style.border = '';
+                panel.style.boxShadow = '';
+                panel.style.zIndex = '';
+            } else {
+                console.error('❌ User panel not found in hideUserPanel');
+            }
+        }
+        
+        async function loadUserPanelData() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                
+                // Preencher dados do painel (apenas nome e email)
+                document.getElementById('panelUserName').textContent = userData.nome || userData.name || 'Usuário';
+                document.getElementById('panelUserEmail').textContent = userData.email || 'Não informado';
+                
+                console.log('✅ Dados do painel carregados:', {
+                    nome: userData.nome || userData.name,
+                    email: userData.email
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados do painel:', error);
+            }
+        }
+        
+        function updatePanelLevel(level) {
+            const panel = document.getElementById('userInfoPanel');
+            if (panel) {
+                // Remover classes de nível anteriores
+                panel.classList.remove('panel-level-default', 'panel-level-bronze', 'panel-level-silver', 'panel-level-gold', 'panel-level-diamond');
+                
+                // Adicionar nova classe de nível
+                panel.classList.add(`panel-level-${level}`);
+            }
+        }
+        
+        function getLevelName(level) {
+            const levels = {
+                'default': 'Iniciante',
+                'bronze': 'Bronze',
+                'silver': 'Prata',
+                'gold': 'Ouro',
+                'diamond': 'Diamante'
+            };
+            return levels[level] || 'Iniciante';
+        }
+        
+        // Funções do Painel de Notificações
+        function toggleNotificationPanel() {
+            const dropdown = document.getElementById('notificationDropdown');
+            const userPanel = document.getElementById('userInfoPanel');
+            
+            if (dropdown) {
+                if (dropdown.classList.contains('show')) {
+                    hideNotificationPanel();
+                } else {
+                    showNotificationPanel();
+                }
+            }
+            
+            // Fechar painel do usuário se estiver aberto
+            if (userPanel && userPanel.classList.contains('show')) {
+                hideUserPanel();
+            }
+        }
+        
+        function showNotificationPanel() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) {
+                dropdown.classList.add('show');
+                loadNotifications();
+            }
+        }
+        
+        function hideNotificationPanel() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+        }
+        
+        function markAllAsRead() {
+            const notificationItems = document.querySelectorAll('.notification-item');
+            notificationItems.forEach(item => {
+                item.style.opacity = '0.6';
+            });
+            
+            // Atualizar contador para 0
+            const countElement = document.getElementById('notificationCount');
+            if (countElement) {
+                countElement.textContent = '0';
+            }
+            
+            // Fechar o painel
+            hideNotificationPanel();
+        }
+        
+        async function loadNotifications() {
+            try {
+                // Simular carregamento de notificações
+                // Em uma implementação real, você faria uma chamada para a API
+                console.log('Carregando notificações...');
+                
+                // Atualizar contador de notificações
+                const countElement = document.getElementById('notificationCount');
+                if (countElement) {
+                    countElement.textContent = '2'; // Simular 2 notificações
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar notificações:', error);
+            }
+        }
+        
+        
+        
+        function updateAvatarLevel(level) {
+            // Função simplificada - não aplica classes de nível
+            console.log('🎯 Avatar level:', level);
+        }
+        
+        // Atualizar avatar quando os dados do usuário forem carregados
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                const level = userData.sales_level || 'default';
+                updateAvatarLevel(level);
+                
+                // Atualizar avatar com iniciais ou imagem
+                const avatarImage = document.getElementById('avatarImage');
+                if (avatarImage) {
+                    if (userData.avatar_url) {
+                        // Mostrar imagem do avatar - limpar estilos do container primeiro
+                        avatarImage.style.background = 'none';
+                        avatarImage.style.display = 'block';
+                        avatarImage.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                    } else {
+                        // Mostrar iniciais - restaurar estilos do container
+                        avatarImage.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        avatarImage.style.display = 'flex';
+                        avatarImage.style.alignItems = 'center';
+                        avatarImage.style.justifyContent = 'center';
+                        avatarImage.style.color = 'white';
+                        avatarImage.style.fontWeight = '600';
+                        avatarImage.style.fontSize = '1.2rem';
+                        avatarImage.style.textTransform = 'uppercase';
+                        avatarImage.style.letterSpacing = '1px';
+                        const fullName = userData.nome || userData.name || 'Usuário';
+                        const initials = generateInitials(fullName);
+                        avatarImage.innerHTML = `<span id="avatarInitials">${initials}</span>`;
+                    }
+                }
+                
+                // Atualizar progress bar
+                updateProgressBar(userData);
+            } catch (error) {
+                console.error('Erro ao atualizar avatar:', error);
+            }
+        });
+
+        // Função para gerar iniciais do nome
+        function generateInitials(fullName) {
+            if (!fullName || fullName === 'Usuário') {
+                return 'U';
+            }
+            
+            const names = fullName.trim().split(' ');
+            if (names.length === 1) {
+                // Se só tem um nome, pega a primeira letra
+                return names[0].charAt(0).toUpperCase();
+            } else {
+                // Se tem mais de um nome, pega a primeira letra do primeiro e último
+                const firstInitial = names[0].charAt(0).toUpperCase();
+                const lastInitial = names[names.length - 1].charAt(0).toUpperCase();
+                return firstInitial + lastInitial;
+            }
+        }
+
+        // Função para atualizar avatar em tempo real
+        function updateAvatarDisplay() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                
+                // Atualizar avatar principal
+                const avatarImage = document.getElementById('avatarImage');
+                if (avatarImage) {
+                    updateAvatarImage(avatarImage, userData);
+                }
+                
+                // Atualizar avatar do painel
+                const panelAvatarImage = document.getElementById('panelAvatarImage');
+                if (panelAvatarImage) {
+                    updatePanelAvatar(panelAvatarImage, userData);
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao atualizar avatar:', error);
+            }
+        }
+
+        // Função auxiliar para atualizar o avatar
+        function updateAvatarImage(avatarImage, userData) {
+            if (avatarImage) {
+                if (userData.avatar_url) {
+                    // Mostrar imagem do avatar - limpar estilos do container primeiro
+                    avatarImage.style.background = 'none';
+                    avatarImage.style.display = 'block';
+                    avatarImage.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                } else {
+                    // Mostrar iniciais - restaurar estilos do container
+                    avatarImage.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    avatarImage.style.display = 'flex';
+                    avatarImage.style.alignItems = 'center';
+                    avatarImage.style.justifyContent = 'center';
+                    avatarImage.style.color = 'white';
+                    avatarImage.style.fontWeight = '600';
+                    avatarImage.style.fontSize = '1.2rem';
+                    avatarImage.style.textTransform = 'uppercase';
+                    avatarImage.style.letterSpacing = '1px';
+                    const fullName = userData.nome || userData.name || 'Usuário';
+                    const initials = generateInitials(fullName);
+                    avatarImage.innerHTML = `<span id="avatarInitials">${initials}</span>`;
+                }
+            }
+        }
+
+        // Função para atualizar avatar do painel
+        function updatePanelAvatar(panelAvatarImage, userData) {
+            if (panelAvatarImage) {
+                if (userData.avatar_url) {
+                    // Mostrar imagem do avatar - limpar estilos do container primeiro
+                    panelAvatarImage.style.background = 'none';
+                    panelAvatarImage.style.display = 'block';
+                    panelAvatarImage.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
+                    console.log('✅ Avatar do painel atualizado com imagem:', userData.avatar_url);
+                } else {
+                    // Mostrar iniciais - restaurar estilos do container
+                    panelAvatarImage.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    panelAvatarImage.style.display = 'flex';
+                    panelAvatarImage.style.alignItems = 'center';
+                    panelAvatarImage.style.justifyContent = 'center';
+                    panelAvatarImage.style.color = 'white';
+                    panelAvatarImage.style.fontWeight = '600';
+                    panelAvatarImage.style.fontSize = '1.2rem';
+                    panelAvatarImage.style.textTransform = 'uppercase';
+                    panelAvatarImage.style.letterSpacing = '1px';
+                    const fullName = userData.nome || userData.name || 'Usuário';
+                    const initials = generateInitials(fullName);
+                    panelAvatarImage.innerHTML = `<span id="panelAvatarInitials">${initials}</span>`;
+                    console.log('✅ Avatar do painel atualizado com iniciais:', initials);
+                }
+            } else {
+                console.error('❌ Elemento panelAvatarImage não encontrado');
+            }
+        }
+
+        // Função para atualizar progress bar com sistema de níveis
+        function updateProgressBar(userData) {
+            try {
+                const currentRevenue = userData.receitaTotal || 0;
+                
+                // Usar o sistema de níveis para determinar a meta atual
+                let currentLevel = 0;
+                let nextLevel = 1;
+                let targetRevenue = 25000; // Meta inicial: 25K
+                
+                // Determinar nível atual e próximo
+                if (typeof calculateSalesLevel === 'function') {
+                    const levelData = calculateSalesLevel(currentRevenue);
+                    currentLevel = levelData.current;
+                    nextLevel = levelData.next;
+                    
+                    // Se já está no nível máximo, usar a receita atual como meta
+                    if (currentLevel >= 5) {
+                        targetRevenue = currentRevenue || 1000000;
+                    } else {
+                        // Usar o threshold do próximo nível como meta
+                        targetRevenue = levelData.nextData.threshold;
+                    }
+                }
+                
+                // Calcular progresso baseado na meta do próximo nível
+                const progress = Math.min(100, Math.max(0, (currentRevenue / targetRevenue) * 100));
+                
+                // Formatar valores monetários com K para milhares
+                const formatCurrency = (value) => {
+                    if (value >= 1000) {
+                        const thousands = value / 1000;
+                        if (thousands >= 10) {
+                            return `${Math.round(thousands)}K MZN`;
+                        } else {
+                            return `${thousands.toFixed(1)}K MZN`;
+                        }
+                    }
+                    return `${value} MZN`;
+                };
+                
+                // Atualizar elementos
+                document.getElementById('currentRevenue').textContent = formatCurrency(currentRevenue);
+                document.getElementById('targetRevenue').textContent = formatCurrency(targetRevenue);
+                document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
+                
+                // Garantir que progressFill seja responsivo e não ultrapasse 100%
+                const progressFill = document.getElementById('progressFill');
+                const progressValue = Math.min(Math.max(progress, 0), 100); // Garantir entre 0 e 100
+                if (progressFill) {
+                    progressFill.style.width = progressValue + '%';
+                    progressFill.style.maxWidth = '100%';
+                    progressFill.style.boxSizing = 'border-box';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao atualizar progress bar:', error);
+            }
+        }
+        
+        // Fechar painel ao clicar fora dele
+        document.addEventListener('click', function(event) {
+            const userPanel = document.getElementById('userInfoPanel');
+            const userAvatar = document.getElementById('userAvatar');
+            const userAvatarContainer = document.querySelector('.user-avatar-container');
+            
+            const notificationPanel = document.getElementById('notificationDropdown');
+            const notificationContainer = document.querySelector('.notification-container');
+            
+            // Fechar painel do usuário se clicou fora
+            if (userPanel && userPanel.classList.contains('show')) {
+                if (!userAvatarContainer.contains(event.target)) {
+                    hideUserPanel();
+                }
+            }
+            
+            // Fechar painel de notificações se clicou fora
+            if (notificationPanel && notificationPanel.classList.contains('show')) {
+                if (!notificationContainer.contains(event.target)) {
+                    hideNotificationPanel();
+                }
+            }
+        });
+        
+
+        // Listener para detectar mudanças no localStorage e atualizar avatar
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'userData') {
+                console.log('🔄 Dados do usuário atualizados, atualizando avatar...');
+                updateAvatarDisplay();
+            }
+        });
+
+        // Listener para detectar mudanças no localStorage da mesma aba
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            if (key === 'userData') {
+                console.log('🔄 Dados do usuário atualizados na mesma aba, atualizando avatar...');
+                setTimeout(updateAvatarDisplay, 100);
+            }
+        };
+
+        // Forçar atualização do avatar ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Página carregada, forçando atualização do avatar...');
+            setTimeout(updateAvatarDisplay, 500);
+        });
+
+        // Forçar atualização do avatar quando a página ganha foco
+        window.addEventListener('focus', function() {
+            console.log('🔄 Página ganhou foco, atualizando avatar...');
+            updateAvatarDisplay();
+        });
+
+        // Listener para evento customizado de atualização do avatar
+        window.addEventListener('avatarUpdated', function(event) {
+            console.log('🔄 Evento de atualização do avatar recebido:', event.detail);
+            updateAvatarDisplay();
+        });
+
+        // Verificação única do avatar após carregamento
+        setTimeout(function() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const avatarImage = document.getElementById('avatarImage');
+            
+            if (avatarImage) {
+                const hasImage = avatarImage.querySelector('img');
+                const hasInitials = avatarImage.querySelector('span');
+                
+                // Se tem avatar_url mas não tem imagem, ou não tem avatar_url mas não tem iniciais
+                if ((userData.avatar_url && !hasImage) || (!userData.avatar_url && !hasInitials)) {
+                    console.log('🔧 Avatar inconsistente detectado, corrigindo...');
+                    updateAvatarDisplay();
+                }
+            }
+        }, 1000); // Verifica apenas uma vez após 1 segundo
+        
+    </script>
+    
+    <script>
+        // Inicializar sidebar com seção ativa
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('painel');
+        });
+    </script>
+    
+    <!-- Evento de Carregamento da Página -->
+    <script>
+        window.onload = function() {
+            console.log('🚀 Dashboard carregada - Processando logo do RatixPay');
+            
+            // URL da imagem do logo
+            const logoUrl = '/assets/images/icons/loader-icon-120.png';
+            
+            // Processar a imagem do logo
+            processarLogoRatixPay(logoUrl);
+        };
+        
+        /**
+         * Processar logo do RatixPay
+         * @param {string} logoUrl - URL da imagem do logo
+         */
+        function processarLogoRatixPay(logoUrl) {
+            try {
+                console.log('🖼️ Processando logo:', logoUrl);
+                
+                // Criar elemento de imagem para pré-carregar
+                const img = new Image();
+                
+                // Eventos de carregamento da imagem
+                img.onload = function() {
+                    console.log('✅ Logo carregado com sucesso');
+                    console.log('📊 Dados da imagem:', {
+                        width: img.width,
+                        height: img.height,
+                        naturalWidth: img.naturalWidth,
+                        naturalHeight: img.naturalHeight,
+                        src: img.src
+                    });
+                    
+                    // Aplicar filtros e otimizações
+                    aplicarOtimizacoesLogo(img);
+                    
+                    // Disparar evento customizado
+                    const event = new CustomEvent('logoProcessado', {
+                        detail: {
+                            url: logoUrl,
+                            width: img.width,
+                            height: img.height,
+                            timestamp: new Date().toISOString()
+                        }
+                    });
+                    window.dispatchEvent(event);
+                };
+                
+                img.onerror = function() {
+                    console.error('❌ Erro ao carregar logo:', logoUrl);
+                    
+                    // Disparar evento de erro
+                    const event = new CustomEvent('logoErro', {
+                        detail: {
+                            url: logoUrl,
+                            error: 'Falha ao carregar imagem',
+                            timestamp: new Date().toISOString()
+                        }
+                    });
+                    window.dispatchEvent(event);
+                };
+                
+                // Definir URL da imagem para iniciar carregamento
+                img.src = logoUrl;
+                
+                // Adicionar atributos de performance
+                img.loading = 'eager';
+                img.decoding = 'async';
+                
+            } catch (error) {
+                console.error('❌ Erro ao processar logo:', error);
+            }
+        }
+        
+        /**
+         * Aplicar otimizações ao logo
+         * @param {HTMLImageElement} img - Elemento da imagem
+         */
+        function aplicarOtimizacoesLogo(img) {
+            try {
+                console.log('🔧 Aplicando otimizações ao logo');
+                
+                // Verificar se a imagem já está no DOM
+                const logoElement = document.querySelector('.logo img');
+                if (logoElement) {
+                    // Aplicar filtros CSS para melhorar a aparência
+                    logoElement.style.filter = 'brightness(0) invert(1)';
+                    logoElement.style.transition = 'filter 0.3s ease';
+                    
+                    // Adicionar classe para animação
+                    logoElement.classList.add('logo-processado');
+                    
+                    console.log('✅ Otimizações aplicadas ao logo existente');
+                } else {
+                    console.log('⚠️ Logo não encontrado no DOM');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao aplicar otimizações:', error);
+            }
+        }
+        
+        // Event listeners para eventos customizados
+        window.addEventListener('logoProcessado', function(event) {
+            console.log('🎉 Logo processado com sucesso:', event.detail);
+            
+            // Adicionar indicador visual de sucesso
+            const logoContainer = document.querySelector('.logo');
+            if (logoContainer) {
+                logoContainer.classList.add('logo-carregado');
+            }
+        });
+        
+        window.addEventListener('logoErro', function(event) {
+            console.error('❌ Erro no processamento do logo:', event.detail);
+            
+            // Adicionar indicador visual de erro
+            const logoContainer = document.querySelector('.logo');
+            if (logoContainer) {
+                logoContainer.classList.add('logo-erro');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Email - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+        
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .verification-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 20px;
+        }
+
+        .resend-btn {
+            background: none;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .resend-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .resend-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .email-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-envelope-open"></i>
+        </div>
+        
+        <h1>Verificar Email</h1>
+        <p class="subtitle">
+            Enviamos um código de verificação para seu email. 
+            Digite o código abaixo para ativar sua conta.
+        </p>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="email-display" id="emailDisplay">
+            <!-- Email será preenchido via JavaScript -->
+        </div>
+
+        <form id="verificationForm" class="verification-form">
+            <div class="form-group">
+                <label for="verificationCode">Código de Verificação</label>
+                <input 
+                    type="text" 
+                    id="verificationCode" 
+                    name="verificationCode" 
+                    placeholder="Digite o código de 6 dígitos"
+                    maxlength="6"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="verify-btn" id="verifyBtn">
+                <i class="fas fa-check"></i> Verificar Conta
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Verificando...</p>
+        </div>
+
+        <div class="resend-section">
+            <p style="color: #666; margin-bottom: 15px;">
+                Não recebeu o código?
+            </p>
+            <button type="button" class="resend-btn" id="resendBtn">
+                <i class="fas fa-paper-plane"></i> Reenviar Código
+            </button>
+            <p id="resendTimer" style="color: #666; font-size: 12px; margin-top: 10px;"></p>
+        </div>
+
+        <a href="login.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Voltar ao Login
+        </a>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // Elementos
+        const verificationForm = document.getElementById('verificationForm');
+        const verificationCodeInput = document.getElementById('verificationCode');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const resendBtn = document.getElementById('resendBtn');
+        const alert = document.getElementById('alert');
+        const loading = document.getElementById('loading');
+        const emailDisplay = document.getElementById('emailDisplay');
+        const resendTimer = document.getElementById('resendTimer');
+
+        // Verificar parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const userId = urlParams.get('userId');
+
+        // Exibir email se disponível
+        if (email) {
+            emailDisplay.textContent = `Código enviado para: ${email}`;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            verificationForm.addEventListener('submit', handleVerification);
+            resendBtn.addEventListener('click', handleResend);
+            verificationCodeInput.addEventListener('input', formatCode);
+            
+            // Verificar se há mensagem na URL
+            checkUrlMessage();
+        });
+
+        // Função de verificação
+        async function handleVerification(e) {
+            e.preventDefault();
+            
+            const code = verificationCodeInput.value.trim();
+            
+            if (!code || code.length !== 6) {
+                showAlert('Digite um código de 6 dígitos', 'error');
+                return;
+            }
+
+            try {
+                setLoading(true);
+
+                const response = await fetch(`${API_BASE}/auth/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        userId: userId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Email verificado com sucesso! Você pode fazer login agora.', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html?message=verified';
+                    }, 2000);
+                } else {
+                    showAlert(result.error || 'Código inválido', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na verificação:', error);
+                showAlert('Erro de conexão. Tente novamente.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Função para reenviar código
+        async function handleResend() {
+            if (!userId) {
+                showAlert('ID do usuário não encontrado', 'error');
+                return;
+            }
+
+            try {
+                setLoading(true);
+
+                const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Código reenviado com sucesso!', 'success');
+                    startResendTimer();
+                } else {
+                    showAlert(result.error || 'Erro ao reenviar código', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao reenviar:', error);
+                showAlert('Erro de conexão. Tente novamente.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Formatar código (apenas números)
+        function formatCode(e) {
+            const value = e.target.value.replace(/\D/g, '');
+            e.target.value = value;
+        }
+
+        // Função para mostrar alertas
+        function showAlert(message, type) {
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Função para controlar loading
+        function setLoading(isLoading) {
+            if (isLoading) {
+                verifyBtn.disabled = true;
+                resendBtn.disabled = true;
+                loading.style.display = 'block';
+            } else {
+                verifyBtn.disabled = false;
+                resendBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        // Timer para reenvio
+        function startResendTimer() {
+            let timeLeft = 60;
+            resendBtn.disabled = true;
+            
+            const timer = setInterval(() => {
+                resendTimer.textContent = `Aguarde ${timeLeft}s para reenviar`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    resendTimer.textContent = '';
+                }
+            }, 1000);
+        }
+
+        // Verificar mensagem na URL
+        function checkUrlMessage() {
+            const message = urlParams.get('message');
+            
+            if (message === 'verify-email') {
+                showAlert('Verifique seu email para ativar a conta', 'info');
+            }
+        }
+
+        // Iniciar timer se necessário
+        if (userId) {
+            startResendTimer();
+        }
+    </script>
+    
+</body>
+</html>

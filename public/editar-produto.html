@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>RatixPay - Editar Produto</title>
+    <script>
+        // Redirecionar para cadastro-produto.html com parâmetro de ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const produtoId = urlParams.get('id');
+        
+        if (produtoId) {
+            window.location.href = `cadastro-produto.html?id=${produtoId}`;
+        } else {
+            window.location.href = 'gestao-produtos.html';
+        }
+    </script>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+    
+</head>
+<body>
+    <p>Redirecionando...</p>
+    
+</body>
+</html>
+

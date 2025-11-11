@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatixPay - Gestão de Vendas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --border-radius: 15px;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Header e Navegação */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Header específico para Gestão de Vendas */
+        .header-gestaoVendas {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+            border-radius: 0 0 15px 15px;
+            min-height: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            flex-wrap: wrap;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .header-gestaoVendas::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(246, 76, 0, 0.1) 50%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-gestaoVendas h2 {
+            margin: 0;
+            font-size: 2rem;
+            color: #ffffff;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 0;
+        }
+
+        /* Cards de Estatísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--info-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--info-color), var(--success-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info-color);
+        }
+
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .stat-number.success {
+            color: var(--success-color);
+        }
+
+        .stat-number.warning {
+            color: var(--warning-color);
+        }
+
+        .stat-number.danger {
+            color: var(--danger-color);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+
+        /* Filtros em Linha Única */
+        .filters-row {
+            display: flex;
+            align-items: end;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 120px;
+            flex: 1;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .filters-row {
+                flex-wrap: wrap;
+            }
+            
+            .filter-group {
+                min-width: 100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: auto;
+            }
+            
+            .filter-actions {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            background: white;
+            cursor: pointer;
+            height: 40px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn-filter {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+
+        /* Tabela de Vendas */
+        .table-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .table-search {
+            position: relative;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--info-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+            transition: var(--transition);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .status-aprovado {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-pendente {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-rejeitado, .status-cancelado {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .valor-final {
+            font-weight: bold;
+            color: var(--success-color);
+            font-size: 1.1rem;
+        }
+
+        .data-hora {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .data {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .hora {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Paginação */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .btn-pagination {
+            padding: 10px 16px;
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            background: var(--info-color);
+            color: white;
+            border-color: var(--info-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-pagination:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Loading e Estados */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--info-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 30px 20px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .header-gestaoVendas {
+                padding: 15px 20px;
+                min-height: 70px;
+            }
+
+            .header-gestaoVendas h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stat-card {
+                padding: 25px;
+            }
+
+            .stat-number {
+                font-size: 2.2rem;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .table-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .table-search {
+                min-width: auto;
+                flex: 1;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn-pagination {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 25px 15px;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .header-gestaoVendas {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+
+            .header-gestaoVendas h1 {
+                font-size: 1.6rem;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .chart-container {
+                padding: 20px;
+            }
+
+            .filters-section {
+                padding: 20px;
+            }
+
+            .table-section {
+                padding: 20px;
+            }
+        }
+
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header da Gestão de Vendas -->
+            <div class="header-gestaoVendas">
+                <h2>GESTÃO DE VENDAS</h2>
+            </div>
+
+            <!-- Cards de Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card info">
+                    <div class="stat-number" id="totalVendas">0</div>
+                    <div class="stat-label">Total de Vendas</div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-number success" id="vendasAprovadas">0</div>
+                    <div class="stat-label">Vendas Aprovadas</div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-number warning" id="vendasPendentes">0</div>
+                    <div class="stat-label">Vendas Pendentes</div>
+                </div>
+                
+                <div class="stat-card danger">
+                    <div class="stat-number danger" id="vendasCanceladas">0</div>
+                    <div class="stat-label">Vendas Canceladas</div>
+                </div>
+                
+                <div class="stat-card info">
+                    <div class="stat-number" id="receitaTotal">MZN 0,00</div>
+                    <div class="stat-label">Receita Total</div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-number" id="receitaDisponivel">MZN 0,00</div>
+                    <div class="stat-label">Saldo</div>
+                </div>
+                
+            </div>
+
+            <!-- Tabela de Vendas -->
+            <div class="table-section">
+                <!-- Filtros em Linha Única -->
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label">ID do Produto</label>
+                        <select id="filtroIdProduto" class="filter-select">
+                            <option value="">Todos os IDs</option>
+                        </select>
+                </div>
+                
+                    <div class="filter-group">
+                        <label class="filter-label">Produto</label>
+                        <select id="filtroProduto" class="filter-select">
+                            <option value="">Todos os Produtos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Cliente</label>
+                        <select id="filtroCliente" class="filter-select">
+                            <option value="">Todos os Clientes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Email</label>
+                        <select id="filtroEmail" class="filter-select">
+                            <option value="">Todos os Emails</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select id="filtroStatus" class="filter-select">
+                            <option value="">Todos os Status</option>
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Rejeitado">Rejeitado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Data</label>
+                        <select id="filtroData" class="filter-select">
+                            <option value="">Todas as Datas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button id="btnAplicarFiltros" class="btn-filter btn-primary">
+                            <i class="fas fa-search"></i>
+                            Aplicar
+                        </button>
+                        <button id="btnLimparFiltros" class="btn-filter btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Limpar
+                        </button>
+                </div>
+            </div>
+
+                <div class="table-header">
+                    <h3 class="table-title">
+                        <i class="fas fa-receipt"></i>
+                        Vendas Detalhadas
+                    </h3>
+                    <div class="table-controls">
+                        <div class="table-search">
+                            <input type="text" id="searchInput" class="search-input" placeholder="Buscar vendas...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <button id="btnAtualizar" class="btn-filter btn-primary">
+                            <i class="fas fa-sync-alt"></i>
+                            Atualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table" id="vendasTable">
+                        <thead>
+                            <tr>
+                                <th>ID do Produto</th>
+                                <th>Produto</th>
+                                <th>Cliente</th>
+                                <th>Email</th>
+                                <th>Contato</th>
+                                <th>Afiliado</th>
+                                <th>Status</th>
+                                <th>Valor Final</th>
+                                <th>Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vendasDetalhadasBody">
+                            <!-- Dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginação -->
+                <div class="pagination">
+                    <button id="btnAnterior" class="btn-pagination" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                        Anterior
+                    </button>
+                    <span class="pagination-info" id="paginationInfo">Página 1 de 1</span>
+                    <button id="btnProximo" class="btn-pagination">
+                        Próximo
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/login.js"></script>
+    <!-- Sidebar Component -->
+    <script src="js/sidebar-component.js"></script>
+    <script src="js/gestao-vendas.js"></script>
+    <!-- Notification Handler -->
+    <!-- Notification Panel removido desta página -->
+    
+    <script>
+        // Inicializar sidebar com seção ativa
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('vendas');
+        });
+    </script>
+    
+    <!-- Meta Pixel Integration -->
+    <!-- Meta Pixel Unificado -->
+    <script src="js/meta-pixel-unified.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,38 @@
+[
+  {
+    "keywords": [
+      "pagamento",
+      "pagar",
+      "metodo",
+      "método"
+    ],
+    "response": "💳 *Métodos de Pagamento*\n\nAceitamos M-Pesa e e-Mola."
+  },
+  {
+    "keywords": [
+      "entrega",
+      "receber",
+      "produto",
+      "digital"
+    ],
+    "response": "🚚 *Entrega de Produtos*\nProdutos digitais entregues automaticamente após pagamento."
+  },
+  {
+    "keywords": [
+      "suporte",
+      "ajuda",
+      "problema",
+      "dificuldade"
+    ],
+    "response": "🆘 *Suporte Técnico*\nEmail: suporte@ratixpay.com\nTel: +258841234567"
+  },
+  {
+    "keywords": [
+      "reembolso",
+      "devolução",
+      "devolver",
+      "cancelar"
+    ],
+    "response": "💰 *Política de Reembolso*\nSolicite reembolso em até 7 dias após a compra."
+  }
+]

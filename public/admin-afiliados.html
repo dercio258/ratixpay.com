@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Gestão de Afiliados - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/admin.css" rel="stylesheet">
+        
+<style>
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .stats-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .stats-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stats-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .affiliate-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-affiliate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-affiliate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-ativo {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inativo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-suspenso {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 12px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-users"></i> Gestão de Afiliados</h2>
+                            <p class="text-muted">Gerencie afiliados, comissões e links de rastreamento</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-affiliate" data-bs-toggle="modal" data-bs-target="#modalNovoAfiliado">
+                                <i class="fas fa-plus"></i> Novo Afiliado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="totalAfiliados">0</div>
+                    <div class="stats-label">Total de Afiliados</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card success">
+                    <div class="stats-number" id="afiliadosAtivos">0</div>
+                    <div class="stats-label">Afiliados Ativos</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card warning">
+                    <div class="stats-number" id="totalVendas">0</div>
+                    <div class="stats-label">Total de Vendas</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card info">
+                    <div class="stats-number" id="totalComissoes">MZN 0.00</div>
+                    <div class="stats-label">Comissões Pagas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Afiliados -->
+        <div class="row">
+            <div class="col-12">
+                <div class="affiliate-table">
+                    <div class="p-4">
+                        <h5><i class="fas fa-table"></i> Lista de Afiliados</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Código</th>
+                                    <th>Status</th>
+                                    <th>Vendas</th>
+                                    <th>Comissões</th>
+                                    <th>Saldo</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaAfiliados">
+                                <!-- Dados carregados via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Novo Afiliado -->
+    <div class="modal fade" id="modalNovoAfiliado" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-plus"></i> Novo Afiliado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNovoAfiliado">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="telefone">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="comissao" class="form-label">Comissão (%) *</label>
+                                <input type="number" class="form-control" id="comissao" min="0" max="100" step="0.01" value="10" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="linkAfiliado" class="form-label">Link de Afiliado *</label>
+                            <input type="url" class="form-control" id="linkAfiliado" placeholder="https://exemplo.com/afiliado" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-affiliate" onclick="criarAfiliado()">
+                        <i class="fas fa-save"></i> Criar Afiliado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Afiliado -->
+    <div class="modal fade" id="modalEditarAfiliado" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Editar Afiliado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarAfiliado">
+                        <input type="hidden" id="editId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editNome" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="editNome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editEmail" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editTelefone" class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="editTelefone">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editComissao" class="form-label">Comissão (%) *</label>
+                                <input type="number" class="form-control" id="editComissao" min="0" max="100" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editStatus" class="form-label">Status</label>
+                                <select class="form-select" id="editStatus">
+                                    <option value="ativo">Ativo</option>
+                                    <option value="inativo">Inativo</option>
+                                    <option value="suspenso">Suspenso</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editLinkAfiliado" class="form-label">Link de Afiliado *</label>
+                                <input type="url" class="form-control" id="editLinkAfiliado" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-affiliate" onclick="salvarEdicao()">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configurações
+        window.API_BASE = 'http://localhost:4000/api';
+        
+        // Variáveis globais
+        let afiliados = [];
+        let estatisticas = {};
+
+        // Função para obter token válido
+        function getValidToken() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+            if (!token) {
+                alert('Token de autenticação não encontrado. Faça login novamente.');
+                window.location.href = 'login.html';
+                return null;
+            }
+            return token;
+        }
+
+        // Verificar autenticação antes de carregar dados
+        async function checkAuth() {
+            const token = getValidToken();
+            if (!token) {
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.user) {
+                        const isMainAdmin = result.user.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = result.user.role === 'admin' || result.user.tipo_conta === 'admin' || isMainAdmin;
+                        if (!isAdmin) {
+                            alert('Acesso negado. Apenas administradores.');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro na verificação de auth:', error);
+            }
+
+            alert('Token inválido ou expirado. Faça login novamente.');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        // Carregar dados iniciais
+        async function carregarDados() {
+            try {
+                console.log('?? Carregando dados de afiliados...');
+                await Promise.all([
+                    carregarAfiliados(),
+                    carregarEstatisticas()
+                ]);
+            } catch (error) {
+                console.error('? Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+            }
+        }
+
+        // Carregar afiliados
+        async function carregarAfiliados() {
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    afiliados = data.data || [];
+                    renderizarTabela();
+                    console.log('? Afiliados carregados:', afiliados.length);
+                } else {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar afiliados:', error);
+                alert('Erro ao carregar afiliados: ' + error.message);
+            }
+        }
+
+        // Carregar estatísticas
+        async function carregarEstatisticas() {
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados/estatisticas`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    estatisticas = data.data || {};
+                    atualizarEstatisticas();
+                    console.log('? Estatísticas carregadas');
+                } else {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar estatísticas:', error);
+                // Continuar sem falhar
+            }
+        }
+
+        // Renderizar tabela
+        function renderizarTabela() {
+            const tbody = document.getElementById('tabelaAfiliados');
+            if (!tbody) return;
+
+            if (afiliados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-users text-muted"></i>
+                            <p class="text-muted mt-2">Nenhum afiliado encontrado</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = afiliados.map(afiliado => `
+                <tr>
+                    <td><strong>${afiliado.nome}</strong></td>
+                    <td>${afiliado.email}</td>
+                    <td><code>${afiliado.codigo_afiliado}</code></td>
+                    <td>
+                        <span class="status-badge status-${afiliado.status}">
+                            ${afiliado.status}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-primary">${afiliado.total_vendas || 0}</span></td>
+                    <td><strong>MZN ${parseFloat(afiliado.total_comissoes || 0).toFixed(2)}</strong></td>
+                    <td><strong>MZN ${parseFloat(afiliado.saldo_disponivel || 0).toFixed(2)}</strong></td>
+                    <td>${formatarData(afiliado.data_cadastro)}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarAfiliado('${afiliado.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-${afiliado.status === 'ativo' ? 'warning' : 'success'}" 
+                                    onclick="toggleStatusAfiliado('${afiliado.id}', '${afiliado.status}')" 
+                                    title="${afiliado.status === 'ativo' ? 'Suspender' : 'Ativar'}">
+                                <i class="fas ${afiliado.status === 'ativo' ? 'fa-ban' : 'fa-check'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="excluirAfiliado('${afiliado.id}')" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas() {
+            const elementos = {
+                totalAfiliados: estatisticas.totalAfiliados || 0,
+                afiliadosAtivos: estatisticas.afiliadosAtivos || 0,
+                totalVendas: estatisticas.totalVendas || 0,
+                totalComissoes: `MZN ${parseFloat(estatisticas.totalComissoes || 0).toFixed(2)}`
+            };
+
+            Object.entries(elementos).forEach(([id, valor]) => {
+                const elemento = document.getElementById(id);
+                if (elemento) {
+                    elemento.textContent = valor;
+                }
+            });
+        }
+
+        // Criar afiliado
+        async function criarAfiliado() {
+            try {
+                const form = document.getElementById('formNovoAfiliado');
+                const formData = new FormData(form);
+                
+                const dados = {
+                    nome: document.getElementById('nome').value,
+                    email: document.getElementById('email').value,
+                    telefone: document.getElementById('telefone').value,
+                    comissao_percentual: parseFloat(document.getElementById('comissao').value),
+                    link_afiliado: document.getElementById('linkAfiliado').value
+                };
+
+                if (!dados.nome || !dados.email || !dados.link_afiliado) {
+                    alert('Preencha todos os campos obrigatórios!');
+                    return;
+                }
+
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('Afiliado criado com sucesso!');
+                    bootstrap.Modal.getInstance(document.getElementById('modalNovoAfiliado')).hide();
+                    form.reset();
+                    carregarDados();
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao criar afiliado: ' + (errorData.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('? Erro ao criar afiliado:', error);
+                alert('Erro ao criar afiliado: ' + error.message);
+            }
+        }
+
+        // Editar afiliado
+        function editarAfiliado(id) {
+            const afiliado = afiliados.find(a => a.id === id);
+            if (!afiliado) return;
+
+            document.getElementById('editId').value = afiliado.id;
+            document.getElementById('editNome').value = afiliado.nome;
+            document.getElementById('editEmail').value = afiliado.email;
+            document.getElementById('editTelefone').value = afiliado.telefone || '';
+            document.getElementById('editComissao').value = afiliado.comissao_percentual;
+            document.getElementById('editStatus').value = afiliado.status;
+            document.getElementById('editLinkAfiliado').value = afiliado.link_afiliado;
+
+            new bootstrap.Modal(document.getElementById('modalEditarAfiliado')).show();
+        }
+
+        // Salvar edição
+        async function salvarEdicao() {
+            try {
+                const id = document.getElementById('editId').value;
+                const dados = {
+                    nome: document.getElementById('editNome').value,
+                    email: document.getElementById('editEmail').value,
+                    telefone: document.getElementById('editTelefone').value,
+                    comissao_percentual: parseFloat(document.getElementById('editComissao').value),
+                    status: document.getElementById('editStatus').value,
+                    link_afiliado: document.getElementById('editLinkAfiliado').value
+                };
+
+                if (!dados.nome || !dados.email || !dados.link_afiliado) {
+                    alert('Preencha todos os campos obrigatórios!');
+                    return;
+                }
+
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    alert('Afiliado atualizado com sucesso!');
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditarAfiliado')).hide();
+                    carregarDados();
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao atualizar afiliado: ' + (errorData.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('? Erro ao atualizar afiliado:', error);
+                alert('Erro ao atualizar afiliado: ' + error.message);
+            }
+        }
+
+        // Toggle status
+        async function toggleStatusAfiliado(id, statusAtual) {
+            const isAtivo = statusAtual === 'ativo';
+            const acao = isAtivo ? 'suspender' : 'ativar';
+            
+            const confirmacao = confirm(`Tem certeza que deseja ${acao} este afiliado?`);
+            if (!confirmacao) return;
+
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados/${id}/toggle-status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status: isAtivo ? 'suspenso' : 'ativo'
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`Afiliado ${acao}do com sucesso!`);
+                    carregarDados();
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao alterar status: ' + (errorData.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('? Erro ao alterar status:', error);
+                alert('Erro ao alterar status: ' + error.message);
+            }
+        }
+
+        // Excluir afiliado
+        async function excluirAfiliado(id) {
+            const confirmacao = confirm('Tem certeza que deseja excluir este afiliado? Esta ação não pode ser desfeita.');
+            if (!confirmacao) return;
+
+            try {
+                const token = getValidToken();
+                if (!token) return;
+
+                const response = await fetch(`${window.API_BASE}/admin/afiliados/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Afiliado excluído com sucesso!');
+                    carregarDados();
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao excluir afiliado: ' + (errorData.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('? Erro ao excluir afiliado:', error);
+                alert('Erro ao excluir afiliado: ' + error.message);
+            }
+        }
+
+        // Formatar data
+        function formatarData(data) {
+            if (!data) return '-';
+            return new Date(data).toLocaleDateString('pt-BR');
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('?? Inicializando página de afiliados...');
+            
+            // Verificar autenticação primeiro
+            const isAuthorized = await checkAuth();
+            if (!isAuthorized) {
+                return;
+            }
+            
+            // Carregar dados após autenticação confirmada
+            carregarDados();
+        });
+    </script>
+    
+</body>
+</html>

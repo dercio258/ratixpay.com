@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Administrativo - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--info-color), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            transition: transform 0.3s ease;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+            color: var(--info-color);
+        }
+
+        .stats-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .stats-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stats-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stats-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stats-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        /* Estilos de gráfico removidos */
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--info-color);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 5px solid var(--danger-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .loading-indicator {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 5px solid var(--info-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--info-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        .navigation-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #495057;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 140px;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-btn:nth-child(1) { border-color: var(--success-color); color: var(--success-color); }
+        .nav-btn:nth-child(2) { border-color: var(--warning-color); color: var(--warning-color); }
+        .nav-btn:nth-child(3) { border-color: var(--info-color); color: var(--info-color); }
+        .nav-btn:nth-child(4) { border-color: var(--danger-color); color: var(--danger-color); }
+        .nav-btn:nth-child(5) { border-color: #9b59b6; color: #9b59b6; }
+        .nav-btn:nth-child(6) { border-color: #25d366; color: #25d366; }
+
+        .nav-btn:nth-child(1):hover { background: var(--success-color); color: white; }
+        .nav-btn:nth-child(2):hover { background: var(--warning-color); color: white; }
+        .nav-btn:nth-child(3):hover { background: var(--info-color); color: white; }
+        .nav-btn:nth-child(4):hover { background: var(--danger-color); color: white; }
+        .nav-btn:nth-child(5):hover { background: #9b59b6; color: white; }
+        .nav-btn:nth-child(6):hover { background: #25d366; color: white; }
+
+        .nav-btn i {
+            font-size: 1.1rem;
+        }
+
+
+        /* Media queries para responsividade */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 15px;
+            }
+            
+            .stats-card {
+                padding: 20px;
+                min-height: 110px;
+            }
+            
+            .stats-icon {
+                font-size: 2.2rem;
+            }
+            
+            .stats-number {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .stats-number {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                padding: 0 5px;
+            }
+            
+            .stats-card {
+                padding: 18px;
+                min-height: 100px;
+            }
+            
+            .stats-icon {
+                font-size: 2rem;
+            }
+            
+            /* Estilos de gráfico removidos */
+            
+            .navigation-bar {
+                gap: 10px;
+            }
+            
+            .nav-btn {
+                min-width: 120px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 0;
+            }
+            
+            .stats-card {
+                padding: 15px;
+                margin: 0 5px;
+                min-height: 90px;
+            }
+            
+            .stats-icon {
+                font-size: 1.8rem;
+            }
+            
+            .stats-number {
+                font-size: 1.6rem;
+            }
+            
+            .stats-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                gap: 10px;
+            }
+            
+            .stats-card {
+                padding: 12px;
+                margin: 0 2px;
+                min-height: 80px;
+            }
+            
+            .stats-icon {
+                font-size: 1.5rem;
+            }
+            
+            .stats-number {
+                font-size: 1.4rem;
+            }
+            
+            .stats-label {
+                font-size: 0.8rem;
+            }
+        }
+    
+        /* Otimizações globais para sidebar */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        /* Estilos de sidebar removidos */
+        
+        /* Estilos de sidebar removidos */
+        
+        /* Responsividade global */
+        @media (max-width: 768px) {
+            .container, .main-content {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container, .main-content {
+                padding: 10px;
+            }
+        }
+
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+    <!-- CSS da sidebar removido -->
+</head>
+<body>
+    <div class="main-content">
+    
+    <!-- Sidebar removida -->
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="admin-title">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard Administrativo
+            </div>
+            <div class="admin-subtitle">Painel de Controle RatixPay</div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="userName">Administrador</span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </div>
+<!-- Navegação para Outras Páginas -->
+<div class="navigation-bar">
+    <a href="admin-vendedores.html" class="nav-btn">
+        <i class="fas fa-users"></i>
+        Vendedores
+    </a>
+    
+    <a href="admin-gestao-saques.html" class="nav-btn">
+        <i class="fas fa-money-bill-wave"></i>
+        Saques
+    </a>
+    
+    <a href="admin-gestao-negocio.html" class="nav-btn">
+        <i class="fas fa-chart-line"></i>
+        Negócio
+    </a>
+    
+    <a href="admin-produtos.html" class="nav-btn">
+        <i class="fas fa-box"></i>
+        Produtos
+    </a>
+    
+    <a href="admin-afiliados.html" class="nav-btn">
+        <i class="fas fa-users"></i>
+        Afiliados
+    </a>
+    
+    <a href="admin-gestao-notificacoes.html" class="nav-btn">
+        <i class="fas fa-bell"></i>
+        Notificações
+    </a>
+    
+    <a href="admin-gestao-financeira.html" class="nav-btn">
+        <i class="fas fa-calculator"></i>
+        Financeiro
+    </a>
+    
+    <a href="whatsapp-sessions-admin.html" class="nav-btn">
+        <i class="fab fa-whatsapp"></i>
+        Sessões WhatsApp
+    </a>
+</div>
+
+</div>
+
+
+
+        <!-- Estatísticas Principais -->
+        <div class="stats-grid">
+            <div class="stats-card info">
+                <div class="stats-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stats-number" id="receitaTotalInfo">MZN 0,00</div>
+                <div class="stats-label">Receita Total</div>
+            </div>
+            
+            <div class="stats-card success">
+                <div class="stats-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stats-number" id="receitaDisponivelVendedores">MZN 0,00</div>
+                <div class="stats-label">Receita Disponível de Vendedores</div>
+            </div>
+            
+            <div class="stats-card danger">
+                <div class="stats-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stats-number" id="saquesPendentes">0</div>
+                <div class="stats-label">Saques Pendentes</div>
+            </div>
+        </div>
+
+        <!-- Seção de Taxas Administrativas -->
+        <div style="margin-bottom: 30px;">
+            <h4 style="color: var(--primary-color); margin-bottom: 20px; text-align: center;">
+                <i class="fas fa-percentage"></i> Taxas Administrativas
+            </h4>
+            
+            <div class="stats-grid">
+                <div class="stats-card warning">
+                    <div class="stats-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stats-number" id="taxasVendas">MZN 0,00</div>
+                    <div class="stats-label">Taxas de Vendas (10%)</div>
+                </div>
+                
+                <div class="stats-card info">
+                    <div class="stats-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="stats-number" id="taxasSaques">MZN 0,00</div>
+                    <div class="stats-label">Taxas de Saques (5%)</div>
+                </div>
+                
+                <div class="stats-card success">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="stats-number" id="totalTaxas">MZN 0,00</div>
+                    <div class="stats-label">Total de Taxas</div>
+                </div>
+                
+                <div class="stats-card" style="border-left-color: var(--primary-color);">
+                    <div class="stats-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="stats-number" id="saldoAdmin">MZN 0,00</div>
+                    <div class="stats-label">Saldo do Administrador</div>
+                </div>
+            </div>
+        </div>
+
+
+
+    <script>
+        // Variáveis globais
+        let adminChart = null;
+
+        // Função para formatar moeda
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-MZ', {
+                style: 'currency',
+                currency: 'MZN',
+                minimumFractionDigits: 2
+            }).format(value);
+        };
+
+        // Função para formatar número
+        const formatNumber = (value) => {
+            return new Intl.NumberFormat('pt-MZ').format(value);
+        };
+
+        // Função para carregar dados do dashboard
+        async function loadDashboardData() {
+            try {
+                console.log('🔄 Carregando dados do dashboard...');
+                showLoading('Carregando dados do dashboard...');
+                
+                const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    throw new Error('Token não encontrado');
+                }
+
+                // Carregar estatísticas gerais
+                await loadEstatisticasGerais();
+                
+                // Carregar dados do gráfico
+                await loadChartData();
+                
+                console.log('✅ Dashboard carregado com sucesso');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dashboard:', error);
+                showError('Erro ao carregar dados do dashboard: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Função para carregar estatísticas gerais
+        async function loadEstatisticasGerais() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                
+                const response = await fetch('/api/dashboard/estatisticas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar estatísticas');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Atualizar estatísticas com dados da API dashboard
+                    window.dashboardData = {
+                        receitaTotal: data.data.receitaTotal || 0,
+                        vendasHoje: data.data.receitaMes || 0,
+                        numeroVendedores: data.data.produtosAtivos || 0,
+                        saquesPendentes: 0, // Não disponível nesta API
+                        saldoTotal: data.data.receitaTotal || 0,
+                        receitaDisponivelVendedores: (data.data.receitaTotal || 0) * 0.9,
+                        saldoAdmin: (data.data.receitaTotal || 0) * 0.1, // 10% como taxa admin
+                        taxasColetadas: (data.data.receitaTotal || 0) * 0.1,
+                        // Dados de taxas detalhados
+                        taxas: {
+                            taxasVendas: (data.data.receitaTotal || 0) * 0.1,
+                            taxasSaques: 0,
+                            totalTaxas: (data.data.receitaTotal || 0) * 0.1,
+                            percentualVendas: 10,
+                            percentualSaques: 5
+                        }
+                    };
+                    
+                    updateStatsDisplay();
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas:', error);
+                showError('Erro ao carregar estatísticas do dashboard. Verifique sua conexão.');
+            }
+        }
+
+        // Função para atualizar exibição das estatísticas
+        function updateStatsDisplay() {
+            const receitaInfoElement = document.getElementById('receitaTotalInfo');
+            const saquesElement = document.getElementById('saquesPendentes');
+            const receitaDisponivelElement = document.getElementById('receitaDisponivelVendedores');
+            
+            // Elementos de taxas
+            const taxasVendasElement = document.getElementById('taxasVendas');
+            const taxasSaquesElement = document.getElementById('taxasSaques');
+            const totalTaxasElement = document.getElementById('totalTaxas');
+            const saldoAdminElement = document.getElementById('saldoAdmin');
+            
+            if (receitaInfoElement && window.dashboardData) receitaInfoElement.textContent = formatCurrency(window.dashboardData.receitaTotal || 0);
+            if (saquesElement && window.dashboardData) saquesElement.textContent = formatNumber(window.dashboardData.saquesPendentes || 0);
+            if (receitaDisponivelElement && window.dashboardData) receitaDisponivelElement.textContent = formatCurrency(window.dashboardData.receitaDisponivelVendedores || 0);
+            
+            // Atualizar elementos de taxas
+            if (taxasVendasElement && window.dashboardData?.taxas) taxasVendasElement.textContent = formatCurrency(window.dashboardData.taxas.taxasVendas || 0);
+            if (taxasSaquesElement && window.dashboardData?.taxas) taxasSaquesElement.textContent = formatCurrency(window.dashboardData.taxas.taxasSaques || 0);
+            if (totalTaxasElement && window.dashboardData?.taxas) totalTaxasElement.textContent = formatCurrency(window.dashboardData.taxas.totalTaxas || 0);
+            if (saldoAdminElement && window.dashboardData) saldoAdminElement.textContent = formatCurrency(window.dashboardData.saldoAdmin || 0);
+        }
+
+        // Função para carregar dados do gráfico
+        async function loadChartData() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                
+                // Carregar dados do gráfico de saldo admin
+                await loadAdminChartData();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados do gráfico:', error);
+                showError('Erro ao carregar dados do gráfico. Usando dados de exemplo.');
+                createExampleAdminChartData();
+            }
+        }
+
+        // Função para carregar dados do gráfico de saldo admin
+        async function loadAdminChartData() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                
+                const response = await fetch('/api/dashboard/vendas-semana', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    createExampleAdminChartData();
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Converter dados da API de vendas para formato do gráfico
+                    const chartData = {
+                        labels: data.data.labels || [],
+                        datasets: [
+                            {
+                                label: 'Saldo Admin (MZN)',
+                                data: data.data.receita || [],
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    };
+                    createAdminChart(chartData);
+                } else {
+                    createExampleAdminChartData();
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados do gráfico de saldo admin:', error);
+                createExampleAdminChartData();
+            }
+        }
+
+
+        // Função para criar dados de exemplo do gráfico de saldo admin
+        function createExampleAdminChartData() {
+            const labels = [];
+            const saldoAdminData = [];
+            
+            // Gerar dados dos últimos 30 dias
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+                
+                // Dados simulados com crescimento
+                const baseSaldo = 1000 + (i * 50);
+                saldoAdminData.push(baseSaldo + Math.random() * 200 - 100);
+            }
+            
+            const chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Saldo Admin (MZN)',
+                        data: saldoAdminData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            };
+            
+            createAdminChart(chartData);
+        }
+
+
+        // Função para criar o gráfico de saldo admin
+        function createAdminChart(data) {
+            const chartElement = document.getElementById('adminChart');
+            if (!chartElement) {
+                console.warn('Elemento adminChart não encontrado');
+                return;
+            }
+            
+            const ctx = chartElement.getContext('2d');
+            
+            // Destruir gráfico existente se houver
+            if (adminChart) {
+                adminChart.destroy();
+            }
+            
+            adminChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            cornerRadius: 12,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data',
+                                color: '#666',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valor (MZN)',
+                                color: '#666',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 4,
+                            hoverRadius: 8,
+                            borderWidth: 2
+                        },
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+
+
+        // Função para mostrar erro
+        function showError(message) {
+            console.error(message);
+            
+            // Criar notificação visual de erro
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; cursor: pointer; padding: 5px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Inserir no topo do container
+            const container = document.querySelector('.admin-container');
+            if (container) {
+                container.insertBefore(errorDiv, container.firstChild);
+                
+                // Remover automaticamente após 10 segundos
+                setTimeout(() => {
+                    if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                    }
+                }, 10000);
+            }
+        }
+
+        // Função para mostrar indicador de carregamento
+        function showLoading(message = 'Carregando...') {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-indicator';
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span>${message}</span>
+            `;
+            
+            // Inserir no topo do container
+            const container = document.querySelector('.admin-container');
+            if (container) {
+                container.insertBefore(loadingDiv, container.firstChild);
+            }
+            
+            return loadingDiv;
+        }
+
+        // Função para remover indicador de carregamento
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+
+
+        // Função para logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+
+        // Função para verificar autenticação
+        async function checkAuth() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+                console.log('🔍 Token encontrado:', token ? 'Sim' : 'Não');
+                
+                if (!token) {
+                    console.log('❌ Nenhum token encontrado, redirecionando para login');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                // Verificar se o token contém informações de admin
+                try {
+                    const tokenParts = token.split('.');
+                    if (tokenParts.length === 3) {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        console.log('🔍 Payload do token:', payload);
+                        
+                        // Verificar se o token não expirou
+                        const now = Math.floor(Date.now() / 1000);
+                        if (payload.exp && payload.exp < now) {
+                            console.log('❌ Token expirado, redirecionando para login');
+                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('adminToken');
+                            localStorage.removeItem('token');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        
+                        // Verificação especial para email administrativo principal
+                        const isMainAdmin = payload.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = payload.role === 'admin' || payload.tipo_conta === 'admin' || isMainAdmin;
+                        console.log('🔍 É admin pelo token?', isAdmin);
+                        
+                        if (isAdmin) {
+                            console.log('✅ Acesso admin autorizado pelo token');
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.log('🔍 Erro ao decodificar token, tentando API...', e);
+                }
+
+                console.log('🔍 Verificando token com API...');
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('🔍 Resultado da API:', result);
+                    
+                    if (result.success && result.user) {
+                        const user = result.user;
+                        // Verificação especial para email administrativo principal
+                        const isMainAdmin = user.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = user.role === 'admin' || user.tipo_conta === 'admin' || isMainAdmin;
+                        console.log('🔍 É admin?', isAdmin);
+                        
+                        if (!isAdmin) {
+                            console.log('❌ Usuário não é admin, redirecionando para login');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        
+                        console.log('✅ Acesso admin autorizado');
+                        return true;
+                    }
+                }
+                
+                console.log('❌ Redirecionando para login');
+                window.location.href = 'login.html';
+                return false;
+            } catch (error) {
+                console.error('❌ Erro na verificação de auth:', error);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 DOM carregado, iniciando dashboard...');
+            
+            // Processar token da URL (para Google OAuth)
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenFromUrl = urlParams.get('token');
+            
+            if (tokenFromUrl) {
+                console.log('🔑 Token admin encontrado na URL, armazenando...');
+                localStorage.setItem('authToken', tokenFromUrl);
+                localStorage.setItem('adminToken', tokenFromUrl);
+                localStorage.setItem('token', tokenFromUrl);
+                
+                // Limpar URL
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+            
+            // Verificar autenticação de admin
+            const isAuthorized = await checkAuth();
+            if (!isAuthorized) {
+                return; // checkAuth já mostra a mensagem de acesso negado
+            }
+            
+            // Carregar dados iniciais
+            setTimeout(() => {
+            loadDashboardData();
+            }, 100);
+        });
+
+
+        // Atualizar dados a cada 5 minutos
+        setInterval(loadDashboardData, 300000);
+    </script>
+    
+    <!-- Sidebar removida -->
+
+    <!-- Script de sidebar removido -->
+    </div>
+</body>
+</html>

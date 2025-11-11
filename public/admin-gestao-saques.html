@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Saques Processados - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --info-color: #E67E22;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            margin-bottom: 20px;
+        }
+
+        .saques-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-pago {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pendente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-aprovado {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelado {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* Estilos para botões de verificação */
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+            color: white;
+        }
+
+        .btn-success.disabled {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            opacity: 0.8;
+            cursor: not-allowed;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .btn-success.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--info-color) 0%, #2980b9 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* Estilos para botões de ação */
+        .btn-verificar {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .btn-verificar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            color: white;
+        }
+
+        .btn-verificar.verified {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            cursor: not-allowed;
+        }
+
+        .btn-verificar:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-pdf.active {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .btn-pdf.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            color: white;
+        }
+
+        /* Estilos para botões de verificação simplificados */
+        .btn-verificar {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+        
+        .btn-verificar.not-verified {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-verificar.not-verified:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+        
+        .btn-verificar.verified {
+            background-color: #28a745;
+            color: white;
+            cursor: default;
+        }
+        
+        .btn-pdf {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        
+        .table th {
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .table td {
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        
+        /* Responsividade para tabela com mais colunas */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 1200px) {
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.25rem;
+            }
+        }
+
+        /* Estilos para acessibilidade do modal */
+        .modal[aria-hidden="true"] {
+            pointer-events: none;
+        }
+        
+        .modal[aria-hidden="true"] * {
+            pointer-events: none;
+        }
+        
+        .modal[aria-hidden="false"] {
+            pointer-events: auto;
+        }
+        
+        .modal[aria-hidden="false"] * {
+            pointer-events: auto;
+        }
+        
+        /* Foco visível para acessibilidade */
+        .form-control:focus,
+        .btn:focus {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+        }
+        
+        /* Melhorar contraste para acessibilidade */
+        .form-text {
+            color: #6c757d;
+        }
+        
+        .alert-info {
+            border-left: 4px solid #0dcaf0;
+        }
+
+        .btn-group .btn {
+            margin-right: 5px;
+        }
+
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+
+        .btn-aprovar {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .btn-aprovar:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar-saque {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .btn-cancelar-saque:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-pendente {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+        }
+
+        .btn-pendente:hover {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            transform: translateY(-1px);
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1><i class="fas fa-coins"></i> Saques Processados</h1>
+            <p class="mb-0">Histórico de saques processados pelos vendedores</p>
+            <div class="mt-3">
+                <a href="admin-dashboard.html" class="btn btn-secondary btn-lg me-2">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+                </a>
+                <button class="btn btn-light btn-lg" onclick="irParaTransferenciasB2C()">
+                    <i class="fas fa-exchange-alt"></i> Transferência B2C
+                </button>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="stats-card">
+                    <h5><i class="fas fa-chart-line text-success"></i> Total Saques</h5>
+                    <h3 id="totalSaques" class="text-success">MZN 0.00</h3>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="stats-card">
+                    <h5><i class="fas fa-list text-warning"></i> Total Transações</h5>
+                    <h3 id="totalTransacoes" class="text-warning">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saques Pendentes -->
+        <div class="saques-table" id="saquesPendentesSection" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="fas fa-clock text-warning"></i> Saques Pendentes <span class="badge bg-warning" id="contadorPendentes">0</span></h4>
+                <div class="btn-group">
+                    <button class="btn refresh-btn" onclick="carregarSaquesPendentes()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID Saque</th>
+                            <th>Vendedor</th>
+                            <th>Nome Titular</th>
+                            <th>Telefone</th>
+                            <th>Valor</th>
+                            <th>Método</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="saquesPendentesTableBody">
+                        <!-- Saques pendentes serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabela de Saques -->
+        <div class="saques-table">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="fas fa-history"></i> Histórico de Saques</h4>
+                <div class="btn-group">
+                    <button class="btn refresh-btn" onclick="carregarSaques()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                    <button class="btn btn-success" onclick="exportarSaques()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <button class="btn btn-info" onclick="testarVerificacao()">
+                        <i class="fas fa-vial"></i> Testar
+                    </button>
+                </div>
+            </div>
+
+            <div id="loadingSaques" class="loading">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p>Carregando saques...</p>
+            </div>
+
+            <div id="noSaques" class="no-data" style="display: none;">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p>Nenhum saque processado ainda.</p>
+            </div>
+
+            <div id="tabelaSaques" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID do Saque</th>
+                                <th>Nome do Titular</th>
+                                <th>Telefone</th>
+                                <th>Valor</th>
+                                <th>Método</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th>Comprovativo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="saquesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <script>
+        // Configuração da API (definida em config.js)
+
+        // Verificar autenticação
+        function verificarAutenticacao() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            if (!token) {
+                alert('Usuário não autenticado. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            // Verificar se o token é válido (não está vazio ou malformado)
+            if (token === 'null' || token === 'undefined' || token.trim() === '') {
+                console.error('? Token inválido encontrado:', token);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                localStorage.removeItem('adminToken');
+                alert('Token inválido. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            return token;
+        }
+
+        // Carregar dados ao inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (verificarAutenticacao()) {
+                carregarSaldoAdmin();
+                carregarSaquesPendentes(); // Carregar saques pendentes primeiro
+                carregarSaques();
+            }
+        });
+
+        // Carregar saldo do admin
+        async function carregarSaldoAdmin() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/admin/saldo`, {
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('totalSaques').textContent = `MZN ${data.data.total_saques_pagos.toFixed(2)}`;
+                    }
+                } else {
+                    // Usar dados mockados se a API falhar
+                    console.warn('API de saldo não disponível, usando dados mockados');
+                    document.getElementById('totalSaques').textContent = 'MZN 0,00';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar saldo:', error);
+                // Usar dados mockados em caso de erro
+                document.getElementById('totalSaques').textContent = 'MZN 0,00';
+            }
+        }
+
+        // Funções para Transferência B2C
+        function irParaTransferenciasB2C() {
+            window.location.href = '/admin-transferencias-b2c.html';
+        }
+
+
+        // Carregar saques pendentes
+        async function carregarSaquesPendentes() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) {
+                    console.error('? Token não encontrado, não é possível carregar saques');
+                    return;
+                }
+
+                const apiUrl = `${window.API_BASE || '/api'}/admin/saques/pendentes`;
+                console.log(`?? Fazendo requisição para: ${apiUrl}`);
+                console.log(`?? Token presente: ${token ? 'Sim' : 'Não'}`);
+
+                const response = await fetch(apiUrl, {
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                console.log('?? Resposta recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('?? Dados recebidos da API:', {
+                        success: data.success,
+                        dataLength: data.data ? data.data.length : 0,
+                        dataType: Array.isArray(data.data) ? 'array' : typeof data.data,
+                        data: data.data
+                    });
+                    
+                    if (data.success && data.data) {
+                        const saques = Array.isArray(data.data) ? data.data : [];
+                        console.log(`?? ${saques.length} saques pendentes carregados`);
+                        
+                        if (saques.length > 0) {
+                            console.log('?? Primeiro saque completo:', JSON.stringify(saques[0], null, 2));
+                        } else {
+                            console.warn('?? Array de saques está vazio!');
+                        }
+                        
+                        // SEMPRE mostrar a seção para debug (pode ser removido depois)
+                        const saquesPendentesSection = document.getElementById('saquesPendentesSection');
+                        if (saquesPendentesSection) {
+                            saquesPendentesSection.style.display = 'block'; // Sempre mostrar para debug
+                            console.log(`??? Seção de saques pendentes: VISÍVEL (forçado para debug)`);
+                        } else {
+                            console.error('? Elemento saquesPendentesSection não encontrado!');
+                        }
+                        
+                        // Atualizar contador de saques pendentes
+                        const contadorPendentes = document.getElementById('contadorPendentes');
+                        if (contadorPendentes) {
+                            contadorPendentes.textContent = saques.length;
+                            console.log(`?? Contador atualizado: ${saques.length}`);
+                        } else {
+                            console.error('? Elemento contadorPendentes não encontrado!');
+                        }
+                        
+                        // Preencher tabela de saques pendentes
+                        console.log('?? Chamando preencherTabelaSaquesPendentes...');
+                        preencherTabelaSaquesPendentes(saques);
+                        
+                        // Mostrar alerta se há saques pendentes
+                        if (saques.length > 0) {
+                            mostrarAlertaPendentes(saques.length);
+                        }
+                    } else {
+                        console.error('? API retornou success=false ou data não existe:', {
+                            success: data.success,
+                            hasData: !!data.data,
+                            data: data
+                        });
+                        // Mostrar seção mesmo com erro para debug
+                        const saquesPendentesSection = document.getElementById('saquesPendentesSection');
+                        if (saquesPendentesSection) {
+                            saquesPendentesSection.style.display = 'block';
+                        }
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('? Erro na resposta da API:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        body: errorText
+                    });
+                    // Mostrar seção mesmo com erro para debug
+                    const saquesPendentesSection = document.getElementById('saquesPendentesSection');
+                    if (saquesPendentesSection) {
+                        saquesPendentesSection.style.display = 'block';
+                    }
+                    // Usar dados mockados se a API falhar
+                    const saquesMockados = [];
+                    preencherTabelaSaquesPendentes(saquesMockados);
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar saques pendentes:', error);
+                // Usar dados mockados em caso de erro
+                const saquesMockados = [];
+                preencherTabelaSaquesPendentes(saquesMockados);
+            }
+        }
+
+        // Preencher tabela de saques pendentes
+        function preencherTabelaSaquesPendentes(saques) {
+            console.log('?? Função preencherTabelaSaquesPendentes chamada com:', saques);
+            
+            const tbody = document.getElementById('saquesPendentesTableBody');
+            if (!tbody) {
+                console.error('? Elemento saquesPendentesTableBody não encontrado!');
+                return;
+            }
+            
+            console.log(`?? Preenchendo tabela com ${saques ? saques.length : 0} saques...`);
+            
+            if (!saques || !Array.isArray(saques)) {
+                console.error('? Saques não é um array válido:', saques);
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Erro: dados inválidos recebidos</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            if (saques.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Nenhum saque pendente encontrado</td></tr>';
+                console.log('?? Nenhum saque para exibir');
+                return;
+            }
+            
+            saques.forEach((saque, index) => {
+                console.log(`?? Processando saque ${index + 1}/${saques.length}:`, saque);
+                
+                // Gerar ID amigável no mesmo formato da página pagamentos.html (últimos 6 caracteres)
+                let idSaque = saque.idSaque || '-';
+                if (!idSaque || idSaque === '-') {
+                    if (saque.id) {
+                        // Usar o mesmo formato da página pagamentos.html: últimos 6 caracteres
+                        idSaque = saque.id.substring(saque.id.length - 6).toUpperCase();
+                    }
+                }
+                
+                console.log(`   ? ID Original: ${saque.id}`);
+                console.log(`   ? ID Amigável: ${idSaque}`);
+                const vendedorNome = saque.vendedor ? (saque.vendedor.nome || 'N/A') : 'N/A';
+                const vendedorTelefone = saque.vendedor ? (saque.vendedor.telefone || 'N/A') : 'N/A';
+                const valor = parseFloat(saque.valor || 0);
+                const dataFormatada = saque.dataSolicitacao ? formatDate(saque.dataSolicitacao) : 'N/A';
+                
+                console.log(`   ? ID: ${idSaque}, Vendedor: ${vendedorNome}, Valor: MZN ${valor.toFixed(2)}`);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${idSaque}</strong></td>
+                    <td>
+                        <div>
+                            <strong>${vendedorNome}</strong><br>
+                            <small class="text-muted">${vendedorTelefone}</small>
+                        </div>
+                    </td>
+                    <td>${saque.nomeTitular || 'N/A'}</td>
+                    <td>${saque.telefoneTitular || 'N/A'}</td>
+                    <td><strong>MZN ${valor.toFixed(2)}</strong></td>
+                    <td>${saque.metodoPagamento || 'N/A'}</td>
+                    <td>${dataFormatada}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-success btn-sm" onclick="aprovarSaque('${saque.id}')">
+                                <i class="fas fa-check"></i> Aprovar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="cancelarSaque('${saque.id}')">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            console.log(`? Tabela preenchida com ${saques.length} saques`);
+        }
+
+        // Mostrar alerta de saques pendentes
+        function mostrarAlertaPendentes(quantidade) {
+            const alerta = document.createElement('div');
+            alerta.className = 'alert alert-warning alert-dismissible fade show';
+            alerta.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>${quantidade} saque(s) pendente(s)</strong> aguardando sua aprovação.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.admin-container');
+            if (container) {
+                container.insertBefore(alerta, container.firstChild);
+            }
+        }
+
+        // Carregar saques processados
+        async function carregarSaques() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                document.getElementById('loadingSaques').style.display = 'block';
+                document.getElementById('noSaques').style.display = 'none';
+                document.getElementById('tabelaSaques').style.display = 'none';
+
+                const response = await fetch(`${API_BASE}/admin/saques/processados`, {
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const saques = data.data;
+                        document.getElementById('totalTransacoes').textContent = saques.length;
+
+                        if (saques.length === 0) {
+                            document.getElementById('loadingSaques').style.display = 'none';
+                            document.getElementById('noSaques').style.display = 'block';
+                        } else {
+                            preencherTabelaSaques(saques);
+                            document.getElementById('loadingSaques').style.display = 'none';
+                            document.getElementById('tabelaSaques').style.display = 'block';
+                        }
+                    }
+                } else {
+                    console.warn('API de saques processados não disponível, usando dados mockados');
+                    // Usar dados mockados se a API falhar
+                    const saquesMockados = [];
+                    document.getElementById('totalTransacoes').textContent = '0';
+                    document.getElementById('loadingSaques').style.display = 'none';
+                    document.getElementById('noSaques').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar saques:', error);
+                // Usar dados mockados em caso de erro
+                const saquesMockados = [];
+                document.getElementById('totalTransacoes').textContent = '0';
+                document.getElementById('loadingSaques').style.display = 'none';
+                document.getElementById('noSaques').style.display = 'block';
+            }
+        }
+
+        // Preencher tabela de saques
+        function preencherTabelaSaques(saques) {
+            const tbody = document.getElementById('saquesTableBody');
+            tbody.innerHTML = '';
+
+            saques.forEach(saque => {
+                const row = document.createElement('tr');
+                const status = saque.status || 'pendente';
+                const verificado = saque.verificado || saque.checked || false;
+                
+                // Determinar classe de status
+                let statusClass = 'status-pendente';
+                if (status === 'aprovado') statusClass = 'status-aprovado';
+                else if (status === 'cancelado') statusClass = 'status-cancelado';
+                else if (status === 'pago') statusClass = 'status-pago';
+                
+                // Gerar botão de ações com dropdown - sempre visível exceto para cancelados
+                let acoesHTML = '';
+                if (status === 'cancelado') {
+                    acoesHTML = `
+                        <span class="text-muted">Saque cancelado</span>
+                    `;
+                } else {
+                    acoesHTML = `
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                ?? Ações
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="aprovarSaque('${saque.id}')">
+                                    <i class="fas fa-check text-success"></i> Aprovar
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="cancelarSaque('${saque.id}')">
+                                    <i class="fas fa-times text-danger"></i> Cancelar
+                                </a></li>
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                // Gerar coluna de comprovativo
+                let comprovativoHTML = '';
+                if (status === 'pago') {
+                    comprovativoHTML = `
+                        <button class="btn btn-sm btn-outline-info btn-pdf" onclick="gerarPDF('${saque.id}')" title="Gerar comprovativo PDF">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    `;
+                } else {
+                    comprovativoHTML = '<span class="text-muted">-</span>';
+                }
+                
+                // Gerar ID amigável (últimos 8 caracteres do UUID)
+                const idAmigavel = saque.id ? saque.id.substring(saque.id.length - 8).toUpperCase() : '-';
+                
+                // Formatar data corretamente
+                let dataFormatada = 'N/A';
+                if (saque.dataSolicitacao) {
+                    try {
+                        dataFormatada = new Date(saque.dataSolicitacao).toLocaleDateString('pt-BR');
+                    } catch (error) {
+                        console.error('Erro ao formatar data:', error);
+                        dataFormatada = 'Data inválida';
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>${saque.idSaque || idAmigavel || '-'}</td>
+                    <td>${saque.nomeTitular || 'N/A'}</td>
+                    <td>${saque.telefoneTitular || 'N/A'}</td>
+                    <td>MZN ${parseFloat(saque.valor || 0).toFixed(2)}</td>
+                    <td>${saque.metodoPagamento || 'N/A'}</td>
+                    <td>${dataFormatada}</td>
+                    <td><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+                    <td>${comprovativoHTML}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Marcar saque como verificado (simplificado)
+        async function marcarComoVerificado(saqueId) {
+            try {
+                // Encontrar o botão clicado
+                const button = event.target.closest('.btn-verificar');
+                if (!button) return;
+                
+                // Verificar se já está verificado
+                if (button.classList.contains('verified')) {
+                    return;
+                }
+                
+                // Confirmar ação
+                if (!confirm('Tem certeza que deseja marcar este saque como verificado?')) {
+                    return;
+                }
+                
+                // Fazer requisição para marcar como verificado
+                const token = verificarAutenticacao();
+                if (!token) return;
+                
+                const response = await fetch(`/api/admin/saques/${saqueId}/verificar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        verificado: true,
+                        data_verificacao: new Date().toISOString(),
+                        verificado_por: 'admin',
+                        observacoes_verificacao: 'Verificado automaticamente'
+                    })
+                });
+                
+                if (response.ok) {
+                    // Atualizar o botão visualmente
+                    button.classList.remove('not-verified');
+                    button.classList.add('verified');
+                    button.innerHTML = '<i class="fas fa-check-circle"></i> Verificado';
+                    button.disabled = true;
+                    
+                    // Adicionar botão PDF
+                    const pdfButton = document.createElement('button');
+                    pdfButton.className = 'btn-pdf';
+                    pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
+                    pdfButton.onclick = () => gerarPDF(saqueId);
+                    pdfButton.title = 'Gerar comprovante PDF';
+                    
+                    button.parentNode.appendChild(pdfButton);
+                    
+                    alert('Saque marcado como verificado com sucesso!');
+                } else {
+                    alert('Erro ao verificar saque. Tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar saque:', error);
+                alert('Erro ao verificar saque. Tente novamente.');
+            }
+        }
+
+        // Mostrar formulário de verificação
+        function mostrarFormularioVerificacao(saqueId) {
+            const modalContent = `
+                <div class="modal fade" id="modalVerificacao" tabindex="-1" aria-labelledby="modalVerificacaoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalVerificacaoLabel">Verificar Saque</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar modal de verificação"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formVerificacao" role="form" aria-label="Formulário de verificação de saque">
+                                    <div class="mb-3">
+                                        <label for="idTransacao" class="form-label">ID da Transação do Pagamento *</label>
+                                        <input type="text" class="form-control" id="idTransacao" required 
+                                               placeholder="Digite o ID da transação" aria-describedby="idTransacaoHelp"
+                                               aria-required="true" autocomplete="off">
+                                        <div id="idTransacaoHelp" class="form-text">Digite o ID da transação do pagamento para verificação</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="dataVerificacao" class="form-label">Data da Verificação *</label>
+                                        <input type="datetime-local" class="form-control" id="dataVerificacao" required
+                                               aria-describedby="dataVerificacaoHelp" aria-required="true">
+                                        <div id="dataVerificacaoHelp" class="form-text">Data e hora da verificação do saque</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="observacoes" class="form-label">Observações</label>
+                                        <textarea class="form-control" id="observacoes" rows="3" 
+                                                  placeholder="Observações adicionais (opcional)"
+                                                  aria-describedby="observacoesHelp" aria-required="false"></textarea>
+                                        <div id="observacoesHelp" class="form-text">Observações opcionais sobre a verificação</div>
+                                    </div>
+                                    <div class="alert alert-info" role="alert" aria-live="polite">
+                                        <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                        <strong>Atenção:</strong> Esta ação marcará o saque como verificado permanentemente e gerará um documento de comprovante.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Cancelar verificação e fechar modal">Cancelar</button>
+                                <button type="button" class="btn btn-success" onclick="confirmarVerificacao('${saqueId}')" aria-label="Confirmar verificação do saque">
+                                    <i class="fas fa-check" aria-hidden="true"></i> Verificar Saque
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remover modal anterior se existir
+            const existingModal = document.getElementById('modalVerificacao');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Adicionar novo modal
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+            
+            // Obter referência do modal
+            const modalElement = document.getElementById('modalVerificacao');
+            const modal = new bootstrap.Modal(modalElement);
+            
+            // Definir data atual como padrão
+            const now = new Date();
+            const dataAtual = now.toISOString().slice(0, 16);
+            document.getElementById('dataVerificacao').value = dataAtual;
+            
+            // Configurar eventos do modal para acessibilidade
+            modalElement.addEventListener('shown.bs.modal', function () {
+                // Focar no primeiro campo quando o modal abrir
+                const firstInput = document.getElementById('idTransacao');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+                // Remover aria-hidden quando modal estiver visível
+                modalElement.setAttribute('aria-hidden', 'false');
+            });
+            
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                // Restaurar aria-hidden quando modal fechar
+                modalElement.setAttribute('aria-hidden', 'true');
+                // Remover o modal do DOM após fechar
+                setTimeout(() => {
+                    if (modalElement && modalElement.parentNode) {
+                        modalElement.remove();
+                    }
+                }, 300);
+            });
+            
+            // Mostrar modal
+            modal.show();
+        }
+
+        // Confirmar verificação do saque
+        async function confirmarVerificacao(saqueId) {
+            try {
+                console.log('?? Iniciando verificação do saque:', saqueId);
+                
+                const idTransacao = document.getElementById('idTransacao').value.trim();
+                const dataVerificacao = document.getElementById('dataVerificacao').value;
+                const observacoes = document.getElementById('observacoes').value.trim();
+
+                console.log('?? Dados do formulário:', {
+                    saqueId,
+                    idTransacao,
+                    dataVerificacao,
+                    observacoes
+                });
+
+                if (!idTransacao) {
+                    alert('Por favor, insira o ID da transação do pagamento.');
+                    return;
+                }
+
+                if (!dataVerificacao) {
+                    alert('Por favor, insira a data da verificação.');
+                    return;
+                }
+
+                const confirmacao = confirm('Tem certeza que deseja marcar este saque como verificado? Esta ação não pode ser desfeita.');
+                if (!confirmacao) return;
+
+                const token = verificarAutenticacao();
+                if (!token) {
+                    console.error('? Token de autenticação não encontrado');
+                    return;
+                }
+
+                console.log('?? Token encontrado, fazendo requisição...');
+                console.log('?? URL:', `${API_BASE}/admin/saques/${saqueId}/verificar`);
+
+                const requestBody = {
+                    id_transacao: idTransacao,
+                    data_verificacao: dataVerificacao,
+                    observacoes: observacoes
+                };
+
+                console.log('?? Corpo da requisição:', requestBody);
+
+                const response = await fetch(`${API_BASE}/admin/saques/${saqueId}/verificar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log('?? Resposta recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('? Dados da resposta:', data);
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(data.message || 'Saque marcado como verificado com sucesso!');
+                    
+                    // Fechar modal de forma segura
+                    const modalElement = document.getElementById('modalVerificacao');
+                    if (modalElement) {
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) {
+                    modal.hide();
+                        } else {
+                            // Se não há instância, criar uma nova e fechar
+                            const newModal = new bootstrap.Modal(modalElement);
+                            newModal.hide();
+                        }
+                    }
+                    
+                    // Atualizar a linha específica na tabela em tempo real
+                    if (data.data && data.data.saque) {
+                        atualizarLinhaTabela(data.data.saque);
+                    } else {
+                        // Fallback: recarregar toda a lista
+                        console.log('?? Recarregando lista de saques...');
+                    carregarSaques();
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('? Erro na resposta:', errorText);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { message: errorText };
+                    }
+                    throw new Error(errorData.message || 'Erro ao marcar saque como verificado');
+                }
+
+            } catch (error) {
+                console.error('? Erro ao marcar saque como verificado:', error);
+                alert('Erro ao marcar saque como verificado: ' + error.message);
+                
+                // Limpar modal em caso de erro
+                limparModalVerificacao();
+            }
+        }
+
+        // Exportar saques
+        function exportarSaques() {
+            try {
+                const csv = gerarCSVSaques();
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `saques-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Erro ao exportar saques:', error);
+                alert('Erro ao exportar saques');
+            }
+        }
+
+        // Gerar CSV dos saques
+        function gerarCSVSaques() {
+            const headers = [
+                'ID do Saque',
+                'Nome do Titular',
+                'Telefone',
+                'Valor',
+                'Método',
+                'Data',
+                'Status',
+                'Verificado'
+            ];
+            
+            const rows = saques.map(saque => [
+                saque.id_saque || saque.id || '',
+                saque.nome_titular || '',
+                saque.telefone_titular || '',
+                parseFloat(saque.valor_solicitado || 0).toFixed(2),
+                saque.metodo_pagamento || '',
+                new Date(saque.data_solicitacao || '').toLocaleDateString('pt-PT'),
+                saque.status || '',
+                saque.checked ? 'Sim' : 'Não'
+            ]);
+            
+            return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+        }
+
+        // Função para testar verificação
+        async function testarVerificacao() {
+            try {
+                console.log('?? Testando funcionalidade de verificação...');
+                
+                // Buscar o primeiro saque não verificado
+                const tbody = document.getElementById('saquesTableBody');
+                const rows = tbody.querySelectorAll('tr');
+                
+                let saqueParaTestar = null;
+                rows.forEach(row => {
+                    const btnVerificar = row.querySelector('.btn-verificar');
+                    if (btnVerificar && !btnVerificar.disabled) {
+                        const onclickStr = btnVerificar.onclick.toString();
+                        const match = onclickStr.match(/marcarComoVerificado\('([^']+)'\)/);
+                        if (match) {
+                            saqueParaTestar = match[1];
+                        }
+                    }
+                });
+                
+                if (saqueParaTestar) {
+                    console.log('?? Testando verificação do saque:', saqueParaTestar);
+                    
+                    // Simular dados de teste
+                    const dadosTeste = {
+                        idTransacao: 'TEST' + Date.now(),
+                        dataVerificacao: new Date().toISOString().slice(0, 16),
+                        observacoes: 'Teste automático de verificação'
+                    };
+                    
+                    // Simular preenchimento do formulário
+                    mostrarFormularioVerificacao(saqueParaTestar);
+                    
+                    // Aguardar o modal abrir e preencher os campos
+                    setTimeout(() => {
+                        const idTransacaoInput = document.getElementById('idTransacao');
+                        const dataVerificacaoInput = document.getElementById('dataVerificacao');
+                        const observacoesInput = document.getElementById('observacoes');
+                        
+                        if (idTransacaoInput && dataVerificacaoInput && observacoesInput) {
+                            idTransacaoInput.value = dadosTeste.idTransacao;
+                            dataVerificacaoInput.value = dadosTeste.dataVerificacao;
+                            observacoesInput.value = dadosTeste.observacoes;
+                            
+                            console.log('? Formulário preenchido automaticamente');
+                            console.log('?? Dados de teste:', dadosTeste);
+                            
+                            // Confirmar automaticamente após 2 segundos
+                            setTimeout(() => {
+                                confirmarVerificacao(saqueParaTestar);
+                            }, 2000);
+                        }
+                    }, 500);
+                    
+                } else {
+                    console.log('?? Nenhum saque não verificado encontrado para teste');
+                    alert('Nenhum saque não verificado encontrado para teste');
+                }
+                
+            } catch (error) {
+                console.error('? Erro no teste de verificação:', error);
+                alert('Erro no teste: ' + error.message);
+            }
+        }
+
+        // Função para limpar modal de forma segura
+        function limparModalVerificacao() {
+            try {
+                const modalElement = document.getElementById('modalVerificacao');
+                if (modalElement) {
+                    // Tentar fechar o modal se estiver aberto
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Remover do DOM após um delay
+                    setTimeout(() => {
+                        if (modalElement && modalElement.parentNode) {
+                            modalElement.remove();
+                        }
+                    }, 500);
+                }
+            } catch (error) {
+                console.warn('?? Erro ao limpar modal:', error);
+            }
+        }
+
+        // Atualizar linha específica da tabela em tempo real
+        function atualizarLinhaTabela(saqueAtualizado) {
+            try {
+                console.log('?? Atualizando linha da tabela em tempo real:', saqueAtualizado);
+                
+                const tbody = document.getElementById('saquesTableBody');
+                const rows = tbody.querySelectorAll('tr');
+                
+                // Encontrar a linha que corresponde ao saque atualizado
+                let linhaEncontrada = null;
+                rows.forEach((row, index) => {
+                    const btnVerificar = row.querySelector('.btn-verificar');
+                    if (btnVerificar) {
+                        const onclickStr = btnVerificar.onclick.toString();
+                        console.log(`?? Verificando linha ${index}:`, onclickStr);
+                        if (onclickStr.includes(saqueAtualizado.id)) {
+                            linhaEncontrada = row;
+                            console.log(`? Linha encontrada no índice ${index}`);
+                        }
+                    }
+                });
+                
+                if (linhaEncontrada) {
+                    // Formatar dados de verificação
+                    const verificado = saqueAtualizado.verificado || false;
+                    const dataVerificacao = saqueAtualizado.data_verificacao ? 
+                        new Date(saqueAtualizado.data_verificacao).toLocaleString('pt-BR') : '-';
+                    const idPagamento = saqueAtualizado.id_transacao_verificacao || '-';
+                    
+                    // Atualizar apenas as colunas de verificação
+                    const cells = linhaEncontrada.querySelectorAll('td');
+                    console.log(`?? Número de células encontradas: ${cells.length}`);
+                    
+                    if (cells.length >= 11) {
+                        // Coluna "Saque Verificado" (índice 7)
+                        console.log('?? Atualizando coluna "Saque Verificado"');
+                        cells[7].innerHTML = `
+                            <span class="badge ${verificado ? 'bg-success' : 'bg-warning'}">
+                                <i class="fas ${verificado ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                ${verificado ? 'Verificado' : 'Pendente'}
+                            </span>
+                        `;
+                        
+                        // Coluna "Data Verificação" (índice 8)
+                        console.log('?? Atualizando coluna "Data Verificação"');
+                        cells[8].textContent = dataVerificacao;
+                        
+                        // Coluna "ID Pagamento" (índice 9)
+                        console.log('?? Atualizando coluna "ID Pagamento"');
+                        cells[9].textContent = idPagamento;
+                        
+                        // Coluna "Ações" (índice 10)
+                        console.log('?? Atualizando coluna "Ações"');
+                        cells[10].innerHTML = `
+                            <div class="btn-group" role="group">
+                                <button class="btn-verificar ${verificado ? 'verified' : ''}" 
+                                        onclick="marcarComoVerificado('${saqueAtualizado.id}')" 
+                                        ${verificado ? 'disabled' : ''}
+                                        title="${verificado ? 'Verificado' : 'Marcar como verificado'}">
+                                    <i class="fas ${verificado ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                    ${verificado ? 'Verificado' : 'Verificar'}
+                                </button>
+                                <button class="btn-pdf ${verificado ? 'active' : ''}" 
+                                        onclick="gerarPDF('${saqueAtualizado.id}')" 
+                                        ${verificado ? '' : 'disabled'}
+                                        title="${verificado ? 'Gerar comprovante PDF' : 'Verifique o saque primeiro'}">
+                                    <i class="fas fa-file-pdf"></i> Comprovante
+                                </button>
+                            </div>
+                        `;
+                        
+                        console.log('? Linha da tabela atualizada com sucesso');
+                        
+                        // Adicionar efeito visual de atualização
+                        linhaEncontrada.style.backgroundColor = '#d4edda';
+                        setTimeout(() => {
+                            linhaEncontrada.style.backgroundColor = '';
+                        }, 2000);
+                        
+                    } else {
+                        console.warn('?? Número de colunas insuficiente na linha');
+                        // Fallback: recarregar toda a tabela
+                        carregarSaques();
+                    }
+                } else {
+                    console.warn('?? Linha não encontrada na tabela');
+                    // Fallback: recarregar toda a tabela
+                    carregarSaques();
+                }
+                
+            } catch (error) {
+                console.error('? Erro ao atualizar linha da tabela:', error);
+                // Fallback: recarregar toda a tabela
+                carregarSaques();
+            }
+        }
+
+        // Aprovar saque (marca diretamente como pago)
+        async function aprovarSaque(saqueId) {
+            try {
+                // Buscar dados do saque para mostrar no resumo
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/admin/saques/${saqueId}`, {
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar dados do saque');
+                }
+
+                const data = await response.json();
+                const saque = data.data;
+
+                // Mostrar modal de resumo da transação
+                const modalContent = `
+                    <div class="modal fade" id="modalAprovarSaque" tabindex="-1" aria-labelledby="modalAprovarSaqueLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title" id="modalAprovarSaqueLabel">
+                                        <i class="fas fa-check-circle"></i> Resumo da Transação
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary mb-3">Dados do Saque</h6>
+                                            <div class="mb-2">
+                                                <strong>ID do Saque:</strong> ${saque.id_saque || saque.id || '-'}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Valor Solicitado:</strong> MZN ${parseFloat(saque.valor_solicitado || 0).toFixed(2)}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Valor Líquido:</strong> MZN ${parseFloat(saque.valor_liquido || 0).toFixed(2)}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Método:</strong> ${saque.metodo_pagamento || 'N/A'}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Data:</strong> ${new Date(saque.data_solicitacao).toLocaleDateString('pt-BR')}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary mb-3">Dados do Titular</h6>
+                                            <div class="mb-2">
+                                                <strong>Nome:</strong> ${saque.nome_titular || 'N/A'}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Telefone:</strong> ${saque.telefone_titular || 'N/A'}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>Status Atual:</strong> 
+                                                <span class="badge bg-warning">${saque.status?.toUpperCase() || 'PENDENTE'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Confirmação:</strong> Ao aprovar este saque, o status será alterado para "PAGO" e o vendedor será notificado automaticamente.
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="button" class="btn btn-success" onclick="confirmarAprovacao('${saqueId}')">
+                                        <i class="fas fa-check"></i> Confirmar Aprovação
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remover modal anterior se existir
+                const existingModal = document.getElementById('modalAprovarSaque');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                // Adicionar novo modal
+                document.body.insertAdjacentHTML('beforeend', modalContent);
+                
+                // Mostrar modal
+                const modalElement = document.getElementById('modalAprovarSaque');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+
+            } catch (error) {
+                console.error('Erro ao mostrar modal de aprovação:', error);
+                alert('Erro ao abrir resumo da transação: ' + error.message);
+            }
+        }
+
+        // Confirmar aprovação do saque
+        async function confirmarAprovacao(saqueId) {
+            try {
+                if (!confirm('Tem certeza que deseja aprovar este saque? Esta ação não pode ser desfeita.')) {
+                    return;
+                }
+
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                // Gerar ID de transação automático baseado no timestamp
+                const idTransacao = `APR${Date.now()}`;
+
+                const response = await fetch(`${API_BASE}/admin/saques/${saqueId}/aprovar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status: 'pago',
+                        data_aprovacao: new Date().toISOString(),
+                        data_pagamento: new Date().toISOString(),
+                        id_transacao_pagamento: idTransacao,
+                        aprovado_por: 'admin',
+                        pago_por: 'admin',
+                        observacoes: `Aprovado automaticamente em ${new Date().toLocaleString('pt-BR')}`
+                    })
+                });
+
+                if (response.ok) {
+                    // Fechar modal
+                    const modalElement = document.getElementById('modalAprovarSaque');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('? Saque aprovado e pago com sucesso!\n\nO vendedor foi notificado automaticamente e deve confirmar o recebimento.');
+                    carregarSaquesPendentes(); // Recarregar saques pendentes
+                    carregarSaques(); // Recarregar lista
+                } else {
+                    const errorData = await response.json();
+                    alert('? Erro ao aprovar saque: ' + (errorData.message || 'Tente novamente.'));
+                }
+            } catch (error) {
+                console.error('Erro ao aprovar saque:', error);
+                alert('? Erro ao aprovar saque: ' + error.message);
+            }
+        }
+
+        // Cancelar saque
+        async function cancelarSaque(saqueId) {
+            try {
+                // Mostrar modal de confirmação com campos
+                const modalContent = `
+                    <div class="modal fade" id="modalCancelarSaque" tabindex="-1" aria-labelledby="modalCancelarSaqueLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalCancelarSaqueLabel">Cancelar Saque</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="formCancelarSaque">
+                                        <div class="mb-3">
+                                            <label for="motivoCancelamento" class="form-label">Motivo do Cancelamento *</label>
+                                            <textarea class="form-control" id="motivoCancelamento" rows="3" required 
+                                                      placeholder="Digite o motivo do cancelamento"></textarea>
+                                        </div>
+                                        <div class="alert alert-danger">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <strong>Atenção:</strong> Esta ação cancelará o saque permanentemente e não poderá ser desfeita.
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="button" class="btn btn-danger" onclick="confirmarCancelamento('${saqueId}')">
+                                        <i class="fas fa-times"></i> Cancelar Saque
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remover modal anterior se existir
+                const existingModal = document.getElementById('modalCancelarSaque');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                // Adicionar novo modal
+                document.body.insertAdjacentHTML('beforeend', modalContent);
+                
+                // Mostrar modal
+                const modalElement = document.getElementById('modalCancelarSaque');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+
+            } catch (error) {
+                console.error('Erro ao mostrar modal de cancelamento:', error);
+                alert('Erro ao abrir formulário de cancelamento: ' + error.message);
+            }
+        }
+
+        // Confirmar cancelamento do saque
+        async function confirmarCancelamento(saqueId) {
+            try {
+                const motivo = document.getElementById('motivoCancelamento').value.trim();
+
+                if (!motivo) {
+                    alert('Por favor, insira o motivo do cancelamento.');
+                    return;
+                }
+
+                if (!confirm('Tem certeza que deseja cancelar este saque?')) {
+                    return;
+                }
+
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/admin/saques/${saqueId}/cancelar`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status: 'cancelado',
+                        data_cancelamento: new Date().toISOString(),
+                        motivo_cancelamento: motivo,
+                        cancelado_por: 'admin'
+                    })
+                });
+
+                if (response.ok) {
+                    // Fechar modal
+                    const modalElement = document.getElementById('modalCancelarSaque');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    alert('Saque cancelado com sucesso!\n\nO vendedor foi notificado automaticamente.');
+                    carregarSaquesPendentes(); // Recarregar saques pendentes
+                    carregarSaques(); // Recarregar lista
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao cancelar saque: ' + (errorData.message || 'Tente novamente.'));
+                }
+            } catch (error) {
+                console.error('Erro ao cancelar saque:', error);
+                alert('Erro ao cancelar saque: ' + error.message);
+            }
+        }
+
+
+        // Gerar comprovante do saque em PDF simples
+        async function gerarPDF(saqueId) {
+            // Declarar variáveis no escopo da função para acessar no catch
+            let btn = null;
+            let originalText = '';
+            
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                // Mostrar loading
+                btn = event.target.closest('.btn-pdf');
+                if (btn) {
+                    originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    btn.disabled = true;
+                }
+
+                // Buscar dados do saque
+                const response = await fetch(`${API_BASE}/admin/saques/${saqueId}`, {
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                    if (!response.ok) {
+                    throw new Error('Erro ao buscar dados do saque');
+                }
+
+                const data = await response.json();
+                if (!data.success || !data.data) {
+                    throw new Error('Dados do saque não encontrados');
+                }
+
+                const saque = data.data;
+                
+                // Gerar ID amigável (últimos 6 caracteres)
+                const idSaque = saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id;
+                
+                // Formatar datas
+                const dataSolicitacao = saque.data_solicitacao 
+                    ? new Date(saque.data_solicitacao).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : 'N/A';
+                
+                const dataAprovacao = saque.data_pagamento 
+                    ? new Date(saque.data_pagamento).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : 'N/A';
+                
+                // Gerar PDF usando jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Configurações
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                let yPos = margin;
+
+                // Título
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('COMPROVANTE DE SAQUE', pageWidth / 2, yPos, { align: 'center' });
+                yPos += 10;
+
+                // Linha divisória
+                doc.setLineWidth(0.5);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 15;
+
+                // Informações do saque
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                
+                const lineHeight = 7;
+                const labelWidth = 60;
+                const valueStartX = margin + labelWidth;
+
+                // Função auxiliar para adicionar linha
+                const addLine = (label, value) => {
+                    doc.setFont(undefined, 'bold');
+                    doc.text(label + ':', margin, yPos);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(value, valueStartX, yPos);
+                    yPos += lineHeight;
+                    
+                    // Verificar se precisa de nova página
+                    if (yPos > pageHeight - margin - 20) {
+                        doc.addPage();
+                        yPos = margin;
+                    }
+                };
+
+                addLine('ID do Saque', idSaque);
+                addLine('Data do Pedido', dataSolicitacao);
+                addLine('Data e Hora da Aprovação', dataAprovacao);
+                addLine('Valor do Pedido', `MZN ${parseFloat(saque.valor || 0).toFixed(2)}`);
+                // conta_destino agora contém o nome do titular (corrigido no backend)
+                addLine('Nome do Titular', saque.conta_destino || saque.nome_titular || 'N/A');
+                addLine('Contacto', saque.telefone_titular || 'N/A');
+                addLine('Método', saque.metodo || 'N/A');
+                addLine('Status', 'PAGO');
+
+                // Espaço antes do rodapé
+                yPos += 10;
+                
+                // Linha divisória antes do rodapé
+                doc.setLineWidth(0.3);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 15;
+
+                // Rodapé centralizado
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Processado pela RATIXPAY', pageWidth / 2, yPos, { align: 'center' });
+
+                // Salvar PDF
+                const fileName = `comprovante-saque-${idSaque}.pdf`;
+                doc.save(fileName);
+                    
+                    // Restaurar botão
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                
+                console.log(`? PDF gerado: ${fileName}`);
+                
+            } catch (error) {
+                    console.error('Erro ao gerar comprovante:', error);
+                    alert('Erro ao gerar comprovante do saque: ' + error.message);
+                    
+                    // Restaurar botão
+                    if (btn) {
+                    btn.innerHTML = originalText || '<i class="fas fa-file-pdf"></i> PDF';
+                        btn.disabled = false;
+                    }
+            }
+        }
+    </script>
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Inicializar Socket.IO
+        const socket = io();
+        
+        // Conectar à sala de administradores
+        socket.emit('join_room', 'admins');
+        
+        // Escutar notificações de saques
+        socket.on('saque_pendente', (data) => {
+            console.log('?? Nova notificação de saque pendente:', data);
+            // Recarregar a página para mostrar novos saques
+            location.reload();
+        });
+        
+        // Escutar notificações de sistema
+        socket.on('sistema_notification', (data) => {
+            console.log('?? Notificação do sistema:', data);
+            // Mostrar notificação visual
+            if (data.title && data.message) {
+                alert(`${data.title}: ${data.message}`);
+            }
+        });
+        
+        // Escutar conexão
+        socket.on('connect', () => {
+            console.log('?? Conectado ao Socket.IO');
+        });
+        
+        // Escutar desconexão
+        socket.on('disconnect', () => {
+            console.log('?? Desconectado do Socket.IO');
+        });
+    </script>
+    <!-- Notification Handler -->
+    
+</body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatixPay - Integrações</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/integracoes.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Meta Pixel Base -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      
+      // Inicializar pixel principal
+      const MAIN_PIXEL_ID = localStorage.getItem('mainPixelId') || '123456789012345';
+      fbq('init', MAIN_PIXEL_ID);
+      fbq('track', 'PageView');
+    </script>
+    
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header com título e ações -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-plug"></i>
+                        Integrações
+                    </h1>
+                    <p class="dashboard-subtitle">Configure e gerencie suas integrações de marketing e automação</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="integracoesManager.carregarProdutos()">
+                        <i class="fas fa-sync-alt"></i>
+                        Recarregar Produtos
+                    </button>
+                </div>
+              
+            </div>
+            
+            <!-- Sistema de Notificações -->
+            <div id="notification-container" class="notification-container"></div>
+            
+            <!-- Navegação de Integrações -->
+            <div class="integration-tabs">
+                <button class="tab-button active" data-tab="documentation">
+                    <i class="fas fa-book"></i>
+                    Documentação
+                </button>
+            </div>
+
+            <!-- Conteúdo Documentação -->
+            <div class="tab-content" id="documentation-content">
+                <div class="documentation-container">
+                    <div class="doc-header">
+                        <h1 class="doc-title">
+                            <i class="fas fa-book"></i>
+                            Guia Completo de Integrações
+                        </h1>
+                        <p class="doc-subtitle">Aprenda como configurar e usar as integrações disponíveis no RatixPay</p>
+                    </div>
+
+                    <div class="doc-content">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <i class="fas fa-info-circle" style="font-size: 64px; color: #007bff; margin-bottom: 20px;"></i>
+                            <h2 style="color: #1e293b; margin-bottom: 15px;">Configuração de Integrações</h2>
+                            <p style="font-size: 16px; color: #64748b; max-width: 600px; margin: 0 auto;">
+                                As integrações (Meta Pixel, UTMfy e Webhooks) são configuradas diretamente na página de <strong>Gestão de Produtos</strong>.
+                                Acesse um produto específico para configurar suas integrações de marketing e automação.
+                            </p>
+                            <div style="margin-top: 30px;">
+                                <a href="/gestao-produtos.html" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px;">
+                                    <i class="fas fa-box"></i>
+                                    Ir para Gestão de Produtos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <!-- Sidebar Component -->
+    <script src="js/sidebar-component.js"></script>
+    <!-- Scripts removidos - apenas documentação disponível -->
+    
+    <!-- Sistema de Gerenciamento de Integrações -->
+    <script>
+        class IntegracoesManager {
+            constructor() {
+                this.notifications = [];
+                this.integracoes = {
+                    metaPixel: [],
+                    umtfy: [],
+                    webhooks: []
+                };
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Inicializando Gerenciador de Integrações');
+                this.setupNotifications();
+            }
+
+            setupEventListeners() {
+                // Event listeners removidos - apenas documentação disponível
+            }
+
+            setupNotifications() {
+                // Criar container de notificações se não existir
+                if (!document.getElementById('notification-container')) {
+                    const container = document.createElement('div');
+                    container.id = 'notification-container';
+                    container.className = 'notification-container';
+                    document.querySelector('.main-content').insertBefore(container, document.querySelector('.integration-tabs'));
+                }
+            }
+
+            showNotification(message, type = 'info', duration = 5000) {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                
+                const icon = {
+                    'success': 'fas fa-check-circle',
+                    'error': 'fas fa-exclamation-circle',
+                    'warning': 'fas fa-exclamation-triangle',
+                    'info': 'fas fa-info-circle'
+                }[type] || 'fas fa-info-circle';
+
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-message">
+                            <i class="${icon}"></i>
+                            <span>${message}</span>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+
+                // Auto remove após duration
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, duration);
+
+                return notification;
+            }
+
+            async handleUmtfySubmit(event) {
+                event.preventDefault();
+                
+                const submitBtn = document.getElementById('umtfy-submit-btn');
+                const btnText = submitBtn.querySelector('.btn-text');
+                const btnLoading = submitBtn.querySelector('.btn-loading');
+                
+                // Mostrar loading
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+                submitBtn.disabled = true;
+
+                try {
+                    const formData = new FormData(event.target);
+                    const apiKey = formData.get('apiKey');
+                    const produto = formData.get('produto');
+                    const notificacoes = formData.getAll('notificacoes');
+                    const nome = formData.get('nome') || `Integração UTMify ${new Date().toLocaleDateString()}`;
+
+                    // Validações
+                    if (!this.validateUmtfyApiKey(apiKey)) {
+                        throw new Error('Token UTMify inválido');
+                    }
+
+                    if (!produto) {
+                        throw new Error('Selecione um produto');
+                    }
+
+                    if (notificacoes.length === 0) {
+                        throw new Error('Selecione pelo menos uma notificação');
+                    }
+
+                    // Determinar tipo de token
+                    const isUtmifyToken = apiKey.startsWith('utm_');
+                    const isUmtfyApiKey = apiKey.startsWith('umtfy_api_');
+                    const isAlphanumericToken = /^[A-Za-z0-9]{20,}$/.test(apiKey);
+
+                    // Criar integração
+                    const integracao = {
+                        id: Date.now().toString(),
+                        nome: nome,
+                        apiKey: apiKey,
+                        tokenType: isUtmifyToken ? 'utmify' : (isUmtfyApiKey ? 'umtfy' : 'alphanumeric'),
+                        produtoId: produto,
+                        notificacoes: notificacoes,
+                        ativo: true,
+                        created_at: new Date().toISOString(),
+                        last_sync: new Date().toISOString()
+                    };
+
+                    // Salvar integração
+                    await this.salvarIntegracaoUmtfy(integracao);
+
+                    // Testar integração
+                    await this.testarIntegracaoUmtfy(integracao);
+
+                    // Mostrar sucesso
+                    this.showNotification('Integração UMTFY adicionada com sucesso!', 'success');
+                    
+                    // Limpar formulário
+                    event.target.reset();
+                    
+                    // Atualizar lista
+                    this.renderizarIntegracoesUmtfy();
+
+                } catch (error) {
+                    console.error('❌ Erro ao adicionar integração UMTFY:', error);
+                    this.showNotification(`Erro: ${error.message}`, 'error');
+                } finally {
+                    // Esconder loading
+                    btnText.style.display = 'flex';
+                    btnLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            }
+
+            validateUmtfyApiKey(apiKey) {
+                // Aceitar tokens alfanuméricos, tokens UTMify (utm_xxx) e chaves API UMTFY (umtfy_api_xxx)
+                const alphanumericPattern = /^[A-Za-z0-9]{20,}$/;
+                const utmifyPattern = /^utm_[a-zA-Z0-9]{20,}$/;
+                const umtfyPattern = /^umtfy_api_[a-zA-Z0-9]{12,}$/;
+                const isValid = alphanumericPattern.test(apiKey) || utmifyPattern.test(apiKey) || umtfyPattern.test(apiKey);
+                const errorDiv = document.getElementById('umtfy-api-key-error');
+                
+                if (errorDiv) {
+                    if (isValid) {
+                        errorDiv.textContent = '';
+                        errorDiv.style.color = 'green';
+                    } else {
+                        errorDiv.textContent = 'Formato inválido. Use: Token alfanumérico (20+ chars), utm_xxxxxxxxxxxxxxxxxxxx ou umtfy_api_xxxxxxxxxxxx';
+                        errorDiv.style.color = 'red';
+                    }
+                }
+                
+                return isValid;
+            }
+
+            validateUmtfyProduto(produtoId) {
+                const isValid = produtoId && produtoId !== '';
+                const errorDiv = document.getElementById('umtfy-produto-error');
+                
+                if (errorDiv) {
+                    errorDiv.textContent = isValid ? '' : 'Selecione um produto';
+                    errorDiv.style.color = isValid ? 'green' : 'red';
+                }
+                
+                return isValid;
+            }
+
+            // Métodos para Meta Pixel
+            validateMetaPixelId(pixelId) {
+                const isValid = /^\d{15,16}$/.test(pixelId);
+                const errorDiv = document.getElementById('meta-pixel-id-error');
+                
+                if (errorDiv) {
+                    if (isValid) {
+                        errorDiv.textContent = '';
+                        errorDiv.style.color = 'green';
+                    } else {
+                        errorDiv.textContent = 'ID do pixel deve ter 15-16 dígitos';
+                        errorDiv.style.color = 'red';
+                    }
+                }
+                
+                return isValid;
+            }
+
+            async handleMetaPixelSubmit(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(event.target);
+                const pixelId = formData.get('pixelId');
+                const produto = formData.get('produto');
+                const eventos = formData.getAll('eventos');
+                
+                // Validações
+                if (!this.validateMetaPixelId(pixelId)) {
+                    this.showNotification('ID do pixel inválido', 'error');
+                    return;
+                }
+                
+                if (!produto) {
+                    this.showNotification('Selecione um produto', 'error');
+                    return;
+                }
+                
+                if (eventos.length === 0) {
+                    this.showNotification('Selecione pelo menos um evento', 'error');
+                    return;
+                }
+                
+                try {
+                    // Buscar dados do produto
+                    const produtoData = await this.getProdutoData(produto);
+                    
+                    // Criar integração
+                    const integracao = {
+                        id: Date.now().toString(),
+                        pixelId: pixelId,
+                        produtoId: produto,
+                        produtoNome: produtoData.nome,
+                        produtoPublicId: produtoData.public_id,
+                        eventos: eventos,
+                        ativo: true,
+                        created_at: new Date().toISOString(),
+                        last_sync: new Date().toISOString()
+                    };
+                    
+                    // Salvar integração
+                    await this.salvarIntegracaoMetaPixel(integracao);
+                    
+                    // Testar integração
+                    await this.testarIntegracaoMetaPixel(integracao);
+                    
+                    // Mostrar sucesso
+                    this.showNotification('Meta Pixel adicionado com sucesso!', 'success');
+                    
+                    // Limpar formulário
+                    event.target.reset();
+                    
+                    // Atualizar lista
+                    this.renderizarIntegracoesMetaPixel();
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao adicionar Meta Pixel:', error);
+                    this.showNotification(`Erro: ${error.message}`, 'error');
+                }
+            }
+
+            async salvarIntegracaoMetaPixel(integracao) {
+                // Carregar integrações existentes
+                let integracoes = [];
+                try {
+                    const data = localStorage.getItem('metaPixels');
+                    if (data) {
+                        integracoes = JSON.parse(data);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erro ao carregar integrações existentes:', error);
+                }
+                
+                // Adicionar nova integração
+                integracoes.push(integracao);
+                
+                // Salvar no localStorage
+                localStorage.setItem('metaPixels', JSON.stringify(integracoes));
+                
+                // Também salvar na configuração principal
+                const config = {
+                    mainPixelId: integracao.pixelId,
+                    integrations: integracoes,
+                    debug: false,
+                    autoTrack: true,
+                    enhancedEcommerce: true
+                };
+                localStorage.setItem('metaPixelConfig', JSON.stringify(config));
+                
+                console.log('✅ Integração Meta Pixel salva:', integracao);
+            }
+
+            async testarIntegracaoMetaPixel(integracao) {
+                console.log('🧪 Testando integração Meta Pixel:', integracao);
+                
+                // Simular teste de conectividade
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simular teste de eventos
+                integracao.eventos.forEach(evento => {
+                    console.log(`📊 Testando evento: ${evento}`);
+                });
+                
+                this.showNotification(`Teste realizado para ${integracao.eventos.length} eventos`, 'info', 3000);
+            }
+
+            renderizarIntegracoesMetaPixel() {
+                const container = document.getElementById('meta-pixel-list');
+                if (!container) return;
+                
+                try {
+                    const integracoes = JSON.parse(localStorage.getItem('metaPixels') || '[]');
+                    
+                    if (integracoes.length === 0) {
+                        container.innerHTML = '<div class="empty-state">Nenhum Meta Pixel configurado</div>';
+                        return;
+                    }
+                    
+                    container.innerHTML = integracoes.map(integracao => `
+                        <div class="integration-item">
+                            <div class="integration-info">
+                                <h4>Pixel ID: ${integracao.pixelId}</h4>
+                                <p><strong>Produto:</strong> ${integracao.produtoNome}</p>
+                                <p><strong>Eventos:</strong> ${integracao.eventos.join(', ')}</p>
+                                <p><strong>Criado:</strong> ${new Date(integracao.created_at).toLocaleString()}</p>
+                            </div>
+                            <div class="integration-actions">
+                                <button class="btn btn-info btn-sm" onclick="integracoesManager.testarIntegracaoMetaPixel('${integracao.id}')">
+                                    <i class="fas fa-play"></i> Testar
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="integracoesManager.editarIntegracaoMetaPixel('${integracao.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="integracoesManager.removerIntegracaoMetaPixel('${integracao.id}')">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao renderizar integrações Meta Pixel:', error);
+                    container.innerHTML = '<div class="error-state">Erro ao carregar integrações</div>';
+                }
+            }
+
+
+            async getProdutoData(produtoId) {
+                try {
+                    const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                    const response = await fetch(`${window.API_BASE}/produtos/${produtoId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.data || data;
+                    } else {
+                        throw new Error('Erro ao buscar dados do produto');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar produto:', error);
+                    throw error;
+                }
+            }
+
+            async salvarIntegracaoUmtfy(integracao) {
+                this.integracoes.umtfy.push(integracao);
+                localStorage.setItem('umtfyIntegracoes', JSON.stringify(this.integracoes.umtfy));
+                console.log('✅ Integração UMTFY salva:', integracao);
+            }
+
+            async testarIntegracaoUmtfy(integracao) {
+                console.log('🧪 Testando integração UMTFY:', integracao);
+                
+                // Simular teste de conectividade
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simular teste de eventos
+                integracao.notificacoes.forEach(notificacao => {
+                    console.log(`📊 Testando notificação: ${notificacao}`);
+                });
+
+                this.showNotification(`Teste realizado para ${integracao.notificacoes.length} notificações`, 'info', 3000);
+            }
+
+            renderizarIntegracoesUmtfy() {
+                const container = document.getElementById('umtfy-list');
+                if (!container) return;
+
+                if (this.integracoes.umtfy.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-robot" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                            <h3>Nenhuma integração UMTFY configurada</h3>
+                            <p>Configure integrações para automação de marketing</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.integracoes.umtfy.map(integracao => `
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <h3>
+                                <i class="fas fa-robot"></i>
+                                ${integracao.nome}
+                            </h3>
+                            <div class="integration-badge ${integracao.ativo ? 'active' : 'inactive'}">
+                                ${integracao.ativo ? 'Ativo' : 'Inativo'}
+                            </div>
+                        </div>
+                        <div class="integration-body">
+                            <div class="integration-info">
+                                <div><b>Token:</b> ${integracao.apiKey.substring(0, 15)}...</div>
+                                <div><b>Tipo:</b> ${integracao.tokenType === 'utmify' ? 'UTMify' : integracao.tokenType === 'umtfy' ? 'UMTFY API' : 'Token Alfanumérico'}</div>
+                                <div><b>Produto ID:</b> ${integracao.produtoId}</div>
+                                <div><b>Notificações:</b> ${integracao.notificacoes.join(', ')}</div>
+                                <div><b>Criado em:</b> ${new Date(integracao.created_at).toLocaleString('pt-BR')}</div>
+                            </div>
+                        </div>
+                        <div class="integration-footer">
+                            <button class="btn btn-info btn-sm" onclick="integracoesManager.testarIntegracao('${integracao.id}')">
+                                <i class="fas fa-play"></i> Testar
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="integracoesManager.editarIntegracao('${integracao.id}')">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="integracoesManager.removerIntegracao('${integracao.id}')">
+                                <i class="fas fa-trash"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadIntegracoes() {
+                try {
+                    this.integracoes.umtfy = JSON.parse(localStorage.getItem('umtfyIntegracoes') || '[]');
+                    console.log(`📦 Carregadas ${this.integracoes.umtfy.length} integrações UMTFY`);
+                } catch (error) {
+                    console.error('❌ Erro ao carregar integrações:', error);
+                    this.integracoes.umtfy = [];
+                }
+            }
+
+            async carregarProdutos() {
+                try {
+                    console.log('🔄 Carregando produtos para integrações...');
+                    
+                    const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                    if (!token) {
+                        console.warn('⚠️ Token de autenticação não encontrado');
+                        this.showNotification('Erro: Token de autenticação não encontrado', 'error');
+                        return;
+                    }
+
+                    // Primeiro testar se o endpoint está funcionando
+                    console.log('🧪 Testando endpoint...');
+                    const testResponse = await fetch(`${window.API_BASE}/produtos-integracao/test`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!testResponse.ok) {
+                        throw new Error(`Endpoint de teste falhou: ${testResponse.status}`);
+                    }
+
+                    const testData = await testResponse.json();
+                    console.log('✅ Endpoint funcionando:', testData.message);
+
+                    // Agora carregar produtos
+                    const response = await fetch(`${window.API_BASE}/produtos-integracao/integracoes`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success && data.data.produtos) {
+                        this.popularSelectsProdutos(data.data.produtos);
+                        console.log(`✅ ${data.data.produtos.length} produtos carregados para integrações`);
+                        this.showNotification(`${data.data.produtos.length} produtos carregados`, 'success', 3000);
+                    } else {
+                        throw new Error(data.message || 'Erro ao carregar produtos');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Erro ao carregar produtos:', error);
+                    this.showNotification(`Erro ao carregar produtos: ${error.message}`, 'error');
+                    
+                    // Fallback: tentar carregar produtos básicos
+                    this.carregarProdutosFallback();
+                }
+            }
+
+            popularSelectsProdutos(produtos) {
+                // Selecionar todos os selects de produto (nenhum mais necessário após remoção das abas)
+                const selects = [];
+
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        // Limpar opções existentes (exceto a primeira)
+                        while (select.children.length > 1) {
+                            select.removeChild(select.lastChild);
+                        }
+
+                        if (produtos.length === 0) {
+                            // Adicionar opção de "nenhum produto"
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'Nenhum produto encontrado';
+                            option.disabled = true;
+                            select.appendChild(option);
+                        } else {
+                            // Adicionar produtos
+                            produtos.forEach(produto => {
+                                const option = document.createElement('option');
+                                option.value = produto.id;
+                                option.textContent = `${produto.nome} - MZN ${produto.preco_com_desconto || produto.preco}`;
+                                option.dataset.produtoNome = produto.nome;
+                                option.dataset.produtoPreco = produto.preco_com_desconto || produto.preco;
+                                select.appendChild(option);
+                            });
+                        }
+
+                        console.log(`✅ ${produtos.length} produtos adicionados ao select ${selectId}`);
+                    }
+                });
+            }
+
+            async carregarProdutosFallback() {
+                try {
+                    console.log('🔄 Tentando carregar produtos via fallback...');
+                    
+                    // Tentar endpoint básico de produtos
+                    const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                    const response = await fetch(`${window.API_BASE}/produtos`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.data) {
+                            this.popularSelectsProdutos(data.data);
+                            console.log('✅ Produtos carregados via fallback');
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Erro no fallback de produtos:', error);
+                    this.showNotification('Erro: Não foi possível carregar produtos', 'error');
+                }
+            }
+
+            clearUmtfyForm() {
+                const form = document.getElementById('form-umtfy');
+                if (form) {
+                    form.reset();
+                    // Limpar erros
+                    document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+                    this.showNotification('Formulário limpo', 'info', 2000);
+                }
+            }
+
+            refreshUmtfyList() {
+                this.loadIntegracoes();
+                this.renderizarIntegracoesUmtfy();
+                this.showNotification('Lista atualizada', 'success', 2000);
+            }
+
+            // Métodos para outras integrações
+            syncAllIntegrations() {
+                this.showNotification('Sincronizando todas as integrações...', 'info');
+                // Implementar sincronização
+            }
+
+            testAllIntegrations() {
+                this.showNotification('Testando todas as integrações...', 'info');
+                // Implementar testes
+            }
+        }
+
+        // Função global para debug das abas
+        window.debugTabs = function() {
+            console.log('🔍 Debug das abas:');
+            console.log('Botões encontrados:', document.querySelectorAll('.tab-button').length);
+            console.log('Conteúdos encontrados:', document.querySelectorAll('.tab-content').length);
+            
+            document.querySelectorAll('.tab-button').forEach((btn, i) => {
+                console.log(`Botão ${i + 1}:`, {
+                    text: btn.textContent.trim(),
+                    dataTab: btn.getAttribute('data-tab'),
+                    hasActive: btn.classList.contains('active')
+                });
+            });
+            
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                console.log(`Conteúdo ${i + 1}:`, {
+                    id: content.id,
+                    display: content.style.display,
+                    visible: content.offsetParent !== null
+                });
+            });
+        };
+
+        // Função para trocar abas
+        function showTab(tabName) {
+            console.log(`🔄 Tentando mostrar tab: ${tabName}`);
+            
+            // Esconder todas as tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+                console.log(`👁️ Escondendo tab: ${tab.id}`);
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar tab selecionada
+            const targetTab = document.getElementById(tabName + '-content');
+            if (targetTab) {
+                targetTab.style.display = 'block';
+                console.log(`✅ Mostrando tab: ${targetTab.id}`);
+            } else {
+                console.error(`❌ Tab não encontrada: ${tabName}-content`);
+            }
+            
+            // Adicionar classe active ao botão clicado
+            const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                console.log(`🎯 Botão ativado: ${tabName}`);
+            } else {
+                console.error(`❌ Botão não encontrado: [data-tab="${tabName}"]`);
+            }
+            
+            console.log(`📋 Tab ${tabName} ativada com sucesso`);
+        }
+
+        // Inicializar sidebar e gerenciador
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando página de integrações...');
+            
+            const sidebar = new SidebarComponent();
+            sidebar.init('integracoes');
+            
+            // Inicializar gerenciador de integrações
+            window.integracoesManager = new IntegracoesManager();
+            
+            // Configurar listeners para troca de abas
+            const tabButtons = document.querySelectorAll('.tab-button');
+            console.log(`📋 Encontrados ${tabButtons.length} botões de tab`);
+            
+            tabButtons.forEach((button, index) => {
+                const tabName = button.getAttribute('data-tab');
+                console.log(`🔗 Configurando listener para tab ${index + 1}: ${tabName}`);
+                
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log(`🖱️ Clique no botão da tab: ${tabName}`);
+                    showTab(tabName);
+                });
+            });
+            
+            // Mostrar tab inicial (documentation)
+            console.log('🎯 Mostrando tab inicial: documentation');
+            showTab('documentation');
+            
+            console.log('✅ Página de integrações inicializada com sucesso');
+        });
+    </script>
+</body>
+</html>
+

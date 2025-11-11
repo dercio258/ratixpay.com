@@ -1,0 +1,236 @@
+# ========================================
+# RATIXPAY PROJECT - .gitignore
+# ========================================
+
+# ========================================
+# NODE.JS & NPM
+# ========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+package-lock.json
+yarn.lock
+
+# ========================================
+# ENVIRONMENT & CONFIGURATION
+# ========================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+config/local.js
+config/production.js
+config/database.js
+config/email.js
+config/upload.js
+
+# ========================================
+# DATABASE
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+database.sqlite
+database.sqlite3
+*.dump
+*.sql
+
+# ========================================
+# UPLOADS & MEDIA
+# ========================================
+uploads/
+public/uploads/
+temp/
+tmp/
+media/
+assets/uploads/
+static/uploads/
+
+# ========================================
+# LOGS
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+error.log
+access.log
+combined.log
+
+# ========================================
+# BUILD & DIST
+# ========================================
+dist/
+build/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+.fusebox/
+
+# ========================================
+# CACHE & TEMPORARY FILES
+# ========================================
+.cache/
+.parcel-cache/
+.tmp/
+.temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========================================
+# IDE & EDITORS
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# ========================================
+# OPERATING SYSTEM
+# ========================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========================================
+# TESTING & COVERAGE
+# ========================================
+coverage/
+.nyc_output/
+.coverage/
+test-results/
+junit.xml
+coverage.xml
+
+# ========================================
+# SECURITY & SENSITIVE DATA
+# ========================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+private/
+credentials/
+*.secret
+*.private
+
+# ========================================
+# RATIXPAY SPECIFIC
+# ========================================
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Generated files
+generated/
+auto-generated/
+
+# Service worker caches
+sw-cache/
+cache/
+
+# PWA files
+manifest.json.bak
+sw.js.bak
+
+# WhatsApp Authentication (Legado - whatsapp-web.js)
+.wwebjs_auth/
+.whatsapp-session-state.json
+bot/auth_info/
+
+# WhatsApp Authentication (Baileys)
+.baileys_auth/
+.whatsapp-baileys-state.json
+
+# Scripts de teste com dados sensíveis
+scripts/test-email-sending.js
+
+# QR Codes (podem conter informações sensíveis)
+qr-codes/
+*.png
+*.jpg
+*.jpeg
+!public/assets/**/*.png
+!public/assets/**/*.jpg
+!public/assets/**/*.jpeg
+
+# ========================================
+# DEPLOYMENT
+# ========================================
+deployment/
+deploy/
+.docker/
+docker-compose.override.yml
+
+# ========================================
+# MONITORING & ANALYTICS
+# ========================================
+monitoring/
+analytics/
+metrics/
+
+# ========================================
+# DOCUMENTATION BUILD
+# ========================================
+docs/build/
+docs/dist/
+site/
+
+# ========================================
+# MISC
+# ========================================
+*.pid
+*.seed
+*.pid.lock
+lib-cov
+.grunt
+.lock-wscript
+build/Release
+node-waf
+typings/
+.tern-port

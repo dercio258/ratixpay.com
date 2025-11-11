@@ -1,0 +1,42 @@
+<!-- Meta Pixel Code - HEADER GLOBAL -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  
+  // Inicializar pixel principal (configurável)
+  const MAIN_PIXEL_ID = '{{MAIN_PIXEL_ID}}' || '123456789012345';
+  fbq('init', MAIN_PIXEL_ID);
+  fbq('track', 'PageView');
+  
+  // Log de inicialização
+  console.log('✅ Meta Pixel base inicializado:', MAIN_PIXEL_ID);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={{MAIN_PIXEL_ID}}&ev=PageView&noscript=1"
+  />
+</noscript>
+<!-- End Meta Pixel Code -->
+
+<!-- Meta Pixel Otimizado -->
+<script src="/js/meta-pixel-optimized.js"></script>
+
+<!-- Configuração do Pixel -->
+<script>
+  // Configurar pixel principal se disponível
+  const mainPixelId = '{{MAIN_PIXEL_ID}}' || localStorage.getItem('mainPixelId');
+  if (mainPixelId && mainPixelId !== '123456789012345') {
+    localStorage.setItem('mainPixelId', mainPixelId);
+  }
+  
+  // Configurar modo debug se necessário
+  if (window.location.hostname === 'localhost' || window.location.search.includes('debug=true')) {
+    localStorage.setItem('pixelDebug', 'true');
+  }
+</script>

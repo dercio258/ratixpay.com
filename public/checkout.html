@@ -1,0 +1,3495 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Loader Inline - Aparece imediatamente -->
+  <script>
+    (function(){var p=window.location.pathname.split('/').pop()||'index.html';if(['payment-success.html'].some(e=>p.includes(e)))return;var u='/assets/images/icons/loader-icon-120.png';var h='<div id="loaderContainer" class="loader-container" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;"><img src="'+u+'" alt="RatixPay" class="loader-logo" style="width:120px;height:auto;margin-bottom:30px;opacity:0.9;" onerror="this.style.display=\'none\';"><div class="loader-spinner" style="width:60px;height:60px;border:4px solid rgba(246,76,0,0.1);border-top-color:#F64C00;border-radius:50%;animation:loader-spin 1s linear infinite;margin-bottom:20px;"></div><div class="loader-text" style="font-family:\'Poppins\',\'Segoe UI\',\'Roboto\',Arial,sans-serif;font-size:18px;font-weight:500;color:#333333;letter-spacing:0.5px;animation:loader-pulse 1.5s ease-in-out infinite;">Carregando...</div></div>';document.documentElement.insertAdjacentHTML('afterbegin',h);document.documentElement.classList.add('loading');if(!document.getElementById('loader-critical-styles')){var s=document.createElement('style');s.id='loader-critical-styles';s.textContent='@keyframes loader-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes loader-pulse{0%,100%{opacity:1}50%{opacity:0.6}}html.loading,body.loading{overflow:hidden;height:100%}html.loading>body{opacity:0}';document.head.appendChild(s);}})();
+  </script>
+  <title>RatixPay - Checkout</title>
+  <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+<!-- Meta Pixel - Inicialização Direta e Simples -->
+  <script>
+    // Carregar script base do Meta Pixel
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    // Função para buscar e inicializar Meta Pixel
+    async function inicializarMetaPixel() {
+      try {
+        // Obter ID do produto da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const produtoId = urlParams.get('produto');
+        
+        if (!produtoId) {
+          console.log('ℹ️ Meta Pixel: Nenhum produto identificado');
+          return;
+        }
+        
+        // Buscar produto na API
+        const API_BASE = window.location.origin + '/api';
+        const response = await fetch(`${API_BASE}/produtos/public/${produtoId}`);
+        
+        if (!response.ok) {
+          console.warn('⚠️ Meta Pixel: Falha ao carregar produto');
+          return;
+        }
+        
+        const produto = await response.json();
+        
+        if (!produto.pixel_id || !/^\d{15,16}$/.test(produto.pixel_id)) {
+          console.log('ℹ️ Meta Pixel: Produto não possui pixel_id válido');
+          return;
+        }
+        
+        const pixelId = produto.pixel_id;
+        const pixelEvents = produto.pixel_events || ['Purchase', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Lead'];
+        
+        console.log('✅ Meta Pixel: Inicializando com ID:', pixelId);
+        
+        // Inicializar pixel
+        fbq('init', pixelId);
+        fbq('track', 'PageView');
+        
+        // Disparar InitiateCheckout na página de checkout
+        if (pixelEvents.includes('InitiateCheckout')) {
+          fbq('track', 'InitiateCheckout', {
+            content_ids: [produto.id],
+            content_name: produto.nome,
+            value: parseFloat(produto.preco) || 0,
+            currency: 'MZN'
+          });
+          console.log('✅ Meta Pixel: InitiateCheckout disparado');
+        }
+        
+        // Atualizar noscript
+        updateNoscriptPixel(pixelId);
+        
+      } catch (error) {
+        console.error('❌ Meta Pixel: Erro ao inicializar:', error);
+      }
+    }
+    
+    // Função para atualizar noscript
+    function updateNoscriptPixel(pixelId) {
+      const noscriptImg = document.querySelector('noscript img[src*="facebook.com/tr"]');
+      if (noscriptImg) {
+        noscriptImg.src = `https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`;
+      }
+    }
+    
+    // Inicializar quando a página carregar
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inicializarMetaPixel);
+    } else {
+      inicializarMetaPixel();
+    }
+    
+    // ======================================
+    // 🎯 Capturar Parâmetros UTM da URL
+    // ======================================
+    (function capturarParametrosUTM() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Capturar todos os parâmetros UTM e de rastreamento
+        const utmParams = {
+          utm_source: urlParams.get('utm_source') || null,
+          utm_medium: urlParams.get('utm_medium') || null,
+          utm_campaign: urlParams.get('utm_campaign') || null,
+          utm_content: urlParams.get('utm_content') || null,
+          utm_term: urlParams.get('utm_term') || null,
+          src: urlParams.get('src') || null,
+          sck: urlParams.get('sck') || null
+        };
+        
+        // Salvar no localStorage para usar no envio do pagamento
+        if (Object.values(utmParams).some(v => v !== null)) {
+          localStorage.setItem('utm_tracking_params', JSON.stringify(utmParams));
+          console.log('✅ Parâmetros UTM capturados e salvos:', utmParams);
+        } else {
+          console.log('ℹ️ Nenhum parâmetro UTM encontrado na URL');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao capturar parâmetros UTM:', error);
+      }
+    })();
+  </script>
+  
+  <!-- Noscript será atualizado dinamicamente -->
+  <noscript>
+    <img height="1" width="1" style="display:none"
+         src="https://www.facebook.com/tr?id=PLACEHOLDER&ev=PageView&noscript=1"/>
+  </noscript>
+  
+  <!-- FontAwesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css"
+  />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0066FF;
+      --primary-light: rgba(0, 102, 255, 0.1);
+      --secondary: #f8fafc;
+      --border-color: #e0e7ff;
+      --text-dark: #333;
+      --text-light: #666;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .checkout-container {
+      background: #fff;
+      border-radius: var(--border-radius);
+      width: 95%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 0 auto 5px auto;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease;
+    }
+
+    .checkout-container.urgency-active {
+      border: none;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 15px 20px rgb(210 17 17 / 42%);
+    }
+
+    /* Quando timer está visível, ajustar bordas */
+    .urgency-timer:not([style*="display: none"]) + .checkout-container {
+      border-radius: 0 0 12px 12px;
+      border-top: none;
+    }
+
+
+    /* Timer de Urgência Styles */
+    .urgency-timer {
+      background: #d32f2f;
+      padding: 15px 20px;
+      text-align: center;
+      border-bottom: 1px solid #b71c1c;
+      border-top: 1px solid #b71c1c;
+      width: 95%;
+      max-width: 420px;
+      margin: 5px auto 0 auto;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .urgency-timer p {
+      margin: 0;
+      color: #ffffff;
+    }
+
+    #timerCountdown {
+      
+      color: #ffffff;
+      padding: 2px 8px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      min-width: 50px;
+      width: 50px;
+      display: inline-block;
+
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @keyframes descontoSlideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes blackFridayFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Black Friday Tag Responsivo */
+    #blackFridayTag {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    #blackFridayTag > div {
+      transition: all 0.3s ease;
+    }
+
+    #blackFridayTag.hidden {
+      display: none !important;
+    }
+
+    /* Black Friday Tag Styles */
+    .blackfriday-tag {
+      background: linear-gradient(135deg, #dc3545, #ff6b6b);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(220, 53, 69, 0.5);
+      animation: blackFridayFloat 3s ease-in-out infinite;
+      border: 2px solid #ffc107;
+      min-width: 200px;
+    }
+
+    .blackfriday-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      justify-content: center;
+    }
+
+    .blackfriday-icon {
+      font-size: 1.3rem;
+    }
+
+    .blackfriday-title {
+      font-size: 1.1rem;
+    }
+
+    .blackfriday-discount-container {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .blackfriday-discount {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 1rem;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .blackfriday-info {
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+    
+    .section-separator {
+      border-bottom: 1px solid var(--border-color);
+      margin: 20px 0;
+    }
+
+    .checkout-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px 12px;
+      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(135deg, #fafbff 0%, #f1f5f9 100%);
+    }
+
+    .secure-payment {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--success);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    /* Language Selector */
+    .lang-selector {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .lang-selected {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: white;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .lang-selected:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .lang-selected img { 
+      width: 20px; 
+      height: 15px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+
+    .lang-options {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      margin-top: 5px;
+      min-width: 140px;
+    }
+
+    .lang-selector:hover .lang-options { 
+      display: block; 
+      animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      transition: background 0.2s;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .lang-option:hover { 
+      background-color: var(--secondary); 
+    }
+
+    .lang-option img { 
+      width: 20px; 
+      height: 15px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+
+    .product-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .product-card img {
+      width: 65px;
+      height: 65px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--secondary);
+      padding: 6px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    .product-details { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px;
+      flex: 1;
+    }
+
+    #productName { 
+  font-weight: 400; 
+  font-size: 1rem; 
+  line-height: 1.4;
+  color: var(--text-dark);
+  text-transform: uppercase; /* deixa em MAIÚSCULAS */
+  font-family: "Times New Roman", Georgia, serif; /* fonte formal */
+}
+
+    #productPrice { 
+      font-weight: 700; 
+      font-size: 1.3rem; 
+      color: var(--primary);
+    }
+
+    /* Estilos para preços com desconto */
+    .price-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+    }
+
+    .price-original {
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-decoration: line-through;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .price-discounted {
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .discount-badge {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .discount-badge.blackfriday {
+      background: linear-gradient(135deg, #1f2937, #374151);
+      box-shadow: 0 2px 4px rgba(31, 41, 55, 0.3);
+    }
+
+    .savings-info {
+      font-size: 0.8rem;
+      color: #059669;
+      font-weight: 600;
+      background: #ecfdf5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1fae5;
+    }
+
+    /* Tag de desconto na product-card */
+    .discount-tag {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+    }
+
+    .discount-tag .price-original {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-decoration: line-through;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .discount-tag .price-discounted {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .discount-tag .discount-badge {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .discount-tag .discount-badge.blackfriday {
+      background: linear-gradient(135deg, #1f2937, #374151);
+      box-shadow: 0 1px 3px rgba(31, 41, 55, 0.3);
+    }
+
+    .discount-tag .savings-info {
+      font-size: 0.75rem;
+      color: #059669;
+      font-weight: 600;
+      background: #ecfdf5;
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid #d1fae5;
+    }
+
+    .checkout-form { 
+      display: flex; 
+      flex-direction: column; 
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+    }
+
+    .form-group { 
+      margin-bottom: 12px; 
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .checkout-form label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+
+    .checkout-form input[type="text"],
+    .checkout-form input[type="email"],
+    .checkout-form input[type="tel"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      background: #fafbfc;
+    }
+
+    .checkout-form input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      outline: none;
+      background: white;
+    }
+    
+    /* Phone Input with Flag */
+    .phone-input-container {
+      padding: 10px 14px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      transition: all 0.2s;
+      background: #fafbfc;
+      overflow: hidden;
+    }
+
+    .phone-input-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      background: white;
+      width: 100%;
+    }
+
+    .phone-prefix {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, var(--secondary) 0%, #e2e8f0 100%);
+      border-right: 1px solid #d1d5db;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.85rem;
+    }
+
+    .phone-prefix img { 
+      width: 24px; 
+      height: 18px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+
+    .phone-prefix .whatsapp-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: contain;
+      margin-right: 4px;
+    }
+
+    #phone { 
+      border: none; 
+      box-shadow: none; 
+      background: transparent;
+      border-radius: 0;
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 15px;
+    }
+
+    #phone:focus { 
+      box-shadow: none; 
+    }
+
+    /* Validação de telefone - indicadores visuais removidos para validação interna */
+    
+    /* Payment Section */
+    .payment-section {
+      padding: 18px 20px;
+    }
+
+    .total-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, rgba(0, 102, 255, 0.05) 100%);
+    }
+
+    .total-container .label {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      padding-right: 20px;
+      border-right: 2px solid var(--primary);
+    }
+
+    .total-container .amount {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .payment-method-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+    }
+
+    .payment-methods { 
+      display: flex; 
+      gap: 12px; 
+      margin-bottom: 18px;
+      justify-content: center;
+    }
+
+    .payment-method {
+      background: linear-gradient(135deg, var(--secondary) 0%, #f1f5f9 100%);
+      border: 2px solid #d1d5db;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      gap: 6px;
+      transition: all 0.3s ease;
+      min-width: 90px;
+      position: relative;
+    }
+
+    .payment-method:hover:not(.disabled) { 
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
+    }
+
+    .payment-method.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .payment-method.selected::after {
+      content: '✓';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--primary);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .payment-method.disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+    }
+
+    .payment-method img { 
+      height: 28px; 
+      object-fit: contain; 
+    }
+
+    .payment-method span { 
+      font-size: 0.85rem; 
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .payment-method input[type="radio"] { 
+      display: none; 
+    }
+
+    .btn-checkout {
+      width: 100%;
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-checkout:hover { 
+      background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); 
+    }
+
+    .btn-checkout:active {
+      transform: translateY(0);
+    }
+
+    /* Botão sempre visível - validação interna */
+
+    /* Sistema de Notificações */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      padding: 16px 20px;
+      max-width: 400px;
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+      border-left: 4px solid #ef4444;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      border-left-color: #10b981;
+    }
+
+    .notification.warning {
+      border-left-color: #f59e0b;
+    }
+
+    .notification.error {
+      border-left-color: #ef4444;
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .notification-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .notification.success .notification-icon {
+      background: #10b981;
+    }
+
+    .notification.warning .notification-icon {
+      background: #f59e0b;
+    }
+
+    .notification.error .notification-icon {
+      background: #ef4444;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    .notification-message {
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .notification-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .notification-close:hover {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    /* Indicadores de Erro nos Campos */
+    .field-error {
+      border: 2px solid #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .field-success {
+      border: 2px solid #10b981 !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Highlight de Campo com Erro */
+    .error-highlight {
+      position: relative;
+    }
+
+    .error-highlight::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      animation: pulse 1s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Container da imagem de pagamento */
+    .payment-image-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 12px;
+      padding: 8px;
+    }
+
+    .payment-image {
+      max-width: 100%;
+      max-height: 35px;
+      width: auto;
+      height: auto;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .payment-image:hover {
+      transform: scale(1.02);
+    }
+
+    /* Order Bump Styles */
+    .order-bump-section {
+      padding: 15px 20px;
+      background: transparent;
+      border: none;
+      margin: 0;
+    }
+
+    .order-bump-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .order-bump-header h3 {
+      color: #1f2937;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .order-bump-header p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      font-weight: 400;
+      text-align: center;
+    }
+
+    .order-bump-products {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-bump-product {
+      background: white;
+      border: 1px solid #28a745;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-bump-product:hover {
+      border-color: #20c997;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+    }
+
+    /* Estilos específicos para desktop */
+    .order-bump-product-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .order-bump-product-header .order-bump-thumb {
+      width: 56px !important;
+      height: 56px !important;
+      border-radius: 8px;
+      flex-shrink: 0;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .order-bump-product-header .order-bump-product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .order-bump-product-header .order-bump-product-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .order-bump-product-header .order-bump-product-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .order-bump-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      justify-content: center;
+      padding-top: 6px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .order-bump-add-text {
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .order-bump-arrow {
+      font-size: 1.2rem;
+      color: #3b82f6;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+
+    .order-bump-product-header .order-bump-add-btn {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .order-bump-product:hover {
+      border-color: #d97706;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .order-bump-product.selected {
+      border-color: #28a745;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    }
+
+    .order-bump-product.selected::after {
+      content: '✓';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #059669;
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .order-bump-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #d97706;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .order-bump-product.selected .order-bump-checkbox {
+      background: #059669;
+      border-color: #059669;
+    }
+
+    .order-bump-checkbox::after {
+      content: '✓';
+      color: white;
+      font-size: 0.8rem;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .order-bump-product.selected .order-bump-checkbox::after {
+      opacity: 1;
+    }
+
+    .order-bump-product-info {
+      flex: 1;
+    }
+
+    .order-bump-product-name {
+      font-weight: 600;
+      color: #92400e;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .order-bump-product-description {
+      color: #a16207;
+      font-size: 0.8rem;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .order-bump-product-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-bump-price-original {
+      color: #6b7280;
+      font-size: 0.8rem;
+      text-decoration: line-through;
+    }
+
+    .order-bump-price-final {
+      color: #059669;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .order-bump-add-btn {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .order-bump-add-btn:hover {
+      background: linear-gradient(135deg, #047857 0%, #059669 100%);
+      transform: translateY(-1px);
+    }
+
+    .order-bump-add-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Responsividade para a imagem */
+    @media (max-width: 768px) {
+      .payment-image {
+        max-height: 32px;
+      }
+      
+      .payment-image-container {
+        padding: 8px;
+        margin-top: 12px;
+      }
+
+      .order-bump-section {
+        padding: 15px 20px;
+        margin: 15px 0;
+      }
+
+      .order-bump-header h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+      }
+
+      .order-bump-products {
+        gap: 10px;
+      }
+
+      .order-bump-product {
+        flex-direction: row;
+        align-items: center;
+        padding: 12px;
+        gap: 12px;
+        border-radius: 12px;
+        min-height: 80px;
+        transition: all 0.3s ease;
+      }
+
+      .order-bump-thumb {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 10px;
+        flex-shrink: 0;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .order-bump-product:hover .order-bump-thumb {
+        transform: scale(1.05);
+      }
+
+      .order-bump-product-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .order-bump-product-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 2px;
+        color: #1f2937;
+      }
+
+      .order-bump-product-description {
+        font-size: 0.8rem;
+        color: #6b7280;
+        line-height: 1.4;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .order-bump-product-price {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      .order-bump-price-original {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        text-decoration: line-through;
+      }
+
+      .order-bump-price-final {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #059669;
+      }
+
+      .order-bump-add-btn {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        min-width: 110px;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+      }
+
+      .order-bump-add-btn:hover {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+      }
+
+      .order-bump-product.selected {
+        border-color: #059669;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .payment-image {
+        max-height: 35px;
+      }
+      
+      .payment-image-container {
+        padding: 6px;
+        margin-top: 10px;
+      }
+
+      .order-bump-section {
+        padding: 12px 15px;
+        margin: 12px 0;
+      }
+
+      .order-bump-header h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+
+      .order-bump-products {
+        gap: 8px;
+      }
+
+      .order-bump-product {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: white;
+        border: 2px solid #f59e0b;
+        border-radius: 12px;
+        min-height: 75px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .order-bump-product:hover {
+        border-color: #d97706;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .order-bump-product-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .order-bump-thumb {
+        width: 50px !important;
+        height: 50px !important;
+        border-radius: 8px;
+        flex-shrink: 0;
+        object-fit: cover;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .order-bump-product:hover .order-bump-thumb {
+        transform: scale(1.05);
+      }
+
+      .order-bump-product-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        overflow: hidden;
+      }
+
+      .order-bump-product-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1f2937;
+        line-height: 1.3;
+        margin: 0;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
+
+      .order-bump-product-description {
+        font-size: 0.75rem;
+        color: #6b7280;
+        line-height: 1.2;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
+
+      .order-bump-product-price {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        text-align: left;
+        white-space: nowrap;
+        margin-top: 2px;
+      }
+
+      .order-bump-price-original {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        text-decoration: line-through;
+      }
+
+      .order-bump-price-final {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #059669;
+      }
+
+      .order-bump-add-btn {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        min-width: 90px;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+      }
+
+      .order-bump-add-btn:hover {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(5, 150, 105, 0.4);
+      }
+
+      .order-bump-product.selected {
+        border-color: #059669;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+      }
+
+      .order-bump-product.selected::after {
+        content: '✓';
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #059669;
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+      }
+
+      .order-bump-checkbox-input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #3b82f6;
+        transform: scale(1.1);
+        transition: all 0.3s ease;
+      }
+
+      .order-bump-checkbox-input:hover {
+        transform: scale(1.2);
+        filter: brightness(1.1);
+      }
+
+      .order-bump-checkbox-input:checked {
+        transform: scale(1.15);
+        filter: hue-rotate(200deg) brightness(1.1);
+      }
+    }
+
+    .page-footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      width: 95%;
+      max-width: 420px;
+      line-height: 1.4;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .page-footer strong {
+      color: var(--text-dark);
+    }
+
+    .page-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .page-footer a:hover {
+      color: #0052cc;
+      text-decoration: underline;
+    }
+
+    /* Hidden elements for dynamic content */
+    #productCustomId,
+    #discountInfo {
+      display: none;
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .order-bump-product {
+        padding: 12px;
+        gap: 6px;
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .order-bump-product-header {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .order-bump-thumb {
+        width: 48px !important;
+        height: 48px !important;
+        flex-shrink: 0;
+      }
+
+      .order-bump-product-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .order-bump-product-name {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        line-height: 1.2;
+      }
+
+      .order-bump-product-price {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+      }
+
+      .order-bump-checkbox-row {
+        justify-content: flex-start;
+        gap: 6px;
+        margin-top: 4px;
+        padding-top: 4px;
+      }
+
+      .order-bump-add-text {
+        font-size: 0.8rem;
+      }
+
+      .order-bump-checkbox-input {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .order-bump-product {
+        padding: 16px;
+        gap: 12px;
+      }
+
+      .order-bump-thumb {
+        width: 56px !important;
+        height: 56px !important;
+      }
+
+      .order-bump-product-name {
+        font-size: 1rem;
+      }
+
+      .order-bump-product-price {
+        font-size: 0.9rem;
+      }
+
+      .order-bump-checkbox-row {
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .order-bump-add-text {
+        font-size: 0.9rem;
+      }
+
+      .order-bump-checkbox-input {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .order-bump-product {
+        padding: 12px;
+        gap: 6px;
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .order-bump-product-header {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .order-bump-thumb {
+        width: 50px !important;
+        height: 50px !important;
+        flex-shrink: 0;
+      }
+
+      .order-bump-product-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .order-bump-product-name {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        line-height: 1.2;
+      }
+
+      .order-bump-product-price {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+
+      .order-bump-checkbox-row {
+        justify-content: flex-start;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .order-bump-add-text {
+        font-size: 0.8rem;
+      }
+
+      .order-bump-checkbox-input {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 5px;
+      }
+
+      .checkout-container {
+        width: 98%;
+        margin: 2px;
+      }
+
+      .checkout-header,
+      .product-card,
+      .checkout-form,
+      .payment-section {
+        padding: 15px;
+      }
+
+      .product-card img {
+        width: 55px;
+        height: 55px;
+      }
+
+      .total-container {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 12px 14px;
+      }
+
+      .total-container .label {
+        border-right: none;
+        border-bottom: 2px solid var(--primary);
+        padding-right: 0;
+        padding-bottom: 8px;
+      }
+
+      .payment-methods {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .payment-method {
+        min-width: 80px;
+        padding: 10px 12px;
+      }
+
+      .payment-method img {
+        height: 24px;
+      }
+
+      .page-footer {
+        width: 98%;
+        margin: 10px 2px;
+        padding: 10px 12px;
+        font-size: 0.7rem;
+      }
+
+      .order-bump-section {
+        padding: 12px 15px;
+      }
+
+      .order-bump-product {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      /* Timer de urgência responsivo */
+      .urgency-timer {
+        padding: 12px 15px;
+      }
+
+      .urgency-timer p {
+        font-size: 16px;
+      }
+
+      #timerCountdown {
+        padding: 1px 6px;
+        font-size: 16px;
+        min-width: 45px;
+        width: 45px;
+      }
+
+      /* Descontos responsivos para tablet */
+      .price-container {
+        gap: 4px;
+      }
+
+      .price-original {
+        font-size: 0.8rem;
+      }
+
+      .price-discounted {
+        font-size: 1.2rem;
+        gap: 6px;
+      }
+
+      .discount-badge {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+      }
+
+      .savings-info {
+        font-size: 0.75rem;
+        padding: 1px 4px;
+      }
+
+      /* Tag de desconto responsiva para tablet */
+      .discount-tag {
+        gap: 3px;
+      }
+
+      .discount-tag .price-original {
+        font-size: 0.75rem;
+      }
+
+      .discount-tag .price-discounted {
+        font-size: 1.1rem;
+        gap: 4px;
+      }
+
+      .discount-tag .discount-badge {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+      }
+
+      .discount-tag .savings-info {
+        font-size: 0.7rem;
+        padding: 1px 4px;
+      }
+
+      /* Black Friday Tag oculta em tablet */
+      #blackFridayTag {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 2px;
+      }
+
+      .checkout-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 8px;
+      }
+
+      .checkout-header,
+      .product-card,
+      .checkout-form,
+      .payment-section {
+        padding: 12px;
+      }
+
+      .product-card img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .checkout-form input[type="text"],
+      .checkout-form input[type="email"],
+      .checkout-form input[type="tel"] {
+        padding: 8px 12px;
+        font-size: 16px; /* Previne zoom no iOS */
+      }
+
+      .phone-input-container {
+        padding: 8px 12px;
+      }
+
+      .phone-prefix {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+
+      .total-container {
+        padding: 10px 12px;
+      }
+
+      .payment-method {
+        min-width: 70px;
+        padding: 8px 10px;
+      }
+
+      .payment-method img {
+        height: 20px;
+      }
+
+      .btn-checkout {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+      }
+
+      .page-footer {
+        width: 100%;
+        margin: 8px 0;
+        padding: 8px 10px;
+        font-size: 0.65rem;
+      }
+
+      .order-bump-section {
+        padding: 10px 12px;
+      }
+
+      .order-bump-product {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+        padding: 8px;
+      }
+
+      /* Timer de urgência para telas pequenas */
+      .urgency-timer {
+        padding: 10px 12px;
+      }
+
+      .urgency-timer p {
+        font-size: 14px;
+      }
+
+      #timerCountdown {
+        padding: 1px 4px;
+        font-size: 14px;
+        min-width: 40px;
+        width: 40px;
+      }
+
+      /* Descontos responsivos para mobile */
+      .price-container {
+        gap: 3px;
+      }
+
+      .price-original {
+        font-size: 0.75rem;
+      }
+
+      .price-discounted {
+        font-size: 1.1rem;
+        gap: 4px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .discount-badge {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+        margin-top: 2px;
+      }
+
+      .savings-info {
+        font-size: 0.7rem;
+        padding: 1px 3px;
+      }
+
+      /* Tag de desconto responsiva para mobile */
+      .discount-tag {
+        gap: 2px;
+      }
+
+      .discount-tag .price-original {
+        font-size: 0.7rem;
+      }
+
+      .discount-tag .price-discounted {
+        font-size: 1rem;
+        gap: 3px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .discount-tag .discount-badge {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+        margin-top: 2px;
+      }
+
+      .discount-tag .savings-info {
+        font-size: 0.65rem;
+        padding: 1px 3px;
+      }
+
+      /* Black Friday Tag oculta em mobile */
+      #blackFridayTag {
+        display: none;
+      }
+    }
+
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: auto;
+      padding: 0;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #0052cc 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .close {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close:hover {
+      opacity: 0.7;
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .modal-body h3 {
+      color: var(--primary);
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+
+    .modal-body h3:first-child {
+      margin-top: 0;
+    }
+
+    .modal-body p {
+      margin-bottom: 15px;
+      line-height: 1.6;
+      color: var(--text-dark);
+    }
+
+    .modal-body ul {
+      margin-bottom: 15px;
+      padding-left: 20px;
+    }
+
+    .modal-body li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+  </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    
+
+  <!-- Timer de Urgência -->
+  <div id="urgencyTimer" class="urgency-timer" style="display: none;">
+    <p style="color:#ffffff; font-weight:600; font-size:18px;">
+      Esta oferta termina em: <span id="timerCountdown">--:--</span>
+    </p>
+  </div>
+
+  <!-- Black Friday Tag -->
+  <div id="blackFridayTag" class="hidden">
+    <div class="blackfriday-tag">
+      <!-- Cabeçalho -->
+      <div class="blackfriday-header">
+        <span class="blackfriday-icon">🔥</span>
+        <span class="blackfriday-title">BLACK FRIDAY</span>
+      </div>
+      
+      <!-- Desconto -->
+      <div class="blackfriday-discount-container">
+        <div class="blackfriday-discount">
+          -95% OFF
+        </div>
+      </div>
+      
+      <!-- Informação adicional -->
+      <div class="blackfriday-info">
+        ⚡ Oferta Limitada
+      </div>
+    </div>
+  </div>
+
+  <main class="checkout-container">
+    <header class="checkout-header">
+      <div class="secure-payment">
+        <i class="fas fa-lock"></i>
+        <span data-translate-key="securePayment">Pagamento 100% seguro</span>
+      </div>
+      <div class="lang-selector">
+        <div class="lang-selected" id="lang-selected">
+          <img src="/assets/images/external/flag-pt.svg" alt="Português">
+          <span>PT</span>
+          <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 4px;"></i>
+        </div>
+        <div class="lang-options">
+          <div class="lang-option" data-lang="pt">
+            <img src="/assets/images/external/flag-pt.svg" alt="Português">
+            <span>Português</span>
+          </div>
+          <div class="lang-option" data-lang="en">
+            <img src="/assets/images/external/flag-gb.svg" alt="English">
+            <span>English</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+
+    <section class="product-card" id="productCard">
+      <!-- O conteúdo será preenchido dinamicamente pelo JavaScript -->
+      <!-- ID do produto e informações de desconto ocultos -->
+      <div id="productCustomId" style="display: none;"></div>
+      <div id="discountInfo" style="display: none;">
+        <span id="productDiscount"></span>
+        <span id="finalPrice"></span>
+      </div>
+      
+      <!-- Tag de desconto integrada -->
+      <div id="discountTag" class="discount-tag" style="display: none;">
+        <!-- Conteúdo será preenchido dinamicamente -->
+      </div>
+    </section>
+
+    <section class="checkout-form">
+      
+      <div class="form-group">
+        <label for="fullName" data-translate-key="fullNameLabel">Nome Completo:</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Seu nome completo" data-translate-key="fullNamePlaceholder" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email" data-translate-key="emailLabel">E-mail:</label>
+        <input type="email" id="email" name="email" placeholder="email@exemplo.com" data-translate-key="emailPlaceholder" required>
+      </div>
+
+      <div class="form-group">
+        <label for="whatsapp" data-translate-key="whatsappLabel">Contato WhatsApp (opcional):</label>
+        <div class="phone-input-container">
+          <div class="phone-prefix">
+            <img src="/assets/images/external/whatsapp-icon.png" alt="WhatsApp" class="whatsapp-icon">
+            <span>+258</span>
+          </div>
+          <input type="tel" id="whatsapp" name="whatsapp" placeholder="84xxxxxxx" data-translate-key="whatsappPlaceholder">
+        </div>
+      </div>
+
+     
+    </section>
+
+    <section class="payment-section">
+
+      <div class="payment-method-title" data-translate-key="paymentMethodLabel">Método de pagamento:</div>
+      <div class="payment-methods">
+        <label class="payment-method" data-method="mpesa">
+          <input type="radio" id="mpesa" name="paymentMethod" value="mpesa">
+          <img src="/assets/images/external/mpesa-logo.png" alt="M-Pesa">
+          <span>M-Pesa</span>
+        </label>
+        <label class="payment-method" data-method="emola">
+          <input type="radio" id="emola" name="paymentMethod" value="emola">
+          <img src="/assets/images/external/emola-logo.png" alt="e-Mola">
+          <span>e-Mola</span>
+        </label>
+      </div>
+
+       <div class="form-group">
+        <label for="phone" data-translate-key="phoneLabel">Telefone:</label>
+        <div class="phone-input-container" id="phoneContainer">
+          <div class="phone-prefix">
+            <img src="/assets/images/external/flag-mz.svg" alt="Moçambique">
+            <span>+258</span>
+          </div>
+          <input type="tel" id="phone" name="phone" placeholder="84xxxxxxx" data-translate-key="phonePlaceholder" required maxlength="9">
+        </div>
+      </div>
+
+      <!-- Order Bump Section -->
+      <section id="orderBumpSection" class="order-bump-section" style="display: none;">
+        <div class="order-bump-header">
+          <h3 data-translate-key="orderBumpTitle">🎁Aproveite e compre junto</h3>
+        </div>
+        
+        <div id="orderBumpProducts" class="order-bump-products">
+          <!-- Produtos do Order Bump serão inseridos aqui via JavaScript -->
+        </div>
+      </section>
+
+      <div id="orderBumpTotal" style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 10px 0;padding:10px 12px;border:1px solid var(--border-color);border-radius:10px;background:#fafbfc;font-weight:700;color:#333;">
+        <span>Valor total:</span>
+        <span id="orderBumpTotalValue">0 MZN</span>
+      </div>
+      <button id="finishOrderBtn" class="btn-checkout" data-translate-key="payNowButton" 
+              data-checkout="true" data-product-id="" data-product-name="" data-price="">Pagar Agora</button>
+      
+      <!-- Imagem de pagamento -->
+      <div class="payment-image-container">
+        <img src="/assets/images/external/payment-info.png" 
+             alt="Informações de pagamento" 
+             class="payment-image">
+      </div>
+    </section>
+  </main>
+  
+  <footer class="page-footer">
+    <p data-translate-key="footerText">
+      <strong>Ao finalizar esta compra, você concorda com nossos </strong>
+      <a href="#" onclick="openModal('termsModal'); return false;" data-translate-key="termsLink"><strong>Termos de Uso</strong></a><strong>, </strong>
+      <a href="#" onclick="openModal('privacyModal'); return false;" data-translate-key="privacyLink"><strong>Política de Privacidade</strong></a><strong> e </strong>
+      <a href="#" onclick="openModal('refundModal'); return false;" data-translate-key="refundLink"><strong>Política de Reembolso</strong></a><strong>.</strong>
+    </p>
+  </footer>
+
+  
+  
+  <!-- Scripts -->
+  <script>
+    // Definir API_BASE globalmente antes de carregar os outros scripts
+    window.API_BASE = window.location.origin + '/api';
+    console.log('API_BASE definido inicialmente:', window.API_BASE);
+  </script>
+  
+  <!-- Rastreamento de cliques de afiliados -->
+  <script>
+    // Função para rastrear cliques de afiliados
+    function trackAffiliateClick() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        const produto = urlParams.get('produto');
+        
+        if (ref && produto) {
+          console.log('🔗 Rastreando clique de afiliado:', { ref, produto });
+          
+          // Fazer requisição para a rota de rastreamento
+          fetch(`${window.API_BASE}/afiliados/track/${ref}?produto=${produto}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              console.log('✅ Clique de afiliado registrado com sucesso');
+            } else {
+              console.log('⚠️ Erro ao registrar clique de afiliado:', response.status);
+            }
+          })
+          .catch(error => {
+            console.error('❌ Erro ao rastrear clique de afiliado:', error);
+          });
+        }
+      } catch (error) {
+        console.error('❌ Erro no rastreamento de afiliados:', error);
+      }
+    }
+    
+    // Executar rastreamento quando a página carregar
+    document.addEventListener('DOMContentLoaded', trackAffiliateClick);
+  </script>
+  
+  <script src="js/server-check.js"></script>
+  <script>
+    // Verificar se API_BASE foi definido corretamente pelo server-check.js
+    console.log('API_BASE após server-check.js:', window.API_BASE);
+  </script>
+  <script src="js/config.js"></script>
+  <script>
+    // Verificar se API_BASE foi definido corretamente pelo config.js
+    console.log('API_BASE após config.js:', window.API_BASE);
+  </script>
+  <script src="js/checkout-new.js?v=20241225"></script>
+  <script>
+    // Esconder loader quando as informações do produto forem carregadas
+    (function() {
+      let loaderHidden = false;
+      
+      function hideLoader() {
+        if (loaderHidden) return;
+        loaderHidden = true;
+        
+        const loader = document.getElementById('loaderContainer');
+        const html = document.documentElement;
+        const body = document.body;
+        
+        if (loader) {
+          loader.classList.add('hidden');
+          setTimeout(function() {
+            if (body) body.classList.remove('loading');
+            html.classList.remove('loading');
+            if (loader.parentNode) loader.remove();
+          }, 200);
+        } else {
+          if (body) body.classList.remove('loading');
+          html.classList.remove('loading');
+        }
+      }
+      
+      // Observar quando window.currentProduct for definido
+      function observeProductLoad() {
+        // Verificar se já está carregado
+        if (window.currentProduct && window.currentProduct.nome) {
+          console.log('✅ Produto já carregado, escondendo loader');
+          hideLoader();
+          return;
+        }
+        
+        // Observar mudanças em window.currentProduct
+        let checkInterval = setInterval(function() {
+          if (window.currentProduct && window.currentProduct.nome) {
+            console.log('✅ Produto carregado detectado, escondendo loader');
+            clearInterval(checkInterval);
+            hideLoader();
+          }
+        }, 100);
+        
+        // Limpar intervalo após 10 segundos (fallback)
+        setTimeout(function() {
+          clearInterval(checkInterval);
+        }, 10000);
+      }
+      
+      // Escutar evento quando produto for carregado
+      window.addEventListener('productLoaded', function(event) {
+        if (event.detail && event.detail.nome) {
+          console.log('✅ Evento productLoaded disparado, escondendo loader');
+          hideLoader();
+        }
+      });
+      
+      // Escutar evento quando produto falhar ao carregar
+      window.addEventListener('productLoadFailed', function(event) {
+        console.log('❌ Produto falhou ao carregar, escondendo loader');
+        hideLoader();
+      });
+      
+      // Iniciar observação quando DOM estiver pronto
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', observeProductLoad);
+      } else {
+        observeProductLoad();
+      }
+      
+      // Fallback de segurança (máximo 5 segundos para aguardar produto)
+      setTimeout(function() {
+        if (!loaderHidden) {
+          console.log('⚠️ Timeout: escondendo loader mesmo sem produto carregado');
+          hideLoader();
+        }
+      }, 5000);
+    })();
+  </script>
+  <script src="js/discount-trigger.js"></script>
+  <script>
+    // Verificar se checkout-new.js foi carregado corretamente
+    console.log('Checkout script carregado');
+    
+    // Verificar se as funções principais estão disponíveis
+    if (typeof displayProduct === 'function') {
+      console.log('✅ Função displayProduct disponível');
+    } else {
+      console.error('❌ Função displayProduct não encontrada - possível problema de carregamento');
+    }
+  </script>
+  
+  <script>
+    // Helper para montar URL de imagem de produto por custom_id/id
+    function getImagemProdutoUrl(produto) {
+      if (!produto) return '';
+      if (produto.custom_id) return `${window.API_BASE}/produtos/imagem/${produto.custom_id}`;
+      if (produto.id) return `${window.API_BASE}/produtos/imagem/${produto.id}`;
+      return produto.imagem_url || produto.imagemUrl || produto.imageUrl || '';
+    }
+  </script>
+
+  <script>
+    // LÓGICA DE TRADUÇÃO
+    const translations = {
+      pt: {
+        securePayment: "Pagamento 100% seguro",
+        customerInfo: "Informações do Cliente",
+        fullNameLabel: "Nome Completo:",
+        fullNamePlaceholder: "Seu nome completo",
+        emailLabel: "E-mail:",
+        emailPlaceholder: "email@exemplo.com",
+        phoneLabel: "Telefone:",
+        phonePlaceholder: "84xxxxxxx",
+        whatsappLabel: "Contato WhatsApp (opcional):",
+        whatsappPlaceholder: "84xxxxxxx",
+        totalLabel: "Valor a pagar",
+        paymentMethodLabel: "Método de pagamento:",
+        payNowButton: "Pagar Agora",
+        footerText: "Ao finalizar esta compra, você concorda com nossos ",
+        termsLink: "Termos de Uso",
+        privacyLink: "Política de Privacidade",
+        refundLink: "Política de Reembolso"
+      },
+      en: {
+        securePayment: "100% secure payment",
+        customerInfo: "Customer Information",
+        fullNameLabel: "Full Name:",
+        fullNamePlaceholder: "Your full name",
+        emailLabel: "Email:",
+        emailPlaceholder: "email@example.com",
+        phoneLabel: "Phone:",
+        phonePlaceholder: "84xxxxxxx",
+        whatsappLabel: "WhatsApp Contact (optional):",
+        whatsappPlaceholder: "84xxxxxxx",
+        totalLabel: "Amount to pay",
+        paymentMethodLabel: "Payment method:",
+        payNowButton: "Pay Now",
+        footerText: "By completing this purchase, you agree to our ",
+        termsLink: "Terms of Use",
+        privacyLink: "Privacy Policy",
+        refundLink: "Refund Policy"
+      }
+    };
+
+    function translatePage(language) {
+      document.querySelectorAll('[data-translate-key]').forEach(el => {
+        const key = el.getAttribute('data-translate-key');
+        if (translations[language] && translations[language][key]) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = translations[language][key];
+          } else {
+            // Para links e elementos com conteúdo HTML
+            if (el.tagName === 'A') {
+              el.innerHTML = `<strong>${translations[language][key]}</strong>`;
+            } else {
+              el.textContent = translations[language][key];
+            }
+          }
+        }
+      });
+
+      // Atualizar a bandeira selecionada
+      const selectedLangContainer = document.getElementById('lang-selected');
+      const flagUrl = language === 'pt' ? '/assets/images/external/flag-pt.svg' : '/assets/images/external/flag-gb.svg';
+      selectedLangContainer.querySelector('img').src = flagUrl;
+      selectedLangContainer.querySelector('span').textContent = language.toUpperCase();
+      
+      // Atualizar texto do footer especial
+      updateFooterText(language);
+    }
+
+    function updateFooterText(language) {
+      const footer = document.querySelector('[data-translate-key="footerText"]');
+      if (language === 'pt') {
+        footer.innerHTML = `<strong>Ao finalizar esta compra, você concorda com nossos </strong>
+          <a href="#" data-translate-key="termsLink"><strong>Termos de Uso</strong></a><strong>, </strong>
+          <a href="#" data-translate-key="privacyLink"><strong>Política de Privacidade</strong></a><strong> e </strong>
+          <a href="#" data-translate-key="refundLink"><strong>Política de Reembolso</strong></a><strong>.</strong>`;
+      } else {
+        footer.innerHTML = `<strong>By completing this purchase, you agree to our </strong>
+          <a href="#" data-translate-key="termsLink"><strong>Terms of Use</strong></a><strong>, </strong>
+          <a href="#" data-translate-key="privacyLink"><strong>Privacy Policy</strong></a><strong> and </strong>
+          <a href="#" data-translate-key="refundLink"><strong>Refund Policy</strong></a><strong>.</strong>`;
+      }
+    }
+
+    // Event listeners para mudança de idioma
+    document.querySelectorAll('.lang-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        const lang = e.currentTarget.getAttribute('data-lang');
+        translatePage(lang);
+      });
+    });
+
+    // LÓGICA DE SELEÇÃO DE PAGAMENTO
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    paymentMethods.forEach(pm => {
+      pm.addEventListener('click', () => {
+        if (pm.classList.contains('disabled')) return;
+        paymentMethods.forEach(p => p.classList.remove('selected'));
+        pm.classList.add('selected');
+        const radio = pm.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+        
+        // Verificar compatibilidade com telefone já preenchido
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput && phoneInput.value.trim().length > 0) {
+          const phoneValue = phoneInput.value.trim();
+          const paymentMethod = pm.getAttribute('data-method');
+          
+          // Limpar erros anteriores
+          clearFieldErrors();
+          
+          if (validatePhoneNumber(phoneValue)) {
+            const compatibility = validatePhonePaymentCompatibility(phoneValue, paymentMethod);
+            
+            if (!compatibility.valid) {
+              showNotification('warning', compatibility.title, compatibility.message, phoneInput);
+            }
+          }
+        }
+        
+        // Verificar validade do formulário após seleção
+        checkFormValidity();
+        
+        // Carregar Order Bump após seleção de método de pagamento
+        onPaymentMethodSelected();
+      });
+    });
+
+    // Nenhum método de pagamento selecionado por padrão
+    // O usuário deve escolher explicitamente um método
+
+    // VALIDAÇÃO DE TELEFONE
+    function validatePhoneNumber(phoneNumber) {
+      // Remove todos os caracteres não numéricos
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      
+      // Verifica se tem exatamente 9 dígitos
+      if (cleanNumber.length !== 9) {
+        return false;
+      }
+      
+      // Verifica se começa com 8 (padrão moçambicano)
+      if (!cleanNumber.startsWith('8')) {
+        return false;
+      }
+      
+      return true;
+    }
+
+    // SISTEMA DE NOTIFICAÇÕES
+    function showNotification(type, title, message, targetElement = null) {
+      // Remover notificação anterior se existir
+      const existingNotification = document.querySelector('.notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+
+      // Criar notificação
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      const icon = type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✕';
+      
+      notification.innerHTML = `
+        <button class="notification-close">&times;</button>
+        <div class="notification-header">
+          <div class="notification-icon">${icon}</div>
+          <div class="notification-title">${title}</div>
+        </div>
+        <div class="notification-message">${message}</div>
+      `;
+
+      document.body.appendChild(notification);
+
+      // Mostrar notificação
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 100);
+
+      // Auto-remover após 5 segundos
+      setTimeout(() => {
+        hideNotification(notification);
+      }, 5000);
+
+      // Botão de fechar
+      notification.querySelector('.notification-close').addEventListener('click', () => {
+        hideNotification(notification);
+      });
+
+      // Destacar elemento se especificado
+      if (targetElement) {
+        highlightErrorField(targetElement);
+      }
+    }
+
+    function hideNotification(notification) {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 300);
+    }
+
+    function highlightErrorField(element) {
+      // Remover highlights anteriores
+      document.querySelectorAll('.error-highlight').forEach(el => {
+        el.classList.remove('error-highlight');
+      });
+      
+      // Adicionar highlight ao elemento
+      element.classList.add('error-highlight');
+      
+      // Scroll para o elemento se necessário
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Remover highlight após 3 segundos
+      setTimeout(() => {
+        element.classList.remove('error-highlight');
+      }, 3000);
+    }
+
+    function clearFieldErrors() {
+      document.querySelectorAll('.field-error, .error-highlight').forEach(el => {
+        el.classList.remove('field-error', 'error-highlight');
+      });
+    }
+
+    // VALIDAÇÃO DE COMPATIBILIDADE TELEFONE + MÉTODO DE PAGAMENTO
+    function validatePhonePaymentCompatibility(phoneNumber, paymentMethod) {
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      
+      if (cleanNumber.length !== 9) {
+        return { 
+          valid: false, 
+          title: 'Número Inválido',
+          message: 'Número deve ter 9 dígitos.',
+          field: 'phone'
+        };
+      }
+      
+      if (!cleanNumber.startsWith('8')) {
+        return { 
+          valid: false, 
+          title: 'Número Inválido',
+          message: 'Número deve começar com 8.',
+          field: 'phone'
+        };
+      }
+      
+      const firstTwoDigits = cleanNumber.substring(0, 2);
+      
+      if (paymentMethod === 'mpesa') {
+        if (firstTwoDigits !== '84' && firstTwoDigits !== '85') {
+          return { 
+            valid: false, 
+            title: 'Método Incompatível',
+            message: 'M-Pesa requer número 84 ou 85.',
+            field: 'phone'
+          };
+        }
+      } else if (paymentMethod === 'emola') {
+        if (firstTwoDigits !== '86' && firstTwoDigits !== '87') {
+          return { 
+            valid: false, 
+            title: 'Método Incompatível',
+            message: 'e-Mola requer número 86 ou 87.',
+            field: 'phone'
+          };
+        }
+      }
+      
+      return { valid: true, title: '', message: '', field: '' };
+    }
+
+    function updatePhoneValidation() {
+      // Validação interna - sem desabilitar botão
+      const phoneInput = document.getElementById('phone');
+      if (!phoneInput) return;
+      
+      const phoneValue = phoneInput.value.trim();
+      
+      // Validação silenciosa - apenas para logs
+      if (phoneValue.length > 0) {
+        const isValid = validatePhoneNumber(phoneValue);
+        console.log(`📱 Telefone: ${phoneValue} - ${isValid ? 'Válido' : 'Inválido'}`);
+      }
+    }
+
+    function checkFormValidity() {
+      // Validação interna - sem desabilitar botão
+      const phoneInput = document.getElementById('phone');
+      const selectedPayment = document.querySelector('.payment-method.selected');
+      
+      if (!phoneInput) return;
+      
+      const phoneValid = validatePhoneNumber(phoneInput.value.trim());
+      const paymentSelected = selectedPayment !== null;
+      
+      // Log interno apenas
+      if (phoneValid && paymentSelected) {
+        console.log('✅ Formulário válido');
+      } else {
+        console.log('❌ Formulário inválido');
+      }
+    }
+
+    // Event listeners para validação de telefone
+    document.addEventListener('DOMContentLoaded', function() {
+      const phoneInput = document.getElementById('phone');
+      if (phoneInput) {
+        // Validar em tempo real
+        phoneInput.addEventListener('input', updatePhoneValidation);
+        
+        // Validar ao sair do campo (blur) - mostrar notificação se inválido
+        phoneInput.addEventListener('blur', function() {
+          const phoneValue = phoneInput.value.trim();
+          const selectedPayment = document.querySelector('.payment-method.selected');
+          
+          // Limpar erros anteriores
+          clearFieldErrors();
+          
+          if (phoneValue.length > 0) {
+            // Validar formato básico
+            if (!validatePhoneNumber(phoneValue)) {
+              showNotification('error', 'Número Inválido', 'Número deve ter 9 dígitos começando com 8.', phoneInput);
+            } else if (selectedPayment) {
+              // Se método já foi selecionado, validar compatibilidade
+              const paymentMethod = selectedPayment.getAttribute('data-method');
+              const compatibility = validatePhonePaymentCompatibility(phoneValue, paymentMethod);
+              
+              if (!compatibility.valid) {
+                showNotification('warning', compatibility.title, compatibility.message, phoneInput);
+              }
+            }
+          }
+          updatePhoneValidation();
+        });
+        
+        // Permitir apenas números
+        phoneInput.addEventListener('keypress', function(e) {
+          const char = String.fromCharCode(e.which);
+          if (!/[0-9]/.test(char)) {
+            e.preventDefault();
+          }
+        });
+        
+        // Limitar a 9 dígitos
+        phoneInput.addEventListener('input', function(e) {
+          const value = e.target.value.replace(/\D/g, '');
+          if (value.length > 9) {
+            e.target.value = value.substring(0, 9);
+          }
+        });
+      }
+      
+      // Inicializar validação do formulário
+      checkFormValidity();
+      
+      // Adicionar validação no botão de pagamento
+      const finishBtn = document.getElementById('finishOrderBtn');
+      if (finishBtn) {
+        finishBtn.addEventListener('click', function(e) {
+          const phoneInput = document.getElementById('phone');
+          const selectedPayment = document.querySelector('.payment-method.selected');
+          
+          // Limpar erros anteriores
+          clearFieldErrors();
+          
+          // Validar se telefone foi preenchido
+          if (!phoneInput || phoneInput.value.trim().length === 0) {
+            e.preventDefault();
+            showNotification('error', 'Campo Obrigatório', 'Insira seu número de telefone.', phoneInput);
+            return false;
+          }
+          
+          // Validar se método de pagamento foi selecionado
+          if (!selectedPayment) {
+            e.preventDefault();
+            showNotification('error', 'Método Não Selecionado', 'Escolha M-Pesa ou e-Mola.', selectedPayment);
+            return false;
+          }
+          
+          // Validar compatibilidade telefone + método de pagamento
+          const paymentMethod = selectedPayment.getAttribute('data-method');
+          const phoneValue = phoneInput.value.trim();
+          
+          const compatibility = validatePhonePaymentCompatibility(phoneValue, paymentMethod);
+          
+          if (!compatibility.valid) {
+            e.preventDefault();
+            showNotification('warning', compatibility.title, compatibility.message, phoneInput);
+            return false;
+          }
+          
+          // Se chegou até aqui, formulário está válido
+          console.log('✅ Formulário válido - prosseguindo com pagamento');
+        });
+      }
+    });
+
+    // Fechar dropdown de idiomas ao clicar fora, mas só após 10s
+document.addEventListener('click', function(event) {
+  const langSelector = document.querySelector('.lang-selector');
+  const langOptions = document.querySelector('.lang-options');
+  
+  // Se o clique não for dentro do seletor
+  if (!langSelector.contains(event.target)) {
+    // mantém aberto por 10 segundos
+    setTimeout(() => {
+      langOptions.style.display = 'none';
+    }, 10000); // 10 segundos
+  }
+});
+
+  // Funções para controlar os modais
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.style.display = 'flex';
+      // document.body.style.overflow = 'hidden'; // Previne scroll da página - REMOVIDO
+    }
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restaura scroll da página
+    }
+  }
+
+  // Fechar modal ao clicar fora dele
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+      event.target.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  // Fechar modal com tecla ESC
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (modal.style.display === 'flex') {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
+      });
+    }
+  });
+
+  // ORDER BUMP FUNCTIONALITY
+  let orderBumpProducts = [];
+  let selectedOrderBumpProducts = [];
+  // Manter compatibilidade com outros scripts que leem do window
+  window.selectedOrderBumpProducts = selectedOrderBumpProducts;
+
+  // Função para carregar produtos complementares
+  async function loadOrderBumpProducts() {
+    try {
+      // Tentar obter ID do produto já carregado
+      let idParaBusca = null;
+      if (window.currentProduct) {
+        idParaBusca = window.currentProduct.public_id || window.currentProduct.custom_id || window.currentProduct.id || null;
+      }
+
+      // Fallback: pegar da URL qualquer identificador (custom_id ou public_id)
+      if (!idParaBusca) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawId = urlParams.get('produto');
+        if (rawId) idParaBusca = rawId;
+      }
+
+      if (!idParaBusca) {
+        console.log('ℹ️ ID do produto não disponível para Order Bump (aguardando produto)');
+        return;
+      }
+
+      console.log('🎯 Carregando produtos complementares para ID:', idParaBusca);
+      // Se o produto principal não tiver order bump ativo, não buscar
+      if (window.currentProduct && window.currentProduct.order_bump_ativo === false) {
+        console.log('ℹ️ Order Bump desativado para este produto. Pulando carregamento.');
+        return;
+      }
+      
+      const response = await fetch(`${window.API_BASE}/pagamento/order-bump/${idParaBusca}`);
+      if (!response.ok) {
+        console.warn('❌ Falha ao buscar Order Bump:', response.status);
+        return;
+      }
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.produtos_complementares) && data.produtos_complementares.length > 0) {
+        orderBumpProducts = data.produtos_complementares;
+        
+        // Restaurar HTML correto da seção
+        const orderBumpSection = document.getElementById('orderBumpSection');
+        orderBumpSection.innerHTML = `
+          <div class="order-bump-header">
+            <h3 data-translate-key="orderBumpTitle">🎁Aproveite e compre junto</h3>
+          </div>
+          <div id="orderBumpProducts" class="order-bump-products">
+            <!-- Produtos do Order Bump serão inseridos aqui via JavaScript -->
+          </div>
+        `;
+        
+        // Exibir produtos
+        displayOrderBumpProducts();
+        
+        // Mostrar com animação suave
+        orderBumpSection.style.display = 'block';
+        orderBumpSection.style.opacity = '0';
+        orderBumpSection.style.transform = 'translateY(20px)';
+        
+        // Animar entrada
+        setTimeout(() => {
+          orderBumpSection.style.transition = 'all 0.5s ease-out';
+          orderBumpSection.style.opacity = '1';
+          orderBumpSection.style.transform = 'translateY(0)';
+          
+          // Adicionar efeito de destaque
+          orderBumpSection.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.3)';
+          setTimeout(() => {
+            orderBumpSection.style.boxShadow = '';
+          }, 2000);
+        }, 100);
+        
+        console.log('✅ Order Bump carregado com', orderBumpProducts.length, 'produtos');
+      } else {
+        console.log('ℹ️ Nenhum produto complementar encontrado');
+        // Ocultar seção se não há produtos
+        const orderBumpSection = document.getElementById('orderBumpSection');
+        orderBumpSection.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('❌ Erro ao carregar Order Bump:', error);
+      // Ocultar seção em caso de erro
+      const orderBumpSection = document.getElementById('orderBumpSection');
+      orderBumpSection.style.display = 'none';
+    }
+  }
+
+  // Função para exibir produtos do Order Bump
+  function displayOrderBumpProducts() {
+    const container = document.getElementById('orderBumpProducts');
+    if (!container) {
+      console.error('❌ Container orderBumpProducts não encontrado');
+      return;
+    }
+    container.innerHTML = '';
+
+    orderBumpProducts.forEach((produto, index) => {
+      const productElement = createOrderBumpProductElement(produto, index);
+      container.appendChild(productElement);
+    });
+  }
+
+  // Função auxiliar para formatar preço sem decimais desnecessários
+  function formatPrice(price) {
+    const numPrice = parseFloat(price) || 0;
+    // Se o preço é um número inteiro, não mostrar decimais
+    if (numPrice % 1 === 0) {
+      return numPrice.toString();
+    }
+    // Caso contrário, mostrar com 2 decimais
+    return numPrice.toFixed(2);
+  }
+
+  // Função para arredondar valores para inteiros (usado no total e botão)
+  function roundToInteger(price) {
+    const numPrice = parseFloat(price) || 0;
+    return Math.round(numPrice);
+  }
+
+  // Função para criar elemento de produto do Order Bump
+  function createOrderBumpProductElement(produto, index) {
+    const div = document.createElement('div');
+    div.className = 'order-bump-product';
+    div.dataset.productId = produto.id;
+    div.dataset.publicId = produto.public_id;
+
+    const precoFinal = produto.preco_com_desconto || produto.preco;
+    const precoFinalFmt = formatPrice(precoFinal);
+    const precoOriginalFmt = formatPrice(produto.preco);
+    const temDesconto = produto.desconto > 0;
+
+    const imagemUrl = getImagemProdutoUrl(produto);
+
+    div.innerHTML = `
+      <div class="order-bump-product-header">
+        <img class="order-bump-thumb" src="${imagemUrl}" alt="${produto.nome}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;background:#f3f4f6;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.06);" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNTYiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSI4IiBmaWxsPSIjZWRlZmYyIi8+PHBhdGggZD0iTTQwIDI4QzM3Ljc5MDkgMjggMzYgMjkuNzkwOSAzNiAzMlY0OEMzNiA1MC4yMDkxIDM3Ljc5MDkgNTIgNDAgNTJINDhD NTAuMjA5MSA1MiA1MiA1MC4yMDkxIDUyIDQ4VjMyQzUyIDI5Ljc5MDkgNTAuMjA5MSAyOCA0OCAyOEg0MFoiIGZpbGw9IiNmOWZhZmMiLz48L3N2Zz4=';" />
+        <div class="order-bump-product-info">
+          <div class="order-bump-product-name">${produto.nome}</div>
+          <div class="order-bump-product-price">
+            ${temDesconto ? `<span class=\"order-bump-price-original\">${precoOriginalFmt} MZN</span>` : ''}
+            <span class="order-bump-price-final">${precoFinalFmt} MZN</span>
+          </div>
+        </div>
+      </div>
+      <div class="order-bump-checkbox-row">
+        <span class="order-bump-arrow">→</span>
+        <input type="checkbox" class="order-bump-checkbox-input" id="orderBumpCheckbox${index}" onchange="toggleOrderBumpProduct(${index})">
+        <span class="order-bump-add-text">Adicionar produto</span>
+      </div>
+    `;
+
+    // Adicionar evento de clique no produto
+    div.addEventListener('click', (e) => {
+      if (e.target.classList.contains('order-bump-checkbox-input')) return;
+      toggleOrderBumpProduct(index);
+    });
+
+    return div;
+  }
+
+  // Função para alternar seleção de produto do Order Bump
+  function toggleOrderBumpProduct(index) {
+    const produto = orderBumpProducts[index];
+    const productElement = document.querySelector(`[data-product-id="${produto.id}"]`);
+    const checkbox = productElement.querySelector('.order-bump-checkbox-input');
+    const isSelected = productElement.classList.contains('selected');
+
+    if (isSelected) {
+      // Remover seleção
+      productElement.classList.remove('selected');
+      selectedOrderBumpProducts = selectedOrderBumpProducts.filter(p => p.id !== produto.id);
+      checkbox.checked = false;
+    } else {
+      // Adicionar seleção
+      productElement.classList.add('selected');
+      selectedOrderBumpProducts.push(produto);
+      checkbox.checked = true;
+    }
+
+    // Sincronizar com escopo global esperado por outros módulos
+    window.selectedOrderBumpProducts = selectedOrderBumpProducts;
+
+    updateTotalPrice();
+    console.log('🎯 Produtos selecionados:', selectedOrderBumpProducts.length);
+  }
+
+  // Função para atualizar preço total
+  function updateTotalPrice() {
+    try {
+      const totalEl = document.getElementById('orderBumpTotalValue');
+      const finishBtn = document.getElementById('finishOrderBtn');
+      if (!totalEl || !finishBtn) return;
+
+      // Valor do produto principal (preço com desconto ou normal)
+      const principal = parseFloat(
+        (window.currentProduct?.precoComDesconto || window.currentProduct?.preco || 0)
+      ) || 0;
+
+      // Somatório dos selecionados
+      const bumpSource = (Array.isArray(selectedOrderBumpProducts) && selectedOrderBumpProducts.length >= 0)
+        ? selectedOrderBumpProducts
+        : (window.selectedOrderBumpProducts || []);
+      const bumpSum = bumpSource.reduce((acc, p) => {
+        const v = parseFloat(p.preco_com_desconto || p.preco || 0) || 0;
+        return acc + v;
+      }, 0);
+
+      const total = principal + bumpSum;
+      const totalRounded = roundToInteger(total);
+      totalEl.textContent = `${totalRounded} MZN`;
+      
+      // Atualizar texto do botão
+      finishBtn.textContent = `Pagar ${totalRounded} MZN`;
+    } catch (e) {
+      console.warn('Erro ao atualizar total do Order Bump:', e);
+    }
+  }
+
+  // Carregar Order Bump apenas após seleção de método de pagamento
+  let orderBumpLoaded = false;
+  
+  // Função para verificar se o produto tem produtos complementares
+  async function checkProductHasComplementaryProducts() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const produto = urlParams.get('produto');
+      
+      if (!produto) {
+        console.log('❌ Nenhum produto encontrado na URL');
+        return false;
+      }
+      
+      console.log('🔍 Verificando se produto tem complementares:', produto);
+      
+      // Fazer uma requisição para verificar se existem produtos complementares
+      const response = await fetch(`${window.API_BASE}/pagamento/order-bump/${produto}`);
+      
+      if (!response.ok) {
+        console.log('❌ Erro ao verificar produtos complementares:', response.status);
+        return false;
+      }
+      
+      const data = await response.json();
+      
+      // Verificar se a resposta é válida e se tem produtos complementares
+      const hasComplementary = data && 
+                              data.success && 
+                              data.produtos_complementares && 
+                              Array.isArray(data.produtos_complementares) && 
+                              data.produtos_complementares.length > 0;
+      
+      console.log(hasComplementary ? '✅ Produto tem complementares' : '❌ Produto não tem complementares');
+      return hasComplementary;
+      
+    } catch (error) {
+      console.log('❌ Erro ao verificar produtos complementares:', error);
+      return false;
+    }
+  }
+  
+  async function onPaymentMethodSelected() {
+    if (orderBumpLoaded) {
+      console.log('ℹ️ Order Bump já foi carregado anteriormente');
+      return;
+    }
+    
+    // Verificar se o contato está válido antes de mostrar Order Bump
+    const phoneInput = document.getElementById('phone');
+    const phoneNumber = phoneInput.value.trim();
+    
+    if (!validatePhoneNumber(phoneNumber)) {
+      console.log('❌ Contato não válido - Order Bump não será exibido');
+      return;
+    }
+    
+    console.log('🔄 Verificando se produto tem complementares...');
+    
+    // Verificar se o produto tem complementares ANTES de mostrar a seção
+    const hasComplementary = await checkProductHasComplementaryProducts();
+    
+    if (!hasComplementary) {
+      console.log('ℹ️ Produto não tem complementares - Order Bump não será exibido');
+      return;
+    }
+    
+    console.log('✅ Produto tem complementares - exibindo Order Bump...');
+    orderBumpLoaded = true;
+    
+    // Só agora mostrar a seção e carregar os produtos
+    const orderBumpSection = document.getElementById('orderBumpSection');
+    orderBumpSection.style.display = 'block';
+    orderBumpSection.innerHTML = `
+      <div class="order-bump-header">
+        <h3 data-translate-key="orderBumpTitle">🎁Aproveite e compre junto</h3>
+        <p>Carregando ofertas especiais...</p>
+      </div>
+      <div style="text-align: center; padding: 20px;">
+        <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f59e0b; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+      <div id="orderBumpProducts" class="order-bump-products">
+        <!-- Produtos do Order Bump serão inseridos aqui via JavaScript -->
+      </div>
+    `;
+    
+    // Carregar produtos do Order Bump
+    loadOrderBumpProducts();
+  }
+
+  // Carregar Order Bump quando a página carregar, aguardando o produto
+  document.addEventListener('DOMContentLoaded', function() {
+    // Preencher campos automaticamente se vier do marketing avançado
+    autoFillUserData();
+    
+    let tentativas = 0;
+    const maxTentativas = 30; // ~6s (30 x 200ms)
+    const intervalo = setInterval(() => {
+      tentativas++;
+      if (window.currentProduct || tentativas >= maxTentativas) {
+        clearInterval(intervalo);
+        // Atualizar total inicialmente com o valor do produto principal
+        updateTotalPrice();
+        // Verificar e ativar timer de urgência se configurado
+        checkAndActivateUrgencyTimer();
+        // Verificar configuração do Black Friday
+        checkBlackFridayConfig();
+        // NÃO carregar Order Bump automaticamente - aguardar seleção de pagamento
+        console.log('ℹ️ Order Bump será carregado após seleção de método de pagamento');
+      }
+    }, 200);
+  });
+
+  // Função para preencher automaticamente os dados do usuário
+  function autoFillUserData() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email');
+      const nome = urlParams.get('nome');
+      const auth = urlParams.get('auth');
+      
+      if (auth === 'auto' && email && nome) {
+        console.log('🔄 Preenchendo dados automaticamente:', { email, nome });
+        
+        // Preencher campos
+        const fullNameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        
+        if (fullNameInput) {
+          fullNameInput.value = decodeURIComponent(nome);
+          console.log('✅ Nome preenchido:', decodeURIComponent(nome));
+        }
+        
+        if (emailInput) {
+          emailInput.value = decodeURIComponent(email);
+          console.log('✅ Email preenchido:', decodeURIComponent(email));
+        }
+      }
+    } catch (error) {
+      console.error('❌ Erro ao preencher dados automaticamente:', error);
+    }
+  }
+
+  // SISTEMA DE TIMER DE URGÊNCIA
+  let urgencyTimerInterval = null;
+  let urgencyEndTime = null;
+
+  // Função para iniciar o timer de urgência
+  function startUrgencyTimer(durationMinutes) {
+    console.log('⏰ Iniciando timer de urgência:', durationMinutes, 'minutos');
+    
+    // Calcular tempo de fim
+    urgencyEndTime = new Date().getTime() + (durationMinutes * 60 * 1000);
+    
+    // Mostrar o banner de urgência
+    const urgencyTimer = document.getElementById('urgencyTimer');
+    const checkoutContainer = document.querySelector('.checkout-container');
+    if (urgencyTimer) {
+      urgencyTimer.style.display = 'block';
+    }
+    if (checkoutContainer) {
+      checkoutContainer.classList.add('urgency-active');
+    }
+    
+    // Iniciar countdown
+    updateUrgencyCountdown();
+    urgencyTimerInterval = setInterval(updateUrgencyCountdown, 1000);
+  }
+
+  // Função para atualizar o countdown
+  function updateUrgencyCountdown() {
+    if (!urgencyEndTime) return;
+    
+    const now = new Date().getTime();
+    const timeLeft = urgencyEndTime - now;
+    
+    if (timeLeft <= 0) {
+      // Timer expirou
+      clearInterval(urgencyTimerInterval);
+      hideUrgencyTimer();
+      return;
+    }
+    
+    // Calcular minutos e segundos
+    const minutes = Math.floor(timeLeft / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    
+    // Formatar como MM:SS
+    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Atualizar display
+    const countdownElement = document.getElementById('timerCountdown');
+    if (countdownElement) {
+      countdownElement.textContent = timeString;
+      
+      // Mudar cor quando restam menos de 2 minutos
+      if (timeLeft < 2 * 60 * 1000) {
+        countdownElement.style.background = 'rgba(255, 255, 255, 0.4)';
+        countdownElement.style.color = '#ffffff';
+        countdownElement.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+      }
+    }
+  }
+
+  // Função para esconder o timer de urgência
+  function hideUrgencyTimer() {
+    const urgencyTimer = document.getElementById('urgencyTimer');
+    const checkoutContainer = document.querySelector('.checkout-container');
+    if (urgencyTimer) {
+      urgencyTimer.style.display = 'none';
+    }
+    if (checkoutContainer) {
+      checkoutContainer.classList.remove('urgency-active');
+    }
+    
+    if (urgencyTimerInterval) {
+      clearInterval(urgencyTimerInterval);
+      urgencyTimerInterval = null;
+    }
+    
+    console.log('⏰ Timer de urgência finalizado');
+  }
+
+  // Função para verificar e ativar timer de urgência baseado no timer_config
+  function checkAndActivateUrgencyTimer() {
+    if (!window.currentProduct || !window.currentProduct.timer_config) {
+      console.log('ℹ️ Nenhuma configuração de timer encontrada');
+      return;
+    }
+    
+    let timerConfig = window.currentProduct.timer_config;
+    
+    // Processar timer_config se for array
+    if (Array.isArray(timerConfig)) {
+      const configString = timerConfig.find(item => item && typeof item === 'string');
+      if (configString) {
+        try {
+          timerConfig = JSON.parse(configString);
+        } catch (e) {
+          console.error('❌ Erro ao parsear timer_config:', e);
+          return;
+        }
+      }
+    }
+    
+    // Verificar se timer está habilitado
+    if (timerConfig.enabled && timerConfig.duration > 0) {
+      console.log('✅ Timer de urgência ativado:', timerConfig);
+      startUrgencyTimer(timerConfig.duration);
+    } else {
+      console.log('ℹ️ Timer de urgência desabilitado ou duração inválida');
+    }
+  }
+
+  // Função para controlar visibilidade da Black Friday Tag
+  function toggleBlackFridayTag(show) {
+    const blackFridayTag = document.getElementById('blackFridayTag');
+    if (blackFridayTag) {
+      if (show) {
+        blackFridayTag.classList.remove('hidden');
+        console.log('✅ Black Friday Tag exibida');
+      } else {
+        blackFridayTag.classList.add('hidden');
+        console.log('❌ Black Friday Tag oculta');
+      }
+    }
+  }
+
+  // Função para verificar configuração do Black Friday
+  function checkBlackFridayConfig() {
+    if (!window.currentProduct || !window.currentProduct.blackfriday_config) {
+      console.log('ℹ️ Nenhuma configuração de Black Friday encontrada');
+      toggleBlackFridayTag(false);
+      return;
+    }
+    
+    let blackFridayConfig = window.currentProduct.blackfriday_config;
+    
+    // Processar blackfriday_config se for array
+    if (Array.isArray(blackFridayConfig)) {
+      const configString = blackFridayConfig.find(item => item && typeof item === 'string');
+      if (configString) {
+        try {
+          blackFridayConfig = JSON.parse(configString);
+        } catch (e) {
+          console.error('❌ Erro ao parsear blackfriday_config:', e);
+          toggleBlackFridayTag(false);
+          return;
+        }
+      }
+    }
+    
+    // Verificar se Black Friday está habilitado
+    if (blackFridayConfig.enabled === true) {
+      console.log('✅ Black Friday ativado:', blackFridayConfig);
+      toggleBlackFridayTag(true);
+    } else {
+      console.log('❌ Black Friday desabilitado:', blackFridayConfig);
+      toggleBlackFridayTag(false);
+    }
+  }
+
+  </script>
+
+  <!-- Modal Termos de Uso -->
+  <div id="termsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Termos de Uso - RatixPay</h2>
+        <span class="close" onclick="closeModal('termsModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>1. Aceitação dos Termos</h3>
+        <p>Ao utilizar a plataforma RatixPay, você concorda em cumprir estes termos de uso.</p>
+        
+        <h3>2. Serviços Oferecidos</h3>
+        <p>O RatixPay é uma plataforma de pagamentos digitais que permite transações seguras entre vendedores e compradores.</p>
+        
+        <h3>3. Responsabilidades do Usuário</h3>
+        <ul>
+          <li>Fornecer informações verdadeiras e atualizadas</li>
+          <li>Manter a segurança de sua conta</li>
+          <li>Utilizar o serviço de forma legal e ética</li>
+        </ul>
+        
+        <h3>4. Limitações</h3>
+        <p>O RatixPay não se responsabiliza por perdas decorrentes de uso inadequado da plataforma.</p>
+        
+        <h3>5. Modificações</h3>
+        <p>Estes termos podem ser atualizados a qualquer momento. O uso continuado implica aceitação das mudanças.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Política de Privacidade -->
+  <div id="privacyModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Política de Privacidade - RatixPay</h2>
+        <span class="close" onclick="closeModal('privacyModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>1. Coleta de Dados</h3>
+        <p>Coletamos apenas os dados necessários para processar suas transações de forma segura.</p>
+        
+        <h3>2. Dados Coletados</h3>
+        <ul>
+          <li>Nome completo</li>
+          <li>Número de telefone</li>
+          <li>Informações de pagamento (criptografadas)</li>
+          <li>Dados de transação</li>
+        </ul>
+        
+        <h3>3. Uso dos Dados</h3>
+        <p>Utilizamos seus dados exclusivamente para:</p>
+        <ul>
+          <li>Processar pagamentos</li>
+          <li>Verificar identidade</li>
+          <li>Prevenir fraudes</li>
+          <li>Melhorar nossos serviços</li>
+        </ul>
+        
+        <h3>4. Segurança</h3>
+        <p>Implementamos medidas de segurança avançadas para proteger seus dados pessoais.</p>
+        
+        <h3>5. Compartilhamento</h3>
+        <p>Não compartilhamos seus dados pessoais com terceiros, exceto quando necessário para processar pagamentos.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Política de Reembolso -->
+  <div id="refundModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Política de Reembolso - RatixPay</h2>
+        <span class="close" onclick="closeModal('refundModal')">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>1. Solicitação de Reembolso</h3>
+        <p>Para solicitar um reembolso, entre em contato com nosso suporte técnico.</p>
+        
+        <h3>2. Documentação Necessária</h3>
+        <ul>
+          <li>Comprovante de pagamento original</li>
+          <li>Número da transação</li>
+          <li>Motivo do reembolso</li>
+          <li>Dados da conta bancária (se aplicável)</li>
+        </ul>
+        
+        <h3>3. Prazo para Reembolso</h3>
+        <p>Reembolsos são processados em até 5-7 dias úteis após aprovação.</p>
+        
+        <h3>4. Condições para Reembolso</h3>
+        <ul>
+          <li>Transação duplicada</li>
+          <li>Erro no processamento</li>
+          <li>Produto não entregue</li>
+          <li>Problemas técnicos comprovados</li>
+        </ul>
+        
+        <h3>5. Contato do Suporte</h3>
+        <p><strong>WhatsApp:</strong> +258 84 000 0000</p>
+        <p><strong>Email:</strong> suporte@ratixpay.mz</p>
+        <p><strong>Horário:</strong> Segunda a Sexta, 8h às 18h</p>
+      </div>
+    </div>
+  </div>
+
+    
+</body>
+</html>

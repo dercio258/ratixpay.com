@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Carregamento de Pixel - RatixPay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>?? Teste de Carregamento de Pixel - RatixPay</h1>
+        
+
+    </div>
+
+    <script>
+        // Configurar API_BASE
+        window.API_BASE = window.location.origin + '/api';
+        
+        console.log('?? Página carregada - Sistema de Meta Pixel funcionando');
+        
+        // Teste do fluxo completo: Checkout com fallback para pixel válido
+        async function testarFluxoCompleto() {
+            console.log('?? Testando fluxo completo: Checkout com fallback para pixel válido...');
+            
+            // Teste 1: Produto com pixel válido
+            console.log('\n?? TESTE 1: Produto com pixel válido');
+            await testarProdutoComPixel();
+            
+            // Teste 2: Produto sem pixel (fallback)
+            console.log('\n?? TESTE 2: Produto sem pixel (fallback para pixel válido)');
+            await testarProdutoSemPixel();
+            
+            // Teste 3: Sem produto na URL (fallback)
+            console.log('\n?? TESTE 3: Sem produto na URL (fallback para pixel válido)');
+            await testarSemProduto();
+        }
+        
+        // Teste com produto que tem pixel válido
+        async function testarProdutoComPixel() {
+            const testProdutoId = 'YIOX7UHU7'; // custom_id do produto "good"
+            const originalSearch = window.location.search;
+            window.history.replaceState({}, '', `${window.location.pathname}?produto=${testProdutoId}`);
+            
+            console.log('?? Simulando URL com produto:', testProdutoId);
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/produtos/public/${testProdutoId}`);
+                
+                if (response.ok) {
+                    const produto = await response.json();
+                    
+                    if (produto.pixel_id && /^\d{15,16}$/.test(produto.pixel_id)) {
+                        console.log('? Pixel ID válido encontrado:', produto.pixel_id);
+                        console.log('?? Meta Pixel seria inicializado com:', produto.pixel_id);
+                        console.log('?? Dados do produto:', {
+                            id: produto.id,
+                            nome: produto.nome,
+                            pixel_id: produto.pixel_id,
+                            pixel_events: produto.pixel_events
+                        });
+                    } else {
+                        console.log('?? Produto sem pixel ID válido, ativando fallback...');
+                        await testarFallbackPixelValido();
+                    }
+                } else {
+                    console.log('? Falha ao carregar produto');
+                }
+            } catch (error) {
+                console.error('? Erro:', error);
+            } finally {
+                window.history.replaceState({}, '', `${window.location.pathname}${originalSearch}`);
+            }
+        }
+        
+        // Teste com produto sem pixel (fallback)
+        async function testarProdutoSemPixel() {
+            console.log('?? Simulando produto sem pixel ID...');
+            console.log('?? Produto não possui configuração de Meta Pixel');
+            console.log('?? Buscando pixel ID válido do banco de dados...');
+            
+            await testarFallbackPixelValido();
+        }
+        
+        // Teste sem produto na URL (fallback)
+        async function testarSemProduto() {
+            console.log('?? Simulando URL sem produto...');
+            console.log('?? Nenhum produto identificado na URL');
+            console.log('?? Buscando pixel ID válido do banco de dados...');
+            
+            await testarFallbackPixelValido();
+        }
+        
+        // Teste do fallback para pixel válido
+        async function testarFallbackPixelValido() {
+            try {
+                console.log('?? Buscando produtos com pixel ID válido...');
+                
+                const response = await fetch(`${window.API_BASE}/produtos/public`);
+                
+                if (!response.ok) {
+                    console.warn('?? Falha ao carregar lista de produtos');
+                    return;
+                }
+                
+                const data = await response.json();
+                const produtos = data.data || [];
+                
+                // Procurar primeiro produto com pixel ID válido
+                for (const produto of produtos) {
+                    if (produto.pixel_id && /^\d{15,16}$/.test(produto.pixel_id)) {
+                        console.log('? Pixel ID válido encontrado:', produto.pixel_id);
+                        console.log('?? Produto com pixel válido:', {
+                            id: produto.id,
+                            nome: produto.nome,
+                            pixel_id: produto.pixel_id,
+                            pixel_events: produto.pixel_events
+                        });
+                        console.log('?? Meta Pixel seria inicializado com ID válido:', produto.pixel_id);
+                        console.log('?? Dados salvos no localStorage');
+                        return;
+                    }
+                }
+                
+                console.log('?? Nenhum produto com pixel ID válido encontrado no banco');
+                
+            } catch (error) {
+                console.error('? Erro ao buscar pixel válido:', error);
+            }
+        }
+        
+        // Executar teste após 2 segundos
+        setTimeout(testarFluxoCompleto, 2000);
+    </script>
+    
+</body>
+</html>

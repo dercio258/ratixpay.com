@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Produtos - Afiliado RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+        
+<style>
+        :root {
+            --primary-color: #F64C00;
+            --secondary-color: #E04500;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 20px rgba(246, 76, 0, 0.3);
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-nav .nav-link.active {
+            background: rgba(255,255,255,0.3);
+            color: white !important;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Header Section */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(246, 76, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 3rem;
+            color: var(--primary-color);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .product-image-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--primary-color);
+            opacity: 0.7;
+        }
+
+        .product-category {
+            background: linear-gradient(135deg, var(--info-color) 0%, #138496 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .product-type {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #e0a800 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+            margin-left: 5px;
+        }
+
+        .product-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .btn-ver-descricao {
+            background: var(--info-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-ver-descricao:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .product-commission {
+            background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .btn-generate-link {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn-generate-link:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-generate-link:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border: none;
+        }
+
+        .modal-title {
+            font-weight: bold;
+        }
+
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .link-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-bottom: 20px;
+        }
+
+        .btn-copy {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-copy:hover {
+            background: #218838;
+            color: white;
+        }
+
+        .descricao-content {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .product-card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/afiliados.html">
+                <i class="fas fa-handshake"></i> RatixPay Afiliados
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-dashboard.html">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/afiliado-produtos.html">
+                            <i class="fas fa-box"></i> Produtos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-vendas.html">
+                            <i class="fas fa-shopping-cart"></i> Vendas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/afiliado-saque.html">
+                            <i class="fas fa-money-bill-wave"></i> Saque
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white" id="afiliadoNome">Carregando...</span>
+                    <button class="btn btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-box"></i> Produtos Disponíveis
+                </h1>
+                <p class="page-subtitle">Escolha os produtos para gerar seus links de afiliado</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Products Grid -->
+        <div class="row" id="productsGrid">
+            <!-- Produtos carregados via JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-box-open"></i>
+            <h3>Nenhum produto disponível</h3>
+            <p>Entre em contato com o administrador para mais informações.</p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Carregando produtos...</p>
+    </div>
+
+    <!-- Modal para Link Gerado -->
+    <div class="modal fade" id="linkModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-link"></i> Link de Afiliado Gerado
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Produto:</strong></label>
+                        <p id="modalProdutoNome"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Seu Link de Afiliado:</strong></label>
+                        <div class="link-display" id="modalLinkAfiliado"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Sua Comissão:</strong></label>
+                        <p id="modalComissao"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-copy" onclick="copiarLinkModal()">
+                        <i class="fas fa-copy"></i> Copiar Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Descrição do Produto -->
+    <div class="modal fade" id="descricaoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle"></i> Descrição do Produto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Produto:</strong></label>
+                        <p id="modalDescricaoProdutoNome"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Descrição:</strong></label>
+                        <div class="descricao-content" id="modalDescricaoConteudo"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+        // Função para fallback de imagens
+        function aplicarFallbackImagens() {
+            const productImages = document.querySelectorAll('.product-image');
+            productImages.forEach(img => {
+                const style = img.style.backgroundImage;
+                if (style && style !== 'none') {
+                    const url = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    if (url && url[1]) {
+                        const imgElement = new Image();
+                        imgElement.onerror = function() {
+                            console.log('Imagem falhou, usando fallback:', url[1]);
+                            img.style.backgroundImage = 'url("https://via.placeholder.com/300x200/cccccc/666666?text=Produto")';
+                            // Remover placeholder se existir
+                            const placeholder = img.querySelector('.product-image-placeholder');
+                            if (placeholder) {
+                                placeholder.style.display = 'none';
+                            }
+                        };
+                        imgElement.onload = function() {
+                            // Esconder placeholder quando imagem carregar
+                            const placeholder = img.querySelector('.product-image-placeholder');
+                            if (placeholder) {
+                                placeholder.style.display = 'none';
+                            }
+                        };
+                        imgElement.src = url[1];
+                    }
+                }
+            });
+        }
+        
+        // Aplicar fallback após carregar produtos
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(aplicarFallbackImagens, 1000);
+        });
+</script>
+    <script>
+        // Configurações
+        window.API_BASE = 'http://localhost:4000/api';
+        
+        // Variáveis globais
+        let afiliado = null;
+        let produtos = [];
+        let linkAtual = '';
+
+        // Carregar dados iniciais
+        async function carregarDados() {
+            try {
+                console.log('?? Carregando dados do afiliado...');
+                mostrarLoading(true);
+                
+                // Verificar se está logado
+                const token = localStorage.getItem('afiliado_token');
+                const afiliadoData = localStorage.getItem('afiliado_data');
+                
+                if (!token || !afiliadoData) {
+                    window.location.href = '/afiliados.html';
+                    return;
+                }
+                
+                afiliado = JSON.parse(afiliadoData);
+                document.getElementById('afiliadoNome').textContent = afiliado.nome;
+                
+                await carregarProdutos();
+                mostrarLoading(false);
+                
+            } catch (error) {
+                console.error('? Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+                mostrarLoading(false);
+            }
+        }
+
+        // Carregar produtos
+        async function carregarProdutos() {
+            try {
+                const token = localStorage.getItem('afiliado_token');
+                
+                if (!token) {
+                    console.error('? Token não encontrado');
+                    window.location.href = '/afiliados.html';
+                    return;
+                }
+                
+                console.log('?? Carregando produtos...');
+                const response = await fetch(`${window.API_BASE}/produtos/afiliados`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    produtos = data.data || [];
+                    console.log('? Produtos com afiliados carregados:', produtos.length);
+                    
+                    if (produtos.length > 0) {
+                    renderizarProdutos();
+                        // Aplicar fallback de imagens após renderizar
+                        setTimeout(() => {
+                            aplicarFallbackImagens();
+                        }, 100);
+                    } else {
+                        mostrarEmptyState();
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('?? Erro ao carregar produtos:', response.status, errorData);
+                    
+                    // Se for erro de autenticação, redirecionar para login
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Sua sessão expirou. Por favor, faça login novamente.');
+                        localStorage.removeItem('afiliado_token');
+                        localStorage.removeItem('afiliado_data');
+                        window.location.href = '/afiliados.html';
+                        return;
+                    }
+                    
+                    produtos = [];
+                    mostrarEmptyState();
+                }
+                
+            } catch (error) {
+                console.error('? Erro ao carregar produtos:', error);
+                produtos = [];
+                mostrarEmptyState();
+            }
+        }
+
+        // Renderizar produtos
+        function renderizarProdutos() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (produtos.length === 0) {
+                mostrarEmptyState();
+                return;
+            }
+            
+            grid.innerHTML = produtos.map(produto => {
+                const comissao = (parseFloat(produto.preco) * (afiliado.comissao_percentual / 100)).toFixed(2);
+                
+                // Construir URL da imagem usando a rota da API
+                let imagemUrl = '';
+                if (produto.custom_id) {
+                    imagemUrl = `${window.API_BASE}/produtos/imagem/${produto.custom_id}`;
+                } else if (produto.imagem_url) {
+                    // Se já for uma URL completa, usar diretamente
+                    imagemUrl = produto.imagem_url.startsWith('http') 
+                        ? produto.imagem_url 
+                        : `${window.API_BASE}/produtos/imagem/${produto.custom_id || produto.id}`;
+                } else if (produto.imagem) {
+                    imagemUrl = produto.imagem.startsWith('http') 
+                        ? produto.imagem 
+                        : `${window.API_BASE}/produtos/imagem/${produto.custom_id || produto.id}`;
+                }
+                
+                const tipo = produto.tipo || 'Digital';
+                const categoria = produto.categoria || 'Geral';
+                const descricao = produto.descricao || 'Produto digital de alta qualidade';
+                
+                return `
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: ${imagemUrl ? `url('${imagemUrl}')` : 'none'}; background-size: cover; background-position: center;">
+                                ${imagemUrl ? '' : '<div class="product-image-placeholder"><i class="fas fa-box"></i></div>'}
+                            </div>
+                            <div class="product-category">${categoria}</div>
+                            <div class="product-type">${tipo}</div>
+                            <h3 class="product-title">${produto.nome}</h3>
+                            <button class="btn btn-ver-descricao" onclick="mostrarDescricao('${produto.nome}', '${descricao.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-info-circle"></i> Ver Descrição
+                            </button>
+                            <div class="product-price">MZN ${parseFloat(produto.preco).toFixed(2)}</div>
+                            <div class="product-commission">
+                                <i class="fas fa-percentage"></i> Sua comissão: MZN ${comissao}
+                            </div>
+                            <button class="btn btn-generate-link" onclick="gerarLinkAfiliado('${produto.id}', '${produto.nome}', '${produto.preco}')">
+                                <i class="fas fa-link"></i> Gerar Link de Afiliado
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            emptyState.style.display = 'none';
+            
+            // Fallback de imagens já é aplicado em carregarProdutos após renderizar
+        }
+
+        // Mostrar estado vazio
+        function mostrarEmptyState() {
+            document.getElementById('productsGrid').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        // Gerar link de afiliado
+        async function gerarLinkAfiliado(produtoId, produtoNome, preco) {
+            try {
+                const token = localStorage.getItem('afiliado_token');
+                
+                const response = await fetch(`${window.API_BASE}/afiliados/gerar-link`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        produto_id: produtoId,
+                        produto_nome: produtoNome,
+                        preco: preco
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    linkAtual = data.link_afiliado;
+                    
+                    // Mostrar modal
+                    document.getElementById('modalProdutoNome').textContent = produtoNome;
+                    document.getElementById('modalLinkAfiliado').textContent = linkAtual;
+                    document.getElementById('modalComissao').textContent = `MZN ${(parseFloat(preco) * (afiliado.comissao_percentual / 100)).toFixed(2)}`;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('linkModal'));
+                    modal.show();
+                    
+                } else {
+                    const errorData = await response.json();
+                    alert('Erro ao gerar link: ' + errorData.message);
+                }
+                
+            } catch (error) {
+                console.error('? Erro ao gerar link:', error);
+                alert('Erro ao gerar link: ' + error.message);
+            }
+        }
+
+        // Copiar link do modal
+        function copiarLinkModal() {
+            if (linkAtual) {
+                navigator.clipboard.writeText(linkAtual).then(() => {
+                    alert('Link copiado para a área de transferência!');
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    alert('Erro ao copiar link. Tente selecionar e copiar manualmente.');
+                });
+            }
+        }
+
+        // Mostrar descrição do produto
+        function mostrarDescricao(nomeProduto, descricao) {
+            document.getElementById('modalDescricaoProdutoNome').textContent = nomeProduto;
+            document.getElementById('modalDescricaoConteudo').innerHTML = descricao;
+            
+            const modal = new bootstrap.Modal(document.getElementById('descricaoModal'));
+            modal.show();
+        }
+
+        // Mostrar loading
+        function mostrarLoading(mostrar) {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.style.display = mostrar ? 'block' : 'none';
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('afiliado_token');
+            localStorage.removeItem('afiliado_data');
+            window.location.href = '/afiliados.html';
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('?? Inicializando página de produtos...');
+            carregarDados();
+        });
+    </script>
+    
+</body>
+</html>

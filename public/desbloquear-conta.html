@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Desbloquear Conta - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .unlock-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unlock-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--success-color), var(--info-color));
+        }
+
+        .unlock-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .unlock-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .unlock-message {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .token-form {
+            margin: 30px 0;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn-unlock {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-unlock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-unlock:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid var(--info-color);
+        }
+
+        .contact-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            width: 30px;
+        }
+
+        .whatsapp {
+            color: #25D366;
+        }
+
+        .email {
+            color: var(--info-color);
+        }
+
+        .contact-item a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .contact-item a:hover {
+            color: var(--secondary-color);
+        }
+
+        .ratixpay-brand {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .ratixpay-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .ratixpay-tagline {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 10px 0;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .unlock-container {
+                padding: 30px 20px;
+            }
+            
+            .unlock-title {
+                font-size: 2rem;
+            }
+            
+            .unlock-message {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="unlock-container">
+        <div class="unlock-icon">
+            <i class="fas fa-unlock"></i>
+        </div>
+        
+        <h1 class="unlock-title">Desbloquear Conta</h1>
+        
+        <p class="unlock-message">
+            Digite o token de desbloqueio que foi enviado para seu email e WhatsApp para desbloquear sua conta.
+        </p>
+
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+        <div class="token-form">
+            <div class="mb-3">
+                <label for="unlockToken" class="form-label">Token de Desbloqueio</label>
+                <input type="text" class="form-control" id="unlockToken" 
+                       placeholder="Cole aqui o token recebido por email/WhatsApp" 
+                       maxlength="64">
+            </div>
+            
+            <button class="btn-unlock" id="btnUnlock" onclick="desbloquearConta()">
+                <i class="fas fa-unlock"></i>
+                Desbloquear Conta
+            </button>
+            
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Desbloqueando...</span>
+                </div>
+                <p class="mt-2">Desbloqueando sua conta...</p>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <h3 class="contact-title">
+                <i class="fas fa-headset"></i>
+                Precisa de Ajuda?
+            </h3>
+            
+            <div class="contact-item">
+                <i class="fab fa-whatsapp whatsapp"></i>
+                <a href="https://wa.me/2588621277274" target="_blank" rel="noopener noreferrer">
+                    WhatsApp: +258 86 2127 7274
+                </a>
+            </div>
+            
+            <div class="contact-item">
+                <i class="fas fa-envelope email"></i>
+                <a href="mailto:ratixpay.moz@gmail.com">
+                    Email: ratixpay.moz@gmail.com
+                </a>
+            </div>
+        </div>
+
+        <div class="ratixpay-brand">
+            <div class="ratixpay-logo">RATIXPAY!</div>
+            <div class="ratixpay-tagline">Sua plataforma de pagamentos confiável</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuração da API
+        if (typeof window.API_BASE === 'undefined') {
+            window.API_BASE = window.location.origin + '/api';
+        }
+
+        // Verificar se há token na URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (token) {
+                document.getElementById('unlockToken').value = token;
+                showStatus('Token carregado automaticamente da URL. Clique em "Desbloquear Conta" para continuar.', 'info');
+            }
+        });
+
+        // Função para desbloquear conta
+        async function desbloquearConta() {
+            const token = document.getElementById('unlockToken').value.trim();
+            const btnUnlock = document.getElementById('btnUnlock');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (!token) {
+                showStatus('Por favor, digite o token de desbloqueio.', 'error');
+                return;
+            }
+
+            if (token.length < 32) {
+                showStatus('Token inválido. Verifique se copiou o token completo.', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            btnUnlock.disabled = true;
+            loadingSpinner.classList.add('show');
+            hideStatus();
+
+            try {
+                const response = await fetch(`${window.API_BASE}/auth/desbloquear`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus('? Conta desbloqueada com sucesso! Redirecionando para o login...', 'success');
+                    
+                    // Redirecionar para login após 3 segundos
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                } else {
+                    showStatus(`? Erro: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao desbloquear conta:', error);
+                showStatus('? Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+            } finally {
+                // Esconder loading
+                btnUnlock.disabled = false;
+                loadingSpinner.classList.remove('show');
+            }
+        }
+
+        // Função para mostrar status
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        // Função para esconder status
+        function hideStatus() {
+            document.getElementById('statusMessage').style.display = 'none';
+        }
+
+        // Permitir Enter para desbloquear
+        document.getElementById('unlockToken').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                desbloquearConta();
+            }
+        });
+
+        // Log de acesso
+        console.log('Página de desbloqueio carregada');
+    </script>
+    
+</body>
+</html>

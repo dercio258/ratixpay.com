@@ -1,0 +1,1039 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://static.cloudflareinsights.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com;">
+    <title>Gest�o de Notifica��es - RatixPay Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--info-color), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .vendedores-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .user-details {
+                align-items: center;
+            }
+
+            .nav-menu {
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .nav-item {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title {
+                font-size: 1.8rem;
+            }
+
+            .header-subtitle {
+                font-size: 1rem;
+            }
+
+            .notification-form,
+            .notification-history {
+                padding: 20px;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-item {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                justify-content: center;
+            }
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: block;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title i {
+            font-size: 2.2rem;
+            color: #E67E22;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+        }
+
+        .navigation-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .notification-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--success-color);
+        }
+
+        .notification-form h3 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-form h3 i {
+            color: var(--success-color);
+        }
+
+        .notification-history {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+        }
+
+        .notification-history h3 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-history h3 i {
+            color: var(--info-color);
+        }
+
+        .notification-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--info-color), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .navigation-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #495057;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 140px;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-btn:nth-child(1) { border-color: var(--success-color); color: var(--success-color); }
+        .nav-btn:nth-child(2) { border-color: var(--warning-color); color: var(--warning-color); }
+        .nav-btn:nth-child(3) { border-color: var(--info-color); color: var(--info-color); }
+        .nav-btn:nth-child(4) { border-color: var(--danger-color); color: var(--danger-color); }
+        .nav-btn:nth-child(5) { border-color: #9b59b6; color: #9b59b6; }
+        .nav-btn:nth-child(6) { border-color: #25d366; color: #25d366; }
+
+        .nav-btn:nth-child(1):hover { background: var(--success-color); color: white; }
+        .nav-btn:nth-child(2):hover { background: var(--warning-color); color: white; }
+        .nav-btn:nth-child(3):hover { background: var(--info-color); color: white; }
+        .nav-btn:nth-child(4):hover { background: var(--danger-color); color: white; }
+        .nav-btn:nth-child(5):hover { background: #9b59b6; color: white; }
+        .nav-btn:nth-child(6):hover { background: #25d366; color: white; }
+
+        .nav-btn i {
+            font-size: 1.1rem;
+        }
+
+        .notification-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #E67E22;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #E67E22 0%, #F39C12 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .vendedores-list {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .vendedores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .vendedor-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .vendedor-card:hover {
+            border-color: #E67E22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .vendedor-card.selected {
+            border-color: #E67E22;
+            background: linear-gradient(135deg, rgba(230, 126, 34, 0.1) 0%, rgba(243, 156, 18, 0.05) 100%);
+        }
+
+        .vendedor-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .vendedor-email {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .vendedor-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .vendedor-status.ativa {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .vendedor-status.bloqueada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .notifications-history {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .notifications-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .notifications-table th,
+        .notifications-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .notifications-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .notifications-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .notification-status.unread {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .notification-status.read {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .notification-priority {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .notification-priority.baixa {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .notification-priority.media {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .notification-priority.alta {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        @media (max-width: 768px) {
+            .admin-main-content {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .vendedores-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+    <!-- Sistema de Autentica��o Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+    <!-- CSS da sidebar removido -->
+</head>
+<body>
+    
+    <!-- Sidebar removida -->
+
+    <div class="admin-container">
+        <!-- Header Principal -->
+        <div class="admin-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-bell"></i>
+                    Gest�o de Notifica��es
+                </div>
+                <div class="header-subtitle">Painel Administrativo RatixPay</div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Administrador</div>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Menu de Navega��o -->
+            <div class="nav-menu">
+                <a href="admin-dashboard.html" class="nav-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                <a href="admin-vendedores.html" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Vendedores</span>
+                    </a>
+                <a href="admin-produtos.html" class="nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>Produtos</span>
+                    </a>
+                <a href="admin-gestao-saques.html" class="nav-item">
+                        <i class="fas fa-wallet"></i>
+                        <span>Saques</span>
+                    </a>
+                <a href="admin-gestao-notificacoes.html" class="nav-item active">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifica��es</span>
+                    </a>
+            </div>
+            </div>
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="admin-main-content">
+                <!-- Navigation Buttons -->
+            <div class="navigation-section">
+                <a href="admin-dashboard.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar ao Dashboard
+                </a>
+            </div>
+
+            <!-- Formul�rio de Nova Notifica��o -->
+            <div class="notification-form">
+                <h3><i class="fas fa-paper-plane"></i> Nova Notifica��o</h3>
+                <form id="notificationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="titulo">T�tulo *</label>
+                            <input type="text" id="titulo" name="titulo" required placeholder="Digite o t�tulo da notifica��o">
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo">Tipo *</label>
+                            <select id="tipo" name="tipo" required>
+                                <option value="sistema">Sistema</option>
+                                <option value="promocao">Promo��o</option>
+                                <option value="venda">Venda</option>
+                                <option value="pagamento">Pagamento</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prioridade">Prioridade</label>
+                            <select id="prioridade" name="prioridade">
+                                <option value="media">M�dia</option>
+                                <option value="baixa">Baixa</option>
+                                <option value="alta">Alta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="destinatario">Destinat�rio</label>
+                            <select id="destinatario" name="destinatario">
+                                <option value="todos">Todos os Vendedores</option>
+                                <option value="selecionados">Vendedores Selecionados</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mensagem">Mensagem *</label>
+                        <textarea id="mensagem" name="mensagem" required placeholder="Digite a mensagem da notifica��o"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="url_redirecionamento">URL de Redirecionamento (opcional)</label>
+                        <input type="url" id="url_redirecionamento" name="url_redirecionamento" placeholder="https://exemplo.com">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Notifica��o
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="limparFormulario()">
+                            <i class="fas fa-eraser"></i>
+                            Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Vendedores -->
+            <div class="vendedores-list">
+                <h3><i class="fas fa-users"></i> Vendedores Cadastrados</h3>
+                <div id="vendedoresLoading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Carregando vendedores...</p>
+                </div>
+                <div id="vendedoresGrid" class="vendedores-grid" style="display: none;">
+                    <!-- Vendedores ser�o carregados aqui -->
+                </div>
+                <div id="vendedoresEmpty" class="empty-state" style="display: none;">
+                    <i class="fas fa-users"></i>
+                    <h3>Nenhum vendedor encontrado</h3>
+                    <p>N�o h� vendedores cadastrados no sistema.</p>
+                </div>
+            </div>
+
+            <!-- Hist�rico de Notifica��es -->
+            <div class="notifications-history">
+                <h3><i class="fas fa-history"></i> Hist�rico de Notifica��es</h3>
+                <div id="notificationsLoading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Carregando hist�rico...</p>
+                </div>
+                <div id="notificationsTable" style="display: none;">
+                    <table class="notifications-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>T�tulo</th>
+                                <th>Tipo</th>
+                                <th>Prioridade</th>
+                                <th>Destinat�rio</th>
+                                <th>Status</th>
+                                <th>A��es</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notificationsTableBody">
+                            <!-- Notifica��es ser�o carregadas aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="notificationsEmpty" class="empty-state" style="display: none;">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>Nenhuma notifica��o encontrada</h3>
+                    <p>N�o h� notifica��es no hist�rico.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <!-- <script src="js/auth-check.js"></script> -->
+    <script src="js/admin-notifications.js"></script>
+    
+    <script>
+        // Verifica��o de autentica��o simplificada
+        function verificarAutenticacao() {
+            console.log('?? Verificando autentica��o...');
+            
+            const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+            console.log('?? Token encontrado:', token ? 'Sim' : 'N�o');
+            
+            if (!token) {
+                console.log('? Nenhum token encontrado, mas continuando para debug');
+                // window.location.href = 'login.html';
+                return false;
+            }
+
+            // Verifica��o b�sica do token
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    console.log('? Token malformado, mas continuando para debug');
+                    // window.location.href = 'login.html';
+                    return false;
+                }
+                
+                const payload = JSON.parse(atob(parts[1]));
+                console.log('?? Payload do token:', payload);
+                
+                // Verificar se n�o expirou (com toler�ncia de 1 hora)
+                const now = Math.floor(Date.now() / 1000);
+                const tolerance = 3600; // 1 hora de toler�ncia
+                if (payload.exp && (payload.exp + tolerance) < now) {
+                    console.log('? Token expirado, mas continuando para debug');
+                    // localStorage.removeItem('authToken');
+                    // localStorage.removeItem('adminToken');
+                    // localStorage.removeItem('token');
+                    // window.location.href = 'login.html';
+                    return false;
+                }
+                
+                // Verifica��o mais flex�vel de admin
+                const isMainAdmin = payload.email === 'ratixpay.mz@gmail.com';
+                const isAdmin = payload.role === 'admin' || 
+                               payload.tipo_conta === 'admin' || 
+                               payload.email === 'sistema@ratixpay.com' ||
+                               payload.username === 'sistema@ratixpay.com' ||
+                               isMainAdmin;
+                
+                console.log('?? Role:', payload.role);
+                console.log('?? Tipo conta:', payload.tipo_conta);
+                console.log('?? Email:', payload.email);
+                console.log('?? Username:', payload.username);
+                console.log('? � admin?', isAdmin);
+                
+                if (!isAdmin) {
+                    console.log('? Usu�rio n�o � admin, mas continuando para debug');
+                    // window.location.href = 'login.html';
+                    return false;
+                }
+                
+                console.log('? Autentica��o local bem-sucedida');
+                return true;
+                
+            } catch (error) {
+                console.error('? Erro na verifica��o do token:', error);
+                // Em caso de erro, tentar continuar se houver token
+                console.log('?? Erro na verifica��o, mas continuando com token existente');
+                return true;
+            }
+        }
+
+        // Fun��o para debug de tokens
+        function debugTokens() {
+            console.log('?? === DEBUG DE TOKENS ===');
+            console.log('authToken:', localStorage.getItem('authToken'));
+            console.log('adminToken:', localStorage.getItem('adminToken'));
+            console.log('token:', localStorage.getItem('token'));
+            console.log('userData:', localStorage.getItem('userData'));
+            
+            // Tentar decodificar cada token
+            const tokens = ['authToken', 'adminToken', 'token'];
+            tokens.forEach(tokenName => {
+                const token = localStorage.getItem(tokenName);
+                if (token) {
+                    try {
+                        const parts = token.split('.');
+                        if (parts.length === 3) {
+                            const payload = JSON.parse(atob(parts[1]));
+                            console.log(`${tokenName} payload:`, payload);
+                        }
+                    } catch (e) {
+                        console.log(`${tokenName} erro ao decodificar:`, e);
+                    }
+                }
+            });
+            console.log('?? === FIM DEBUG ===');
+        }
+
+        // Fun��o para logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        }
+
+        // Fun��o para for�ar acesso (tempor�ria para debug)
+        function forceAccess() {
+            console.log('?? For�ando acesso para debug...');
+            // N�o fazer nada, apenas permitir acesso
+        }
+        
+        // Carregar informa��es do usu�rio
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('?? DOM carregado, iniciando verifica��o...');
+            
+            // Debug de tokens
+            debugTokens();
+            
+            // TEMPORARIAMENTE DESABILITADO - Permitir acesso sem verifica��o
+            console.log('?? Acesso permitido temporariamente para debug');
+            
+            // Verificar autentica��o primeiro (DESABILITADO)
+            // const authResult = verificarAutenticacao();
+            // console.log('?? Resultado da autentica��o:', authResult);
+            
+            // if (!authResult) {
+            //     console.log('? Autentica��o falhou, mas continuando para debug...');
+            //     return;
+            // }
+            
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    document.getElementById('userName').textContent = user.nome_completo || 'Administrador';
+                    document.getElementById('userAvatar').textContent = (user.nome_completo || 'A').charAt(0).toUpperCase();
+                } catch (error) {
+                    console.error('Erro ao carregar dados do usu�rio:', error);
+                }
+            }
+        });
+
+        // Tornar fun��es globais para debug
+        window.debugTokens = debugTokens;
+        window.forceAccess = forceAccess;
+        window.verificarAutenticacao = verificarAutenticacao;
+    </script>
+    
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h3>RatixPay</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="/criar-produto.html" class="nav-link"><i class="fas fa-plus"></i> Criar Produto</a></li>
+                    <li><a href="/marketing-avancado.html" class="nav-link"><i class="fas fa-chart-line"></i> Marketing</a></li>
+                    <li><a href="/checkout.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Checkout</a></li>
+                    <li><a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-cog"></i> Admin</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2024 RatixPay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de sidebar removido -->
+    
+</body>
+</html>

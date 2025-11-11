@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>Transferências B2C - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            margin-bottom: 20px;
+        }
+
+        .carteira-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .carteira-emola {
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .carteira-mpesa {
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .transferencias-table {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Linhas com fundo colorido baseado no método */
+        .transferencia-emola {
+            background-color: rgba(243, 156, 18, 0.1) !important;
+        }
+
+        .transferencia-mpesa {
+            background-color: rgba(231, 76, 60, 0.1) !important;
+        }
+
+        .transferencia-emola:hover {
+            background-color: rgba(243, 156, 18, 0.2) !important;
+        }
+
+        .transferencia-mpesa:hover {
+            background-color: rgba(231, 76, 60, 0.2) !important;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-voltar {
+            background: linear-gradient(135deg, var(--info-color) 0%, var(--primary-color) 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-voltar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .no-data {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .saldo-display {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .saldo-valor {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .saldo-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .method-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .method-emola {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .method-mpesa {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .transferencia-form {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .transferencia-info {
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .info-card h5 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .info-card p {
+            margin-bottom: 8px;
+            color: #424242;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+            border-color: #e67e22;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+            color: white;
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1><i class="fas fa-exchange-alt"></i> Transferências B2C</h1>
+            <p class="mb-0">Histórico de transferências realizadas para vendedores</p>
+            <button class="btn btn-voltar mt-3" onclick="voltarParaSaques()">
+                <i class="fas fa-arrow-left"></i> Voltar para Saques
+            </button>
+        </div>
+
+        <!-- Estatísticas das Carteiras -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="carteira-card carteira-emola">
+                    <h4><i class="fas fa-mobile-alt text-warning"></i> Carteira Emola</h4>
+                    <div class="saldo-display">
+                        <div class="saldo-label">Saldo Disponível</div>
+                        <div class="saldo-valor" id="saldoEmola">MZN 0.00</div>
+                    </div>
+                    <div class="saldo-display">
+                        <div class="saldo-label">Transferências Realizadas</div>
+                        <div class="saldo-valor" id="transferenciasEmola">MZN 0.00</div>
+                    </div>
+                    <div class="transferencia-form">
+                        <div class="mb-3">
+                            <label class="form-label">Valor a Transferir:</label>
+                            <input type="number" class="form-control" id="valorEmola" placeholder="0.00" step="0.01" min="0.01">
+                        </div>
+                        <button class="btn btn-warning w-100" onclick="realizarTransferenciaEmola()">
+                            <i class="fas fa-paper-plane"></i> Levantar para Emola
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="carteira-card carteira-mpesa">
+                    <h4><i class="fas fa-credit-card text-danger"></i> Carteira M-Pesa</h4>
+                    <div class="saldo-display">
+                        <div class="saldo-label">Saldo Disponível</div>
+                        <div class="saldo-valor" id="saldoMpesa">MZN 0.00</div>
+                    </div>
+                    <div class="saldo-display">
+                        <div class="saldo-label">Transferências Realizadas</div>
+                        <div class="saldo-valor" id="transferenciasMpesa">MZN 0.00</div>
+                    </div>
+                    <div class="transferencia-form">
+                        <div class="mb-3">
+                            <label class="form-label">Valor a Transferir:</label>
+                            <input type="number" class="form-control" id="valorMpesa" placeholder="0.00" step="0.01" min="0.01">
+                        </div>
+                        <button class="btn btn-danger w-100" onclick="realizarTransferenciaMpesa()">
+                            <i class="fas fa-paper-plane"></i> Levantar para M-Pesa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações da Transferência -->
+        <div class="transferencia-info">
+            <div class="info-card">
+                <h5><i class="fas fa-info-circle"></i> Informações da Transferência</h5>
+                <p><strong>Contato:</strong> +258 86 2177 274</p>
+                <p><strong>Nome do Titular:</strong> Rafael Manguele</p>
+                <p><strong>Nota:</strong> As transferências são processadas via API B2C do E2Payment</p>
+            </div>
+        </div>
+
+        <!-- Tabela de Transferências -->
+        <div class="transferencias-table">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="fas fa-history"></i> Histórico de Transferências B2C</h4>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="carregarTransferencias()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingTransferencias" class="loading-spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2">Carregando transferências...</p>
+            </div>
+
+            <!-- No Data -->
+            <div id="noTransferencias" class="no-data">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <h5>Nenhuma transferência encontrada</h5>
+                <p>As transferências B2C aparecerão aqui quando forem realizadas.</p>
+            </div>
+
+            <!-- Tabela -->
+            <div class="table-responsive" id="tabelaTransferencias" style="display: none;">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID Transferência</th>
+                            <th>Método</th>
+                            <th>Valor</th>
+                            <th>Destinatário</th>
+                            <th>Telefone</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transferenciasTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <script>
+        // Configuração da API (definida em config.js)
+
+        // Verificar autenticação
+        function verificarAutenticacao() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            if (!token) {
+                alert('Usuário não autenticado. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            // Verificar se o token é válido (não está vazio ou malformado)
+            if (token === 'null' || token === 'undefined' || token.trim() === '') {
+                console.error('? Token inválido encontrado:', token);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                localStorage.removeItem('adminToken');
+                alert('Token inválido. Redirecionando para login...');
+                window.location.href = '/login.html';
+                return false;
+            }
+            
+            return token;
+        }
+
+        // Carregar dados ao inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            if (verificarAutenticacao()) {
+                carregarSaldosCarteiras();
+                carregarTransferencias();
+            }
+        });
+
+        // Função para atualizar saldos imediatamente após transferência
+        async function atualizarSaldosAposTransferencia(metodo, valorTransferido) {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                // Atualizar saldo disponível (subtrair valor transferido)
+                const saldoElement = metodo === 'emola' ? 'saldoEmola' : 'saldoMpesa';
+                const saldoAtual = parseFloat(document.getElementById(saldoElement).textContent.replace('MZN ', '').replace(',', ''));
+                const novoSaldo = saldoAtual - valorTransferido;
+                document.getElementById(saldoElement).textContent = `MZN ${novoSaldo.toFixed(2)}`;
+
+                // Atualizar transferências realizadas (adicionar valor transferido)
+                const transferenciasElement = metodo === 'emola' ? 'transferenciasEmola' : 'transferenciasMpesa';
+                const transferenciasAtuais = parseFloat(document.getElementById(transferenciasElement).textContent.replace('MZN ', '').replace(',', ''));
+                const novasTransferencias = transferenciasAtuais + valorTransferido;
+                document.getElementById(transferenciasElement).textContent = `MZN ${novasTransferencias.toFixed(2)}`;
+
+                console.log(`? Saldos atualizados para ${metodo.toUpperCase()}:`);
+                console.log(`   - Saldo Disponível: MZN ${novoSaldo.toFixed(2)}`);
+                console.log(`   - Transferências Realizadas: MZN ${novasTransferencias.toFixed(2)}`);
+
+            } catch (error) {
+                console.error('Erro ao atualizar saldos:', error);
+            }
+        }
+
+        // Carregar saldos das carteiras
+        async function carregarSaldosCarteiras() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                // Carregar saldo da carteira Emola (saques feitos via método Emola)
+                const responseEmola = await fetch('/api/admin/saques-por-metodo/emola', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (responseEmola.ok) {
+                    const dataEmola = await responseEmola.json();
+                    document.getElementById('saldoEmola').textContent = `MZN ${parseFloat(dataEmola.total || 0).toFixed(2)}`;
+                }
+
+                // Carregar total de saques M-Pesa (saques feitos via método M-Pesa)
+                const responseMpesa = await fetch('/api/admin/saques-por-metodo/mpesa', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (responseMpesa.ok) {
+                    const dataMpesa = await responseMpesa.json();
+                    document.getElementById('saldoMpesa').textContent = `MZN ${parseFloat(dataMpesa.total || 0).toFixed(2)}`;
+                }
+
+                // Carregar transferências para calcular totais
+                await carregarTotaisTransferencias();
+
+            } catch (error) {
+                console.error('Erro ao carregar saldos:', error);
+            }
+        }
+
+        // Carregar totais de transferências
+        async function carregarTotaisTransferencias() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                const response = await fetch('/api/admin/transferencias-b2c/totais', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('transferenciasEmola').textContent = `MZN ${parseFloat(data.emola || 0).toFixed(2)}`;
+                    document.getElementById('transferenciasMpesa').textContent = `MZN ${parseFloat(data.mpesa || 0).toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar totais de transferências:', error);
+            }
+        }
+
+        // Carregar transferências B2C
+        async function carregarTransferencias() {
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+
+                document.getElementById('loadingTransferencias').style.display = 'block';
+                document.getElementById('noTransferencias').style.display = 'none';
+                document.getElementById('tabelaTransferencias').style.display = 'none';
+
+                const response = await fetch(`${API_BASE}/admin/transferencias-b2c`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.transferencias.length > 0) {
+                        preencherTabelaTransferencias(data.transferencias);
+                        document.getElementById('loadingTransferencias').style.display = 'none';
+                        document.getElementById('tabelaTransferencias').style.display = 'block';
+                    } else {
+                        document.getElementById('loadingTransferencias').style.display = 'none';
+                        document.getElementById('noTransferencias').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('loadingTransferencias').style.display = 'none';
+                    document.getElementById('noTransferencias').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar transferências:', error);
+                document.getElementById('loadingTransferencias').style.display = 'none';
+                document.getElementById('noTransferencias').style.display = 'block';
+            }
+        }
+
+        // Preencher tabela de transferências
+        function preencherTabelaTransferencias(transferencias) {
+            const tbody = document.getElementById('transferenciasTableBody');
+            tbody.innerHTML = '';
+
+            transferencias.forEach(transferencia => {
+                const row = document.createElement('tr');
+                
+                // Adicionar classe baseada no método
+                const metodo = transferencia.metodo.toLowerCase();
+                if (metodo === 'emola') {
+                    row.classList.add('transferencia-emola');
+                } else if (metodo === 'mpesa') {
+                    row.classList.add('transferencia-mpesa');
+                }
+                
+                row.innerHTML = `
+                    <td>${transferencia.id_transacao || transferencia.id || '-'}</td>
+                    <td>
+                        <span class="method-badge method-${metodo}">
+                            ${metodo.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>MZN ${parseFloat(transferencia.valor || 0).toFixed(2)}</td>
+                    <td>${transferencia.nome_destinatario || 'N/A'}</td>
+                    <td>${transferencia.telefone || 'N/A'}</td>
+                    <td>${new Date(transferencia.data_transferencia || transferencia.created_at).toLocaleString('pt-BR')}</td>
+                    <td>
+                        <span class="status-badge status-${transferencia.status || 'success'}">
+                            ${(transferencia.status || 'success').toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${transferencia.observacoes || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Voltar para página de saques
+        function voltarParaSaques() {
+            window.location.href = '/admin-gestao-saques.html';
+        }
+
+        // Realizar transferência para Emola
+        async function realizarTransferenciaEmola() {
+            const valor = document.getElementById('valorEmola').value;
+            if (!valor || parseFloat(valor) <= 0) {
+                alert('Por favor, insira um valor válido.');
+                return;
+            }
+
+            // Verificar saldo disponível
+            const saldoDisponivel = parseFloat(document.getElementById('saldoEmola').textContent.replace('MZN ', '').replace(',', ''));
+            if (parseFloat(valor) > saldoDisponivel) {
+                alert(`Valor insuficiente. Disponível: MZN ${saldoDisponivel.toFixed(2)}`);
+                return;
+            }
+
+            if (!confirm(`Confirmar transferência de MZN ${parseFloat(valor).toFixed(2)} para Emola?`)) {
+                return;
+            }
+
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+                
+                const response = await fetch('/api/admin/transferencia-b2c/emola', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        valor: parseFloat(valor),
+                        telefone: '862177274',
+                        nome: 'Rafael Manguele'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    alert('Transferência realizada com sucesso!');
+                    document.getElementById('valorEmola').value = '';
+                    
+                    // Atualizar saldos imediatamente após transferência bem-sucedida
+                    await atualizarSaldosAposTransferencia('emola', parseFloat(valor));
+                    
+                    carregarSaldosCarteiras();
+                    carregarTransferencias();
+                } else {
+                    alert(`Erro na transferência: ${result.message || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                console.error('Erro na transferência:', error);
+                alert('Erro ao realizar transferência. Tente novamente.');
+            }
+        }
+
+        // Realizar transferência para M-Pesa
+        async function realizarTransferenciaMpesa() {
+            const valor = document.getElementById('valorMpesa').value;
+            if (!valor || parseFloat(valor) <= 0) {
+                alert('Por favor, insira um valor válido.');
+                return;
+            }
+
+            // Verificar saldo disponível
+            const saldoDisponivel = parseFloat(document.getElementById('saldoMpesa').textContent.replace('MZN ', '').replace(',', ''));
+            if (parseFloat(valor) > saldoDisponivel) {
+                alert(`Valor insuficiente. Disponível: MZN ${saldoDisponivel.toFixed(2)}`);
+                return;
+            }
+
+            if (!confirm(`Confirmar transferência de MZN ${parseFloat(valor).toFixed(2)} para M-Pesa?`)) {
+                return;
+            }
+
+            try {
+                const token = verificarAutenticacao();
+                if (!token) return;
+                
+                const response = await fetch('/api/admin/transferencia-b2c/mpesa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        valor: parseFloat(valor),
+                        telefone: '862177274',
+                        nome: 'Rafael Manguele'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    alert('Transferência realizada com sucesso!');
+                    document.getElementById('valorMpesa').value = '';
+                    
+                    // Atualizar saldos imediatamente após transferência bem-sucedida
+                    await atualizarSaldosAposTransferencia('mpesa', parseFloat(valor));
+                    
+                    carregarSaldosCarteiras();
+                    carregarTransferencias();
+                } else {
+                    alert(`Erro na transferência: ${result.message || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                console.error('Erro na transferência:', error);
+                alert('Erro ao realizar transferência. Tente novamente.');
+            }
+        }
+    </script>
+    
+</body>
+</html>

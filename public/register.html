@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Expires" content="0">
+    <title>Registro - RatixPay</title>
+    
+    <!-- BLOQUEAR SERVICE WORKER E INDEXEDDB IMEDIATAMENTE -->
+    <script>
+        (function() {
+            'use strict';
+            
+            // Bloquear registro de service workers ANTES de qualquer script carregar
+            if ('serviceWorker' in navigator) {
+                const originalRegister = navigator.serviceWorker.register;
+                navigator.serviceWorker.register = function() {
+                    console.warn('?? Registro de Service Worker bloqueado na p�gina de registro');
+                    return Promise.reject(new Error('Service Worker n�o permitido nesta p�gina'));
+                };
+                
+                // Desregistrar todos os service workers existentes
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (let registration of registrations) {
+                        registration.unregister().then(function(success) {
+                            if (success) {
+                                console.log('? Service Worker desregistrado:', registration.scope);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Bloquear IndexedDB ANTES de qualquer script carregar
+            if ('indexedDB' in window) {
+                const originalOpen = indexedDB.open;
+                indexedDB.open = function() {
+                    console.warn('?? Abertura de IndexedDB bloqueada na p�gina de registro');
+                    return {
+                        onerror: function() {},
+                        onsuccess: function() {},
+                        onupgradeneeded: function() {},
+                        result: null,
+                        error: new Error('IndexedDB n�o permitido nesta p�gina')
+                    };
+                };
+                
+                // Deletar bancos de dados conhecidos
+                const dbNames = ['RatixPayPushDB', 'RatixPayDB', 'RatixPayOfflineDB', 'RatixPayCacheDB'];
+                dbNames.forEach(function(dbName) {
+                    indexedDB.deleteDatabase(dbName).onsuccess = function() {
+                        console.log('? IndexedDB deletado:', dbName);
+                    };
+                });
+            }
+            
+            // Limpar caches
+            if ('caches' in window) {
+                caches.keys().then(function(cacheNames) {
+                    return Promise.all(
+                        cacheNames.map(function(cacheName) {
+                            return caches.delete(cacheName);
+                        })
+                    );
+                });
+            }
+        })();
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+        
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b3540 0%, #f7931e6b 50%, #ff6b3540 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease-in-out infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            border: 2px solid #F64c00;
+        }
+
+        .header {
+            background: #F64C00;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group label.required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #F64C00;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .account-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .account-type input[type="radio"] {
+            display: none;
+        }
+
+        .account-type label {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .account-type input[type="radio"]:checked + label {
+            border-color: #F64C00;
+            background: #F64C00;
+            color: white;
+        }
+
+        .account-type label:hover {
+            border-color: #F64C00;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #F64C00 0%, #E55A00 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(246, 76, 0, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #F64C00;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .back-to-login a {
+            color: #F64C00;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-to-login a:hover {
+            color: #2980b9;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #e74c3c; width: 25%; }
+        .strength-fair { background: #f39c12; width: 50%; }
+        .strength-good { background: #27ae60; width: 75%; }
+        .strength-strong { background: #2ecc71; width: 100%; }
+
+        .terms {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .terms a {
+            color: #F64C00;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Se��o de verifica��o de email */
+        .verification-section {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .verification-section.active {
+            display: block;
+        }
+
+        .verification-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .verification-subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .verification-code-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .verification-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .verification-input:focus {
+            outline: none;
+            border-color: #F64C00;
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
+        }
+
+        .verification-input.filled {
+            border-color: #27ae60;
+            background: #d4edda;
+        }
+
+        .verification-input.error {
+            border-color: #e74c3c;
+            background: #f8d7da;
+        }
+
+        .verification-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-resend {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-resend:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-resend:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-timer {
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    
+        /* Otimiza��es globais para sidebar */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        /* Quando sidebar est� aberto em desktop */
+        @media (min-width: 769px) {
+            body.sidebar-open .main-content {
+                margin-left: 280px;
+            }
+        }
+        
+        /* Mobile: sidebar ocupa tela inteira */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+            
+            body.sidebar-open .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* Toggle button removido */
+        
+        /* Responsividade global */
+        @media (max-width: 768px) {
+            .container, .main-content {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container, .main-content {
+                padding: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-content">
+    
+
+    <div class="container">
+        <div class="header">
+            <div class="icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="title">Criar Conta</div>
+            <div class="subtitle">Junte-se ao RatixPay</div>
+        </div>
+
+        <div class="form-container">
+            <!-- Alertas -->
+            <div id="alert" class="alert"></div>
+
+            <!-- Formul�rio de registro -->
+            <form id="registerForm">
+
+                <!-- Nome completo -->
+                <div class="form-group">
+                    <label for="nome_completo" class="required">Nome Completo</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="nome_completo" name="nome_completo" class="form-control" 
+                               placeholder="Digite seu nome completo" required>
+                    </div>
+                </div>
+
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="required">Email</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               placeholder="Digite seu email" required>
+                    </div>
+                </div>
+
+                <!-- Telefone -->
+                <div class="form-group">
+                    <label for="telefone">Telefone (Opcional)</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="telefone" name="telefone" class="form-control" 
+                               placeholder="(+258) 84000000">
+                    </div>
+                </div>
+
+                <!-- Senha -->
+                <div class="form-group">
+                    <label for="password" class="required">Senha</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-control" 
+                               placeholder="Digite sua senha" required>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthBar"></div>
+                        </div>
+                        <span id="strengthText">Digite uma senha</span>
+                    </div>
+                </div>
+
+                <!-- Confirmar senha -->
+                <div class="form-group">
+                    <label for="confirmPassword" class="required">Confirmar Senha</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" 
+                               placeholder="Confirme sua senha" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-user-plus"></i> Criar Conta
+                </button>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Criando conta...</p>
+                </div>
+
+                <!-- Termos -->
+                <div class="terms">
+                    Ao criar uma conta, voc� concorda com nossos 
+                    <a href="#" onclick="alert('Termos de Uso em desenvolvimento')">Termos de Uso</a> 
+                    e 
+                    <a href="#" onclick="alert('Pol�tica de Privacidade em desenvolvimento')">Pol�tica de Privacidade</a>
+                </div>
+            </form>
+
+            <!-- Se��o de verifica��o de email -->
+            <div class="verification-section" id="verificationSection">
+                <div class="verification-title">
+                    <i class="fas fa-envelope"></i> Verificar Email
+                </div>
+                <div class="verification-subtitle">
+                    Digite o c�digo de 6 d�gitos enviado para <span id="userEmail"></span>
+                </div>
+                
+                <div class="verification-code-container">
+                    <input type="text" class="verification-input" maxlength="1" data-index="0">
+                    <input type="text" class="verification-input" maxlength="1" data-index="1">
+                    <input type="text" class="verification-input" maxlength="1" data-index="2">
+                    <input type="text" class="verification-input" maxlength="1" data-index="3">
+                    <input type="text" class="verification-input" maxlength="1" data-index="4">
+                    <input type="text" class="verification-input" maxlength="1" data-index="5">
+                </div>
+                
+                <div class="verification-actions">
+                    <button type="button" class="btn-verify" id="verifyBtn">
+                        <i class="fas fa-check"></i> Verificar
+                    </button>
+                    <button type="button" class="btn-resend" id="resendBtn">
+                        <i class="fas fa-redo"></i> Reenviar
+                    </button>
+                </div>
+                
+                <div class="resend-timer" id="resendTimer"></div>
+            </div>
+
+            <!-- Voltar ao login -->
+            <div class="back-to-login">
+                <a href="login.html">
+                    <i class="fas fa-arrow-left"></i> J� tem uma conta? Fa�a login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configura��o da API
+        const API_BASE = window.location.origin + '/api';
+
+        // Elementos do DOM
+        const registerForm = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const alert = document.getElementById('alert');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        
+        // Elementos de verifica��o
+        const verificationSection = document.getElementById('verificationSection');
+        const userEmailSpan = document.getElementById('userEmail');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const resendBtn = document.getElementById('resendBtn');
+        const resendTimer = document.getElementById('resendTimer');
+        const verificationInputs = document.querySelectorAll('.verification-input');
+        
+        // Vari�veis de controle
+        let currentUserId = null;
+        let resendCountdown = 0;
+        let resendInterval = null;
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            registerForm.addEventListener('submit', handleRegister);
+            passwordInput.addEventListener('input', checkPasswordStrength);
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            
+            // Event listeners para verifica��o
+            verifyBtn.addEventListener('click', handleVerification);
+            resendBtn.addEventListener('click', handleResendCode);
+            
+            // Event listeners para inputs de verifica��o
+            verificationInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => handleVerificationInput(e, index));
+                input.addEventListener('keydown', (e) => handleVerificationKeydown(e, index));
+                input.addEventListener('paste', (e) => handleVerificationPaste(e, index));
+            });
+        });
+
+        // Fun��o de registro
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
+
+            // Adicionar tipo_conta padr�o
+            data.tipo_conta = 'vendedor';
+
+            // Valida��es client-side
+            if (!validateForm(data)) {
+                return;
+            }
+
+            try {
+                setLoading(true);
+
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Conta criada com sucesso! Verifique seu email para ativar a conta.', 'success');
+                    
+                    // Mostrar se��o de verifica��o
+                    if (result.requiresVerification) {
+                        currentUserId = result.userId;
+                        userEmailSpan.textContent = data.email;
+                        showVerificationSection();
+                        startResendTimer();
+                    }
+                } else {
+                    showAlert(result.error || 'Erro ao criar conta', 'error');
+                }
+            } catch (error) {
+                console.error('Erro no registro:', error);
+                showAlert('Erro de conex�o. Tente novamente.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Valida��o do formul�rio
+        function validateForm(data) {
+            // Verificar se todos os campos obrigat�rios est�o preenchidos
+            if (!data.nome_completo || !data.email || !data.password) {
+                showAlert('Todos os campos obrigat�rios devem ser preenchidos', 'error');
+                return false;
+            }
+
+            // Verificar se as senhas coincidem
+            if (data.password !== data.confirmPassword) {
+                showAlert('As senhas n�o coincidem', 'error');
+                return false;
+            }
+
+            // Verificar for�a da senha
+            if (data.password.length < 6) {
+                showAlert('A senha deve ter pelo menos 6 caracteres', 'error');
+                return false;
+            }
+
+            // Verificar formato do email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                showAlert('Digite um email v�lido', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Verificar for�a da senha
+        function checkPasswordStrength() {
+            const password = passwordInput.value;
+            const strength = calculatePasswordStrength(password);
+            
+            strengthBar.className = 'strength-fill ' + strength.class;
+            strengthText.textContent = strength.text;
+        }
+
+        // Calcular for�a da senha
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 6) score++;
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            if (score < 2) return { class: 'strength-weak', text: 'Senha fraca' };
+            if (score < 4) return { class: 'strength-fair', text: 'Senha razo�vel' };
+            if (score < 6) return { class: 'strength-good', text: 'Senha boa' };
+            return { class: 'strength-strong', text: 'Senha forte' };
+        }
+
+        // Verificar se as senhas coincidem
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                confirmPasswordInput.style.borderColor = '#e74c3c';
+            } else {
+                confirmPasswordInput.style.borderColor = '#e9ecef';
+            }
+        }
+
+        // Fun��o para mostrar alertas
+        function showAlert(message, type) {
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fun��o para controlar loading
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                loading.style.display = 'block';
+            } else {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        // Verificar se h� mensagem na URL
+        function checkUrlMessage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            
+            if (message === 'verify-email') {
+                showAlert('Verifique seu email para ativar a conta', 'info');
+            }
+        }
+
+        // Verificar mensagem ao carregar a p�gina
+        checkUrlMessage();
+
+        // ===== FUN��ES DE VERIFICA��O =====
+
+        // Mostrar se��o de verifica��o
+        function showVerificationSection() {
+            verificationSection.classList.add('active');
+            verificationSection.scrollIntoView({ behavior: 'smooth' });
+            verificationInputs[0].focus();
+        }
+
+        // Gerenciar input de verifica��o
+        function handleVerificationInput(e, index) {
+            const input = e.target;
+            const value = input.value;
+            
+            // Limitar a apenas n�meros
+            if (!/^\d*$/.test(value)) {
+                input.value = '';
+                return;
+            }
+            
+            // Adicionar classe filled se tiver valor
+            if (value) {
+                input.classList.add('filled');
+                input.classList.remove('error');
+                
+                // Ir para o pr�ximo input
+                if (index < verificationInputs.length - 1) {
+                    verificationInputs[index + 1].focus();
+                }
+            } else {
+                input.classList.remove('filled');
+            }
+            
+            // Verificar se todos os campos est�o preenchidos
+            checkVerificationComplete();
+        }
+
+        // Gerenciar teclas de verifica��o
+        function handleVerificationKeydown(e, index) {
+            const input = e.target;
+            
+            // Backspace - ir para o input anterior
+            if (e.key === 'Backspace' && !input.value && index > 0) {
+                verificationInputs[index - 1].focus();
+            }
+            
+            // Enter - verificar c�digo
+            if (e.key === 'Enter') {
+                handleVerification();
+            }
+        }
+
+        // Gerenciar colar c�digo
+        function handleVerificationPaste(e, index) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text');
+            
+            // Limpar apenas n�meros
+            const numbers = pastedData.replace(/\D/g, '');
+            
+            // Preencher inputs com os n�meros colados
+            for (let i = 0; i < Math.min(numbers.length, verificationInputs.length); i++) {
+                verificationInputs[i].value = numbers[i];
+                verificationInputs[i].classList.add('filled');
+                verificationInputs[i].classList.remove('error');
+            }
+            
+            // Focar no �ltimo input preenchido ou no pr�ximo vazio
+            const nextEmptyIndex = Array.from(verificationInputs).findIndex(input => !input.value);
+            if (nextEmptyIndex !== -1) {
+                verificationInputs[nextEmptyIndex].focus();
+            } else {
+                verificationInputs[verificationInputs.length - 1].focus();
+            }
+            
+            checkVerificationComplete();
+        }
+
+        // Verificar se todos os campos est�o preenchidos
+        function checkVerificationComplete() {
+            const allFilled = Array.from(verificationInputs).every(input => input.value);
+            verifyBtn.disabled = !allFilled;
+        }
+
+        // Verificar c�digo
+        async function handleVerification() {
+            const code = Array.from(verificationInputs).map(input => input.value).join('');
+            
+            if (code.length !== 6) {
+                showAlert('Digite o c�digo completo de 6 d�gitos', 'error');
+                return;
+            }
+
+            try {
+                setLoading(true);
+                verifyBtn.disabled = true;
+
+                const response = await fetch(`${API_BASE}/auth/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        code: code
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Email verificado com sucesso! Redirecionando...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html?message=verified';
+                    }, 2000);
+                } else {
+                    showAlert(result.error || 'C�digo inv�lido', 'error');
+                    clearVerificationInputs();
+                    verificationInputs[0].focus();
+                }
+            } catch (error) {
+                console.error('Erro na verifica��o:', error);
+                showAlert('Erro de conex�o. Tente novamente.', 'error');
+            } finally {
+                setLoading(false);
+                verifyBtn.disabled = false;
+            }
+        }
+
+        // Reenviar c�digo
+        async function handleResendCode() {
+            if (resendCountdown > 0) return;
+
+            try {
+                setLoading(true);
+                resendBtn.disabled = true;
+
+                const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('C�digo reenviado com sucesso!', 'success');
+                    startResendTimer();
+                } else {
+                    showAlert(result.error || 'Erro ao reenviar c�digo', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao reenviar:', error);
+                showAlert('Erro de conex�o. Tente novamente.', 'error');
+            } finally {
+                setLoading(false);
+                resendBtn.disabled = false;
+            }
+        }
+
+        // Iniciar timer de reenvio
+        function startResendTimer() {
+            resendCountdown = 60;
+            resendBtn.disabled = true;
+            
+            resendInterval = setInterval(() => {
+                resendCountdown--;
+                resendTimer.textContent = `Reenviar em ${resendCountdown}s`;
+                
+                if (resendCountdown <= 0) {
+                    clearInterval(resendInterval);
+                    resendBtn.disabled = false;
+                    resendTimer.textContent = '';
+                }
+            }, 1000);
+        }
+
+        // Limpar inputs de verifica��o
+        function clearVerificationInputs() {
+            verificationInputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('filled', 'error');
+            });
+        }
+    </script>
+    
+
+    <script src="/js/sidebar-init.js"></script>
+    </div>
+    
+    
+</body>
+</html>

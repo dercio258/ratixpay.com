@@ -1,0 +1,57 @@
+/* Font Awesome Icons - Local Version */
+/* Basic icons used in the checkout system */
+
+.fas, .far, .fab {
+    font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.far {
+    font-weight: 400;
+}
+
+.fab {
+    font-family: "Font Awesome 5 Brands";
+    font-weight: 400;
+}
+
+/* Checkout specific icons */
+.fa-check-circle:before { content: "\f058"; }
+.fa-times-circle:before { content: "\f057"; }
+.fa-spinner:before { content: "\f110"; }
+.fa-clock:before { content: "\f017"; }
+.fa-info-circle:before { content: "\f05a"; }
+.fa-download:before { content: "\f019"; }
+.fa-home:before { content: "\f015"; }
+.fa-redo:before { content: "\f01e"; }
+.fa-whatsapp:before { content: "\f232"; }
+.fa-sign-in-alt:before { content: "\f2f6"; }
+.fa-lock:before { content: "\f023"; }
+.fa-star:before { content: "\f005"; }
+.fa-crown:before { content: "\f521"; }
+.fa-times:before { content: "\f00d"; }
+
+/* Spinning animation */
+.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Pulse animation */
+.fa-pulse {
+    animation: fa-pulse 1s infinite steps(8);
+}
+
+@keyframes fa-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}

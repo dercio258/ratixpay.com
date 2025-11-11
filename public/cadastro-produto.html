@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatixPay - Cadastro de Produto</title>
+    <link rel="stylesheet" href="css/style.css">
+<style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+        }
+
+        .form-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .url-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .url-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 4px;
+        }
+
+        .url-preview.error {
+            background: #fadbd8;
+            border-color: #e74c3c;
+            color: #c0392b;
+        }
+
+        .url-preview.success {
+            background: #d5f4e6;
+            border-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>RatixPay</h2>
+        </div>
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span data-translate="dashboard">Painel</span>
+            </a>
+            <a href="gestao-produtos.html" class="nav-item active">
+                <span class="nav-icon">📦</span>
+                <span data-translate="product_management">Gestão de Produto</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span data-translate="sales_management">Gestão de Vendas</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showTools()">
+                <span class="nav-icon">🛠️</span>
+                <span data-translate="tools">Ferramentas</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="form-container">
+            <div class="form-header">
+                <h1 id="page-title" data-translate="new_product">Novo Produto</h1>
+                <p id="page-subtitle" data-translate="new_product_desc">Preencha as informações abaixo para criar um novo produto</p>
+            </div>
+
+            <div class="form-card">
+                <form id="produto-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome" data-translate="product_name">Nome do Produto *</label>
+                            <input type="text" id="nome" name="nome" required>
+                            <div class="error-message" id="nome-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tipo" data-translate="product_type">Tipo *</label>
+                            <select id="tipo" name="tipo" required>
+                                <option value="" data-translate="select_type">Selecione o tipo</option>
+                                <option value="Curso Online">Curso Online</option>
+                                <option value="eBook">eBook</option>
+                            </select>
+                            <div class="error-message" id="tipo-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="categoria" data-translate="category">Categoria *</label>
+                            <input type="text" id="categoria" name="categoria" required>
+                            <div class="error-message" id="categoria-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preco" data-translate="price">Preço (MZN) *</label>
+                            <input type="number" id="preco" name="preco" min="0" step="0.01" required>
+                            <div class="error-message" id="preco-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao" data-translate="description">Descrição *</label>
+                        <textarea id="descricao" name="descricao" required placeholder="Descreva o produto detalhadamente..."></textarea>
+                        <div class="error-message" id="descricao-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imagem" data-translate="image_url">Link da Imagem *</label>
+                        <input type="url" id="imagem" name="imagem" required placeholder="https://exemplo.com/imagem.jpg">
+                        <div class="url-preview" id="imagem-preview"></div>
+                        <div class="error-message" id="imagem-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="linkConteudo" data-translate="content_url">Link do Conteúdo *</label>
+                        <input type="url" id="linkConteudo" name="linkConteudo" required placeholder="https://exemplo.com/conteudo">
+                        <div class="url-preview" id="conteudo-preview"></div>
+                        <div class="error-message" id="linkConteudo-error"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="desconto" data-translate="discount">Desconto (%)</label>
+                            <input type="number" id="desconto" name="desconto" min="0" max="100" step="0.01" value="0">
+                            <div class="error-message" id="desconto-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cupom" data-translate="coupon">Cupom de Desconto</label>
+                            <input type="text" id="cupom" name="cupom" placeholder="DESCONTO10">
+                            <div class="error-message" id="cupom-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-translate="product_options">Opções do Produto</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="ativo" name="ativo" checked>
+                                <label for="ativo" data-translate="active">Ativo</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="afiliado" name="afiliado">
+                                <label for="afiliado" data-translate="affiliate">Afiliado</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="disponivelMarketplace" name="disponivelMarketplace">
+                                <label for="disponivelMarketplace" data-translate="marketplace">Disponível no Marketplace</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="orderBumpAtivo" name="orderBumpAtivo">
+                                <label for="orderBumpAtivo">Ativar Order Bump para este produto</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="orderBumpProdutosGroup" style="display:none;">
+                        <label>Produtos Complementares (selecione até 3)</label>
+                        <small style="display:block;color:#666;margin-bottom:6px;">Serão exibidos no checkout deste produto</small>
+                        <div id="orderBumpProdutosContainer" class="checkbox-group" style="max-height:180px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;padding:10px;"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btn-salvar">
+                            <span>💾</span>
+                            <span data-translate="save">Salvar Produto</span>
+                        </button>
+                        <a href="gestao-produtos.html" class="btn btn-secondary">
+                            <span>↩️</span>
+                            <span data-translate="back">Voltar</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p data-translate="saving">Salvando produto...</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/cadastro-produto.js"></script>
+</body>
+</html>
+

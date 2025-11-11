@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Sessão WhatsApp - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+        
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .session-container {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .session-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .session-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .session-title i {
+            color: #25d366;
+        }
+
+        .session-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-not_created {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .error-message {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            color: #856404;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .error-message strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #721c24;
+        }
+
+        .qr-section {
+            background: white;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logs-section {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .logs-header h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logs-container {
+            background: #000;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
+            color: #fff;
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-timestamp {
+            color: #888;
+            font-size: 0.75rem;
+            min-width: 80px;
+        }
+
+        .log-type {
+            min-width: 60px;
+            font-weight: 600;
+        }
+
+        .log-type.info {
+            color: #17a2b8;
+        }
+
+        .log-type.success {
+            color: #28a745;
+        }
+
+        .log-type.warning {
+            color: #ffc107;
+        }
+
+        .log-type.error {
+            color: #dc3545;
+        }
+
+        .log-type.debug {
+            color: #6c757d;
+        }
+
+        .log-message {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .btn-clear-logs {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .btn-clear-logs:hover {
+            background: #5a6268;
+        }
+
+        /* Scrollbar personalizado para logs */
+        .logs-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .logs-container::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .logs-container::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        .qr-section.connected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .qr-section.waiting {
+            border-color: #ffc107;
+            background: #fffbf0;
+        }
+
+        .qr-section.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .qr-placeholder {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .qr-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
+
+        .qr-code {
+            max-width: 600px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .session-info {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .session-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .notification.info {
+            background: #17a2b8;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .test-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #212529;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .logs-section {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .logs-header h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logs-header .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logs-header .btn-small:hover {
+            background: #c82333;
+        }
+
+        .logs-content {
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            color: #888;
+            min-width: 80px;
+            font-size: 0.75rem;
+        }
+
+        .log-message {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .log-entry.info .log-message {
+            color: #17a2b8;
+        }
+
+        .log-entry.success .log-message {
+            color: #28a745;
+        }
+
+        .log-entry.error .log-message {
+            color: #dc3545;
+        }
+
+        .log-entry.warning .log-message {
+            color: #ffc107;
+        }
+
+        .log-entry.debug .log-message {
+            color: #6c757d;
+        }
+
+        .logs-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .logs-content::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+
+        .logs-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .logs-content::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        @media (max-width: 768px) {
+            .session-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .qr-code {
+                max-width: 100%;
+            }
+
+            .qr-section {
+                min-height: 350px;
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+</head>
+<body>
+    <a href="admin-dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Voltar ao Dashboard
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fab fa-whatsapp"></i> Gerenciamento de Sessões WhatsApp</h1>
+            <p>Gerencie múltiplas sessões WhatsApp de forma robusta e estável</p>
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Nota:</strong> Sistema atualizado para Baileys - Suporte a múltiplas sessões simultâneas. 
+                Use o seletor abaixo para escolher qual sessão gerenciar.
+            </div>
+            <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <label for="sessionSelector" style="color: white; font-weight: 600; margin-right: 10px;">Sessão:</label>
+                <select id="sessionSelector" style="padding: 8px 15px; border-radius: 5px; border: none; font-size: 0.9rem; min-width: 200px;">
+                    <option value="default">Padrão (default)</option>
+                    <option value="vendas-cliente">Vendas - Cliente</option>
+                    <option value="vendas-vendedor">Vendas - Vendedor</option>
+                    <option value="sistema">Sistema</option>
+                    <option value="ofertas">Ofertas</option>
+                    <option value="suporte">Suporte</option>
+                    <option value="afiliados">Afiliados</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="session-container">
+            <div class="session-card" id="sessionCard">
+                <!-- Sessão será carregada aqui via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para teste de sessão -->
+    <div class="test-modal" id="testModal">
+        <div class="modal-content">
+            <h3>Testar Sessão</h3>
+            <input type="tel" id="testPhoneNumber" placeholder="Número de telefone (ex: 258841234567)">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeTestModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="sendTestMessage()">Enviar Teste</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/whatsapp';
+        let refreshInterval = null;
+        let sessionState = null;
+        let logsInterval = null;
+        const logs = [];
+        const MAX_LOGS = 200;
+        let currentSessionId = 'default';
+        
+        // Função para obter token de autenticação
+        function getAuthToken() {
+            return localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+        }
+
+        // Função para criar headers com autenticação
+        function getAuthHeaders(includeContentType = true) {
+            const token = getAuthToken();
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+            if (includeContentType) {
+                headers['Content-Type'] = 'application/json';
+            }
+            return headers;
+        }
+
+        // Verificar autenticação antes de carregar
+        async function checkAuth() {
+            const token = getAuthToken();
+            if (!token) {
+                console.log('? Nenhum token encontrado, redirecionando para login');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.user) {
+                        const isMainAdmin = result.user.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = result.user.role === 'admin' || result.user.tipo_conta === 'admin' || isMainAdmin;
+                        if (!isAdmin) {
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro na verificação de auth:', error);
+            }
+
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar autenticação primeiro
+            const isAuthorized = await checkAuth();
+            if (!isAuthorized) {
+                return;
+            }
+
+            // Configurar seletor de sessão
+            const sessionSelector = document.getElementById('sessionSelector');
+            if (sessionSelector) {
+                sessionSelector.addEventListener('change', function() {
+                    currentSessionId = this.value;
+                    loadSession();
+                    showNotification(`Sessão alterada para: ${currentSessionId}`, 'info');
+                });
+            }
+
+            // Carregar sessão imediatamente
+            await loadSession();
+            
+            // Iniciar busca de logs
+            startLogsPolling();
+            
+            // Atualizar a cada 30 segundos
+            refreshInterval = setInterval(async () => {
+                const oldState = sessionState;
+                await loadSession();
+                
+                // Detectar se sessão foi perdida
+                if (oldState && oldState.isConnected && sessionState && !sessionState.isConnected) {
+                    addLog('warning', 'Sessão WhatsApp foi desconectada');
+                    showNotification('?? Sessão WhatsApp foi desconectada. Use "Reconectar" para tentar novamente.', 'warning');
+                }
+
+                // Detectar se sessão foi conectada
+                if (oldState && !oldState.isConnected && sessionState && sessionState.isConnected) {
+                    addLog('success', 'Sessão WhatsApp conectada com sucesso!');
+                }
+            }, 30000);
+        });
+
+        // Carregar sessão
+        async function loadSession() {
+            try {
+                const response = await fetch(`${API_BASE}/session?sessionId=${currentSessionId}`, {
+                    headers: getAuthHeaders(false)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    sessionState = data.session;
+                    renderSession(data.session);
+                } else {
+                    showNotification('Erro ao carregar sessão: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar sessão:', error);
+                showNotification('Erro ao carregar sessão. Verifique a conexão.', 'error');
+            }
+        }
+
+        // Renderizar sessão
+        function renderSession(session) {
+            const card = document.getElementById('sessionCard');
+            
+            card.innerHTML = `
+                <div class="session-header">
+                    <div class="session-title">
+                        <i class="fab fa-whatsapp"></i>
+                        Sessão WhatsApp: ${session.sessionId || currentSessionId}
+                    </div>
+                    <span class="session-status status-${getStatusClass(session.status || 'not_created')}">
+                        <i class="fas ${getStatusIcon(session.status || 'not_created')}"></i>
+                        ${getStatusText(session.status || 'not_created')}
+                    </span>
+                </div>
+
+                <div class="session-info">
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">${getStatusText(session.status || 'not_created')}</span>
+                    </div>
+                    ${session.isConnected && session.connectedAt ? `
+                    <div class="info-row">
+                        <span class="info-label">Conectado em:</span>
+                        <span class="info-value">${formatDate(session.connectedAt)}</span>
+                    </div>
+                    ` : ''}
+                    ${session.stats ? `
+                    <div class="info-row">
+                        <span class="info-label">Mensagens enviadas:</span>
+                        <span class="info-value">${session.stats.messagesSent || 0}</span>
+                    </div>
+                    ${session.stats.lastMessageAt ? `
+                    <div class="info-row">
+                        <span class="info-label">Última mensagem:</span>
+                        <span class="info-value">${formatDate(session.stats.lastMessageAt)}</span>
+                    </div>
+                    ` : ''}
+                    ${session.stats.uptime ? `
+                    <div class="info-row">
+                        <span class="info-label">Tempo conectado:</span>
+                        <span class="info-value">${formatUptime(session.stats.uptime)}</span>
+                    </div>
+                    ` : ''}
+                    ${session.messageQueueSize > 0 ? `
+                    <div class="info-row">
+                        <span class="info-label">Mensagens na fila:</span>
+                        <span class="info-value">${session.messageQueueSize}</span>
+                    </div>
+                    ` : ''}
+                    ` : ''}
+                    ${session.reconnectAttempts > 0 ? `
+                    <div class="info-row">
+                        <span class="info-label">Tentativas de reconexão:</span>
+                        <span class="info-value">${session.reconnectAttempts}</span>
+                    </div>
+                    ` : ''}
+                    ${session.lastError ? `
+                    <div class="error-message">
+                        <strong>?? Erro:</strong>
+                        ${session.lastError}
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="reconnectSession()">
+                                <i class="fas fa-sync-alt"></i> Reconectar Agora
+                            </button>
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${session.status === 'disconnected' && session.exists ? `
+                    <div class="error-message" style="background: #fff3cd; border-color: #ffc107;">
+                        <strong>?? Sessão Desconectada:</strong>
+                        A sessão foi desconectada. Clique em "Reconectar" para tentar novamente.
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="qr-section ${session.isConnected ? 'connected' : session.status === 'waiting_qr' ? 'waiting' : session.status === 'error' ? 'error' : ''}" id="qrSection">
+                    ${session.isConnected ? `
+                        <div class="qr-placeholder">
+                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 4rem;"></i>
+                            <p style="margin-top: 15px; font-size: 1.1rem; font-weight: 600;">Sessão conectada e pronta para uso</p>
+                        </div>
+                    ` : session.qrCode || (session.status === 'waiting_qr' && !session.isConnected) ? `
+                        ${session.qrCode ? `
+                            <img src="${session.qrCode}" alt="QR Code" class="qr-code" id="qrCode">
+                            <p style="margin-top: 15px; color: #856404; font-weight: 600;">Escaneie com seu WhatsApp</p>
+                        ` : `
+                            <div class="qr-placeholder">
+                                <i class="fas fa-spinner fa-spin" style="color: #ffc107; font-size: 3rem;"></i>
+                                <p style="margin-top: 15px; color: #856404; font-weight: 600;">Gerando QR Code...</p>
+                                <p style="margin-top: 5px; color: #6c757d; font-size: 0.85rem;">Aguarde alguns segundos</p>
+                            </div>
+                        `}
+                    ` : session.status === 'error' ? `
+                        <div class="qr-placeholder">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                            <p style="color: #721c24; margin-top: 10px;">Erro na conexão</p>
+                            <p style="color: #6c757d; font-size: 0.85rem; margin-top: 5px;">Clique em "Reconectar" para tentar novamente</p>
+                        </div>
+                    ` : `
+                        <div class="qr-placeholder">
+                            <i class="fas fa-qrcode"></i>
+                            <p>Aguardando QR Code...</p>
+                        </div>
+                    `}
+                </div>
+
+                <div class="session-actions">
+                    ${(session.status === 'error' || session.status === 'disconnected' || session.status === 'auth_failure' || (!session.isConnected && session.exists)) ? `
+                    <button class="btn btn-primary" onclick="reconnectSession()">
+                        <i class="fas fa-sync-alt"></i>
+                        Reconectar
+                    </button>
+                    ` : !session.exists || !session.isConnected ? `
+                    <button class="btn btn-primary" onclick="createSession()">
+                        <i class="fas fa-plus"></i>
+                        Criar/Inicializar
+                    </button>
+                    ` : ''}
+                    ${session.isConnected ? `
+                    <button class="btn btn-success" onclick="testSession()">
+                        <i class="fas fa-paper-plane"></i>
+                        Testar
+                    </button>
+                    ` : ''}
+                    <button class="btn btn-info" onclick="loadQRCode(true)">
+                        <i class="fas fa-qrcode"></i>
+                        Ver QR Code
+                    </button>
+                    <button class="btn btn-warning" onclick="resetSession()" ${!session.exists ? 'disabled' : ''}>
+                        <i class="fas fa-redo"></i>
+                        Resetar
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteSession()" ${!session.exists ? 'disabled' : ''}>
+                        <i class="fas fa-trash"></i>
+                        Apagar
+                    </button>
+                </div>
+
+                <div class="logs-section">
+                    <div class="logs-header">
+                        <h3>
+                            <i class="fas fa-terminal"></i>
+                            Logs em Tempo Real
+                        </h3>
+                        <button class="btn-clear-logs" onclick="clearLogs()">
+                            <i class="fas fa-trash"></i> Limpar
+                        </button>
+                    </div>
+                    <div class="logs-container" id="logsContent">
+                        <div class="log-entry info">
+                            <span class="log-timestamp">--:--:--</span>
+                            <span class="log-type info">INFO</span>
+                            <span class="log-message">Aguardando eventos do WhatsApp...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Reconectar sessão
+        async function reconnectSession() {
+            try {
+                showNotification('Reconectando sessão...', 'info');
+                
+                // Primeiro, tentar resetar a sessão para limpar o estado de erro (se existir)
+                if (sessionState && sessionState.exists) {
+                    try {
+                        const resetResponse = await fetch(`${API_BASE}/session/reset`, {
+                            method: 'POST',
+                            headers: getAuthHeaders()
+                        });
+                        
+                        if (!resetResponse.ok) {
+                            console.warn('Aviso ao resetar sessão:', await resetResponse.text());
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    } catch (resetError) {
+                        console.warn('Erro ao resetar (tentando continuar):', resetError);
+                    }
+                }
+                
+                // Criar/inicializar nova sessão
+                const response = await fetch(`${API_BASE}/session`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sessão reconectada! Aguardando QR Code...', 'success');
+                    setTimeout(loadSession, 1000);
+                    
+                    // Carregar QR code automaticamente se disponível
+                    setTimeout(() => {
+                        loadQRCode(false);
+                    }, 2000);
+                    
+                    // Tentar atualizar QR code a cada 3 segundos até conectar (máximo 10 tentativas)
+                    let qrAttempts = 0;
+                    const qrInterval = setInterval(async () => {
+                        qrAttempts++;
+                        if (qrAttempts > 10) {
+                            clearInterval(qrInterval);
+                            return;
+                        }
+                        
+                        await loadSession();
+                        if (sessionState && sessionState.isConnected) {
+                            clearInterval(qrInterval);
+                            showNotification('Sessão conectada com sucesso!', 'success');
+                        } else {
+                            await loadQRCode(false);
+                        }
+                    }, 3000);
+                } else {
+                    let errorMsg = data.message || 'Erro desconhecido';
+                    
+                    if (data.needsPuppeteerInstall || data.error?.includes('Chromium') || data.error?.includes('Puppeteer')) {
+                        errorMsg = '? Chromium não encontrado!\n\n' +
+                            'O Puppeteer precisa do Chromium instalado.\n\n' +
+                            'Execute no terminal:\n' +
+                            'npm install puppeteer';
+                        alert(errorMsg);
+                    }
+                    
+                    showNotification('Erro: ' + errorMsg, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao reconectar sessão:', error);
+                showNotification('Erro ao reconectar sessão. Verifique a conexão e se o servidor WhatsApp está rodando.', 'error');
+            }
+        }
+
+        // Criar/inicializar sessão
+        async function createSession() {
+            try {
+                showNotification('Criando/inicializando sessão...', 'info');
+                
+                const response = await fetch(`${API_BASE}/session`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sessão criada/inicializada com sucesso!', 'success');
+                    // Atualizar imediatamente
+                    await loadSession();
+                    // Tentar carregar QR code após 1 segundo
+                    setTimeout(async () => {
+                        await loadQRCode(false);
+                        // Continuar tentando a cada 2 segundos até conectar ou ter QR (máximo 10 tentativas)
+                        let attempts = 0;
+                        const qrInterval = setInterval(async () => {
+                            attempts++;
+                            if (attempts > 10) {
+                                clearInterval(qrInterval);
+                                return;
+                            }
+                            await loadSession();
+                            if (sessionState && (sessionState.isConnected || sessionState.qrCode)) {
+                                clearInterval(qrInterval);
+                                if (sessionState.qrCode) {
+                                    await loadQRCode(false);
+                                }
+                            } else {
+                                await loadQRCode(false);
+                            }
+                        }, 2000);
+                    }, 1000);
+                } else {
+                    let errorMsg = data.message || 'Erro desconhecido';
+                    
+                    if (data.needsPuppeteerInstall || data.error?.includes('Chromium') || data.error?.includes('Puppeteer')) {
+                        errorMsg = '? Chromium não encontrado!\n\n' +
+                                  'Por favor, execute no terminal:\n\n' +
+                                  'npm install puppeteer\n\n' +
+                                  'Depois reinicie o servidor.';
+                        alert(errorMsg);
+                    }
+                    
+                    showNotification('Erro: ' + errorMsg, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao criar sessão:', error);
+                showNotification('Erro ao criar sessão. Verifique a conexão.', 'error');
+            }
+        }
+
+        // Carregar QR Code
+        async function loadQRCode(isManual = false) {
+            try {
+                const response = await fetch(`${API_BASE}/session/qrcode?sessionId=${currentSessionId}`, {
+                    headers: getAuthHeaders(false)
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.qrCode) {
+                    // Atualizar QR code na interface
+                    const qrSection = document.getElementById('qrSection');
+                    const qrImg = document.getElementById('qrCode');
+                    
+                    if (qrImg) {
+                        qrImg.src = data.qrCode;
+                    } else {
+                        const newImg = document.createElement('img');
+                        newImg.src = data.qrCode;
+                        newImg.className = 'qr-code';
+                        newImg.id = 'qrCode';
+                        qrSection.innerHTML = '';
+                        qrSection.appendChild(newImg);
+                        qrSection.className = 'qr-section waiting';
+                        const p = document.createElement('p');
+                        p.style.marginTop = '15px';
+                        p.style.color = '#856404';
+                        p.style.fontWeight = '600';
+                        p.textContent = 'Escaneie com seu WhatsApp';
+                        qrSection.appendChild(p);
+                    }
+                    
+                    showNotification('QR Code carregado!', 'success');
+                } else if (data.connected) {
+                    showNotification('Sessão já está conectada!', 'info');
+                } else {
+                    showNotification('QR Code ainda não está disponível. Aguarde alguns segundos...', 'warning');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar QR code:', error);
+                showNotification('Erro ao carregar QR code.', 'error');
+            }
+        }
+
+        // Resetar sessão
+        async function resetSession() {
+            if (!confirm('Tem certeza que deseja resetar a sessão WhatsApp?')) {
+                return;
+            }
+
+            try {
+                showNotification('Resetando sessão...', 'warning');
+                
+                const response = await fetch(`${API_BASE}/session/reset`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sessão resetada com sucesso!', 'success');
+                    setTimeout(() => {
+                        loadSession();
+                        loadQRCode(true);
+                    }, 2000);
+                } else {
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao resetar sessão:', error);
+                showNotification('Erro ao resetar sessão.', 'error');
+            }
+        }
+
+        // Testar sessão
+        function testSession() {
+            document.getElementById('testModal').classList.add('show');
+            document.getElementById('testPhoneNumber').focus();
+        }
+
+        // Fechar modal de teste
+        function closeTestModal() {
+            document.getElementById('testModal').classList.remove('show');
+            document.getElementById('testPhoneNumber').value = '';
+        }
+
+        // Enviar mensagem de teste
+        async function sendTestMessage() {
+            const phoneNumber = document.getElementById('testPhoneNumber').value.trim();
+            
+            if (!phoneNumber) {
+                showNotification('Por favor, insira um número de telefone', 'error');
+                return;
+            }
+
+            try {
+                showNotification('Enviando mensagem de teste...', 'info');
+                closeTestModal();
+                
+                const response = await fetch(`${API_BASE}/session/test`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ testPhoneNumber: phoneNumber, sessionId: currentSessionId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Mensagem de teste enviada com sucesso!', 'success');
+                    setTimeout(loadSession, 2000);
+                } else {
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao enviar teste:', error);
+                showNotification('Erro ao enviar mensagem de teste.', 'error');
+            }
+        }
+
+        // Apagar sessão
+        async function deleteSession() {
+            if (!confirm('Tem certeza que deseja APAGAR completamente a sessão WhatsApp? Esta ação não pode ser desfeita!')) {
+                return;
+            }
+
+            try {
+                showNotification('Apagando sessão...', 'warning');
+                
+                const response = await fetch(`${API_BASE}/session?sessionId=${currentSessionId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(false)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sessão apagada com sucesso!', 'success');
+                    setTimeout(loadSession, 1000);
+                } else {
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao apagar sessão:', error);
+                showNotification('Erro ao apagar sessão.', 'error');
+            }
+        }
+
+        // Funções auxiliares
+        function getStatusClass(status) {
+            const statusMap = {
+                'connected': 'connected',
+                'waiting_qr': 'waiting',
+                'authenticated': 'waiting',
+                'disconnected': 'disconnected',
+                'auth_failure': 'disconnected',
+                'error': 'error',
+                'not_created': 'not_created',
+                'not_initialized': 'not_created'
+            };
+            return statusMap[status] || 'not_created';
+        }
+
+        function getStatusIcon(status) {
+            const iconMap = {
+                'connected': 'fa-check-circle',
+                'waiting_qr': 'fa-clock',
+                'authenticated': 'fa-clock',
+                'disconnected': 'fa-times-circle',
+                'auth_failure': 'fa-exclamation-circle',
+                'error': 'fa-exclamation-triangle',
+                'not_created': 'fa-question-circle',
+                'not_initialized': 'fa-question-circle'
+            };
+            return iconMap[status] || 'fa-question-circle';
+        }
+
+        function getStatusText(status) {
+            const textMap = {
+                'connected': 'Conectado',
+                'waiting_qr': 'Aguardando QR',
+                'authenticated': 'Autenticado',
+                'disconnected': 'Desconectado',
+                'auth_failure': 'Falha Auth',
+                'error': 'Erro',
+                'not_created': 'Não Criada',
+                'not_initialized': 'Não Inicializada'
+            };
+            return textMap[status] || 'Desconhecido';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '--';
+            const date = new Date(dateString);
+            return date.toLocaleString('pt-BR');
+        }
+
+        function formatUptime(ms) {
+            if (!ms) return '--';
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days}d ${hours % 24}h`;
+            if (hours > 0) return `${hours}h ${minutes % 60}min`;
+            if (minutes > 0) return `${minutes}min`;
+            return `${seconds}s`;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('testModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTestModal();
+            }
+        });
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTestModal();
+            }
+        });
+
+        // Funções de logs
+        function addLog(type, message) {
+            const time = new Date().toLocaleTimeString('pt-BR');
+            logs.push({
+                time,
+                type,
+                message
+            });
+
+            // Manter apenas os últimos MAX_LOGS
+            if (logs.length > MAX_LOGS) {
+                logs.shift();
+            }
+
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const logsContent = document.getElementById('logsContent');
+            if (!logsContent) return;
+
+            if (logs.length === 0) {
+                logsContent.innerHTML = `
+                    <div class="log-entry info">
+                        <span class="log-timestamp">--:--:--</span>
+                        <span class="log-type info">INFO</span>
+                        <span class="log-message">Nenhum log disponível</span>
+                    </div>
+                `;
+                return;
+            }
+
+            logsContent.innerHTML = logs.map(log => {
+                const logTime = typeof log.time === 'string' ? log.time : new Date(log.timestamp || log.time).toLocaleTimeString('pt-BR');
+                return `
+                    <div class="log-entry">
+                        <span class="log-timestamp">${logTime}</span>
+                        <span class="log-type ${log.type}">${log.type.toUpperCase()}</span>
+                        <span class="log-message">${escapeHtml(log.message)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll para o final
+            logsContent.scrollTop = logsContent.scrollHeight;
+        }
+
+        function clearLogs() {
+            if (confirm('Tem certeza que deseja limpar os logs?')) {
+                logs.length = 0;
+                renderLogs();
+                // Adicionar log local sem buscar do servidor
+                const logEntry = {
+                    time: new Date().toLocaleTimeString('pt-BR'),
+                    type: 'info',
+                    message: 'Logs limpos pelo usuário'
+                };
+                logs.push(logEntry);
+                renderLogs();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Buscar logs do servidor
+        async function fetchLogs() {
+            try {
+                const response = await fetch(`${API_BASE}/session/logs?limit=100&sessionId=${currentSessionId}`, {
+                    headers: getAuthHeaders(false)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.logs) {
+                        // Adicionar apenas logs novos
+                        data.logs.forEach(log => {
+                            const logTime = new Date(log.timestamp).toLocaleTimeString('pt-BR');
+                            const exists = logs.some(l => {
+                                const lTime = typeof l.time === 'string' ? l.time : new Date(l.timestamp || l.time).toLocaleTimeString('pt-BR');
+                                return lTime === logTime && l.message === log.message;
+                            });
+                            if (!exists) {
+                                const logEntry = {
+                                    time: logTime,
+                                    type: log.type || 'info',
+                                    message: log.message,
+                                    timestamp: log.timestamp
+                                };
+                                logs.push(logEntry);
+                                
+                                // Manter apenas os últimos MAX_LOGS
+                                if (logs.length > MAX_LOGS) {
+                                    logs.shift();
+                                }
+                            }
+                        });
+                        renderLogs();
+                    }
+                }
+            } catch (error) {
+                // Silenciar erros de logs
+                console.debug('Erro ao buscar logs:', error);
+            }
+        }
+
+        function startLogsPolling() {
+            // Limpar intervalo anterior se existir
+            if (logsInterval) {
+                clearInterval(logsInterval);
+            }
+            
+            // Buscar logs a cada 5 segundos (reduzido de 2s para melhor performance)
+            logsInterval = setInterval(() => {
+                // Só buscar se a página estiver visível
+                if (!document.hidden) {
+                    fetchLogs();
+                }
+            }, 5000);
+            
+            fetchLogs(); // Buscar imediatamente
+            
+            // Pausar polling quando a página não estiver visível
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // Página não visível - pausar polling
+                    if (logsInterval) {
+                        clearInterval(logsInterval);
+                        logsInterval = null;
+                    }
+                } else {
+                    // Página visível - retomar polling
+                    if (!logsInterval) {
+                        startLogsPolling();
+                    }
+                }
+            });
+        }
+
+        // Adicionar logs locais para eventos
+        function wrapWithLogging(fn, type, message) {
+            return async function(...args) {
+                addLog(type, message);
+                try {
+                    const result = await fn.apply(this, args);
+                    return result;
+                } catch (error) {
+                    addLog('error', `Erro: ${error.message || error}`);
+                    throw error;
+                }
+            };
+        }
+
+        // Adicionar logs aos eventos principais
+        const originalReconnect = reconnectSession;
+        reconnectSession = async function() {
+            addLog('info', 'Iniciando reconexão da sessão...');
+            await originalReconnect();
+        };
+
+        const originalCreate = createSession;
+        createSession = async function() {
+            addLog('info', 'Criando/inicializando sessão...');
+            await originalCreate();
+        };
+
+        const originalTest = sendTestMessage;
+        sendTestMessage = async function() {
+            const phoneNumber = document.getElementById('testPhoneNumber').value.trim();
+            addLog('info', `Enviando mensagem de teste para ${phoneNumber}...`);
+            await originalTest();
+        };
+
+        const originalReset = resetSession;
+        resetSession = async function() {
+            addLog('warning', 'Resetando sessão...');
+            await originalReset();
+        };
+
+        const originalDelete = deleteSession;
+        deleteSession = async function() {
+            addLog('warning', 'Apagando sessão...');
+            await originalDelete();
+        };
+    </script>
+    
+</body>
+</html>

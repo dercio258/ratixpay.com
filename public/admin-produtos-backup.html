@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https: https://static.cloudflareinsights.com; img-src 'self' data: https:; worker-src 'self' blob:;">
+    <title>Gest�o de Produtos - RatixPay Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+        
+<style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .admin-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--info-color);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card.success { border-left-color: var(--success-color); }
+        .stats-card.warning { border-left-color: var(--warning-color); }
+        .stats-card.danger { border-left-color: var(--danger-color); }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .btn-custom {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        /* Galeria de Produtos */
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.05);
+        }
+
+        .product-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 3rem;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-vendor {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--success-color);
+            margin-bottom: 10px;
+        }
+
+        .product-cost {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .product-sales {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--info-color);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .product-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-status.ativo {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .product-status.inativo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn-product {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-product.btn-link {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-product.btn-link:hover {
+            background: #2980b9;
+            color: white;
+        }
+
+        .btn-product.btn-delete {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-product.btn-delete:hover {
+            background: #c0392b;
+            color: white;
+        }
+
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success { background-color: #d4edda; color: #155724; }
+        .status-warning { background-color: #fff3cd; color: #856404; }
+        .status-danger { background-color: #f8d7da; color: #721c24; }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .product-info {
+            max-width: 200px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .product-description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            line-height: 1.3;
+        }
+
+        .vendor-info {
+            font-size: 0.9rem;
+        }
+
+        .vendor-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .vendor-email {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .price-display {
+            font-weight: bold;
+            color: var(--success-color);
+            font-size: 1.1rem;
+        }
+
+        .filter-section {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .card-header {
+            background: var(--light-bg);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+    </style>
+
+    <!-- Sistema de Autentica��o Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+
+    <!-- CSS da sidebar removido -->
+</head>
+<body>
+    
+    <!-- Sidebar removida -->
+
+    <!-- Bot�es de Navega��o -->
+    <div class="back-button">
+        <a href="admin-vendedores.html" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </a>
+        <a href="admin-dashboard.html" class="btn btn-outline-light btn-custom" style="margin-left: 10px;">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </a>
+        </div>
+
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-box"></i>
+                Gest�o de Produtos
+            </h1>
+            <p class="admin-subtitle">Gerencie todos os produtos do sistema</p>
+        </div>
+
+
+        <!-- Bot�es de A��o -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="card-title">
+                    <i class="fas fa-filter"></i>
+                    Filtros e A��es
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="filtroStatus" class="form-label">Status</label>
+                    <select class="form-select" id="filtroStatus">
+                        <option value="">Todos</option>
+                        <option value="ativo">Ativos</option>
+                        <option value="inativo">Inativos</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="filtroVendedor" class="form-label">Vendedor</label>
+                    <select class="form-select" id="filtroVendedor">
+                        <option value="">Todos os Vendedores</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="filtroCategoria" class="form-label">Categoria</label>
+                    <select class="form-select" id="filtroCategoria">
+                        <option value="">Todas as Categorias</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="filtroBusca" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="filtroBusca" placeholder="Nome do produto..." onkeyup="buscarEmTempoReal()">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button class="btn btn-primary btn-custom" onclick="aplicarFiltros()">
+                        <i class="fas fa-search"></i>
+                        Aplicar Filtros
+                    </button>
+                    <button class="btn btn-secondary btn-custom" onclick="limparFiltros()">
+                        <i class="fas fa-times"></i>
+                        Limpar
+                    </button>
+                    <button class="btn btn-success btn-custom" onclick="exportarProdutos()">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Produtos -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="card-title">
+                    <i class="fas fa-box"></i>
+                    Lista de Produtos
+                    <span class="badge bg-primary ms-2" id="contadorProdutos">0</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" id="totalRegistros">0 produtos</span>
+                    <button class="btn btn-primary btn-sm" onclick="carregarDados()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                    <button class="btn btn-info btn-sm" onclick="debugConexao()">
+                        <i class="fas fa-bug"></i> Debug
+                    </button>
+                </div>
+            </div>
+
+                <!-- Tabela de Produtos -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID do Produto</th>
+                        <th>Nome do Produto</th>
+                        <th>Nome do Vendedor</th>
+                        <th>Pre�o</th>
+                        <th>A��es</th>
+                    </tr>
+                </thead>
+                        <tbody id="tabelaProdutos">
+                    <!-- Produtos ser�o carregados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="loadingProdutos" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando produtos...</span>
+                    </div>
+                    <p class="mt-3">Carregando produtos...</p>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="emptyProdutos" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhum produto encontrado</h5>
+                    <p class="text-muted">N�o h� produtos para exibir no momento.</p>
+                </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Produto -->
+    <div class="modal fade" id="modalDetalhesProduto" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="conteudoModalProduto">
+                    <!-- Conte�do ser� carregado dinamicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-warning" onclick="editarProduto()">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="excluirProduto()">
+                        <i class="fas fa-trash me-1"></i>Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <script>
+        let produtos = [];
+        let vendedores = [];
+        let produtoSelecionado = null;
+
+        // Verificar autentica��o
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+            console.log('?? Token encontrado:', token ? 'Sim' : 'N�o');
+            console.log('?? Token length:', token ? token.length : 0);
+            console.log('?? Token preview:', token ? token.substring(0, 20) + '...' : 'N/A');
+            
+            if (!token) {
+                console.log('? Nenhum token encontrado, redirecionando para login');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            carregarDados();
+        });
+
+        async function carregarDados() {
+            try {
+                const loading = document.getElementById('loadingProdutos');
+                const empty = document.getElementById('emptyProdutos');
+                
+                if (loading) loading.style.display = 'block';
+                if (empty) empty.style.display = 'none';
+                
+                await carregarProdutos();
+                mostrarNotificacao('Produtos carregados com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                mostrarNotificacao('Erro ao carregar dados', 'error');
+            }
+        }
+
+        // Fun��o removida - cards de estat�sticas foram removidos
+        // async function carregarEstatisticas() { ... }
+
+        // Fun��o removida - cards de estat�sticas foram removidos
+        // function calcularEstatisticasLocais() { ... }
+
+        async function carregarProdutos() {
+            try {
+                console.log('?? Carregando produtos...');
+                
+                const response = await fetch('/api/produtos/public', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    produtos = data.data || [];
+                    console.log(`? ${produtos.length} produtos carregados`);
+                    renderizarTabelaProdutos();
+                } else {
+                    console.error('? Erro ao carregar produtos:', response.status);
+                    produtos = [];
+                    renderizarTabelaProdutos();
+                }
+            } catch (error) {
+                console.error('? Erro ao carregar produtos:', error);
+                produtos = [];
+                renderizarTabelaProdutos();
+            }
+        }
+
+
+
+
+
+        function renderizarTabelaProdutos() {
+            const tabela = document.getElementById('tabelaProdutos');
+            const loading = document.getElementById('loadingProdutos');
+            const empty = document.getElementById('emptyProdutos');
+            
+            // Esconder loading
+            if (loading) loading.style.display = 'none';
+            
+            if (!Array.isArray(produtos) || produtos.length === 0) {
+                if (tabela) tabela.innerHTML = '';
+                if (empty) empty.style.display = 'block';
+                return;
+            }
+            
+            // Esconder empty state
+            if (empty) empty.style.display = 'none';
+
+            // Renderizar produtos na tabela
+            if (tabela) {
+                tabela.innerHTML = produtos.map(produto => {
+                    const vendedorNome = produto.vendedorProduto?.nome_completo || 'Vendedor n�o encontrado';
+                    const precoFormatado = `MZN ${parseFloat(produto.preco || 0).toFixed(2)}`;
+                    const customId = produto.custom_id || produto.id || 'N/A';
+                    const produtoNome = produto.nome || 'Produto sem nome';
+                    
+                    return `
+                        <tr>
+                            <td><code>${customId}</code></td>
+                            <td><strong>${produtoNome}</strong></td>
+                            <td><strong>${vendedorNome}</strong></td>
+                            <td><strong class="text-primary">${precoFormatado}</strong></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="excluirProduto(${produto.id})" title="Apagar produto">
+                                    <i class="fas fa-trash"></i> Apagar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function verDetalhesProduto(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            produtoSelecionado = produto;
+
+            const modalContent = `
+                <div class="row">
+                    <div class="col-md-4">
+                        ${produto.imagem_url ? 
+                            `<img src="${produto.imagem_url}" alt="${produto.nome}" class="img-fluid rounded mb-3">` :
+                            '<div class="bg-light p-5 text-center rounded mb-3"><i class="fas fa-image fa-3x text-muted"></i></div>'
+                        }
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estat�sticas</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Total de Vendas:</span>
+                                    <strong class="text-success">${produto.total_vendas || 0}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Receita Total:</span>
+                                    <strong class="text-primary">MZN ${((produto.total_vendas || 0) * parseFloat(produto.preco || 0)).toFixed(2)}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Status:</span>
+                                    <span class="badge ${produto.ativo ? 'bg-success' : 'bg-danger'}">
+                                        ${produto.ativo ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${produto.nome}</h4>
+                        <p class="text-muted">${produto.descricao || 'Sem descri��o'}</p>
+                        
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary"><i class="fas fa-tag me-2"></i>Pre�o</h6>
+                                        <h4 class="text-primary">MZN ${parseFloat(produto.preco || 0).toFixed(2)}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info"><i class="fas fa-user me-2"></i>Vendedor</h6>
+                                        <p class="mb-1"><strong>${produto.vendedor?.nome_completo || 'N/A'}</strong></p>
+                                        <small class="text-muted">${produto.vendedor?.email || 'N/A'}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="card border-secondary">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-secondary"><i class="fas fa-calendar me-2"></i>Data de Cria��o</h6>
+                                        <p class="mb-0">${new Date(produto.created_at).toLocaleDateString('pt-PT')}</p>
+                                        <small class="text-muted">${new Date(produto.created_at).toLocaleTimeString('pt-PT')}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-warning">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-warning"><i class="fas fa-edit me-2"></i>�ltima Atualiza��o</h6>
+                                        <p class="mb-0">${new Date(produto.updated_at).toLocaleDateString('pt-PT')}</p>
+                                        <small class="text-muted">${new Date(produto.updated_at).toLocaleTimeString('pt-PT')}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${produto.categoria ? `
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-success"><i class="fas fa-folder me-2"></i>Categoria</h6>
+                                        <span class="badge bg-success">${produto.categoria}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${produto.imagem_url ? `
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info"><i class="fas fa-link me-2"></i>Link da Imagem</h6>
+                                        <a href="${produto.imagem_url}" target="_blank" class="text-break">${produto.imagem_url}</a>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('conteudoModalProduto').innerHTML = modalContent;
+            new bootstrap.Modal(document.getElementById('modalDetalhesProduto')).show();
+        }
+
+        function editarProduto(produtoId) {
+            // Implementar edi��o de produto
+            mostrarNotificacao('Funcionalidade de edi��o em desenvolvimento', 'info');
+        }
+
+        async function alternarStatusProduto(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            const novoStatus = !produto.ativo;
+            const acao = novoStatus ? 'ativar' : 'desativar';
+            
+            const confirmacao = confirm(`Tem certeza que deseja ${acao} o produto "${produto.nome}"?`);
+            if (!confirmacao) return;
+
+            try {
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                const response = await fetch(`/api/admin/produtos/${produtoId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ativo: novoStatus })
+                });
+
+                if (response.ok) {
+                    // Atualizar produto na lista local
+                    produto.ativo = novoStatus;
+                    renderizarTabelaProdutos();
+                    // calcularEstatisticasLocais(); // Removido - cards de estat�sticas n�o existem mais
+                    mostrarNotificacao(`Produto ${acao}do com sucesso!`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Erro ao ${acao} produto`);
+                }
+            } catch (error) {
+                console.error(`Erro ao ${acao} produto:`, error);
+                mostrarNotificacao(`Erro ao ${acao} produto: ${error.message}`, 'error');
+            }
+        }
+
+        async function excluirProduto(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            const confirmacao = confirm(`Tem certeza que deseja excluir o produto "${produto.nome}"?\n\nEsta a��o n�o pode ser desfeita.`);
+            if (!confirmacao) return;
+
+            try {
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                const response = await fetch(`/api/admin/produtos/${produtoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    mostrarNotificacao('Produto exclu�do com sucesso!', 'success');
+                    // Remover produto da lista local
+                    produtos = produtos.filter(p => p.id !== produtoId);
+                    renderizarTabelaProdutos();
+                    // calcularEstatisticasLocais(); // Removido - cards de estat�sticas n�o existem mais
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao excluir produto');
+                }
+            } catch (error) {
+                console.error('Erro ao excluir produto:', error);
+                mostrarNotificacao(`Erro ao excluir produto: ${error.message}`, 'error');
+            }
+        }
+
+        // Fun��o de filtro otimizada
+        function aplicarFiltros() {
+            const statusFiltro = document.getElementById('filtroStatus').value;
+            const vendedorFiltro = document.getElementById('filtroVendedor').value;
+            const categoriaFiltro = document.getElementById('filtroCategoria').value;
+            const buscaFiltro = document.getElementById('filtroBusca').value.toLowerCase().trim();
+
+            // Filtro otimizado - uma �nica passada pelos produtos
+            const produtosFiltrados = produtos.filter(produto => {
+                // Filtro por status
+                if (statusFiltro) {
+                    if (statusFiltro === 'ativo' && !produto.ativo) return false;
+                    if (statusFiltro === 'inativo' && produto.ativo) return false;
+                }
+
+                // Filtro por vendedor
+                if (vendedorFiltro && produto.vendedor_id !== vendedorFiltro) {
+                    return false;
+                }
+
+                // Filtro por categoria
+                if (categoriaFiltro && (!produto.categoria || !produto.categoria.toLowerCase().includes(categoriaFiltro.toLowerCase()))) {
+                    return false;
+                }
+
+                // Filtro por busca (nome ou descri��o)
+                if (buscaFiltro) {
+                    const matchNome = produto.nome && produto.nome.toLowerCase().includes(buscaFiltro);
+                    const matchDescricao = produto.descricao && produto.descricao.toLowerCase().includes(buscaFiltro);
+                    if (!matchNome && !matchDescricao) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Renderizar produtos filtrados
+            renderizarTabelaProdutos(produtosFiltrados);
+            
+            // Mostrar quantidade de resultados
+            const totalResultados = produtosFiltrados.length;
+            mostrarNotificacao(`${totalResultados} produto(s) encontrado(s)`, 'info');
+        }
+
+        function limparFiltros() {
+            document.getElementById('filtroStatus').value = '';
+            document.getElementById('filtroVendedor').value = '';
+            document.getElementById('filtroCategoria').value = '';
+            document.getElementById('filtroBusca').value = '';
+            renderizarTabelaProdutos();
+            mostrarNotificacao('Filtros limpos', 'info');
+        }
+
+        // Busca em tempo real otimizada com debounce
+        let searchTimeout;
+        function buscarEmTempoReal() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const termoBusca = document.getElementById('filtroBusca').value.toLowerCase().trim();
+                
+                if (termoBusca.length === 0) {
+                    renderizarTabelaProdutos();
+                    return;
+                }
+                
+                if (termoBusca.length < 2) return; // S� busca com pelo menos 2 caracteres
+                
+                // Busca otimizada - uma �nica passada
+                const produtosFiltrados = produtos.filter(produto => {
+                    const matchNome = produto.nome && produto.nome.toLowerCase().includes(termoBusca);
+                    const matchDescricao = produto.descricao && produto.descricao.toLowerCase().includes(termoBusca);
+                    const matchVendedor = produto.vendedor?.nome_completo && produto.vendedor.nome_completo.toLowerCase().includes(termoBusca);
+                    
+                    return matchNome || matchDescricao || matchVendedor;
+                });
+                
+                renderizarTabelaProdutos(produtosFiltrados);
+            }, 300); // Debounce de 300ms
+        }
+
+        function exportarProdutos() {
+            try {
+                // Preparar dados para exporta��o
+                const dadosExportacao = produtos.map(produto => ({
+                    'Nome': produto.nome,
+                    'Descri��o': produto.descricao || '',
+                    'Pre�o': `MZN ${parseFloat(produto.preco || 0).toFixed(2)}`,
+                    'Vendedor': produto.vendedor?.nome_completo || 'N/A',
+                    'Email Vendedor': produto.vendedor?.email || 'N/A',
+                    'Status': produto.ativo ? 'Ativo' : 'Inativo',
+                    'Total Vendas': produto.total_vendas || 0,
+                    'Data Cria��o': new Date(produto.created_at).toLocaleDateString('pt-PT'),
+                    '�ltima Atualiza��o': new Date(produto.updated_at).toLocaleDateString('pt-PT'),
+                    'Categoria': produto.categoria || '',
+                    'Link Imagem': produto.imagem_url || ''
+                }));
+
+                // Converter para CSV
+                const csv = converterParaCSV(dadosExportacao);
+                
+                // Download do arquivo
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `produtos_ratixpay_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                mostrarNotificacao('Produtos exportados com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao exportar produtos:', error);
+                mostrarNotificacao('Erro ao exportar produtos', 'error');
+            }
+        }
+
+        function converterParaCSV(dados) {
+            if (dados.length === 0) return '';
+            
+            const headers = Object.keys(dados[0]);
+            const csvHeaders = headers.join(',');
+            
+            const csvRows = dados.map(linha => 
+                headers.map(header => {
+                    const valor = linha[header];
+                    // Escapar aspas e v�rgulas
+                    if (typeof valor === 'string' && (valor.includes(',') || valor.includes('"') || valor.includes('\n'))) {
+                        return `"${valor.replace(/"/g, '""')}"`;
+                    }
+                    return valor;
+                }).join(',')
+            );
+            
+            return [csvHeaders, ...csvRows].join('\n');
+        }
+
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            // Criar elemento de notifica��o
+            const notificacao = document.createElement('div');
+            notificacao.className = `alert alert-${tipo === 'error' ? 'danger' : tipo === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notificacao.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notificacao.innerHTML = `
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notificacao);
+            
+            // Remover automaticamente ap�s 5 segundos
+            setTimeout(() => {
+                if (notificacao.parentNode) {
+                    notificacao.remove();
+                }
+            }, 5000);
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+    
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h3>RatixPay</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="/criar-produto.html" class="nav-link"><i class="fas fa-plus"></i> Criar Produto</a></li>
+                    <li><a href="/marketing-avancado.html" class="nav-link"><i class="fas fa-chart-line"></i> Marketing</a></li>
+                    <li><a href="/checkout.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Checkout</a></li>
+                    <li><a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-cog"></i> Admin</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2024 RatixPay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de sidebar removido -->
+    
+</body>
+</html>
+
+

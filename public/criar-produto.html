@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+<title>RatixPay - Criar Produto</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+        
+<style>
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .create-container {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-container {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .create-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .create-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .create-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .image-section {
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            background: #e55a2b;
+        }
+
+        /* Estilos para área de upload de arquivo */
+        .file-upload-area {
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff6b35;
+            background: #fff5f2;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #ff6b35;
+            background: #fff5f2;
+            transform: scale(1.02);
+        }
+
+        .file-upload-area i {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-area p {
+            margin: 10px 0;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .file-upload-area small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .file-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            font-size: 24px;
+            color: #6c757d;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        /* Estilos para sincronização */
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #28a745;
+            margin-top: 5px;
+        }
+
+        .sync-indicator.disabled {
+            color: #dc3545;
+        }
+
+        .sync-indicator i {
+            font-size: 14px;
+        }
+
+        .form-group.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .form-group.disabled input,
+        .form-group.disabled .file-upload-area {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+        }
+
+        .form-help {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+        
+        .create-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .btn-create {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-create:hover {
+            background: #e55a2b;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: #545b62;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading i {
+            font-size: 24px;
+            color: #ff6b35;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Estilos para seção de afiliados */
+        .affiliate-section {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .affiliate-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .affiliate-section h4 {
+            color: #495057;
+            margin: 20px 0 15px 0;
+            font-size: 16px;
+        }
+
+        .tier-levels {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tier-level {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .tier-level label {
+            min-width: 150px;
+            font-weight: 600;
+            color: #495057;
+            margin: 0;
+        }
+
+        .tier-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .tier-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Modal de Processamento */
+        .processing-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .processing-modal.active {
+            display: flex;
+        }
+
+        .processing-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .processing-step {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 10px 0;
+            min-height: 28px;
+        }
+
+        .processing-step.active {
+            color: #ff6b35;
+        }
+
+        .processing-step.completed {
+            color: #28a745;
+        }
+
+        .processing-step.completed::before {
+            content: "? ";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        /* Notificação de campo obrigatório */
+        .field-error {
+            border: 2px solid #dc3545 !important;
+            background-color: #fff5f5 !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .field-error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Seções de Configurações Avançadas */
+        .advanced-configurations {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .config-section:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .config-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s ease;
+        }
+
+        .config-section-header:hover {
+            background: #f8f9fa;
+        }
+
+        .config-section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .config-section-title input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .config-section-title label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-section-title label i {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .config-arrow {
+            color: #6c757d;
+            transition: transform 0.3s ease;
+            font-size: 14px;
+        }
+
+        .config-section.active .config-arrow {
+            transform: rotate(180deg);
+        }
+
+        .config-section-content {
+            padding: 20px;
+            background: white;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .config-section.active .config-section-content {
+            display: block;
+        }
+
+        /* Estilo especial para seção de Black Friday */
+        #blackFridaySection {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        #blackFridaySection .form-group label {
+            color: white;
+        }
+
+        #blackFridaySection .form-group input,
+        #blackFridaySection .form-group select {
+            background: #333;
+            color: white;
+            border-color: #555;
+        }
+
+        #blackFridaySection .form-group input:focus,
+        #blackFridaySection .form-group select:focus {
+            border-color: #ff6b35;
+            background: #444;
+        }
+
+        /* Estilo para seção de timer */
+        #timerSection {
+            background: #fffbf0;
+        }
+
+        #timerSection .form-group label {
+            color: #856404;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+            }
+        }
+
+        /* Seção de Desconto Simples */
+        .discount-section {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .local-save-indicator {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #bbdefb;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .local-save-indicator i {
+            margin-right: 6px;
+            color: #1976d2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .discount-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .discount-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .discount-options {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .discount-options.active {
+            display: block;
+        }
+
+
+
+        /* Preview styles */
+        .preview-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .preview-header h3 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .preview-product {
+            text-align: center;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 0 auto 15px auto;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .preview-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            min-height: 1.5rem;
+        }
+
+        .preview-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ff6b35;
+            margin-bottom: 15px;
+        }
+
+        .preview-placeholder {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .preview-container {
+                position: relative;
+                order: -1;
+            }
+        }
+    </style>
+
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="create-container">
+                <div class="create-header">
+                    <h1><i class="fas fa-plus"></i> Criar Produto</h1>
+                    <p>Preencha as informações do produto abaixo</p>
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+                
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Processando produto...</p>
+                </div>
+                
+                <!-- Modal de Processamento -->
+                <div class="processing-modal" id="processingModal">
+                    <div class="processing-content">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-step" id="processingStep">Verificando informações...</div>
+                    </div>
+                </div>
+                
+                <form id="createProductForm">
+                    <!-- Campos ocultos para configurações -->
+                    <input type="hidden" id="discountConfig" name="discount_config">
+                    <input type="hidden" id="timerConfig" name="timer_config">
+                    <input type="hidden" id="blackFridayConfig" name="blackfriday_config">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productType">Tipo de Produto:</label>
+                            <select id="productType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="curso">?? Curso Online</option>
+                                <option value="ebook">?? eBook</option>
+                                <option value="digital">?? Produto Digital</option>
+                                <option value="servico">?? Serviço</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Categoria:</label>
+                            <select id="productCategory" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="programacao">Programação</option>
+                                <option value="financeiro">Financeiro</option>
+                                <option value="idiomas">Idiomas</option>
+                                <option value="saude">Saúde</option>
+                                <option value="educacao">Educação</option>
+                                <option value="negocios">Negócios</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productName">Nome do Produto:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Descrição:</label>
+                        <textarea id="productDescription" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Preço (MZN):</label>
+                            <input type="number" id="productPrice" step="0.01" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="finalPrice">Preço Final:</label>
+                            <input type="text" id="finalPrice" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="marketPlace">
+                            <label for="marketPlace">Disponível no Marketplace</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="orderBumpAtivo">
+                            <label for="orderBumpAtivo">Ativar Order Bump para este produto</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="orderBumpProdutosGroup" style="display:none;">
+                        <label>Produtos Complementares (selecione até 3)</label>
+                        <small style="display:block;color:#6c757d;margin-bottom:6px;">Serão exibidos no checkout deste produto</small>
+                        <div id="orderBumpProdutosContainer" class="checkbox-group" style="max-height:180px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;padding:10px;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Imagem do Produto:</label>
+                        <div class="image-section">
+                            <div id="currentImage">
+                                <img id="imagePreview" class="image-preview" style="display: none;">
+                                <p id="noImageText">Nenhuma imagem carregada</p>
+                            </div>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+                                <i class="fas fa-upload"></i> Upload de Imagem
+                            </button>
+                            <p style="margin-top: 10px; color: #6c757d; font-size: 12px;">
+                                Ou cole a URL da imagem abaixo:
+                            </p>
+                            <input type="url" id="imageUrl" placeholder="https://exemplo.com/imagem.jpg" style="margin-top: 10px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="linkGroup">
+                        <label for="contentUrl">Link do Conteúdo:</label>
+                        <input type="url" id="contentUrl" placeholder="https://exemplo.com/conteudo">
+                        <small class="form-help">Insira um link para o conteúdo do produto</small>
+                        <div class="sync-indicator" id="linkSyncIndicator">
+                            <i class="fas fa-link"></i>
+                            <span>Link ativo</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="uploadGroup">
+                        <label>Arquivo do Conteúdo:</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arraste um arquivo aqui ou clique para selecionar</p>
+                            <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (máx. 150MB)</small>
+                        </div>
+                        <input type="file" id="contentFile" style="display: none;" accept="*/*">
+                        
+                        <div class="file-preview" id="filePreview">
+                            <div class="file-info">
+                                <div class="file-details">
+                                    <i class="fas fa-file file-icon" id="fileIcon"></i>
+                                    <div>
+                                        <div class="file-name" id="fileName"></div>
+                                        <div class="file-size" id="fileSize"></div>
+                                    </div>
+                                </div>
+                                <button class="remove-file" onclick="removeFile()">Remover</button>
+                            </div>
+                        </div>
+                        <small class="form-help">Faça upload de um arquivo ou use o link acima</small>
+                        <div class="sync-indicator" id="uploadSyncIndicator">
+                            <i class="fas fa-upload"></i>
+                            <span>Upload ativo</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Container -->
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Preview do Produto</h3>
+                </div>
+                
+                <div class="preview-product">
+                    <div class="preview-image" id="previewImage">
+                        <span class="preview-placeholder">Nenhuma imagem selecionada</span>
+                    </div>
+                    
+                    <div class="preview-name" id="previewName">
+                        <span class="preview-placeholder">Nome do produto</span>
+                    </div>
+                    
+                    <div class="preview-price" id="previewPrice">
+                        <span class="preview-placeholder">Preço</span>
+                    </div>
+                </div>
+                
+                <div class="create-actions">
+                    <button type="button" class="btn-cancel" onclick="window.location.href='gestao-produtos.html'">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn-create" onclick="submitFormWithConfigurations()">
+                        <i class="fas fa-plus"></i> Criar Produto
+                    </button>
+                </div>
+
+                <!-- Seções de Configurações Avançadas -->
+                <div class="advanced-configurations">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
+                        <i class="fas fa-cog"></i> Configurações Avançadas
+                    </h3>
+
+                    <!-- Seção de Desconto Simples -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('discountSection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="enableDiscount" onclick="event.stopPropagation(); toggleConfigSection('discountSection')">
+                                <label for="enableDiscount">
+                                    <i class="fas fa-percentage"></i> Desconto Simples
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="discountSectionArrow"></i>
+                        </div>
+                        <div class="config-section-content" id="discountSection" style="display: none;">
+                            <div id="localSaveIndicator" class="local-save-indicator" style="display: none;">
+                                <i class="fas fa-save"></i> Configurações salvas localmente
+                            </div>
+                            
+                            <div class="form-row">
+                    <div class="form-group">
+                                    <label for="discountType">Tipo de Desconto:</label>
+                                    <select id="discountType">
+                                        <option value="percentage">Percentual (%)</option>
+                                        <option value="fixed">Valor Fixo (MZN)</option>
+                                    </select>
+                        </div>
+                                
+                                <div class="form-group">
+                                    <label for="discountValue">Valor do Desconto:</label>
+                                    <input type="number" id="discountValue" step="0.01" min="0">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Seção de Temporizador de Urgência -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('timerSection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="enableTimer" onclick="event.stopPropagation(); toggleConfigSection('timerSection')">
+                                <label for="enableTimer">
+                                    <i class="fas fa-clock"></i> Temporizador de Urgência
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="timerSectionArrow"></i>
+                        </div>
+                        <div class="config-section-content" id="timerSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="timerDuration">Duração (minutos):</label>
+                                <select id="timerDuration">
+                                    <option value="0">Selecione a duração</option>
+                                    <option value="5">5 minutos</option>
+                                    <option value="10">10 minutos</option>
+                                    <option value="15">15 minutos</option>
+                                    <option value="30">30 minutos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Black Friday -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('blackFridaySection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="enableBlackFriday" onclick="event.stopPropagation(); toggleConfigSection('blackFridaySection')">
+                                <label for="enableBlackFriday">
+                                    <i class="fas fa-fire"></i> Black Friday
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="blackFridaySectionArrow"></i>
+                        </div>
+                        <div class="config-section-content" id="blackFridaySection" style="display: none;">
+                            <div class="form-group">
+                                <label for="blackFridayDiscount">Desconto Black Friday (%):</label>
+                                <input type="number" id="blackFridayDiscount" min="0" max="90" placeholder="Digite o desconto" onchange="updateBlackFridayPreview()">
+                            </div>
+                            
+                            <div class="blackfriday-preview" id="blackFridayPreview" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center;">
+                                <div style="background: #ff6b35; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: inline-block;" id="blackFridayBadge">-0%</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
+                                    <div style="text-decoration: line-through; color: rgba(255,255,255,0.7);" id="blackFridayOriginal">0,00 MZN</div>
+                                    <div style="color: #ffd700; font-weight: bold; font-size: 18px;" id="blackFridayDiscounted">0,00 MZN</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Configuração de Afiliados -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('affiliateSection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="permitirAfiliados" onclick="event.stopPropagation(); toggleAffiliateSettings()">
+                                <label for="permitirAfiliados">
+                                    <i class="fas fa-handshake"></i> Configuração de Afiliados
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="affiliateSectionArrow"></i>
+                        </div>
+                        <div class="config-section-content" id="affiliateSection" style="display: none;">
+                            <div class="form-group">
+                        <small class="form-help">Ative para permitir que afiliados promovam este produto</small>
+                    </div>
+
+                    <div id="affiliateSettings" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="comissaoAfiliados">Comissão dos Afiliados (%):</label>
+                                <input type="number" id="comissaoAfiliados" min="0" max="50" step="0.1" placeholder="Ex: 15.0">
+                                <small class="form-help">Percentual de comissão para afiliados (0-50%)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="comissaoMinima">Comissão Mínima (MZN):</label>
+                                <input type="number" id="comissaoMinima" min="0" step="0.01" placeholder="Ex: 5.00">
+                                <small class="form-help">Valor mínimo de comissão por venda</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipoComissao">Tipo de Comissão:</label>
+                            <select id="tipoComissao">
+                                <option value="percentual">Percentual (%)</option>
+                                <option value="fixo">Valor Fixo (MZN)</option>
+                                <option value="tier">Sistema de Níveis</option>
+                            </select>
+                            <small class="form-help">Escolha como a comissão será calculada</small>
+                        </div>
+
+                        <div id="tierSettings" style="display: none;">
+                            <h4>Configuração de Níveis de Comissão</h4>
+                            <div class="tier-levels">
+                                <div class="tier-level">
+                                    <label>Nível 1 (1-10 vendas):</label>
+                                    <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+                                </div>
+                                <div class="tier-level">
+                                    <label>Nível 2 (11-50 vendas):</label>
+                                    <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+                                </div>
+                                <div class="tier-level">
+                                    <label>Nível 3 (50+ vendas):</label>
+                                    <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/server-check.js"></script>
+    <!-- Temporariamente comentado para evitar conflito
+    <script src="js/criar-produto.js"></script>
+    -->
+    
+    <script>
+        // Sincronização entre Link e Upload
+        let syncState = {
+            linkActive: false,
+            uploadActive: false,
+            uploadInProgress: false
+        };
+
+        function initializeSync() {
+            const contentUrl = document.getElementById('contentUrl');
+            const contentFile = document.getElementById('contentFile');
+            const linkGroup = document.getElementById('linkGroup');
+            const uploadGroup = document.getElementById('uploadGroup');
+            const linkSyncIndicator = document.getElementById('linkSyncIndicator');
+            const uploadSyncIndicator = document.getElementById('uploadSyncIndicator');
+
+            // Event listener para mudanças no link
+            contentUrl.addEventListener('input', function() {
+                // Não resetar se há upload em andamento
+                if (syncState.uploadInProgress) {
+                    console.log('?? Upload em andamento, ignorando reset do link');
+                    return;
+                }
+                
+                if (this.value.trim() !== '') {
+                    activateLinkMode();
+                } else {
+                    resetSync();
+                }
+            });
+
+            // Event listener para mudanças no upload
+            contentFile.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    syncState.uploadInProgress = true;
+                    activateUploadMode();
+                } else {
+                    syncState.uploadInProgress = false;
+                    resetSync();
+                }
+            });
+
+            function activateLinkMode() {
+                syncState.linkActive = true;
+                syncState.uploadActive = false;
+                
+                // Desabilitar upload
+                uploadGroup.classList.add('disabled');
+                uploadSyncIndicator.classList.add('disabled');
+                uploadSyncIndicator.innerHTML = '<i class="fas fa-ban"></i><span>Desabilitado (Link ativo)</span>';
+                
+                // Ativar link
+                linkSyncIndicator.classList.remove('disabled');
+                linkSyncIndicator.innerHTML = '<i class="fas fa-link"></i><span>Link ativo</span>';
+                
+                console.log('?? Modo Link ativado');
+            }
+
+            function activateUploadMode() {
+                syncState.linkActive = false;
+                syncState.uploadActive = true;
+                
+                // Desabilitar link
+                linkGroup.classList.add('disabled');
+                linkSyncIndicator.classList.add('disabled');
+                linkSyncIndicator.innerHTML = '<i class="fas fa-ban"></i><span>Desabilitado (Upload ativo)</span>';
+                
+                // Ativar upload
+                uploadSyncIndicator.classList.remove('disabled');
+                uploadSyncIndicator.innerHTML = '<i class="fas fa-upload"></i><span>Upload ativo</span>';
+                
+                console.log('?? Modo Upload ativado');
+            }
+
+            function resetSync() {
+                // Não resetar se há upload em andamento
+                if (syncState.uploadInProgress) {
+                    console.log('?? Upload em andamento, não resetando sincronização');
+                    return;
+                }
+                
+                syncState.linkActive = false;
+                syncState.uploadActive = false;
+                
+                // Reabilitar ambos
+                linkGroup.classList.remove('disabled');
+                uploadGroup.classList.remove('disabled');
+                
+                // Reset indicadores
+                linkSyncIndicator.classList.remove('disabled');
+                linkSyncIndicator.innerHTML = '<i class="fas fa-link"></i><span>Link ativo</span>';
+                
+                uploadSyncIndicator.classList.remove('disabled');
+                uploadSyncIndicator.innerHTML = '<i class="fas fa-upload"></i><span>Upload ativo</span>';
+                
+                console.log('?? Sincronização resetada');
+            }
+
+            // Função para detectar quando o upload foi concluído
+            function checkUploadCompletion() {
+                if (syncState.uploadInProgress && contentUrl.value.trim() !== '') {
+                    console.log('? Upload concluído, link preenchido:', contentUrl.value);
+                    syncState.uploadInProgress = false;
+                    
+                    // Atualizar indicador do link para mostrar que foi preenchido automaticamente
+                    linkSyncIndicator.innerHTML = '<i class="fas fa-check"></i><span>Link gerado automaticamente</span>';
+                    linkSyncIndicator.style.color = '#28a745';
+                }
+            }
+
+            // Verificar periodicamente se o upload foi concluído
+            setInterval(checkUploadCompletion, 500);
+        }
+
+        // Inicializar sincronização quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSync();
+        });
+
+        // Função para expandir/colapsar seções de configuração
+        function toggleConfigSection(sectionId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            const section = document.getElementById(sectionId);
+            const checkbox = document.getElementById(
+                sectionId === 'discountSection' ? 'enableDiscount' :
+                sectionId === 'timerSection' ? 'enableTimer' :
+                sectionId === 'blackFridaySection' ? 'enableBlackFriday' : null
+            );
+            const arrow = document.getElementById(sectionId + 'Arrow');
+            const configSection = section ? section.closest('.config-section') : null;
+            
+            if (!section || !configSection) return;
+            
+            // Toggle da seção baseado no estado atual
+            const isActive = configSection.classList.contains('active');
+            
+            if (isActive) {
+                // Desativando
+                configSection.classList.remove('active');
+                section.style.display = 'none';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+                if (checkbox) checkbox.checked = false;
+            } else {
+                // Ativando - verificar conflitos
+                // Se está ativando Desconto, desativar Black Friday
+                if (sectionId === 'discountSection') {
+                    deactivateBlackFriday();
+                }
+                // Se está ativando Black Friday, desativar Desconto
+                if (sectionId === 'blackFridaySection') {
+                    deactivateDiscount();
+                }
+                
+                configSection.classList.add('active');
+                section.style.display = 'block';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+                if (checkbox) checkbox.checked = true;
+                
+                // Atualizar previews após ativar
+                if (sectionId === 'blackFridaySection') {
+                    setTimeout(() => updateBlackFridayPreview(), 100);
+                }
+            }
+        }
+        
+        // Função para desativar Black Friday
+        function deactivateBlackFriday() {
+            const blackFridayCheckbox = document.getElementById('enableBlackFriday');
+            const blackFridaySection = document.getElementById('blackFridaySection');
+            const blackFridayArrow = document.getElementById('blackFridaySectionArrow');
+            const blackFridayConfigSection = blackFridaySection ? blackFridaySection.closest('.config-section') : null;
+            
+            if (blackFridayConfigSection && blackFridayConfigSection.classList.contains('active')) {
+                blackFridayConfigSection.classList.remove('active');
+                blackFridaySection.style.display = 'none';
+                if (blackFridayArrow) blackFridayArrow.style.transform = 'rotate(0deg)';
+                if (blackFridayCheckbox) blackFridayCheckbox.checked = false;
+                
+                // Limpar valor do desconto Black Friday
+                const blackFridayDiscount = document.getElementById('blackFridayDiscount');
+                if (blackFridayDiscount) blackFridayDiscount.value = '';
+            }
+        }
+        
+        // Função para desativar Desconto Simples
+        function deactivateDiscount() {
+            const discountCheckbox = document.getElementById('enableDiscount');
+            const discountSection = document.getElementById('discountSection');
+            const discountArrow = document.getElementById('discountSectionArrow');
+            const discountConfigSection = discountSection ? discountSection.closest('.config-section') : null;
+            
+            if (discountConfigSection && discountConfigSection.classList.contains('active')) {
+                discountConfigSection.classList.remove('active');
+                discountSection.style.display = 'none';
+                if (discountArrow) discountArrow.style.transform = 'rotate(0deg)';
+                if (discountCheckbox) discountCheckbox.checked = false;
+                
+                // Limpar valores do desconto
+                const discountValue = document.getElementById('discountValue');
+                const discountType = document.getElementById('discountType');
+                if (discountValue) discountValue.value = '';
+                if (discountType) discountType.value = 'percentage';
+            }
+        }
+
+        // Funções para controle da seção de afiliados
+        function toggleAffiliateSettings() {
+            const permitirAfiliados = document.getElementById('permitirAfiliados');
+            const affiliateSection = document.getElementById('affiliateSection');
+            const affiliateSettings = document.getElementById('affiliateSettings');
+            const arrow = document.getElementById('affiliateSectionArrow');
+            const configSection = affiliateSection.closest('.config-section');
+            
+            if (!permitirAfiliados || !affiliateSection || !configSection) return;
+            
+            const isChecked = permitirAfiliados.checked;
+            
+            // Expandir/colapsar a seção
+            if (isChecked) {
+                configSection.classList.add('active');
+                affiliateSection.style.display = 'block';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+                
+                // Mostrar configurações de afiliados
+                setTimeout(() => {
+                affiliateSettings.style.display = 'block';
+                }, 100);
+            } else {
+                configSection.classList.remove('active');
+                affiliateSection.style.display = 'none';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+                affiliateSettings.style.display = 'none';
+                
+                // Limpar campos quando desabilitado
+                document.getElementById('comissaoAfiliados').value = '';
+                document.getElementById('comissaoMinima').value = '';
+                document.getElementById('tipoComissao').value = 'percentual';
+                toggleTierSettings();
+            }
+        }
+
+        function toggleTierSettings() {
+            const tipoComissao = document.getElementById('tipoComissao').value;
+            const tierSettings = document.getElementById('tierSettings');
+            
+            if (tipoComissao === 'tier') {
+                tierSettings.style.display = 'block';
+            } else {
+                tierSettings.style.display = 'none';
+                // Limpar campos de tier quando desabilitado
+                const tierInputs = document.querySelectorAll('.tier-input');
+                tierInputs.forEach(input => input.value = '');
+            }
+        }
+
+        // Adicionar event listener para tipo de comissão
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoComissaoSelect = document.getElementById('tipoComissao');
+            if (tipoComissaoSelect) {
+                tipoComissaoSelect.addEventListener('change', toggleTierSettings);
+            }
+        });
+
+        // Função centralizada para calcular desconto (consistente com JavaScript)
+        function calculateDiscountHTML(originalPrice, discountType, discountValue) {
+            if (!originalPrice || originalPrice <= 0 || !discountValue || discountValue <= 0) {
+                return {
+                    originalPrice: originalPrice || 0,
+                    finalPrice: originalPrice || 0,
+                    discountPercent: 0,
+                    discountAmount: 0
+                };
+            }
+            
+            let discountAmount = 0;
+            let finalPrice = originalPrice;
+            let discountPercent = 0;
+            
+            if (discountType === 'percentage') {
+                discountAmount = (originalPrice * discountValue) / 100;
+                finalPrice = originalPrice - discountAmount;
+                discountPercent = discountValue;
+            } else {
+                // Valor fixo
+                discountAmount = discountValue;
+                finalPrice = originalPrice - discountValue;
+                discountPercent = (discountValue / originalPrice) * 100;
+            }
+            
+            // Garantir que o preço final não seja negativo
+            if (finalPrice < 0) {
+                finalPrice = 0;
+                discountAmount = originalPrice;
+                discountPercent = 100;
+            }
+            
+            return {
+                originalPrice: originalPrice,
+                finalPrice: finalPrice,
+                discountPercent: discountPercent,
+                discountAmount: discountAmount
+            };
+        }
+
+        function updateDiscountPreview() {
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+            
+            // Usar função centralizada para calcular desconto
+            const discountResult = calculateDiscountHTML(price, discountType, discountValue);
+            
+            // Atualizar preço final no formulário
+            const finalPriceField = document.getElementById('finalPrice');
+            if (finalPriceField) {
+                finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+            }
+            
+            // Atualizar preview principal do produto
+            updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+        }
+        
+        // Função para atualizar preview do Black Friday
+        function updateBlackFridayPreview() {
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const blackFridayDiscount = parseFloat(document.getElementById('blackFridayDiscount').value) || 0;
+            
+            if (blackFridayDiscount <= 0 || price <= 0) {
+                // Resetar preview se não há desconto ou preço
+                const badge = document.getElementById('blackFridayBadge');
+                const original = document.getElementById('blackFridayOriginal');
+                const discounted = document.getElementById('blackFridayDiscounted');
+                
+                if (badge) badge.textContent = '-0%';
+                if (original) original.textContent = '0,00 MZN';
+                if (discounted) discounted.textContent = '0,00 MZN';
+                return;
+            }
+            
+            // Calcular desconto (Black Friday sempre é percentual)
+            const discountResult = calculateDiscountHTML(price, 'percentage', blackFridayDiscount);
+            
+            // Atualizar preview do Black Friday
+            const badge = document.getElementById('blackFridayBadge');
+            const original = document.getElementById('blackFridayOriginal');
+            const discounted = document.getElementById('blackFridayDiscounted');
+            
+            if (badge) badge.textContent = `-${discountResult.discountPercent.toFixed(0)}%`;
+            if (original) original.textContent = `${discountResult.originalPrice.toFixed(2).replace('.', ',')} MZN`;
+            if (discounted) discounted.textContent = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+            
+            // Atualizar preço final no formulário
+            const finalPriceField = document.getElementById('finalPrice');
+            if (finalPriceField) {
+                finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+            }
+            
+            // Atualizar preview principal do produto
+            updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+        }
+
+        // Atualizar preview principal do produto
+        function updateMainPreview(originalPrice, finalPrice, discountPercent) {
+            const previewPrice = document.getElementById('previewPrice');
+            
+            if (!previewPrice) return;
+            
+            if (discountPercent > 0) {
+                // Mostrar preço com desconto
+                previewPrice.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="text-decoration: line-through; color: #6c757d; font-size: 0.9rem; margin-bottom: 5px;">
+                            ${originalPrice.toFixed(2).replace('.', ',')} MZN
+                        </div>
+                        <div style="color: #28a745; font-weight: bold; font-size: 1.3rem;">
+                            ${finalPrice.toFixed(2).replace('.', ',')} MZN
+                        </div>
+                        <div style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-top: 5px; display: inline-block;">
+                            -${discountPercent.toFixed(0)}% OFF
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Mostrar preço normal
+                previewPrice.innerHTML = `${originalPrice.toFixed(2).replace('.', ',')} MZN`;
+            }
+        }
+
+        // Atualizar preview quando preço muda
+        function updatePricePreview() {
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            
+            // Verificar qual desconto está ativo
+            const enableDiscount = document.getElementById('enableDiscount');
+            const enableBlackFriday = document.getElementById('enableBlackFriday');
+            
+            if (enableBlackFriday && enableBlackFriday.checked) {
+                // Se Black Friday está ativo, usar seu preview
+                updateBlackFridayPreview();
+            } else if (enableDiscount && enableDiscount.checked) {
+                // Se Desconto Simples está ativo, usar seu preview
+            const discountType = document.getElementById('discountType').value;
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+            
+            // Usar função centralizada para calcular desconto
+            const discountResult = calculateDiscountHTML(price, discountType, discountValue);
+            
+            // Atualizar preço final no formulário
+                const finalPriceField = document.getElementById('finalPrice');
+                if (finalPriceField) {
+                    finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+                }
+            
+            // Atualizar preview principal
+            updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+            } else {
+                // Nenhum desconto ativo, mostrar preço normal
+                const finalPriceField = document.getElementById('finalPrice');
+                if (finalPriceField) {
+                    finalPriceField.value = `${price.toFixed(2).replace('.', ',')} MZN`;
+                }
+                updateMainPreview(price, price, 0);
+            }
+        }
+
+        // Função para salvar configurações localmente (HTML)
+        function saveConfigurationsLocally() {
+            try {
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+                const discountType = document.getElementById('discountType').value;
+                
+                const timerDuration = parseInt(document.getElementById('timerDuration').value) || 0;
+                
+                const blackFridayDiscount = parseInt(document.getElementById('blackFridayDiscount').value) || 0;
+                
+                const configs = {
+                    discount: {
+                        enabled: discountValue > 0,
+                        type: discountType,
+                        value: discountValue
+                    },
+                    timer: {
+                        enabled: timerDuration > 0,
+                        duration: timerDuration
+                    },
+                    blackFriday: {
+                        enabled: blackFridayDiscount > 0,
+                        discount: blackFridayDiscount
+                    }
+                };
+                
+                localStorage.setItem('ratixpay_product_configs', JSON.stringify(configs));
+                console.log('?? Configurações salvas localmente:', configs);
+                
+                // Mostrar indicador visual
+                showLocalSaveIndicator();
+                
+                return configs;
+            } catch (error) {
+                console.error('? Erro ao salvar configurações localmente:', error);
+                return null;
+            }
+        }
+        
+        // Função para mostrar indicador de salvamento
+        function showLocalSaveIndicator() {
+            const indicator = document.getElementById('localSaveIndicator');
+            if (indicator) {
+                indicator.style.display = 'block';
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Função de debug temporária no HTML
+        function debugConfigurationsHTML() {
+            console.log('?? DEBUG HTML: Verificando configurações...');
+            
+            // Verificar localStorage
+            const localConfigs = JSON.parse(localStorage.getItem('ratixpay_product_configs') || '{}');
+            console.log('?? Configurações locais:', localConfigs);
+            
+            // Verificar campos do formulário
+            const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            console.log('?? Campos de desconto:', {
+                discountValue,
+                discountType
+            });
+            
+            return {
+                localConfigs,
+                formFields: {
+                    discountValue,
+                    discountType
+                }
+            };
+        }
+        
+        // Função para coletar configurações para envio
+        function collectConfigurationsForSubmission() {
+            try {
+                // Verificar quais descontos estão realmente ativos (checkboxes marcados)
+                const enableDiscount = document.getElementById('enableDiscount');
+                const enableBlackFriday = document.getElementById('enableBlackFriday');
+                
+                const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+                const discountType = document.getElementById('discountType').value;
+                
+                const timerDuration = parseInt(document.getElementById('timerDuration').value) || 0;
+                
+                const blackFridayDiscount = parseInt(document.getElementById('blackFridayDiscount').value) || 0;
+                
+                // Garantir que apenas um desconto esteja ativo (prioridade: Black Friday > Desconto Simples)
+                const isBlackFridayActive = enableBlackFriday && enableBlackFriday.checked && blackFridayDiscount > 0;
+                const isDiscountActive = !isBlackFridayActive && enableDiscount && enableDiscount.checked && discountValue > 0;
+                
+                const configs = {
+                    discount: {
+                        enabled: isDiscountActive,
+                        type: isDiscountActive ? discountType : 'percentage',
+                        value: isDiscountActive ? discountValue : 0
+                    },
+                    timer: {
+                        enabled: timerDuration > 0,
+                        duration: timerDuration
+                    },
+                    blackFriday: {
+                        enabled: isBlackFridayActive,
+                        discount: isBlackFridayActive ? blackFridayDiscount : 0
+                    }
+                };
+                
+                console.log('?? Configurações coletadas para envio:', configs);
+                return configs;
+            } catch (error) {
+                console.error('? Erro ao coletar configurações:', error);
+                return null;
+            }
+        }
+        
+        // Tornar função disponível globalmente
+        window.debugConfigurationsHTML = debugConfigurationsHTML;
+        window.collectConfigurationsForSubmission = collectConfigurationsForSubmission;
+
+        // Função para remover erro de um campo quando o usuário começar a preencher
+        function setupFieldErrorRemoval() {
+            const fieldsToWatch = [
+                'productType',
+                'productCategory',
+                'productName',
+                'productDescription',
+                'productPrice',
+                'contentUrl',
+                'imageUrl'
+            ];
+
+            fieldsToWatch.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                // Remover erro quando o usuário começar a interagir com o campo
+                const removeError = () => {
+                    field.classList.remove('field-error');
+                    const errorMsg = field.parentElement.querySelector('.field-error-message');
+                    if (errorMsg) {
+                        errorMsg.style.transition = 'opacity 0.3s ease';
+                        errorMsg.style.opacity = '0';
+                        setTimeout(() => errorMsg.remove(), 300);
+                    }
+                };
+
+                // Para campos de texto/textarea
+                if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') {
+                    field.addEventListener('input', removeError);
+                    field.addEventListener('focus', removeError);
+                }
+                
+                // Para campos select
+                if (field.tagName === 'SELECT') {
+                    field.addEventListener('change', removeError);
+                    field.addEventListener('focus', removeError);
+                }
+            });
+        }
+
+        // Inicializar funcionalidades
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('?? Configurando event listeners para preview de preço...');
+            
+            // Configurar remoção dinâmica de erros
+            setupFieldErrorRemoval();
+            
+            const productPrice = document.getElementById('productPrice');
+            const discountValue = document.getElementById('discountValue');
+            const discountType = document.getElementById('discountType');
+            if (productPrice) {
+                productPrice.addEventListener('input', updatePricePreview);
+                console.log('? Event listener adicionado para productPrice');
+            }
+            
+            if (discountValue) {
+                discountValue.addEventListener('input', function() {
+                    updateDiscountPreview();
+                    saveConfigurationsLocally();
+                });
+                console.log('? Event listener adicionado para discountValue');
+            }
+            
+            if (discountType) {
+                discountType.addEventListener('change', function() {
+                    updateDiscountPreview();
+                    saveConfigurationsLocally();
+                });
+                console.log('? Event listener adicionado para discountType');
+            }
+            
+            // Adicionar listeners para timer e Black Friday
+            const timerDuration = document.getElementById('timerDuration');
+            const blackFridayDiscount = document.getElementById('blackFridayDiscount');
+            
+            if (timerDuration) {
+                timerDuration.addEventListener('change', saveConfigurationsLocally);
+            }
+            if (blackFridayDiscount) {
+                blackFridayDiscount.addEventListener('input', function() {
+                    updateBlackFridayPreview();
+                    saveConfigurationsLocally();
+                });
+            }
+            
+            // Função para preencher campos ocultos
+            function fillHiddenFields() {
+                console.log('?? Preenchendo campos ocultos com configurações...');
+                
+                // Coletar configurações
+                const configs = collectConfigurationsForSubmission();
+                
+                if (configs) {
+                    // Preencher campos ocultos
+                    document.getElementById('discountConfig').value = JSON.stringify(configs.discount);
+                    document.getElementById('timerConfig').value = JSON.stringify(configs.timer);
+                    document.getElementById('blackFridayConfig').value = JSON.stringify(configs.blackFriday);
+                    
+                    console.log('? Configurações adicionadas aos campos ocultos:', {
+                        discount: configs.discount,
+                        timer: configs.timer,
+                        blackFriday: configs.blackFriday
+                    });
+                    
+                    // Verificar se os campos foram preenchidos
+                    console.log('?? Verificando campos ocultos:');
+                    console.log('  - discountConfig:', document.getElementById('discountConfig').value);
+                    console.log('  - timerConfig:', document.getElementById('timerConfig').value);
+                    console.log('  - blackFridayConfig:', document.getElementById('blackFridayConfig').value);
+                    
+                    return true;
+                }
+                return false;
+            }
+            
+            // Adicionar listener para o formulário
+            const form = document.getElementById('createProductForm');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    console.log('?? Formulário sendo enviado, coletando configurações...');
+                    fillHiddenFields();
+                });
+                
+                // Também adicionar listener para o botão de criar produto
+                const createButton = document.querySelector('button[type="submit"]');
+                if (createButton) {
+                    createButton.addEventListener('click', function() {
+                        console.log('??? Botão de criar produto clicado, coletando configurações...');
+                        fillHiddenFields();
+                    });
+                }
+            }
+            
+                // Upload de imagem (frontend -> API enhanced upload)
+                async function uploadProductImage(file) {
+                    const form = new FormData();
+                    form.append('image', file);
+                    form.append('folder', 'produtos');
+                    const res = await fetch('/api/upload/enhanced/single', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` },
+                        body: form
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message || 'Falha no upload da imagem');
+                    // Tentar resolver URL retornada em diferentes formatos
+                    const result = data.data || {};
+                    const url = result.original?.url || result.url || result.secure_url || result.path || '';
+                    if (!url) throw new Error('URL da imagem não retornada');
+                    return url;
+                }
+
+                // Upload de arquivo de conteúdo
+                async function uploadContentFile(file) {
+                    console.log('?? Iniciando upload do arquivo:', file.name);
+                    
+                    const form = new FormData();
+                    form.append('contentFile', file);
+                    form.append('folder', 'conteudo');
+                    
+                    const res = await fetch('/api/upload/enhanced-content/single', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` },
+                        body: form
+                    });
+                    
+                    const data = await res.json();
+                    console.log('?? Resposta do servidor:', data);
+                    
+                    if (!data.success) throw new Error(data.message || 'Falha no upload do conteúdo');
+                    
+                    const result = data.data || {};
+                    // A URL pode estar em result.original.url, result.url, result.secure_url ou result.path
+                    const url = result.original?.url || result.url || result.secure_url || result.path || result.original?.path || '';
+                    
+                    console.log('?? URL extraída:', url);
+                    console.log('?? Dados completos:', result);
+                    console.log('?? Tentativas de URL:', {
+                        'result.original.url': result.original?.url,
+                        'result.url': result.url,
+                        'result.secure_url': result.secure_url,
+                        'result.path': result.path,
+                        'result.original.path': result.original?.path
+                    });
+                    
+                    return { url, meta: result };
+                }
+
+                // Função para atualizar preview do produto
+                function updateProductPreview() {
+                    const previewImage = document.getElementById('previewImage');
+                    const previewName = document.getElementById('previewName');
+                    const imagePreview = document.getElementById('imagePreview');
+                    const imageUrl = document.getElementById('imageUrl');
+                    const productName = document.getElementById('productName');
+                    
+                    if (!previewImage) return;
+                    
+                    // Verificar se há imagem carregada
+                    let imageSrc = null;
+                    if (imagePreview && imagePreview.src && imagePreview.style.display !== 'none') {
+                        imageSrc = imagePreview.src;
+                    } else if (imageUrl && imageUrl.value) {
+                        imageSrc = imageUrl.value;
+                    }
+                    
+                    if (imageSrc) {
+                        previewImage.innerHTML = `<img src="${imageSrc}" alt="Preview do produto" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+                    } else {
+                        previewImage.innerHTML = '<span class="preview-placeholder">Nenhuma imagem selecionada</span>';
+                    }
+                    
+                    // Atualizar nome do produto no preview
+                    if (previewName && productName) {
+                        const productNameValue = productName.value.trim();
+                        if (productNameValue) {
+                            previewName.innerHTML = `<h4>${productNameValue}</h4>`;
+                        } else {
+                            previewName.innerHTML = '<span class="preview-placeholder">Nome do produto</span>';
+                        }
+                    }
+                }
+
+                // Handlers de imagem
+                (function setupImageUploadHandlers() {
+                    const input = document.getElementById('imageUpload');
+                    const previewImg = document.getElementById('imagePreview');
+                    const noImageText = document.getElementById('noImageText');
+                    if (!input) return;
+                    input.addEventListener('change', async (e) => {
+                        const file = e.target.files && e.target.files[0];
+                        if (!file) return;
+                        try {
+                            // Preview local imediato
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                if (previewImg) {
+                                    previewImg.src = reader.result;
+                                    previewImg.style.display = 'block';
+                                }
+                                if (noImageText) noImageText.style.display = 'none';
+                                
+                                // Atualizar preview do produto
+                                updateProductPreview();
+                            };
+                            reader.readAsDataURL(file);
+
+                            // Upload para servidor
+                            let url = await uploadProductImage(file);
+                            
+                            // Normalizar URL: se for caminho relativo com barras invertidas, converter para barras normais
+                            if (url && url.includes('\\')) {
+                                url = url.replace(/\\/g, '/');
+                            }
+                            
+                            // Se a URL for relativa e não começar com /, adicionar /
+                            if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+                                url = '/' + url;
+                            }
+                            
+                            // Preencher campo URL para API de criação
+                            const imageUrlInput = document.getElementById('imageUrl');
+                            if (imageUrlInput) {
+                                imageUrlInput.value = url;
+                                console.log('? URL da imagem preenchida:', url);
+                                
+                                // Remover erro se existir
+                                imageUrlInput.classList.remove('field-error');
+                                const errorMsg = imageUrlInput.parentElement.querySelector('.field-error-message');
+                                if (errorMsg) {
+                                    errorMsg.style.transition = 'opacity 0.3s ease';
+                                    errorMsg.style.opacity = '0';
+                                    setTimeout(() => errorMsg.remove(), 300);
+                                }
+                                // Disparar evento para atualizar validação
+                                imageUrlInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                            
+                            // Atualizar preview com URL do servidor
+                            updateProductPreview();
+                        } catch (err) {
+                            console.error('? Erro no upload da imagem:', err);
+                            alert('Erro ao enviar imagem: ' + err.message);
+                        } finally {
+                            // Limpar input para permitir re-seleção do mesmo arquivo
+                            e.target.value = '';
+                        }
+                    });
+                })();
+
+                // Listener para campo de URL da imagem
+                (function setupImageUrlHandler() {
+                    const imageUrlInput = document.getElementById('imageUrl');
+                    if (imageUrlInput) {
+                        imageUrlInput.addEventListener('input', function() {
+                            updateProductPreview();
+                            // Remover erro quando o usuário começar a digitar
+                            this.classList.remove('field-error');
+                            const errorMsg = this.parentElement.querySelector('.field-error-message');
+                            if (errorMsg) {
+                                errorMsg.style.transition = 'opacity 0.3s ease';
+                                errorMsg.style.opacity = '0';
+                                setTimeout(() => errorMsg.remove(), 300);
+                            }
+                        });
+                    }
+                })();
+
+                // Listener para campo de nome do produto
+                (function setupProductNameHandler() {
+                    const productNameInput = document.getElementById('productName');
+                    if (productNameInput) {
+                        productNameInput.addEventListener('input', updateProductPreview);
+                        productNameInput.addEventListener('keyup', updateProductPreview);
+                        
+                        // Atualizar preview inicialmente se já houver valor
+                        setTimeout(() => updateProductPreview(), 100);
+                    }
+                })();
+
+                // Listener para campo de URL do conteúdo
+                (function setupContentUrlHandler() {
+                    const contentUrlInput = document.getElementById('contentUrl');
+                    if (contentUrlInput) {
+                        contentUrlInput.addEventListener('input', function() {
+                            console.log('?? Campo contentUrl alterado para:', this.value);
+                        });
+                    }
+                })();
+
+                // Handlers de upload do arquivo de conteúdo (clique/drag&drop)
+                (function setupContentUploadHandlers() {
+                    const area = document.getElementById('fileUploadArea');
+                    const input = document.getElementById('contentFile');
+                    const nameEl = document.getElementById('fileName');
+                    const sizeEl = document.getElementById('fileSize');
+                    const previewBox = document.getElementById('filePreview');
+                    if (!area || !input) return;
+
+                    const openPicker = () => input.click();
+                    area.addEventListener('click', openPicker);
+
+                    // Drag & Drop
+                    area.addEventListener('dragover', (e) => { 
+                        e.preventDefault(); 
+                        area.classList.add('dragover');
+                    });
+                    area.addEventListener('dragleave', () => { 
+                        area.classList.remove('dragover');
+                    });
+                    area.addEventListener('drop', async (e) => {
+                        e.preventDefault(); 
+                        area.classList.remove('dragover');
+                        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                        if (file) await handleContentFile(file);
+                    });
+
+                    input.addEventListener('change', async (e) => {
+                        const file = e.target.files && e.target.files[0];
+                        if (file) await handleContentFile(file);
+                        e.target.value = '';
+                    });
+
+                    async function handleContentFile(file) {
+                        try {
+                            // Mostrar loading na área de upload
+                            area.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Enviando arquivo...</p>';
+                            
+                            // Atualizar preview textual
+                            if (nameEl) nameEl.textContent = file.name;
+                            if (sizeEl) sizeEl.textContent = `${(file.size/1024/1024).toFixed(2)} MB`;
+                            if (previewBox) previewBox.style.display = 'block';
+
+                            let { url } = await uploadContentFile(file);
+                            
+                            // Se a URL for relativa, converter para absoluta
+                            if (url && url.startsWith('/')) {
+                                url = window.location.origin + url;
+                            }
+                            
+                            // Debug: Log da URL retornada
+                            console.log('?? URL do arquivo gerada:', url);
+                            
+                            if (!url) {
+                                console.error('? URL não foi gerada! Verifique a resposta do servidor.');
+                                throw new Error('URL do arquivo não foi gerada');
+                            }
+                            
+                            // Preencher o campo contentUrl diretamente
+                            console.log('?? Tentando preencher contentUrl com:', url);
+                            
+                            // Função para preencher o campo contentUrl
+                            function fillContentUrlField(url) {
+                                // Validar URL
+                                if (!url || url.trim() === '') {
+                                    console.error('? URL vazia ou inválida:', url);
+                                    return false;
+                                }
+                                
+                                // Tentar múltiplas formas de encontrar o campo
+                                let contentUrl = document.getElementById('contentUrl');
+                                
+                                if (!contentUrl) {
+                                    contentUrl = document.querySelector('input[type="url"][id*="content"]');
+                                    console.log('?? Tentativa 2 - Campo encontrado via querySelector:', contentUrl);
+                                }
+                                
+                                if (!contentUrl) {
+                                    contentUrl = document.querySelector('input[placeholder*="conteudo"]');
+                                    console.log('?? Tentativa 3 - Campo encontrado via placeholder:', contentUrl);
+                                }
+                                
+                                if (!contentUrl) {
+                                    contentUrl = document.querySelector('input[type="url"]');
+                                    console.log('?? Tentativa 4 - Campo encontrado via type url:', contentUrl);
+                                }
+                                
+                                console.log('?? Campo contentUrl encontrado:', contentUrl);
+                                
+                                if (contentUrl) {
+                                    console.log('?? Preenchendo campo contentUrl com URL:', url);
+                                    contentUrl.value = url;
+                                    console.log('? Campo preenchido com:', contentUrl.value);
+                                    
+                                    // Remover erro se existir
+                                    contentUrl.classList.remove('field-error');
+                                    const errorMsg = contentUrl.parentElement.querySelector('.field-error-message');
+                                    if (errorMsg) {
+                                        errorMsg.style.transition = 'opacity 0.3s ease';
+                                        errorMsg.style.opacity = '0';
+                                        setTimeout(() => errorMsg.remove(), 300);
+                                    }
+                                    
+                                    // Disparar eventos para garantir que seja reconhecido
+                                    contentUrl.dispatchEvent(new Event('input', { bubbles: true }));
+                                    contentUrl.dispatchEvent(new Event('change', { bubbles: true }));
+                                    
+                                    // Feedback visual
+                                    contentUrl.style.borderColor = '#28a745';
+                                    contentUrl.style.backgroundColor = '#f8fff9';
+                                    
+                                    setTimeout(() => {
+                                        contentUrl.style.borderColor = '';
+                                        contentUrl.style.backgroundColor = '';
+                                    }, 2000);
+                                    
+                                    return true;
+                                } else {
+                                    console.error('? Campo contentUrl não encontrado em nenhuma tentativa!');
+                                    console.log('?? Todos os inputs URL encontrados:', document.querySelectorAll('input[type="url"]'));
+                                    return false;
+                                }
+                            }
+                            
+                            // Tentar preencher imediatamente
+                            let success = fillContentUrlField(url);
+                            
+                            // Se não conseguiu, tentar novamente com delays
+                            if (!success) {
+                                setTimeout(() => {
+                                    console.log('?? Tentativa 1 - Preenchendo contentUrl...');
+                                    success = fillContentUrlField(url);
+                                }, 100);
+                                
+                                setTimeout(() => {
+                                    if (!success) {
+                                        console.log('?? Tentativa 2 - Preenchendo contentUrl...');
+                                        success = fillContentUrlField(url);
+                                    }
+                                }, 300);
+                                
+                                setTimeout(() => {
+                                    if (!success) {
+                                        console.log('?? Tentativa 3 - Preenchendo contentUrl...');
+                                        success = fillContentUrlField(url);
+                                    }
+                                }, 500);
+                            }
+                            
+                            // Verificação final
+                            setTimeout(() => {
+                                const finalCheck = document.getElementById('contentUrl');
+                                console.log('?? Verificação final - Campo contentUrl:', finalCheck ? finalCheck.value : 'Campo não encontrado');
+                            }, 1000);
+                            
+                            // Restaurar área de upload
+                            area.innerHTML = `
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Arraste um arquivo aqui ou clique para selecionar</p>
+                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (máx. 150MB)</small>
+                            `;
+                            
+                        } catch (err) {
+                            console.error('? Erro no upload do conteúdo:', err);
+                            alert('Erro ao enviar arquivo: ' + err.message);
+                            
+                            // Restaurar área de upload em caso de erro
+                            area.innerHTML = `
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Arraste um arquivo aqui ou clique para selecionar</p>
+                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (máx. 150MB)</small>
+                            `;
+                        }
+                    }
+                })();
+
+                // Função para remover arquivo
+                window.removeFile = function() {
+                    const previewBox = document.getElementById('filePreview');
+                    const contentUrl = document.getElementById('contentUrl');
+                    const contentFile = document.getElementById('contentFile');
+                    
+                    if (previewBox) previewBox.style.display = 'none';
+                    if (contentUrl) contentUrl.value = '';
+                    if (contentFile) contentFile.value = '';
+                };
+
+                // Função para validar campos obrigatórios
+            function validateRequiredFields() {
+                const requiredFields = [
+                    { id: 'productType', name: 'Tipo de Produto', element: document.getElementById('productType') },
+                    { id: 'productCategory', name: 'Categoria', element: document.getElementById('productCategory') },
+                    { id: 'productName', name: 'Nome do Produto', element: document.getElementById('productName') },
+                    { id: 'productDescription', name: 'Descrição', element: document.getElementById('productDescription') },
+                    { id: 'productPrice', name: 'Preço', element: document.getElementById('productPrice') },
+                    { id: 'contentUrl', name: 'Link do Conteúdo', element: document.getElementById('contentUrl') },
+                    { id: 'imageUrl', name: 'Link da Imagem', element: document.getElementById('imageUrl') }
+                ];
+
+                let firstInvalidField = null;
+                const errors = [];
+
+                // Remover erros anteriores
+                requiredFields.forEach(field => {
+                    if (field.element) {
+                        field.element.classList.remove('field-error');
+                        const errorMsg = field.element.parentElement.querySelector('.field-error-message');
+                        if (errorMsg) errorMsg.remove();
+                    }
+                });
+
+                // Validar cada campo
+                requiredFields.forEach(field => {
+                    if (!field.element) return;
+                    
+                    const value = field.element.value.trim();
+                    let isValid = true;
+                    let errorMessage = '';
+
+                    if (field.id === 'contentUrl') {
+                        // Link do conteúdo é obrigatório
+                        if (!value) {
+                            isValid = false;
+                            errorMessage = 'O link do produto é obrigatório. Por favor, preencha o link do conteúdo.';
+                        } else if (!isValidUrl(value)) {
+                            isValid = false;
+                            errorMessage = 'Por favor, insira um link válido (ex: https://exemplo.com/conteudo)';
+                        }
+                    } else if (field.id === 'imageUrl') {
+                        // Link da imagem é obrigatório
+                        if (!value) {
+                            isValid = false;
+                            errorMessage = 'O link da imagem é obrigatório. Por favor, preencha o link da imagem ou faça upload de uma imagem.';
+                        } else if (!isValidUrl(value)) {
+                            isValid = false;
+                            errorMessage = 'Por favor, insira um link de imagem válido (ex: https://exemplo.com/imagem.jpg)';
+                        }
+                    } else if (!value) {
+                        isValid = false;
+                        errorMessage = `Por favor, preencha o ${field.name.toLowerCase()}`;
+                    }
+
+                    if (!isValid) {
+                        field.element.classList.add('field-error');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'field-error-message';
+                        errorDiv.textContent = errorMessage;
+                        field.element.parentElement.appendChild(errorDiv);
+                        
+                        errors.push(field);
+                        if (!firstInvalidField) {
+                            firstInvalidField = field.element;
+                        }
+                    }
+                });
+
+                // Se houver erros, focar no primeiro campo e rolar até ele
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Mostrar notificação interativa
+                    showFieldNotification(firstInvalidField, errors[0].name);
+                    
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Função para validar URL (aceita URLs absolutas e caminhos relativos)
+            function isValidUrl(string) {
+                if (!string || string.trim() === '') {
+                    return false;
+                }
+                
+                const trimmed = string.trim();
+                
+                // Aceitar URLs absolutas (http:// ou https://)
+                try {
+                    const url = new URL(trimmed);
+                    if (url.protocol === 'http:' || url.protocol === 'https:') {
+                        return true;
+                    }
+                } catch (_) {
+                    // Não é uma URL absoluta, verificar se é um caminho relativo válido
+                }
+                
+                // Aceitar caminhos relativos que começam com /
+                if (trimmed.startsWith('/')) {
+                    // Normalizar barras invertidas do Windows para barras normais
+                    const normalized = trimmed.replace(/\\/g, '/');
+                    // Verificar se parece um caminho de arquivo válido
+                    return normalized.length > 1 && !normalized.includes('..');
+                }
+                
+                return false;
+            }
+
+            // Função para mostrar notificação interativa
+            function showFieldNotification(field, fieldName) {
+                // Criar notificação flutuante
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #dc3545;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    z-index: 100001;
+                    animation: slideInRight 0.3s ease;
+                    max-width: 400px;
+                    font-weight: 500;
+                `;
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+                        <div>
+                            <strong>Campo obrigatório vazio!</strong><br>
+                            <span style="font-size: 14px;">Por favor, preencha: ${fieldName}</span>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(notification);
+
+                // Remover após 5 segundos
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+
+                // Adicionar animação de pulso no campo
+                field.style.animation = 'pulse 1s ease 3';
+                setTimeout(() => {
+                    field.style.animation = '';
+                }, 3000);
+            }
+
+            // Adicionar animações CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @keyframes pulse {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+                    50% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Função para mostrar modal de processamento
+            function showProcessingModal() {
+                const modal = document.getElementById('processingModal');
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            }
+
+            // Função para atualizar etapa do processamento
+            function updateProcessingStep(stepText, isActive = true, isCompleted = false) {
+                const stepElement = document.getElementById('processingStep');
+                if (stepElement) {
+                    stepElement.textContent = stepText;
+                    stepElement.className = 'processing-step';
+                    if (isCompleted) {
+                        stepElement.classList.add('completed');
+                    } else if (isActive) {
+                        stepElement.classList.add('active');
+                    }
+                }
+            }
+
+            // Função para fechar modal de processamento
+            function closeProcessingModal() {
+                const modal = document.getElementById('processingModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+
+                // Função para enviar formulário com configurações
+            function submitFormWithConfigurations() {
+                console.log('?? Enviando formulário com configurações...');
+                
+                // Validar campos obrigatórios
+                if (!validateRequiredFields()) {
+                    console.log('? Validação falhou');
+                    return;
+                }
+                
+                // Preencher campos ocultos
+                fillHiddenFields();
+                
+                // Mostrar modal de processamento
+                showProcessingModal();
+                
+                // Etapa 1: Verificando informações
+                updateProcessingStep('Verificando informações...', true, false);
+                
+                // Simular delay para melhor UX
+                setTimeout(() => {
+                    // Etapa 2: Avaliando legitimidade
+                    updateProcessingStep('Avaliando legitimidade...', true, false);
+                    
+                    setTimeout(() => {
+                        // Etapa 3: Adicionando produto
+                        updateProcessingStep('Adicionando produto...', true, false);
+                        
+                        // Coletar dados do formulário
+                        const formData = new FormData(document.getElementById('createProductForm'));
+                
+                        // Adicionar campos obrigatórios com nomes corretos
+                        formData.append('type', document.getElementById('productType').value);
+                        formData.append('name', document.getElementById('productName').value);
+                        formData.append('category', document.getElementById('productCategory').value);
+                        formData.append('description', document.getElementById('productDescription').value);
+                        formData.append('price', document.getElementById('productPrice').value);
+                        formData.append('finalPrice', document.getElementById('finalPrice').value);
+                        formData.append('marketplace', document.getElementById('marketPlace').checked);
+                        formData.append('contentLink', document.getElementById('contentUrl').value);
+                
+                        // Adicionar imagem se disponível
+                        const imageUrl = document.getElementById('imageUrl').value;
+                        if (imageUrl) {
+                            formData.append('imagem_url', imageUrl);
+                        }
+                        
+                        // Adicionar dados de afiliados
+                        const permitirAfiliados = document.getElementById('permitirAfiliados').checked;
+                        formData.append('permitir_afiliados', permitirAfiliados);
+                        
+                        if (permitirAfiliados) {
+                            const comissaoAfiliados = document.getElementById('comissaoAfiliados').value;
+                            const comissaoMinima = document.getElementById('comissaoMinima').value;
+                            const tipoComissao = document.getElementById('tipoComissao').value;
+                            
+                            formData.append('comissao_afiliados', comissaoAfiliados || 0);
+                            formData.append('comissao_minima', comissaoMinima || 0);
+                            formData.append('tipo_comissao', tipoComissao);
+                            
+                            // Se for sistema de níveis, adicionar configurações de tier
+                            if (tipoComissao === 'tier') {
+                                const tierInputs = document.querySelectorAll('.tier-input');
+                                const tierLevels = [];
+                                tierInputs.forEach((input, index) => {
+                                    tierLevels.push({
+                                        level: index + 1,
+                                        percentage: input.value || 0
+                                    });
+                                });
+                                formData.append('tier_config', JSON.stringify(tierLevels));
+                            }
+                        }
+                        
+                        // As configurações já estão nos campos ocultos preenchidos pela função fillHiddenFields()
+                        console.log('? Configurações já presentes nos campos ocultos do formulário');
+                        
+                        // Log dos dados que serão enviados
+                        console.log('?? Dados do formulário:');
+                        for (let [key, value] of formData.entries()) {
+                            console.log(`  - ${key}:`, value);
+                        }
+                        
+                        // Enviar para o servidor
+                        fetch('/api/produtos', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                // Etapa 4: Produto adicionado com sucesso
+                                updateProcessingStep('Produto adicionado com sucesso!', false, true);
+                                
+                                setTimeout(() => {
+                                    closeProcessingModal();
+                                    console.log('? Produto criado com sucesso!');
+                                    window.location.href = 'gestao-produtos.html';
+                                }, 1500);
+                            } else {
+                                closeProcessingModal();
+                                console.error('? Erro ao criar produto:', result.error);
+                                
+                                // Mostrar erro de forma mais interativa
+                                const errorMessage = document.getElementById('errorMessage');
+                                if (errorMessage) {
+                                    errorMessage.textContent = 'Erro ao criar produto: ' + result.error;
+                                    errorMessage.style.display = 'block';
+                                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                } else {
+                                    alert('Erro ao criar produto: ' + result.error);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            closeProcessingModal();
+                            console.error('? Erro na requisição:', error);
+                            
+                            // Mostrar erro de forma mais interativa
+                            const errorMessage = document.getElementById('errorMessage');
+                            if (errorMessage) {
+                                errorMessage.textContent = 'Erro interno do servidor. Por favor, tente novamente.';
+                                errorMessage.style.display = 'block';
+                                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            } else {
+                                alert('Erro interno do servidor');
+                            }
+                        });
+                    }, 1000);
+                }, 1000);
+            }
+            
+            // Tornar função disponível globalmente para teste
+            window.fillHiddenFields = fillHiddenFields;
+            window.submitFormWithConfigurations = submitFormWithConfigurations;
+        });
+    </script>
+    
+</body>
+</html>
+</html>

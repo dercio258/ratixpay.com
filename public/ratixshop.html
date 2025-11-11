@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programa de Afiliados - Txi-Pay</title>
+    <meta name="description" content="Junte-se ao nosso programa de afiliados e ganhe comissões promovendo produtos digitais de qualidade.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+        
+<style>
+        /* Custom Styles to extend Tailwind */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom gradient for logo and highlights */
+        .text-gradient {
+            background: linear-gradient(90deg, #F97316, #EA580C);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(90deg, #F97316, #EA580C);
+        }
+
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #F97316, #EA580C);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, #EA580C, #DC2626);
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+    <!-- Top Bar -->
+        <div class="bg-gradient-primary text-white py-2">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center space-x-4">
+                        <span><i class="fas fa-phone mr-1"></i> +258 84 123 4567</span>
+                        <span><i class="fas fa-envelope mr-1"></i> info@txipay.com</span>
+                </div>
+                    <div class="hidden sm:flex items-center space-x-4">
+                        <span><i class="fas fa-shield-alt mr-1"></i> Pagamentos Seguros</span>
+                        <span><i class="fas fa-clock mr-1"></i> 24/7 Suporte</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Main Navigation -->
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="/" class="flex items-center">
+                <img src="https://www.ratixpay.com/uploads/produtos/originals/1760190912387_46960bc610bcaa75_gemini_generated_image_dhjcjbdhjcjbdhjc.png" alt="Txi-Pay Logo" class="h-10 w-auto">
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="/" class="text-slate-600 hover:text-orange-500 font-medium transition-colors">Home</a>
+                <a href="/produtos" class="text-slate-600 hover:text-orange-500 font-medium transition-colors">Produtos</a>
+                <a href="/afiliados" class="text-orange-500 font-semibold">Afiliados</a>
+                <a href="/#sobre" class="text-slate-600 hover:text-orange-500 font-medium transition-colors">Sobre Nós</a>
+                <a href="/#contacto" class="text-slate-600 hover:text-orange-500 font-medium transition-colors">Contacto</a>
+                </div>
+
+            <!-- User Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <a href="/login" class="text-slate-600 hover:text-orange-500 font-medium transition-colors hidden sm:block">Entrar</a>
+                <a href="/register" class="bg-gradient-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-semibold">Registar</a>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-2xl text-slate-700 p-2">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <a href="/" class="block px-4 py-3 text-slate-600 hover:bg-slate-100">Home</a>
+            <a href="/produtos" class="block px-4 py-3 text-slate-600 hover:bg-slate-100">Produtos</a>
+            <a href="/afiliados" class="block px-4 py-3 text-orange-500 font-semibold bg-orange-50">Afiliados</a>
+            <a href="/#sobre" class="block px-4 py-3 text-slate-600 hover:bg-slate-100">Sobre Nós</a>
+            <a href="/#contacto" class="block px-4 py-3 text-slate-600 hover:bg-slate-100">Contacto</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-orange-50 to-orange-100 py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-4xl mx-auto">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6">
+                        Programa de <span class="text-gradient">Afiliados</span>
+                    </h1>
+                    <p class="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+                        Ganhe comissões promovendo produtos digitais de alta qualidade. 
+                        Junte-se à nossa rede de afiliados e comece a ganhar hoje mesmo.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#registar" class="px-8 py-4 bg-gradient-primary text-white rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Registar como Afiliado
+                        </a>
+                        <a href="#como-funciona" class="px-8 py-4 bg-white text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-colors shadow-lg">
+                            <i class="fas fa-play mr-2"></i>
+                            Como Funciona
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefícios -->
+        <section class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                        Por que ser um Afiliado?
+                    </h2>
+                    <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                        Descubra as vantagens de fazer parte da nossa rede de afiliados
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Comissões Altas -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-percentage text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Comissões de até 50%</h3>
+                        <p class="text-slate-600">
+                            Ganhe comissões generosas em cada venda que gerar através dos seus links únicos.
+                        </p>
+                    </div>
+
+                    <!-- Pagamentos Rápidos -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bolt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Pagamentos Rápidos</h3>
+                        <p class="text-slate-600">
+                            Receba seus ganhos semanalmente através de M-Pesa, e-Mola ou transferência bancária.
+                        </p>
+                    </div>
+
+                    <!-- Materiais de Marketing -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bullhorn text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Materiais Prontos</h3>
+                        <p class="text-slate-600">
+                            Acesso a banners, textos promocionais e outros materiais para facilitar suas vendas.
+                        </p>
+                </div>
+
+                    <!-- Suporte Dedicado -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-headset text-white text-2xl"></i>
+            </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Suporte 24/7</h3>
+                        <p class="text-slate-600">
+                            Nossa equipe está sempre disponível para ajudar você a maximizar seus ganhos.
+                        </p>
+        </div>
+
+                    <!-- Relatórios Detalhados -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Relatórios em Tempo Real</h3>
+                        <p class="text-slate-600">
+                            Acompanhe suas vendas, comissões e performance através do nosso painel de controle.
+                        </p>
+            </div>
+            
+                    <!-- Produtos de Qualidade -->
+                    <div class="text-center p-6 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-star text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Produtos Premium</h3>
+                        <p class="text-slate-600">
+                            Promova apenas produtos digitais de alta qualidade e alta conversão.
+                        </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Como Funciona -->
+        <section id="como-funciona" class="py-16 md:py-24 bg-slate-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                        Como Funciona?
+                    </h2>
+                    <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                        É simples começar a ganhar como afiliado. Siga estes passos:
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-8">
+                    <!-- Passo 1 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+                            1
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Registe-se</h3>
+                        <p class="text-slate-600">
+                            Crie sua conta de afiliado gratuitamente em poucos minutos.
+                        </p>
+                    </div>
+
+                    <!-- Passo 2 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+                            2
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Escolha Produtos</h3>
+                        <p class="text-slate-600">
+                            Selecione os produtos que deseja promover e obtenha seus links únicos.
+                        </p>
+                    </div>
+
+                    <!-- Passo 3 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+                            3
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Promova</h3>
+                        <p class="text-slate-600">
+                            Compartilhe seus links nas redes sociais, blog ou qualquer canal.
+                        </p>
+                    </div>
+
+                    <!-- Passo 4 -->
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+                            4
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Ganhe</h3>
+                        <p class="text-slate-600">
+                            Receba comissões por cada venda gerada através dos seus links.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="registar" class="py-16 md:py-24 bg-gradient-to-br from-orange-500 to-orange-600">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                    Pronto para Começar a Ganhar?
+                </h2>
+                <p class="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
+                    Junte-se a milhares de afiliados que já estão ganhando com a Txi-Pay. 
+                    Registro gratuito e sem compromisso.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/register?tipo=afiliado" class="px-8 py-4 bg-white text-orange-600 rounded-lg font-semibold hover:bg-orange-50 transition-colors shadow-lg">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Registar Agora
+                    </a>
+                    <a href="/#contacto" class="px-8 py-4 bg-orange-700 text-white rounded-lg font-semibold hover:bg-orange-800 transition-colors shadow-lg">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Falar com Suporte
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- Logo e Descrição -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <img src="https://www.ratixpay.com/uploads/produtos/originals/1760190912387_46960bc610bcaa75_gemini_generated_image_dhjcjbdhjcjbdhjc.png" alt="Txi-Pay Logo" class="h-8 w-auto mr-3">
+                        <span class="text-2xl font-bold">Txi-Pay</span>
+                    </div>
+                    <p class="text-slate-300 mb-4 max-w-md">
+                        A plataforma de pagamentos digitais mais confiável de Moçambique. 
+                        Facilitamos transações seguras e rápidas.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links Rápidos -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Links Rápidos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-slate-300 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="/produtos" class="text-slate-300 hover:text-white transition-colors">Produtos</a></li>
+                        <li><a href="/afiliados" class="text-slate-300 hover:text-white transition-colors">Afiliados</a></li>
+                        <li><a href="/#sobre" class="text-slate-300 hover:text-white transition-colors">Sobre Nós</a></li>
+                        <li><a href="/#contacto" class="text-slate-300 hover:text-white transition-colors">Contacto</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contacto -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                    <ul class="space-y-2 text-slate-300">
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            +258 84 123 4567
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@txipay.com
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mr-2 mt-1"></i>
+                            Maputo, Moçambique
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
+                <p>&copy; 2024 Txi-Pay. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // Scroll Reveal Animation
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            });
+
+            revealElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+    
+</body>
+</html>
