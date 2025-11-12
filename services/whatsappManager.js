@@ -48,6 +48,10 @@ class WhatsAppManagerWrapper {
         return this.manager.getQRCode(sessionId);
     }
 
+    async generateQRBase64(qrString) {
+        return await this.manager.generateQRBase64(qrString);
+    }
+
     getLogs(limit = 100, sessionId = null) {
         // Se o manager suporta sessionId, passar
         if (sessionId && typeof this.manager.getLogs === 'function') {

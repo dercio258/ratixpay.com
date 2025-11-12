@@ -317,7 +317,7 @@ body {
 
 /* Dashboard Header */
 .dashboard-header {
-    position: fixed;
+    position: relative;
     top: 0;
     background: white;
     display: flex;
@@ -327,6 +327,8 @@ body {
     padding: 20px 30px;
     border-bottom: 2px solid #f0f0f0;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .dashboard-header h1 {
@@ -684,8 +686,13 @@ body {
     }
 
     .dashboard-header {
-        left: 80px;
+        left: 0;
         padding: 15px 20px;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        position: relative;
+        box-sizing: border-box;
     }
 }
 
@@ -706,7 +713,12 @@ body {
     }
 
     .dashboard-header {
-        left: 70px;
+        left: 0;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        position: relative;
+        box-sizing: border-box;
     }
 
     .main-content {

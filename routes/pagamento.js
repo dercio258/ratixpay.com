@@ -8,6 +8,8 @@ const emailService = require('../utils/emailService');
 const notificationService = require('../services/notificationService');
 const professionalEmailService = require('../services/professionalEmailService');
 const afiliadoVendaService = require('../services/afiliadoVendaService');
+
+const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.com';
 // remarketingService removido - funcionalidade integrada na criação de produtos
 // Push notifications removido
 
@@ -44,36 +46,91 @@ async function processarTrackingAfiliados(venda, produto, valorTotal, transactio
 // Função para enviar notificação para afiliado
 async function enviarNotificacaoAfiliado(afiliado, venda, valorComissao, transactionId) {
     try {
-        console.log('📧 Enviando notificação para afiliado:', afiliado.nome);
+        console.log('📧 Enviando notificação de venda para afiliado:', afiliado.nome);
         
-        const assunto = `🎉 Nova Venda via Afiliado - Comissão: MZN ${valorComissao.toFixed(2)}`;
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                    <h2 style="margin: 0; font-size: 24px;">🎉 Parabéns! Nova Venda Realizada</h2>
+        const assunto = `🎉 Nova Venda Realizada - Comissão: MZN ${valorComissao.toFixed(2)}`;
+        const conteudo = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+                        color: white;
+                        padding: 30px;
+                        text-align: center;
+                        border-radius: 10px 10px 0 0;
+                    }
+                    .content {
+                        background: #f8f9fa;
+                        padding: 30px;
+                        border-radius: 0 0 10px 10px;
+                    }
+                    .info-box {
+                        background: white;
+                        border-left: 4px solid #F64C00;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: 5px;
+                    }
+                    .success-box {
+                        background: #d4edda;
+                        border-left: 4px solid #28a745;
+                        padding: 20px;
+                        margin: 20px 0;
+                        border-radius: 5px;
+                    }
+                    .button {
+                        display: inline-block;
+                        background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+                        color: white;
+                        padding: 15px 30px;
+                        text-decoration: none;
+                        border-radius: 25px;
+                        margin: 20px 0;
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>🎉 Parabéns! Nova Venda Realizada</h1>
                     <p style="margin: 10px 0 0 0; opacity: 0.9;">Sua comissão foi creditada com sucesso</p>
                 </div>
-                
-                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                    <h3 style="color: #333; margin-top: 0;">Detalhes da Venda</h3>
+                <div class="content">
+                    <p>Olá <strong>${afiliado.nome}</strong>,</p>
                     
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                        <p style="margin: 5px 0;"><strong>ID da Transação:</strong> ${formatarTransactionIdPayMoz(transactionId)}</p>
-                        <p style="margin: 5px 0;"><strong>Valor da Venda:</strong> MZN ${venda.valor.toFixed(2)}</p>
-                        <p style="margin: 5px 0;"><strong>Sua Comissão (${afiliado.comissao_percentual}%):</strong> <span style="color: #28a745; font-weight: bold;">MZN ${valorComissao.toFixed(2)}</span></p>
-                        <p style="margin: 5px 0;"><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                    <p>Ótima notícia! Uma nova venda foi realizada através do seu link de afiliado.</p>
+                    
+                    <div class="info-box">
+                        <h3 style="color: #F64C00; margin-top: 0;">📊 Detalhes da Venda</h3>
+                        <p><strong>ID da Transação:</strong> ${transactionId || 'N/A'}</p>
+                        <p><strong>Valor da Venda:</strong> MZN ${venda.valor ? venda.valor.toFixed(2) : '0.00'}</p>
+                        <p><strong>Sua Comissão (${afiliado.comissao_percentual}%):</strong> 
+                           <span style="color: #28a745; font-weight: bold; font-size: 18px;">MZN ${valorComissao.toFixed(2)}</span></p>
+                        <p><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</p>
                     </div>
                     
-                    <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                        <h4 style="color: #0066cc; margin-top: 0;">💰 Seu Saldo Atualizado</h4>
-                        <p style="margin: 5px 0;"><strong>Saldo Disponível:</strong> MZN ${parseFloat(afiliado.saldo_disponivel).toFixed(2)}</p>
-                        <p style="margin: 5px 0;"><strong>Total de Vendas:</strong> ${afiliado.total_vendas}</p>
-                        <p style="margin: 5px 0;"><strong>Total de Comissões:</strong> MZN ${parseFloat(afiliado.total_comissoes).toFixed(2)}</p>
+                    <div class="success-box">
+                        <h3 style="color: #28a745; margin-top: 0;">💰 Seu Saldo Atualizado</h3>
+                        <p><strong>Saldo Disponível:</strong> MZN ${parseFloat(afiliado.saldo_disponivel || 0).toFixed(2)}</p>
+                        <p><strong>Total de Vendas:</strong> ${afiliado.total_vendas || 0}</p>
+                        <p><strong>Total de Comissões:</strong> MZN ${parseFloat(afiliado.total_comissoes || 0).toFixed(2)}</p>
                     </div>
                     
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/afiliado-dashboard" 
-                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold;">
+                        <a href="${BASE_URL}/afiliado-dashboard.html" class="button">
                             📊 Acessar Painel do Afiliado
                         </a>
                     </div>
@@ -83,19 +140,266 @@ async function enviarNotificacaoAfiliado(afiliado, venda, valorComissao, transac
                         <strong>Equipe RatixPay</strong>
                     </p>
                 </div>
-            </div>
+            </body>
+            </html>
         `;
         
-        await emailService.enviarEmail({
-            to: afiliado.email,
-            subject: assunto,
-            html: html
-        });
+        await professionalEmailService.enviarEmailVendas(
+            afiliado.email,
+            assunto,
+            conteudo,
+            'notificacao_venda_afiliado'
+        );
         
-        console.log('✅ Notificação enviada para afiliado:', afiliado.email);
+        console.log('✅ Notificação de venda enviada para afiliado:', afiliado.email);
         
     } catch (error) {
-        console.error('❌ Erro ao enviar notificação para afiliado:', error);
+        console.error('❌ Erro ao enviar notificação de venda para afiliado:', error);
+        // Não falhar o processo por erro de email
+    }
+}
+
+// Função para enviar notificação de saque para afiliado
+async function enviarNotificacaoSaqueAfiliado(afiliado, valorSaque, statusSaque, numeroConta = null) {
+    try {
+        console.log('📧 Enviando notificação de saque para afiliado:', afiliado.nome);
+        
+        let assunto, conteudo;
+        
+        if (statusSaque === 'aprovado' || statusSaque === 'processado') {
+            assunto = `✅ Saque Aprovado - MZN ${valorSaque.toFixed(2)}`;
+            conteudo = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                            border-radius: 10px 10px 0 0;
+                        }
+                        .content {
+                            background: #f8f9fa;
+                            padding: 30px;
+                            border-radius: 0 0 10px 10px;
+                        }
+                        .success-box {
+                            background: #d4edda;
+                            border-left: 4px solid #28a745;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                        .info-box {
+                            background: white;
+                            border-left: 4px solid #F64C00;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                        .button {
+                            display: inline-block;
+                            background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+                            color: white;
+                            padding: 15px 30px;
+                            text-decoration: none;
+                            border-radius: 25px;
+                            margin: 20px 0;
+                            font-weight: bold;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>✅ Saque Aprovado</h1>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">Seu saque foi processado com sucesso</p>
+            </div>
+                    <div class="content">
+                        <p>Olá <strong>${afiliado.nome}</strong>,</p>
+                        
+                        <p>Seu saque foi aprovado e está sendo processado.</p>
+                        
+                        <div class="success-box">
+                            <h3 style="color: #28a745; margin-top: 0;">💰 Detalhes do Saque</h3>
+                            <p><strong>Valor do Saque:</strong> 
+                               <span style="color: #28a745; font-weight: bold; font-size: 18px;">MZN ${valorSaque.toFixed(2)}</span></p>
+                            <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${statusSaque === 'aprovado' ? 'Aprovado' : 'Processado'}</span></p>
+                            ${numeroConta ? `<p><strong>Conta:</strong> ${numeroConta}</p>` : ''}
+                            <p><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                        </div>
+                        
+                        <div class="info-box">
+                            <h3 style="color: #F64C00; margin-top: 0;">📊 Seu Saldo Atualizado</h3>
+                            <p><strong>Saldo Disponível:</strong> MZN ${parseFloat(afiliado.saldo_disponivel || 0).toFixed(2)}</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${BASE_URL}/afiliado-dashboard.html" class="button">
+                                📊 Acessar Painel do Afiliado
+                            </a>
+                        </div>
+                        
+                        <p style="color: #666; font-size: 14px; margin-top: 30px; text-align: center;">
+                            O valor será creditado na sua conta em até 3 dias úteis.<br>
+                            <strong>Equipe RatixPay</strong>
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
+        } else if (statusSaque === 'pendente') {
+            assunto = `⏳ Saque Pendente - MZN ${valorSaque.toFixed(2)}`;
+            conteudo = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                            border-radius: 10px 10px 0 0;
+                        }
+                        .content {
+                            background: #f8f9fa;
+                            padding: 30px;
+                            border-radius: 0 0 10px 10px;
+                        }
+                        .warning-box {
+                            background: #fff3cd;
+                            border-left: 4px solid #ffc107;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>⏳ Saque Pendente</h1>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">Aguardando aprovação</p>
+                    </div>
+                    <div class="content">
+                        <p>Olá <strong>${afiliado.nome}</strong>,</p>
+                        
+                        <p>Recebemos sua solicitação de saque. Está sendo analisada pela nossa equipe.</p>
+                        
+                        <div class="warning-box">
+                            <h3 style="color: #856404; margin-top: 0;">📋 Detalhes do Saque</h3>
+                            <p><strong>Valor Solicitado:</strong> MZN ${valorSaque.toFixed(2)}</p>
+                            <p><strong>Status:</strong> Pendente de Aprovação</p>
+                            <p><strong>Data da Solicitação:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                        </div>
+                        
+                        <p>Você receberá uma notificação assim que o saque for aprovado.</p>
+                        
+                        <p style="color: #666; font-size: 14px; margin-top: 30px; text-align: center;">
+                            <strong>Equipe RatixPay</strong>
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
+        } else {
+            assunto = `❌ Saque ${statusSaque === 'rejeitado' ? 'Rejeitado' : 'Cancelado'}`;
+            conteudo = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                            border-radius: 10px 10px 0 0;
+                        }
+                        .content {
+                            background: #f8f9fa;
+                            padding: 30px;
+                            border-radius: 0 0 10px 10px;
+                        }
+                        .error-box {
+                            background: #f8d7da;
+                            border-left: 4px solid #dc3545;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>❌ Saque ${statusSaque === 'rejeitado' ? 'Rejeitado' : 'Cancelado'}</h1>
+                    </div>
+                    <div class="content">
+                        <p>Olá <strong>${afiliado.nome}</strong>,</p>
+                        
+                        <p>Infelizmente, sua solicitação de saque foi ${statusSaque === 'rejeitado' ? 'rejeitada' : 'cancelada'}.</p>
+                        
+                        <div class="error-box">
+                            <h3 style="color: #721c24; margin-top: 0;">📋 Detalhes</h3>
+                            <p><strong>Valor Solicitado:</strong> MZN ${valorSaque.toFixed(2)}</p>
+                            <p><strong>Status:</strong> ${statusSaque === 'rejeitado' ? 'Rejeitado' : 'Cancelado'}</p>
+                        </div>
+                        
+                        <p>O valor foi devolvido ao seu saldo disponível. Entre em contato com o suporte para mais informações.</p>
+                        
+                        <p style="color: #666; font-size: 14px; margin-top: 30px; text-align: center;">
+                            <strong>Equipe RatixPay</strong>
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+        
+        await professionalEmailService.enviarEmailSuporte(
+            afiliado.email,
+            assunto,
+            conteudo,
+            'notificacao_saque_afiliado'
+        );
+        
+        console.log('✅ Notificação de saque enviada para afiliado:', afiliado.email);
+        
+    } catch (error) {
+        console.error('❌ Erro ao enviar notificação de saque para afiliado:', error);
+        // Não falhar o processo por erro de email
     }
 }
 
@@ -264,7 +568,7 @@ async function processarPagamentoAprovado(venda, produto, cliente, valorTotal, m
 // Função removida - agora usamos transaction_id da e2payments como identificador único
 
 // Função para enviar produto automaticamente via WhatsApp para o cliente
-// Usa a sessão "vendas-cliente" do WhatsApp Session Manager
+// Usa a sessão "default" do WhatsApp Manager
 async function enviarProdutoViaWhatsApp(pedidoInfo, venda, produto) {
     try {
         // Verificar se cliente forneceu WhatsApp
@@ -289,7 +593,7 @@ async function enviarProdutoViaWhatsApp(pedidoInfo, venda, produto) {
             };
         }
 
-        console.log('📱 Preparando envio automático do produto via WhatsApp (sessão vendas-cliente)...');
+        console.log('📱 Preparando envio automático do produto via WhatsApp...');
         console.log('   Cliente:', pedidoInfo.cliente.nome);
         console.log('   WhatsApp:', whatsappCliente);
         console.log('   Pedido:', pedidoInfo.idPedido);
@@ -304,8 +608,8 @@ async function enviarProdutoViaWhatsApp(pedidoInfo, venda, produto) {
         const axios = require('axios');
 
         // Verificar se a sessão WhatsApp está disponível (verificação rápida sem espera)
-        // Usar sessão 'vendas-cliente' para envio de produtos
-        const sessionId = 'vendas-cliente';
+        // Sempre usar sessão 'default'
+        const sessionId = 'default';
         const sessionStatus = whatsappManager.getStatus(sessionId);
         if (!sessionStatus.exists || !sessionStatus.isConnected) {
             console.log('ℹ️ Sessão WhatsApp não está conectada. Produto não será enviado via WhatsApp (ignorando silenciosamente).');
@@ -441,11 +745,11 @@ Obrigado por sua compra! 🎉
                 }
                 
                 // Enviar via sessão WhatsApp com mídia
-                const mensagemProduto = `📦 *SEU PRODUTO ESTÁ PRONTO!*
+                const mensagemProduto = `📦 *Seu Produto*
 
 ${produto.nome || 'Produto'}
 
-Caso tenha dúvida, contacte o suporte: ${SUPPORT_WHATSAPP}`;
+RatixPay`;
                 
                 console.log('📤 Enviando produto (mídia) para:', clientPhone);
                 const produtoResult = await whatsappManager.sendMessage(clientPhone, mensagemProduto, media, sessionId);
@@ -455,14 +759,13 @@ Caso tenha dúvida, contacte o suporte: ${SUPPORT_WHATSAPP}`;
                 // É URL simples - enviar mensagem com a URL
                 console.log('🔗 Detectado URL, enviando mensagem com URL do produto...');
                 
-                const mensagemComUrl = `📦 *SEU PRODUTO ESTÁ PRONTO!*
+                const mensagemComUrl = `📦 *Seu Produto*
 
 ${produto.nome || 'Produto'}
 
-🔗 *Link do Produto:*
-${linkConteudo}
+🔗 ${linkConteudo}
 
-Caso tenha dúvida, contacte o suporte: ${SUPPORT_WHATSAPP}`;
+RatixPay`;
                 
                 const urlResult = await whatsappManager.sendMessage(clientPhone, mensagemComUrl, null, sessionId);
                 console.log(`✅ URL do produto enviada via sessão WhatsApp para ${clientPhone}:`, urlResult);
@@ -789,21 +1092,13 @@ router.post('/support-request', async (req, res) => {
             return problemas[prob] || prob;
         };
         
-        const mensagemReclamacao = `🚨 *NOVA RECLAMAÇÃO DE SUPORTE*
+        const mensagemReclamacao = `🚨 *Nova Reclamação*
 
-📋 *Informações do Cliente:*
-• Nome: ${clienteNome}
-• Pedido: #${numeroPedido}
-• Data/Hora: ${dataHora}
+👤 ${clienteNome}
+📋 Pedido #${numeroPedido}
+🚨 ${getProblemText(problema)}
 
-🚨 *Tipo de Problema:*
-${getProblemText(problema)}
-
-📝 *Descrição Detalhada:*
-${descricao}
-
-⚠️ *AÇÃO URGENTE REQUERIDA*
-Entre em contato com o cliente imediatamente!`;
+RatixPay`;
         
         await whatsappManager.sendNotificationSafely(adminPhone, mensagemReclamacao);
         
@@ -3640,24 +3935,14 @@ router.post('/send-content-whatsapp', async (req, res) => {
         // Enviar WhatsApp com o conteúdo usando sessão única
         const whatsappManager = require('../services/whatsappManager');
         
-        // Construir mensagem com produtos complementares (se houver)
-        let mensagem = `🎉 *Seu conteúdo está pronto!*
+        // Mensagem curta e objetiva
+        let mensagem = `📦 *Seu Produto*
 
-📦 *Produto:* ${produtoNome}
-🔢 *Pedido:* #${numeroPedido}
+${produtoNome}
 
-🔗 *Acesse seu conteúdo:*
+🔗 ${linkConteudo || ''}
 
-📥 *[BAIXAR CONTEÚDO](${linkConteudo || ''})*`;
-
-        mensagem += `\n\n💡 *Como usar:*
-• Clique no link acima
-• Faça o download
-• Aproveite seu conteúdo!
-
-Obrigado por escolher RatixPay! 🚀
-
-Precisa de ajuda? Entre em contato conosco.`;
+RatixPay`;
 
         await whatsappManager.sendNotificationSafely(clienteTelefone, mensagem);
         
@@ -4062,4 +4347,6 @@ router.post('/pagamento/venda/:vendaId/utmify', async (req, res) => {
     }
 });
 
+// Exportar funções de notificação para uso em outras rotas
+module.exports.enviarNotificacaoSaqueAfiliado = enviarNotificacaoSaqueAfiliado;
 module.exports = router;

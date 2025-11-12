@@ -908,7 +908,7 @@ class VendaNotificationService {
             }
             
             const whatsappManager = require('./whatsappManager');
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {
@@ -923,23 +923,13 @@ class VendaNotificationService {
     formatarMensagemWhatsApp(dadosNotificacao) {
         const { dadosExtras } = dadosNotificacao;
         
-        // Usar hora atual na mensagem para evitar agrupamento
-        const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        
-        return `🎉 *NOVA VENDA REALIZADA! - ${horaAtual}*
+        return `🎉 *Nova Venda*
 
-📦 *Produto:* ${dadosExtras.produto_nome}
-💰 *Valor:* ${dadosExtras.valor_formatado}
-👤 *Cliente:* ${dadosExtras.cliente_nome}
-📧 *Email:* ${dadosExtras.cliente_email}
-📱 *WhatsApp:* ${dadosExtras.cliente_whatsapp}
-🕐 *Hora:* ${horaAtual}
+📦 ${dadosExtras.produto_nome}
+💰 ${dadosExtras.valor_formatado}
+👤 ${dadosExtras.cliente_nome}
 
-🔗 Acesse o painel para mais detalhes:
-${process.env.BASE_URL || 'ratxixpay.com'}/gestao-vendas.html
-
----
-*RatixPay - Sistema de Vendas*`;
+RatixPay`;
     }
 
     /**
@@ -957,18 +947,14 @@ ${process.env.BASE_URL || 'ratxixpay.com'}/gestao-vendas.html
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
             const valorVendedor = parseFloat(venda.valor_total || 0) * 0.9;
             
-            const mensagem = `🎉 *NOVA VENDA REALIZADA!*
+            const mensagem = `🎉 *Nova Venda*
 
-📦 *Produto:* ${venda.produto_nome || 'Produto'}
-💰 *Valor Adicionado na sua Conta:* MZN ${valorVendedor.toFixed(2)}
-📋 *Pedido:* #${venda.id}
+📦 ${venda.produto_nome || 'Produto'}
+💰 MZN ${valorVendedor.toFixed(2)}
 
-🔗 Acompanhe suas vendas:
-${baseUrl}/gestao-vendas.html
-
-*CONTINUE VENDENDO MAIS COM RATIXPAY* 🚀`;
+RatixPay`;
             
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp de venda enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {
@@ -1211,7 +1197,7 @@ ${baseUrl}/gestao-vendas.html
             const mensagem = this.formatarMensagemWhatsAppCancelada(dadosNotificacao);
             
             const whatsappManager = require('./whatsappManager');
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp de venda cancelada enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {
@@ -1226,32 +1212,13 @@ ${baseUrl}/gestao-vendas.html
     formatarMensagemWhatsAppCancelada(dadosNotificacao) {
         const { dadosExtras } = dadosNotificacao;
         
-        // Usar hora atual na mensagem para evitar agrupamento
-        const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        
-        return `🚨 *VENDA CANCELADA - ${horaAtual}*
+        return `🚨 *Venda Cancelada*
 
-Olá ${dadosNotificacao.mensagem.split(',')[0].replace('Olá ', '')}, ${dadosExtras.cliente_nome} tentou realizar pagamento do produto "${dadosExtras.produto_nome}" que custa ${dadosExtras.valor_formatado}.
+📦 ${dadosExtras.produto_nome}
+💰 ${dadosExtras.valor_formatado}
+👤 ${dadosExtras.cliente_nome}
 
-📋 *Detalhes da Venda:*
-📦 *Nome do Produto:* ${dadosExtras.produto_nome}
-💰 *Valor:* ${dadosExtras.valor_formatado}
-👤 *Cliente:* ${dadosExtras.cliente_nome}
-📧 *Email:* ${dadosExtras.cliente_email}
-📱 *WhatsApp:* ${dadosExtras.cliente_whatsapp}
-💳 *Status:* ${dadosExtras.status_pagamento}
-📅 *Data:* ${new Date(dadosExtras.data_venda).toLocaleString('pt-BR')}
-💳 *Método de Pagamento:* ${dadosExtras.metodo_pagamento}
-❌ *Motivo:* ${dadosExtras.motivo_cancelamento}
-🕐 *Hora:* ${horaAtual}
-
-🔗 Acesse o painel para mais detalhes:
-${process.env.BASE_URL || 'http://localhost:3000'}/gestao-vendas.html
-
-💡 *Contacte o cliente e faça a sua venda novamente!*
-
----
-*RatixPay - Sistema de Vendas*`;
+RatixPay`;
     }
 
     /**
@@ -1268,17 +1235,13 @@ ${process.env.BASE_URL || 'http://localhost:3000'}/gestao-vendas.html
             const whatsappManager = require('./whatsappManager');
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
             
-            const mensagem = `❌ *VENDA CANCELADA*
+            const mensagem = `❌ *Venda Cancelada*
 
-📦 *Produto:* ${venda.produto_nome || 'Produto'}
-📋 *Pedido:* #${venda.id}
+📦 ${venda.produto_nome || 'Produto'}
 
-🔗 Acompanhe suas vendas:
-${baseUrl}/gestao-vendas.html
-
-*RatixPay - Sistema de Vendas*`;
+RatixPay`;
             
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp de venda cancelada enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {
@@ -1477,27 +1440,12 @@ ${baseUrl}/gestao-vendas.html
     formatarMensagemWhatsAppPedidoSaque(dadosNotificacao) {
         const { dadosExtras } = dadosNotificacao;
         
-        return `💰 *PEDIDO DE SAQUE ${dadosExtras.valor_formatado}*
+        return `💰 *Novo Saque*
 
-${dadosExtras.vendedor_nome} fez pedido de saque com ID ${dadosExtras.saque_id}
+👤 ${dadosExtras.vendedor_nome}
+💰 ${dadosExtras.valor_formatado}
 
-📋 *Detalhes do Pedido:*
-🆔 *ID do Saque:* ${dadosExtras.saque_id}
-👤 *Nome do Vendedor:* ${dadosExtras.vendedor_nome}
-💰 *Valor de Saque:* ${dadosExtras.valor_formatado}
-💳 *Método:* ${dadosExtras.metodo}
-📱 *Contato:* ${dadosExtras.vendedor_telefone}
-📧 *Email:* ${dadosExtras.vendedor_email}
-📊 *Status:* ${dadosExtras.status}
-📅 *Data:* ${new Date(dadosExtras.data_pedido).toLocaleString('pt-BR')}
-
-🔗 Acesse o painel para processar:
-${process.env.BASE_URL || 'http://localhost:3000'}/admin/gestao-saques.html
-
-⚠️ *Processe este saque o mais rápido possível!*
-
----
-*RatixPay - Sistema de Vendas*`;
+RatixPay`;
     }
 
     /**
@@ -1747,7 +1695,7 @@ ${process.env.BASE_URL || 'http://localhost:3000'}/admin/gestao-saques.html
             const mensagem = this.formatarMensagemWhatsAppSaqueProcessado(dadosNotificacao);
             
             const whatsappManager = require('./whatsappManager');
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp de saque processado enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {
@@ -1763,28 +1711,11 @@ ${process.env.BASE_URL || 'http://localhost:3000'}/admin/gestao-saques.html
         const { dadosExtras } = dadosNotificacao;
         const isAprovado = dadosExtras.status === 'Pago';
         
-        return `${isAprovado ? '✅' : '❌'} *${dadosNotificacao.titulo.toUpperCase()}*
+        return `${isAprovado ? '✅' : '❌'} *Saque ${isAprovado ? 'Pago' : 'Cancelado'}*
 
-${dadosNotificacao.mensagem}
+💰 ${dadosExtras.valor_formatado}
 
-📋 *Detalhes do Saque:*
-🆔 *ID:* ${dadosExtras.saque_id}
-💰 *Valor:* ${dadosExtras.valor_formatado}
-💳 *Método:* ${dadosExtras.metodo}
-📱 *Conta:* ${dadosExtras.contato_carteira}
-📊 *Status:* ${dadosExtras.status}
-📅 *Data:* ${new Date(dadosExtras.data_processamento).toLocaleString('pt-BR')}
-
-🔗 Acesse o painel para mais detalhes:
-${process.env.BASE_URL || 'http://localhost:3000'}/gestao-vendas.html
-
-${isAprovado ? 
-    '💡 *Obrigado por usar o RatixPay! Continue vendendo!*' :
-    '💡 *Verifique os dados da sua carteira e tente novamente!*'
-}
-
----
-*RatixPay - Sistema de Vendas*`;
+RatixPay`;
     }
 
     /**
@@ -1802,17 +1733,13 @@ ${isAprovado ?
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
             const valorSaque = parseFloat(saqueData.valor || 0);
             
-            const mensagem = `✅ *SAQUE PROCESSADO*
+            const mensagem = `✅ *Saque Pago*
 
-💰 *Valor:* MZN ${valorSaque.toFixed(2)}
-📋 *ID:* ${saqueData.id ? saqueData.id.substring(saqueData.id.length - 6).toUpperCase() : 'N/A'}
+💰 MZN ${valorSaque.toFixed(2)}
 
-🔗 Acompanhe suas vendas:
-${baseUrl}/gestao-vendas.html
-
-*CONTINUE VENDENDO MAIS COM RATIXPAY* 🚀`;
+RatixPay`;
             
-            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
             console.log(`✅ WhatsApp de saque processado enviado para vendedor: ${vendedor.telefone}`);
 
         } catch (error) {

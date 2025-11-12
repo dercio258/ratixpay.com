@@ -422,37 +422,30 @@ class ReceitaService {
             
             switch (tipoNotificacao) {
                 case 'solicitacao':
-                    mensagemWhatsApp = `💰 *Nova Solicitação de Saque*
+                    mensagemWhatsApp = `💰 *Novo Saque*
 
-👤 *Vendedor:* ${vendedor.nome_completo}
-🆔 *ID:* ${vendedor.id}
-💳 *Valor:* ${valorFormatado}
-📅 *Data:* ${dataFormatada}
-⏳ *Status:* Pendente de aprovação
+👤 ${vendedor.nome_completo}
+💰 ${valorFormatado}
 
-Acesse o painel admin para processar.`;
+RatixPay`;
                     break;
                     
                 case 'aprovar':
-                    mensagemWhatsApp = `✅ *Saque Aprovado!*
+                    mensagemWhatsApp = `✅ *Saque Aprovado*
 
-👤 *Vendedor:* ${vendedor.nome_completo}
-💳 *Valor:* ${valorFormatado}
-📅 *Data Aprovação:* ${new Date().toLocaleString('pt-MZ')}
-💰 *Receita Atualizada:* MZN ${(await this.buscarReceitaTotal(vendedor.id)).receitaDisponivel.toFixed(2)}
+👤 ${vendedor.nome_completo}
+💰 ${valorFormatado}
 
-O pagamento será processado em breve.`;
+RatixPay`;
                     break;
                     
                 case 'rejeitar':
                     mensagemWhatsApp = `❌ *Saque Rejeitado*
 
-👤 *Vendedor:* ${vendedor.nome_completo}
-💳 *Valor:* ${valorFormatado}
-📅 *Data Rejeição:* ${new Date().toLocaleString('pt-MZ')}
-💬 *Motivo:* ${saque.motivo_rejeicao || 'Não informado'}
+👤 ${vendedor.nome_completo}
+💰 ${valorFormatado}
 
-Entre em contato para mais informações.`;
+RatixPay`;
                     break;
             }
             

@@ -114,26 +114,12 @@ class SaqueNotificationService {
             if (vendedor.telefone) {
                 const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
                 
-                const mensagemVendedor = `💰 *PEDIDO DE SAQUE PENDENTE ID ${idSaqueAmigavel}*
+                const mensagemVendedor = `💰 *Saque Solicitado*
 
-Olá *${vendedor.nome_completo}*!
+💰 MZN ${valorSolicitado.toFixed(2)}
+⏳ Aguardando aprovação
 
-Seu pedido de saque foi criado com sucesso:
-
-📋 *DETALHES:*
-🆔 *ID do Pedido:* ${idSaqueAmigavel}
-💰 *Valor Solicitado:* MZN ${valorSolicitado.toFixed(2)}
-💳 *Método:* ${metodo}
-⏳ *Status:* PENDENTE
-
-⏳ *Aguardando aprovação do administrador*
-
-Você receberá uma notificação quando o pedido for processado.
-
-🔗 Acompanhe seus saques:
-${baseUrl}/gestao-vendas.html
-
-*CONTINUE VENDENDO MAIS COM RATIXPAY* 🚀`;
+RatixPay`;
                 
                 await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagemVendedor);
                 console.log(`📱 WhatsApp de saque pendente enviado para vendedor: ${vendedor.telefone}`);
@@ -511,26 +497,12 @@ ${baseUrl}/gestao-vendas.html
             const metodo = saque.metodo || saque.metodo_pagamento || 'N/A';
             const dataSolicitacao = saque.data_solicitacao || saque.createdAt || new Date();
             
-            const mensagem = `💰 *PEDIDO DE SAQUE PENDENTE ID ${idSaqueAmigavel}*
+            const mensagem = `💰 *Novo Saque*
 
-O *${vendedor.nome_completo}* realizou um pedido de saque de *MZN ${valorSolicitado.toFixed(2)}*.
+👤 ${vendedor.nome_completo}
+💰 MZN ${valorSolicitado.toFixed(2)}
 
-📋 *INFORMAÇÕES DO PEDIDO:*
-🆔 *ID do Pedido:* ${idSaqueAmigavel}
-📛 *Nome do Titular:* ${nomeTitular}
-📱 *Contacto do Titular:* ${contacto}
-💰 *Valor Solicitado:* MZN ${valorSolicitado.toFixed(2)}
-💳 *Método:* ${metodo}
-⏳ *Status:* PENDENTE
-
-👤 *VENDEDOR:*
-📛 *Nome:* ${vendedor.nome_completo}
-📧 *Email:* ${vendedor.email || 'N/A'}
-📱 *Telefone:* ${vendedor.telefone || 'N/A'}
-
-⏳ *Aguardando ser aprovado*
-
-🔗 Acesse o painel admin para revisar e aprovar este pedido de saque.`;
+RatixPay`;
             
             // Enviar via sessão única WhatsApp
             const adminPhone = process.env.ADMIN_WHATSAPP || '258867792543';
@@ -563,24 +535,12 @@ O *${vendedor.nome_completo}* realizou um pedido de saque de *MZN ${valorSolicit
             // URL base do sistema
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
             
-            // Mensagem melhorada com link e mensagem motivacional
-            const mensagem = `✅ *SAQUE PAGO ID: ${idSaqueAmigavel}*
+            // Mensagem curta e objetiva
+            const mensagem = `✅ *Saque Pago*
 
-Olá *${vendedor.nome_completo}*!
+💰 MZN ${valorSolicitado.toFixed(2)}
 
-O seu pedido de saque foi pago na sua conta.
-
-📋 *DETALHES:*
-🆔 *ID do Pedido:* ${idSaqueAmigavel}
-💰 *Valor Pago:* MZN ${valorSolicitado.toFixed(2)}
-💳 *Método:* ${metodo}
-📅 *Data:* ${new Date(dataPagamento).toLocaleDateString('pt-BR')}
-✅ *Status:* PAGO
-
-🔗 Acompanhe suas vendas:
-${baseUrl}/gestao-vendas.html
-
-*CONTINUE VENDENDO MAIS COM RATIXPAY* 🚀`;
+RatixPay`;
             
             await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem);
             console.log(`📱 WhatsApp de saque pago enviado para vendedor: ${vendedor.telefone}`);
@@ -654,23 +614,11 @@ ${process.env.FRONTEND_URL || 'http://localhost:3000'}/confirmar-pagamento.html?
             };
             
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
-            const mensagem = `❌ *SAQUE CANCELADO ID: ${saque.id}*
+            const mensagem = `❌ *Saque Cancelado*
 
-Olá *${vendedor.nome_completo}*!
+💰 MZN ${parseFloat(saque.valor_solicitado).toFixed(2)}
 
-Seu saque foi cancelado.
-
-📋 *DETALHES:*
-🆔 *ID do Saque:* ${saque.id}
-💰 *Valor:* MZN ${parseFloat(saque.valor_solicitado).toFixed(2)}
-📝 *Motivo:* ${saque.motivo_cancelamento || 'Não informado'}
-
-🔗 Acompanhe suas vendas:
-${baseUrl}/gestao-vendas.html
-
-Entre em contato com o suporte se tiver dúvidas.
-
-*RatixPay - Sistema de Pagamentos*`;
+RatixPay`;
             
             await whatsappManager.sendNotificationSafely(whatsappData.phoneNumber, mensagem);
             console.log(`📱 WhatsApp de saque cancelado enviado para vendedor`);

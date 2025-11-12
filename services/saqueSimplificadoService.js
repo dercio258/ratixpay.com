@@ -289,16 +289,13 @@ class SaqueSimplificadoService {
             try {
                 const whatsappManager = require('./whatsappManager');
                 
-                const mensagemWhatsApp = `🔐 *RatixPay - Código de Autenticação*
-
-Olá! Seu código de autenticação para saque é:
+                const mensagemWhatsApp = `🔐 *Código de Autenticação*
 
 *${resultado.codigo}*
 
-⏰ Este código expira em 10 minutos.
-🔒 Use apenas para confirmar seu saque.
+⏰ Válido por 10 minutos
 
-*RatixPay - Sistema Seguro*`;
+RatixPay`;
                 
                 const telefone = carteira.contacto || carteira.telefoneTitular || carteira.telefone_titular;
                 if (telefone) {

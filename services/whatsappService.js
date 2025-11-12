@@ -224,24 +224,13 @@ class WhatsAppService {
                 template = fs.readFileSync(templatePath, 'utf8');
             } else {
                 // Template fallback
-                template = `🔐 *CÓDIGO DE VERIFICAÇÃO - RATIXPAY*
+                template = `🔐 *Código de Verificação*
 
-Olá, {{NOME_USUARIO}}!
+*{{CODIGO_VERIFICACAO}}*
 
-Recebemos uma solicitação para {{MOTIVO_EMAIL}} em sua conta.
+⏰ Válido por {{TEMPO_EXPIRACAO}} minutos
 
-*Código:* \`{{CODIGO_VERIFICACAO}}\`
-
-⏰ *Expira em:* {{TEMPO_EXPIRACAO}} minutos
-🔒 *Use apenas uma vez*
-
-⚠️ *Nunca compartilhe este código com ninguém.*
-
-Precisa de ajuda? 
-📱 https://wa.me/258867792543
-
----
-*RatixPay - Sistema Seguro*`;
+RatixPay`;
             }
 
             // Substituir variáveis no template

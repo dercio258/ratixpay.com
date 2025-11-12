@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Sess„o WhatsApp - Admin</title>
+    <title>Gerenciamento de Sess√£o WhatsApp - Admin</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
         
 <style>
@@ -126,12 +126,6 @@
             word-break: break-word;
         }
 
-        .error-message strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #721c24;
-        }
-
         .qr-section {
             background: white;
             border: 2px dashed #dee2e6;
@@ -139,129 +133,11 @@
             padding: 40px;
             text-align: center;
             margin-bottom: 20px;
-            min-height: 500px;
+            min-height: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .logs-section {
-            background: #1e1e1e;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-        }
-
-        .logs-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-
-        .logs-header h3 {
-            color: #fff;
-            font-size: 1.1rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logs-container {
-            background: #000;
-            border-radius: 5px;
-            padding: 15px;
-            min-height: 300px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .log-entry {
-            padding: 6px 0;
-            border-bottom: 1px solid #333;
-            color: #fff;
-            display: flex;
-            gap: 10px;
-            align-items: start;
-        }
-
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-
-        .log-timestamp {
-            color: #888;
-            font-size: 0.75rem;
-            min-width: 80px;
-        }
-
-        .log-type {
-            min-width: 60px;
-            font-weight: 600;
-        }
-
-        .log-type.info {
-            color: #17a2b8;
-        }
-
-        .log-type.success {
-            color: #28a745;
-        }
-
-        .log-type.warning {
-            color: #ffc107;
-        }
-
-        .log-type.error {
-            color: #dc3545;
-        }
-
-        .log-type.debug {
-            color: #6c757d;
-        }
-
-        .log-message {
-            flex: 1;
-            word-break: break-word;
-        }
-
-        .btn-clear-logs {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .btn-clear-logs:hover {
-            background: #5a6268;
-        }
-
-        /* Scrollbar personalizado para logs */
-        .logs-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .logs-container::-webkit-scrollbar-track {
-            background: #1e1e1e;
-        }
-
-        .logs-container::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 4px;
-        }
-
-        .logs-container::-webkit-scrollbar-thumb:hover {
-            background: #777;
         }
 
         .qr-section.connected {
@@ -291,7 +167,7 @@
         }
 
         .qr-code {
-            max-width: 600px;
+            max-width: 400px;
             width: 100%;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -534,116 +410,6 @@
             background: #5a6268;
         }
 
-        .logs-section {
-            background: #1e1e1e;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-            max-height: 400px;
-            overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .logs-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #333;
-        }
-
-        .logs-header h3 {
-            color: #fff;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logs-header .btn-small {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .logs-header .btn-small:hover {
-            background: #c82333;
-        }
-
-        .logs-content {
-            max-height: 320px;
-            overflow-y: auto;
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        .log-entry {
-            padding: 8px 0;
-            border-bottom: 1px solid #333;
-            display: flex;
-            gap: 10px;
-        }
-
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-
-        .log-time {
-            color: #888;
-            min-width: 80px;
-            font-size: 0.75rem;
-        }
-
-        .log-message {
-            flex: 1;
-            word-break: break-word;
-        }
-
-        .log-entry.info .log-message {
-            color: #17a2b8;
-        }
-
-        .log-entry.success .log-message {
-            color: #28a745;
-        }
-
-        .log-entry.error .log-message {
-            color: #dc3545;
-        }
-
-        .log-entry.warning .log-message {
-            color: #ffc107;
-        }
-
-        .log-entry.debug .log-message {
-            color: #6c757d;
-        }
-
-        .logs-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .logs-content::-webkit-scrollbar-track {
-            background: #2a2a2a;
-            border-radius: 4px;
-        }
-
-        .logs-content::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 4px;
-        }
-
-        .logs-content::-webkit-scrollbar-thumb:hover {
-            background: #777;
-        }
-
         @media (max-width: 768px) {
             .session-actions {
                 grid-template-columns: 1fr;
@@ -664,7 +430,7 @@
         }
     </style>
 
-    <!-- Sistema de AutenticaÁ„o Global -->
+    <!-- Sistema de Autentica√ß√£o Global -->
     <script src="/js/server-check.js"></script>
     <script src="/js/global-auth.js"></script>
 </head>
@@ -676,39 +442,22 @@
 
     <div class="container">
         <div class="header">
-            <h1><i class="fab fa-whatsapp"></i> Gerenciamento de Sessıes WhatsApp</h1>
-            <p>Gerencie m˙ltiplas sessıes WhatsApp de forma robusta e est·vel</p>
-            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 8px; font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i>
-                <strong>Nota:</strong> Sistema atualizado para Baileys - Suporte a m˙ltiplas sessıes simult‚neas. 
-                Use o seletor abaixo para escolher qual sess„o gerenciar.
-            </div>
-            <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                <label for="sessionSelector" style="color: white; font-weight: 600; margin-right: 10px;">Sess„o:</label>
-                <select id="sessionSelector" style="padding: 8px 15px; border-radius: 5px; border: none; font-size: 0.9rem; min-width: 200px;">
-                    <option value="default">Padr„o (default)</option>
-                    <option value="vendas-cliente">Vendas - Cliente</option>
-                    <option value="vendas-vendedor">Vendas - Vendedor</option>
-                    <option value="sistema">Sistema</option>
-                    <option value="ofertas">Ofertas</option>
-                    <option value="suporte">Suporte</option>
-                    <option value="afiliados">Afiliados</option>
-                </select>
-            </div>
+            <h1><i class="fab fa-whatsapp"></i> Gerenciamento de Sess√£o WhatsApp</h1>
+            <p>Sess√£o √∫nica 'default' para todas as notifica√ß√µes</p>
         </div>
 
         <div class="session-container">
             <div class="session-card" id="sessionCard">
-                <!-- Sess„o ser· carregada aqui via JavaScript -->
+                <!-- Sess√£o ser√° carregada aqui via JavaScript -->
             </div>
         </div>
     </div>
 
-    <!-- Modal para teste de sess„o -->
+    <!-- Modal para teste de sess√£o -->
     <div class="test-modal" id="testModal">
         <div class="modal-content">
-            <h3>Testar Sess„o</h3>
-            <input type="tel" id="testPhoneNumber" placeholder="N˙mero de telefone (ex: 258841234567)">
+            <h3>Testar Sess√£o</h3>
+            <input type="tel" id="testPhoneNumber" placeholder="N√∫mero de telefone (ex: 258841234567)">
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeTestModal()">Cancelar</button>
                 <button class="btn btn-primary" onclick="sendTestMessage()">Enviar Teste</button>
@@ -718,19 +467,16 @@
 
     <script>
         const API_BASE = '/api/whatsapp';
+        const SESSION_ID = 'default'; // Sempre usar 'default'
         let refreshInterval = null;
         let sessionState = null;
-        let logsInterval = null;
-        const logs = [];
-        const MAX_LOGS = 200;
-        let currentSessionId = 'default';
         
-        // FunÁ„o para obter token de autenticaÁ„o
+        // Fun√ß√£o para obter token de autentica√ß√£o
         function getAuthToken() {
             return localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
         }
 
-        // FunÁ„o para criar headers com autenticaÁ„o
+        // Fun√ß√£o para criar headers com autentica√ß√£o
         function getAuthHeaders(includeContentType = true) {
             const token = getAuthToken();
             const headers = {
@@ -742,11 +488,10 @@
             return headers;
         }
 
-        // Verificar autenticaÁ„o antes de carregar
+        // Verificar autentica√ß√£o antes de carregar
         async function checkAuth() {
             const token = getAuthToken();
             if (!token) {
-                console.log('? Nenhum token encontrado, redirecionando para login');
                 window.location.href = 'login.html';
                 return false;
             }
@@ -771,59 +516,49 @@
                     }
                 }
             } catch (error) {
-                console.error('Erro na verificaÁ„o de auth:', error);
+                console.error('Erro na verifica√ß√£o de auth:', error);
             }
 
             window.location.href = 'login.html';
             return false;
         }
 
-        // Inicializar p·gina
+        // Inicializar p√°gina
         document.addEventListener('DOMContentLoaded', async function() {
-            // Verificar autenticaÁ„o primeiro
             const isAuthorized = await checkAuth();
             if (!isAuthorized) {
                 return;
             }
 
-            // Configurar seletor de sess„o
-            const sessionSelector = document.getElementById('sessionSelector');
-            if (sessionSelector) {
-                sessionSelector.addEventListener('change', function() {
-                    currentSessionId = this.value;
-                    loadSession();
-                    showNotification(`Sess„o alterada para: ${currentSessionId}`, 'info');
-                });
-            }
-
-            // Carregar sess„o imediatamente
+            // Carregar sess√£o imediatamente
             await loadSession();
-            
-            // Iniciar busca de logs
-            startLogsPolling();
             
             // Atualizar a cada 30 segundos
             refreshInterval = setInterval(async () => {
                 const oldState = sessionState;
                 await loadSession();
                 
-                // Detectar se sess„o foi perdida
+                // Detectar se sess√£o foi perdida
                 if (oldState && oldState.isConnected && sessionState && !sessionState.isConnected) {
-                    addLog('warning', 'Sess„o WhatsApp foi desconectada');
-                    showNotification('?? Sess„o WhatsApp foi desconectada. Use "Reconectar" para tentar novamente.', 'warning');
+                    showNotification('‚ö†Ô∏è Sess√£o WhatsApp foi desconectada. Use "Reconectar" para tentar novamente.', 'warning');
                 }
 
-                // Detectar se sess„o foi conectada
+                // Detectar se sess√£o foi conectada
                 if (oldState && !oldState.isConnected && sessionState && sessionState.isConnected) {
-                    addLog('success', 'Sess„o WhatsApp conectada com sucesso!');
+                    showNotification('‚úÖ Sess√£o WhatsApp conectada com sucesso!', 'success');
+                }
+                
+                // Se status mudou para waiting_qr e n√£o tem QR Code exibido, tentar carregar
+                if (sessionState && sessionState.status === 'waiting_qr' && !sessionState.qrCode) {
+                    setTimeout(() => loadQRCode(), 1000);
                 }
             }, 30000);
         });
 
-        // Carregar sess„o
+        // Carregar sess√£o
         async function loadSession() {
             try {
-                const response = await fetch(`${API_BASE}/session?sessionId=${currentSessionId}`, {
+                const response = await fetch(`${API_BASE}/session?sessionId=${SESSION_ID}`, {
                     headers: getAuthHeaders(false)
                 });
                 const data = await response.json();
@@ -832,23 +567,28 @@
                     sessionState = data.session;
                     renderSession(data.session);
                 } else {
-                    showNotification('Erro ao carregar sess„o: ' + (data.message || 'Erro desconhecido'), 'error');
+                    // Se n√£o existe sess√£o, criar estado vazio
+                    sessionState = { exists: false, status: 'not_created' };
+                    renderSession(sessionState);
                 }
             } catch (error) {
-                console.error('Erro ao carregar sess„o:', error);
-                showNotification('Erro ao carregar sess„o. Verifique a conex„o.', 'error');
+                console.error('Erro ao carregar sess√£o:', error);
+                sessionState = { exists: false, status: 'not_created' };
+                renderSession(sessionState);
             }
         }
 
-        // Renderizar sess„o
+        // Renderizar sess√£o
         function renderSession(session) {
             const card = document.getElementById('sessionCard');
+            const hasSession = session && session.exists;
+            const isConnected = session && session.isConnected;
             
             card.innerHTML = `
                 <div class="session-header">
                     <div class="session-title">
                         <i class="fab fa-whatsapp"></i>
-                        Sess„o WhatsApp: ${session.sessionId || currentSessionId}
+                        Sess√£o WhatsApp: default
                     </div>
                     <span class="session-status status-${getStatusClass(session.status || 'not_created')}">
                         <i class="fas ${getStatusIcon(session.status || 'not_created')}"></i>
@@ -856,12 +596,20 @@
                     </span>
                 </div>
 
+                ${hasSession && session.lastError ? `
+                <div class="error-message">
+                    <strong>‚ö†Ô∏è Erro:</strong>
+                    ${session.lastError}
+                </div>
+                ` : ''}
+
+                ${hasSession ? `
                 <div class="session-info">
                     <div class="info-row">
                         <span class="info-label">Status:</span>
                         <span class="info-value">${getStatusText(session.status || 'not_created')}</span>
                     </div>
-                    ${session.isConnected && session.connectedAt ? `
+                    ${isConnected && session.connectedAt ? `
                     <div class="info-row">
                         <span class="info-label">Conectado em:</span>
                         <span class="info-value">${formatDate(session.connectedAt)}</span>
@@ -874,7 +622,7 @@
                     </div>
                     ${session.stats.lastMessageAt ? `
                     <div class="info-row">
-                        <span class="info-label">⁄ltima mensagem:</span>
+                        <span class="info-label">√öltima mensagem:</span>
                         <span class="info-value">${formatDate(session.stats.lastMessageAt)}</span>
                     </div>
                     ` : ''}
@@ -893,50 +641,32 @@
                     ` : ''}
                     ${session.reconnectAttempts > 0 ? `
                     <div class="info-row">
-                        <span class="info-label">Tentativas de reconex„o:</span>
+                        <span class="info-label">Tentativas de reconex√£o:</span>
                         <span class="info-value">${session.reconnectAttempts}</span>
                     </div>
                     ` : ''}
-                    ${session.lastError ? `
-                    <div class="error-message">
-                        <strong>?? Erro:</strong>
-                        ${session.lastError}
-                        <div style="margin-top: 10px;">
-                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="reconnectSession()">
-                                <i class="fas fa-sync-alt"></i> Reconectar Agora
-                            </button>
-                        </div>
-                    </div>
-                    ` : ''}
-                    ${session.status === 'disconnected' && session.exists ? `
-                    <div class="error-message" style="background: #fff3cd; border-color: #ffc107;">
-                        <strong>?? Sess„o Desconectada:</strong>
-                        A sess„o foi desconectada. Clique em "Reconectar" para tentar novamente.
-                    </div>
-                    ` : ''}
                 </div>
+                ` : ''}
 
-                <div class="qr-section ${session.isConnected ? 'connected' : session.status === 'waiting_qr' ? 'waiting' : session.status === 'error' ? 'error' : ''}" id="qrSection">
-                    ${session.isConnected ? `
+                <div class="qr-section ${isConnected ? 'connected' : session.status === 'waiting_qr' ? 'waiting' : session.status === 'error' ? 'error' : ''}" id="qrSection">
+                    ${isConnected ? `
                         <div class="qr-placeholder">
                             <i class="fas fa-check-circle" style="color: #28a745; font-size: 4rem;"></i>
-                            <p style="margin-top: 15px; font-size: 1.1rem; font-weight: 600;">Sess„o conectada e pronta para uso</p>
+                            <p style="margin-top: 15px; font-size: 1.1rem; font-weight: 600;">Sess√£o conectada e pronta para uso</p>
                         </div>
-                    ` : session.qrCode || (session.status === 'waiting_qr' && !session.isConnected) ? `
-                        ${session.qrCode ? `
-                            <img src="${session.qrCode}" alt="QR Code" class="qr-code" id="qrCode">
-                            <p style="margin-top: 15px; color: #856404; font-weight: 600;">Escaneie com seu WhatsApp</p>
-                        ` : `
-                            <div class="qr-placeholder">
-                                <i class="fas fa-spinner fa-spin" style="color: #ffc107; font-size: 3rem;"></i>
-                                <p style="margin-top: 15px; color: #856404; font-weight: 600;">Gerando QR Code...</p>
-                                <p style="margin-top: 5px; color: #6c757d; font-size: 0.85rem;">Aguarde alguns segundos</p>
-                            </div>
-                        `}
+                    ` : session.qrCode ? `
+                        <img src="${session.qrCode}" alt="QR Code" class="qr-code" id="qrCode">
+                        <p style="margin-top: 15px; color: #856404; font-weight: 600;">Escaneie com seu WhatsApp</p>
+                    ` : session.status === 'waiting_qr' ? `
+                        <div class="qr-placeholder">
+                            <i class="fas fa-spinner fa-spin" style="color: #ffc107; font-size: 3rem;"></i>
+                            <p style="margin-top: 15px; color: #856404; font-weight: 600;">Gerando QR Code...</p>
+                            <p style="margin-top: 5px; color: #6c757d; font-size: 0.85rem;">Aguarde alguns segundos</p>
+                        </div>
                     ` : session.status === 'error' ? `
                         <div class="qr-placeholder">
                             <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
-                            <p style="color: #721c24; margin-top: 10px;">Erro na conex„o</p>
+                            <p style="color: #721c24; margin-top: 10px;">Erro na conex√£o</p>
                             <p style="color: #6c757d; font-size: 0.85rem; margin-top: 5px;">Clique em "Reconectar" para tentar novamente</p>
                         </div>
                     ` : `
@@ -948,230 +678,138 @@
                 </div>
 
                 <div class="session-actions">
-                    ${(session.status === 'error' || session.status === 'disconnected' || session.status === 'auth_failure' || (!session.isConnected && session.exists)) ? `
-                    <button class="btn btn-primary" onclick="reconnectSession()">
-                        <i class="fas fa-sync-alt"></i>
-                        Reconectar
-                    </button>
-                    ` : !session.exists || !session.isConnected ? `
+                    ${!hasSession ? `
+                    <!-- Quando n√£o h√° sess√£o criada -->
                     <button class="btn btn-primary" onclick="createSession()">
                         <i class="fas fa-plus"></i>
                         Criar/Inicializar
                     </button>
-                    ` : ''}
-                    ${session.isConnected ? `
+                    <button class="btn btn-info" onclick="loadQRCode()">
+                        <i class="fas fa-qrcode"></i>
+                        Ver QR Code
+                    </button>
+                    <button class="btn btn-warning" onclick="reconnectSession()">
+                        <i class="fas fa-sync-alt"></i>
+                        Reconectar
+                    </button>
+                    ` : isConnected ? `
+                    <!-- Quando tem sess√£o conectada -->
                     <button class="btn btn-success" onclick="testSession()">
                         <i class="fas fa-paper-plane"></i>
                         Testar
                     </button>
-                    ` : ''}
-                    <button class="btn btn-info" onclick="loadQRCode(true)">
-                        <i class="fas fa-qrcode"></i>
-                        Ver QR Code
+                    <button class="btn btn-warning" onclick="pauseSession()">
+                        <i class="fas fa-pause"></i>
+                        Pausar Sess√£o
                     </button>
-                    <button class="btn btn-warning" onclick="resetSession()" ${!session.exists ? 'disabled' : ''}>
-                        <i class="fas fa-redo"></i>
-                        Resetar
-                    </button>
-                    <button class="btn btn-danger" onclick="deleteSession()" ${!session.exists ? 'disabled' : ''}>
+                    <button class="btn btn-danger" onclick="deleteSession()">
                         <i class="fas fa-trash"></i>
                         Apagar
                     </button>
-                </div>
-
-                <div class="logs-section">
-                    <div class="logs-header">
-                        <h3>
-                            <i class="fas fa-terminal"></i>
-                            Logs em Tempo Real
-                        </h3>
-                        <button class="btn-clear-logs" onclick="clearLogs()">
-                            <i class="fas fa-trash"></i> Limpar
-                        </button>
-                    </div>
-                    <div class="logs-container" id="logsContent">
-                        <div class="log-entry info">
-                            <span class="log-timestamp">--:--:--</span>
-                            <span class="log-type info">INFO</span>
-                            <span class="log-message">Aguardando eventos do WhatsApp...</span>
-                        </div>
-                    </div>
+                    ` : `
+                    <!-- Quando tem sess√£o mas n√£o est√° conectada -->
+                    <button class="btn btn-primary" onclick="reconnectSession()">
+                        <i class="fas fa-sync-alt"></i>
+                        Reconectar
+                    </button>
+                    <button class="btn btn-info" onclick="loadQRCode()">
+                        <i class="fas fa-qrcode"></i>
+                        Ver QR Code
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteSession()">
+                        <i class="fas fa-trash"></i>
+                        Apagar
+                    </button>
+                    `}
                 </div>
             `;
         }
 
-        // Reconectar sess„o
+        // Criar/inicializar sess√£o
+        async function createSession() {
+            try {
+                showNotification('Criando/inicializando sess√£o...', 'info');
+                
+                const response = await fetch(`${API_BASE}/session`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ sessionId: SESSION_ID })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sess√£o criada/inicializada com sucesso!', 'success');
+                    await loadSession();
+                    setTimeout(() => loadQRCode(), 2000);
+                } else {
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao criar sess√£o:', error);
+                showNotification('Erro ao criar sess√£o. Verifique a conex√£o.', 'error');
+            }
+        }
+
+        // Reconectar sess√£o
         async function reconnectSession() {
             try {
-                showNotification('Reconectando sess„o...', 'info');
+                showNotification('Reconectando sess√£o...', 'info');
                 
-                // Primeiro, tentar resetar a sess„o para limpar o estado de erro (se existir)
                 if (sessionState && sessionState.exists) {
                     try {
-                        const resetResponse = await fetch(`${API_BASE}/session/reset`, {
+                        await fetch(`${API_BASE}/session/reset`, {
                             method: 'POST',
                             headers: getAuthHeaders()
                         });
-                        
-                        if (!resetResponse.ok) {
-                            console.warn('Aviso ao resetar sess„o:', await resetResponse.text());
-                        }
-                        
                         await new Promise(resolve => setTimeout(resolve, 1000));
                     } catch (resetError) {
                         console.warn('Erro ao resetar (tentando continuar):', resetError);
                     }
                 }
                 
-                // Criar/inicializar nova sess„o
                 const response = await fetch(`${API_BASE}/session`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ sessionId: currentSessionId })
+                    body: JSON.stringify({ sessionId: SESSION_ID })
                 });
 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('Sess„o reconectada! Aguardando QR Code...', 'success');
+                    showNotification('Sess√£o reconectada! Aguardando QR Code...', 'success');
                     setTimeout(loadSession, 1000);
-                    
-                    // Carregar QR code automaticamente se disponÌvel
-                    setTimeout(() => {
-                        loadQRCode(false);
-                    }, 2000);
-                    
-                    // Tentar atualizar QR code a cada 3 segundos atÈ conectar (m·ximo 10 tentativas)
-                    let qrAttempts = 0;
-                    const qrInterval = setInterval(async () => {
-                        qrAttempts++;
-                        if (qrAttempts > 10) {
-                            clearInterval(qrInterval);
-                            return;
-                        }
-                        
-                        await loadSession();
-                        if (sessionState && sessionState.isConnected) {
-                            clearInterval(qrInterval);
-                            showNotification('Sess„o conectada com sucesso!', 'success');
-                        } else {
-                            await loadQRCode(false);
-                        }
-                    }, 3000);
+                    setTimeout(() => loadQRCode(), 2000);
                 } else {
-                    let errorMsg = data.message || 'Erro desconhecido';
-                    
-                    if (data.needsPuppeteerInstall || data.error?.includes('Chromium') || data.error?.includes('Puppeteer')) {
-                        errorMsg = '? Chromium n„o encontrado!\n\n' +
-                            'O Puppeteer precisa do Chromium instalado.\n\n' +
-                            'Execute no terminal:\n' +
-                            'npm install puppeteer';
-                        alert(errorMsg);
-                    }
-                    
-                    showNotification('Erro: ' + errorMsg, 'error');
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
                 }
             } catch (error) {
-                console.error('Erro ao reconectar sess„o:', error);
-                showNotification('Erro ao reconectar sess„o. Verifique a conex„o e se o servidor WhatsApp est· rodando.', 'error');
-            }
-        }
-
-        // Criar/inicializar sess„o
-        async function createSession() {
-            try {
-                showNotification('Criando/inicializando sess„o...', 'info');
-                
-                const response = await fetch(`${API_BASE}/session`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ sessionId: currentSessionId })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('Sess„o criada/inicializada com sucesso!', 'success');
-                    // Atualizar imediatamente
-                    await loadSession();
-                    // Tentar carregar QR code apÛs 1 segundo
-                    setTimeout(async () => {
-                        await loadQRCode(false);
-                        // Continuar tentando a cada 2 segundos atÈ conectar ou ter QR (m·ximo 10 tentativas)
-                        let attempts = 0;
-                        const qrInterval = setInterval(async () => {
-                            attempts++;
-                            if (attempts > 10) {
-                                clearInterval(qrInterval);
-                                return;
-                            }
-                            await loadSession();
-                            if (sessionState && (sessionState.isConnected || sessionState.qrCode)) {
-                                clearInterval(qrInterval);
-                                if (sessionState.qrCode) {
-                                    await loadQRCode(false);
-                                }
-                            } else {
-                                await loadQRCode(false);
-                            }
-                        }, 2000);
-                    }, 1000);
-                } else {
-                    let errorMsg = data.message || 'Erro desconhecido';
-                    
-                    if (data.needsPuppeteerInstall || data.error?.includes('Chromium') || data.error?.includes('Puppeteer')) {
-                        errorMsg = '? Chromium n„o encontrado!\n\n' +
-                                  'Por favor, execute no terminal:\n\n' +
-                                  'npm install puppeteer\n\n' +
-                                  'Depois reinicie o servidor.';
-                        alert(errorMsg);
-                    }
-                    
-                    showNotification('Erro: ' + errorMsg, 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao criar sess„o:', error);
-                showNotification('Erro ao criar sess„o. Verifique a conex„o.', 'error');
+                console.error('Erro ao reconectar sess√£o:', error);
+                showNotification('Erro ao reconectar sess√£o.', 'error');
             }
         }
 
         // Carregar QR Code
-        async function loadQRCode(isManual = false) {
+        async function loadQRCode() {
             try {
-                const response = await fetch(`${API_BASE}/session/qrcode?sessionId=${currentSessionId}`, {
+                const response = await fetch(`${API_BASE}/session/qrcode?sessionId=${SESSION_ID}`, {
                     headers: getAuthHeaders(false)
                 });
 
                 const data = await response.json();
                 
                 if (data.success && data.qrCode) {
-                    // Atualizar QR code na interface
                     const qrSection = document.getElementById('qrSection');
-                    const qrImg = document.getElementById('qrCode');
-                    
-                    if (qrImg) {
-                        qrImg.src = data.qrCode;
-                    } else {
-                        const newImg = document.createElement('img');
-                        newImg.src = data.qrCode;
-                        newImg.className = 'qr-code';
-                        newImg.id = 'qrCode';
-                        qrSection.innerHTML = '';
-                        qrSection.appendChild(newImg);
-                        qrSection.className = 'qr-section waiting';
-                        const p = document.createElement('p');
-                        p.style.marginTop = '15px';
-                        p.style.color = '#856404';
-                        p.style.fontWeight = '600';
-                        p.textContent = 'Escaneie com seu WhatsApp';
-                        qrSection.appendChild(p);
-                    }
-                    
+                    qrSection.innerHTML = `
+                        <img src="${data.qrCode}" alt="QR Code" class="qr-code" id="qrCode">
+                        <p style="margin-top: 15px; color: #856404; font-weight: 600;">Escaneie com seu WhatsApp</p>
+                    `;
+                    qrSection.className = 'qr-section waiting';
                     showNotification('QR Code carregado!', 'success');
                 } else if (data.connected) {
-                    showNotification('Sess„o j· est· conectada!', 'info');
+                    showNotification('Sess√£o j√° est√° conectada!', 'info');
                 } else {
-                    showNotification('QR Code ainda n„o est· disponÌvel. Aguarde alguns segundos...', 'warning');
+                    showNotification('QR Code ainda n√£o est√° dispon√≠vel. Aguarde alguns segundos...', 'warning');
                 }
             } catch (error) {
                 console.error('Erro ao carregar QR code:', error);
@@ -1179,39 +817,64 @@
             }
         }
 
-        // Resetar sess„o
-        async function resetSession() {
-            if (!confirm('Tem certeza que deseja resetar a sess„o WhatsApp?')) {
+        // Pausar sess√£o (resetar)
+        async function pauseSession() {
+            if (!confirm('Tem certeza que deseja pausar a sess√£o WhatsApp?')) {
                 return;
             }
 
             try {
-                showNotification('Resetando sess„o...', 'warning');
+                showNotification('Pausando sess√£o...', 'warning');
                 
                 const response = await fetch(`${API_BASE}/session/reset`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ sessionId: currentSessionId })
+                    body: JSON.stringify({ sessionId: SESSION_ID })
                 });
 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('Sess„o resetada com sucesso!', 'success');
-                    setTimeout(() => {
-                        loadSession();
-                        loadQRCode(true);
-                    }, 2000);
+                    showNotification('Sess√£o pausada com sucesso!', 'success');
+                    setTimeout(loadSession, 2000);
                 } else {
                     showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
                 }
             } catch (error) {
-                console.error('Erro ao resetar sess„o:', error);
-                showNotification('Erro ao resetar sess„o.', 'error');
+                console.error('Erro ao pausar sess√£o:', error);
+                showNotification('Erro ao pausar sess√£o.', 'error');
             }
         }
 
-        // Testar sess„o
+        // Apagar sess√£o
+        async function deleteSession() {
+            if (!confirm('Tem certeza que deseja APAGAR completamente a sess√£o WhatsApp? Esta a√ß√£o n√£o pode ser desfeita!')) {
+                return;
+            }
+
+            try {
+                showNotification('Apagando sess√£o...', 'warning');
+                
+                const response = await fetch(`${API_BASE}/session?sessionId=${SESSION_ID}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(false)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Sess√£o apagada com sucesso!', 'success');
+                    setTimeout(loadSession, 1000);
+                } else {
+                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao apagar sess√£o:', error);
+                showNotification('Erro ao apagar sess√£o.', 'error');
+            }
+        }
+
+        // Testar sess√£o
         function testSession() {
             document.getElementById('testModal').classList.add('show');
             document.getElementById('testPhoneNumber').focus();
@@ -1228,7 +891,7 @@
             const phoneNumber = document.getElementById('testPhoneNumber').value.trim();
             
             if (!phoneNumber) {
-                showNotification('Por favor, insira um n˙mero de telefone', 'error');
+                showNotification('Por favor, insira um n√∫mero de telefone', 'error');
                 return;
             }
 
@@ -1239,7 +902,7 @@
                 const response = await fetch(`${API_BASE}/session/test`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ testPhoneNumber: phoneNumber, sessionId: currentSessionId })
+                    body: JSON.stringify({ testPhoneNumber: phoneNumber, sessionId: SESSION_ID })
                 });
 
                 const data = await response.json();
@@ -1256,35 +919,7 @@
             }
         }
 
-        // Apagar sess„o
-        async function deleteSession() {
-            if (!confirm('Tem certeza que deseja APAGAR completamente a sess„o WhatsApp? Esta aÁ„o n„o pode ser desfeita!')) {
-                return;
-            }
-
-            try {
-                showNotification('Apagando sess„o...', 'warning');
-                
-                const response = await fetch(`${API_BASE}/session?sessionId=${currentSessionId}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeaders(false)
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    showNotification('Sess„o apagada com sucesso!', 'success');
-                    setTimeout(loadSession, 1000);
-                } else {
-                    showNotification('Erro: ' + (data.message || 'Erro desconhecido'), 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao apagar sess„o:', error);
-                showNotification('Erro ao apagar sess„o.', 'error');
-            }
-        }
-
-        // FunÁıes auxiliares
+        // Fun√ß√µes auxiliares
         function getStatusClass(status) {
             const statusMap = {
                 'connected': 'connected',
@@ -1321,8 +956,8 @@
                 'disconnected': 'Desconectado',
                 'auth_failure': 'Falha Auth',
                 'error': 'Erro',
-                'not_created': 'N„o Criada',
-                'not_initialized': 'N„o Inicializada'
+                'not_created': 'N√£o Criada',
+                'not_initialized': 'N√£o Inicializada'
             };
             return textMap[status] || 'Desconhecido';
         }
@@ -1378,194 +1013,6 @@
                 closeTestModal();
             }
         });
-
-        // FunÁıes de logs
-        function addLog(type, message) {
-            const time = new Date().toLocaleTimeString('pt-BR');
-            logs.push({
-                time,
-                type,
-                message
-            });
-
-            // Manter apenas os ˙ltimos MAX_LOGS
-            if (logs.length > MAX_LOGS) {
-                logs.shift();
-            }
-
-            renderLogs();
-        }
-
-        function renderLogs() {
-            const logsContent = document.getElementById('logsContent');
-            if (!logsContent) return;
-
-            if (logs.length === 0) {
-                logsContent.innerHTML = `
-                    <div class="log-entry info">
-                        <span class="log-timestamp">--:--:--</span>
-                        <span class="log-type info">INFO</span>
-                        <span class="log-message">Nenhum log disponÌvel</span>
-                    </div>
-                `;
-                return;
-            }
-
-            logsContent.innerHTML = logs.map(log => {
-                const logTime = typeof log.time === 'string' ? log.time : new Date(log.timestamp || log.time).toLocaleTimeString('pt-BR');
-                return `
-                    <div class="log-entry">
-                        <span class="log-timestamp">${logTime}</span>
-                        <span class="log-type ${log.type}">${log.type.toUpperCase()}</span>
-                        <span class="log-message">${escapeHtml(log.message)}</span>
-                    </div>
-                `;
-            }).join('');
-
-            // Scroll para o final
-            logsContent.scrollTop = logsContent.scrollHeight;
-        }
-
-        function clearLogs() {
-            if (confirm('Tem certeza que deseja limpar os logs?')) {
-                logs.length = 0;
-                renderLogs();
-                // Adicionar log local sem buscar do servidor
-                const logEntry = {
-                    time: new Date().toLocaleTimeString('pt-BR'),
-                    type: 'info',
-                    message: 'Logs limpos pelo usu·rio'
-                };
-                logs.push(logEntry);
-                renderLogs();
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Buscar logs do servidor
-        async function fetchLogs() {
-            try {
-                const response = await fetch(`${API_BASE}/session/logs?limit=100&sessionId=${currentSessionId}`, {
-                    headers: getAuthHeaders(false)
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.logs) {
-                        // Adicionar apenas logs novos
-                        data.logs.forEach(log => {
-                            const logTime = new Date(log.timestamp).toLocaleTimeString('pt-BR');
-                            const exists = logs.some(l => {
-                                const lTime = typeof l.time === 'string' ? l.time : new Date(l.timestamp || l.time).toLocaleTimeString('pt-BR');
-                                return lTime === logTime && l.message === log.message;
-                            });
-                            if (!exists) {
-                                const logEntry = {
-                                    time: logTime,
-                                    type: log.type || 'info',
-                                    message: log.message,
-                                    timestamp: log.timestamp
-                                };
-                                logs.push(logEntry);
-                                
-                                // Manter apenas os ˙ltimos MAX_LOGS
-                                if (logs.length > MAX_LOGS) {
-                                    logs.shift();
-                                }
-                            }
-                        });
-                        renderLogs();
-                    }
-                }
-            } catch (error) {
-                // Silenciar erros de logs
-                console.debug('Erro ao buscar logs:', error);
-            }
-        }
-
-        function startLogsPolling() {
-            // Limpar intervalo anterior se existir
-            if (logsInterval) {
-                clearInterval(logsInterval);
-            }
-            
-            // Buscar logs a cada 5 segundos (reduzido de 2s para melhor performance)
-            logsInterval = setInterval(() => {
-                // SÛ buscar se a p·gina estiver visÌvel
-                if (!document.hidden) {
-                    fetchLogs();
-                }
-            }, 5000);
-            
-            fetchLogs(); // Buscar imediatamente
-            
-            // Pausar polling quando a p·gina n„o estiver visÌvel
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    // P·gina n„o visÌvel - pausar polling
-                    if (logsInterval) {
-                        clearInterval(logsInterval);
-                        logsInterval = null;
-                    }
-                } else {
-                    // P·gina visÌvel - retomar polling
-                    if (!logsInterval) {
-                        startLogsPolling();
-                    }
-                }
-            });
-        }
-
-        // Adicionar logs locais para eventos
-        function wrapWithLogging(fn, type, message) {
-            return async function(...args) {
-                addLog(type, message);
-                try {
-                    const result = await fn.apply(this, args);
-                    return result;
-                } catch (error) {
-                    addLog('error', `Erro: ${error.message || error}`);
-                    throw error;
-                }
-            };
-        }
-
-        // Adicionar logs aos eventos principais
-        const originalReconnect = reconnectSession;
-        reconnectSession = async function() {
-            addLog('info', 'Iniciando reconex„o da sess„o...');
-            await originalReconnect();
-        };
-
-        const originalCreate = createSession;
-        createSession = async function() {
-            addLog('info', 'Criando/inicializando sess„o...');
-            await originalCreate();
-        };
-
-        const originalTest = sendTestMessage;
-        sendTestMessage = async function() {
-            const phoneNumber = document.getElementById('testPhoneNumber').value.trim();
-            addLog('info', `Enviando mensagem de teste para ${phoneNumber}...`);
-            await originalTest();
-        };
-
-        const originalReset = resetSession;
-        resetSession = async function() {
-            addLog('warning', 'Resetando sess„o...');
-            await originalReset();
-        };
-
-        const originalDelete = deleteSession;
-        deleteSession = async function() {
-            addLog('warning', 'Apagando sess„o...');
-            await originalDelete();
-        };
     </script>
     
 </body>

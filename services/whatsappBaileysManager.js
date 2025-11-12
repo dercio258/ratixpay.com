@@ -1,9 +1,9 @@
 /**
- * Serviço de Gerenciamento de Sessões WhatsApp usando Baileys
+ * Serviço de Gerenciamento de Sessão WhatsApp usando Baileys
  * 
- * Versão moderna e robusta com suporte a múltiplas sessões:
+ * Versão simplificada com sessão única 'default':
  * - Protocolo nativo do WhatsApp (sem Puppeteer)
- * - Múltiplas sessões simultâneas eficientes
+ * - Sessão única 'default' para todas as notificações
  * - Reconexão automática com retry e backoff exponencial
  * - Health check/heartbeat periódico
  * - Fila de mensagens quando desconectado
@@ -23,8 +23,9 @@ const axios = require('axios');
 
 class WhatsAppBaileysManager {
     constructor() {
-        // Múltiplas sessões
-        this.sessions = new Map(); // sessionId -> { socket, state, ... }
+        // Sessão única 'default'
+        this.DEFAULT_SESSION_ID = 'default';
+        this.session = null; // { socket, state, ... }
         
         // Configurações
         this.config = {
@@ -40,8 +41,8 @@ class WhatsAppBaileysManager {
         };
         
         // Timers e intervalos
-        this.healthCheckIntervals = new Map(); // sessionId -> interval
-        this.reconnectTimers = new Map(); // sessionId -> timer
+        this.healthCheckInterval = null;
+        this.reconnectTimer = null;
         this.statePersistInterval = null;
         this.isShuttingDown = false;
         
@@ -51,7 +52,7 @@ class WhatsAppBaileysManager {
         // Sistema de logs
         this.logs = [];
         this.maxLogs = 500;
-        this.notificationSent = new Map(); // sessionId -> boolean
+        this.notificationSent = false; // boolean
         
         // Logger do Baileys (silencioso por padrão)
         this.logger = pino({ level: process.env.WHATSAPP_DEBUG === 'true' ? 'debug' : 'silent' });
@@ -63,7 +64,7 @@ class WhatsAppBaileysManager {
      * Inicializa o gerenciador
      */
     async init() {
-        console.log('📱 Inicializando WhatsApp Baileys Manager (Múltiplas Sessões)...');
+        console.log('📱 Inicializando WhatsApp Baileys Manager (Sessão Única)...');
         
         // Garantir que o diretório de autenticação existe
         const authBaseDir = path.join(__dirname, '../../.baileys_auth');
@@ -86,12 +87,15 @@ class WhatsAppBaileysManager {
     }
 
     /**
-     * Inicializa ou obtém uma sessão WhatsApp
-     * @param {string} sessionId - ID da sessão (ex: 'vendas-cliente', 'sistema', etc.)
+     * Inicializa ou obtém a sessão WhatsApp (sempre 'default')
+     * @param {string} sessionId - Ignorado, sempre usa 'default'
      * @returns {Object} Objeto com informações da sessão
      * NÃO gera QR code automaticamente - apenas quando solicitado explicitamente
      */
     async initialize(sessionId = 'default') {
+        // Sempre usar 'default', ignorar sessionId passado
+        sessionId = this.DEFAULT_SESSION_ID;
+        
         try {
             // Verificar se Baileys está disponível
             if (typeof makeWASocket === 'undefined') {
@@ -99,15 +103,13 @@ class WhatsAppBaileysManager {
             }
             
             // Se a sessão já existe e está pronta, retornar
-            const existingSession = this.sessions.get(sessionId);
-            if (existingSession && existingSession.isReady && existingSession.isConnected) {
-                return existingSession;
+            if (this.session && this.session.isReady && this.session.isConnected) {
+                return this.session;
             }
 
-            // Se existe mas não está pronta, tentar reconectar (sem gerar QR)
-            if (existingSession && !existingSession.isReady && existingSession.status !== 'connecting') {
-                // Não tentar reconectar automaticamente - apenas retornar status
-                return existingSession;
+            // Se existe mas não está pronta, retornar status
+            if (this.session && !this.session.isReady && this.session.status !== 'connecting') {
+                return this.session;
             }
 
             // Criar nova sessão (mas não gerar QR automaticamente)
@@ -117,7 +119,7 @@ class WhatsAppBaileysManager {
             if (error.code === 'MODULE_NOT_FOUND' || error.message.includes('Cannot find module') || error.message.includes('Baileys não disponível')) {
                 console.warn('⚠️ Baileys não disponível - sessão não inicializada');
                 return {
-                    sessionId,
+                    sessionId: this.DEFAULT_SESSION_ID,
                     isReady: false,
                     isConnected: false,
                     status: 'unavailable',
@@ -129,11 +131,14 @@ class WhatsAppBaileysManager {
     }
 
     /**
-     * Cria uma nova sessão WhatsApp
-     * @param {string} sessionId - ID da sessão
+     * Cria uma nova sessão WhatsApp (sempre 'default')
+     * @param {string} sessionId - Ignorado, sempre usa 'default'
      * NÃO gera QR code automaticamente - apenas quando solicitado explicitamente
      */
     async createSession(sessionId) {
+        // Sempre usar 'default'
+        sessionId = this.DEFAULT_SESSION_ID;
+        
         try {
             // Verificar se Baileys está disponível
             if (typeof makeWASocket === 'undefined') {
@@ -141,31 +146,31 @@ class WhatsAppBaileysManager {
             }
             
             console.log(`📱 Criando sessão WhatsApp Baileys: ${sessionId}`);
-            
+        
             const authDir = path.join(__dirname, '../../.baileys_auth', sessionId);
             await fs.mkdir(authDir, { recursive: true });
-            
-            const { state, saveCreds } = await useMultiFileAuthState(authDir);
-            
-            // Obter versão mais recente do Baileys
-            const { version } = await fetchLatestBaileysVersion();
-            
-            const sock = makeWASocket({
-                version,
-                logger: this.logger,
-                auth: state,
-                browser: ['RatixPay', 'Chrome', '1.0.0'],
-                getMessage: async (key) => {
-                    // Implementar cache de mensagens se necessário
-                    return null;
+        
+        const { state, saveCreds } = await useMultiFileAuthState(authDir);
+        
+        // Obter versão mais recente do Baileys
+        const { version } = await fetchLatestBaileysVersion();
+        
+        const sock = makeWASocket({
+            version,
+            logger: this.logger,
+            auth: state,
+            browser: ['RatixPay', 'Chrome', '1.0.0'],
+            getMessage: async (key) => {
+                // Implementar cache de mensagens se necessário
+                return null;
                 },
                 // Não gerar QR automaticamente - apenas quando necessário
                 printQRInTerminal: false
-            });
+        });
 
         // Criar objeto de sessão
-        const session = {
-            sessionId,
+        this.session = {
+            sessionId: this.DEFAULT_SESSION_ID,
             socket: sock,
             saveCreds,
             isReady: false,
@@ -196,19 +201,16 @@ class WhatsAppBaileysManager {
             }
         };
 
-            // Configurar event listeners
-            this.setupSocketListeners(session);
+        // Configurar event listeners
+        this.setupSocketListeners(this.session);
 
-            // Salvar credenciais quando atualizadas
-            sock.ev.on('creds.update', saveCreds);
+        // Salvar credenciais quando atualizadas
+        sock.ev.on('creds.update', saveCreds);
 
-            // Armazenar sessão
-            this.sessions.set(sessionId, session);
+        // Iniciar health check
+        this.startHealthCheck();
 
-            // Iniciar health check
-            this.startHealthCheck(sessionId);
-
-            return session;
+        return this.session;
         } catch (error) {
             // Se Baileys não estiver disponível, retornar sessão vazia
             if (error.code === 'MODULE_NOT_FOUND' || error.message.includes('Cannot find module') || error.message.includes('Baileys não disponível')) {
@@ -236,15 +238,19 @@ class WhatsAppBaileysManager {
             const { connection, lastDisconnect, qr } = update;
 
             if (qr) {
-                // NÃO gerar QR code automaticamente - apenas armazenar se necessário
-                // console.log(`📱 QR Code gerado para sessão ${sessionId}`);
-                // this.addLog('info', `QR Code gerado para sessão ${sessionId}. Escaneie com seu WhatsApp.`, sessionId);
+                console.log(`📱 QR Code gerado para sessão ${sessionId}`);
+                this.addLog('info', `QR Code gerado para sessão ${sessionId}. Escaneie com seu WhatsApp.`, sessionId);
                 session.qrCode = qr;
-                // Não gerar base64 automaticamente - apenas quando solicitado
-                session.qrCodeBase64 = null;
+                // Gerar base64 automaticamente para exibição
+                try {
+                    session.qrCodeBase64 = await this.generateQRBase64(qr);
+                    console.log('✅ QR Code base64 gerado com sucesso');
+                } catch (error) {
+                    console.error('❌ Erro ao gerar QR code base64:', error);
+                    session.qrCodeBase64 = null;
+                }
                 session.status = 'waiting_qr';
-                // Não emitir atualização para evitar geração automática de QR
-                // this.emitSessionUpdate(sessionId);
+                this.emitSessionUpdate(sessionId);
             }
 
             if (connection === 'close') {
@@ -262,21 +268,21 @@ class WhatsAppBaileysManager {
                     this.addLog('error', `Sessão ${sessionId} desconectada: ${errorMessage}`, sessionId);
                     
                     if (error.output?.statusCode === DisconnectReason.loggedOut) {
-                        console.log(`⚠️ Sessão ${sessionId} foi desconectada (logged out). Removendo...`);
-                        this.sessions.delete(sessionId);
+                        console.log(`⚠️ Sessão desconectada (logged out). Removendo...`);
+                        this.session = null;
                         return;
                     }
                 }
 
                 if (shouldReconnect) {
-                    console.log(`🔄 Tentando reconectar sessão ${sessionId}...`);
-                    this.scheduleReconnect(sessionId);
+                    console.log(`🔄 Tentando reconectar sessão...`);
+                    this.scheduleReconnect();
                 } else {
-                    console.log(`❌ Sessão ${sessionId} não será reconectada (logged out)`);
+                    console.log(`❌ Sessão não será reconectada (logged out)`);
                 }
             } else if (connection === 'open') {
-                console.log(`✅ Sessão ${sessionId} conectada!`);
-                this.addLog('success', `Sessão ${sessionId} conectada com sucesso!`, sessionId);
+                console.log(`✅ Sessão conectada!`);
+                this.addLog('success', `Sessão conectada com sucesso!`);
                 
                 session.isReady = true;
                 session.isConnected = true;
@@ -291,26 +297,26 @@ class WhatsAppBaileysManager {
                 session.healthCheck.consecutiveFailures = 0;
                 
                 // Processar fila de mensagens pendentes
-                this.processMessageQueue(sessionId);
+                this.processMessageQueue();
                 
                 // Enviar notificações quando a sessão estiver conectada
-                if (!this.notificationSent.get(sessionId)) {
-                    await this.sendInitializationNotifications(sessionId);
-                    this.notificationSent.set(sessionId, true);
+                if (!this.notificationSent) {
+                    await this.sendInitializationNotifications();
+                    this.notificationSent = true;
                 }
                 
-                this.emitSessionUpdate(sessionId);
+                this.emitSessionUpdate();
                 this.saveState();
             } else if (connection === 'connecting') {
                 session.status = 'connecting';
-                this.addLog('info', `Sessão ${sessionId} conectando...`, sessionId);
+                this.addLog('info', `Sessão conectando...`);
             }
         });
 
         // Mensagens recebidas
         socket.ev.on('messages.upsert', async (m) => {
             if (process.env.WHATSAPP_DEBUG === 'true') {
-                console.log(`📨 Mensagem recebida na sessão ${sessionId}:`, m);
+                console.log(`📨 Mensagem recebida:`, m);
             }
         });
     }
@@ -318,124 +324,117 @@ class WhatsAppBaileysManager {
     /**
      * Agenda reconexão automática com backoff exponencial
      */
-    scheduleReconnect(sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session) return;
+    scheduleReconnect() {
+        if (!this.session) return;
 
         // Cancelar timer anterior se existir
-        if (this.reconnectTimers.has(sessionId)) {
-            clearTimeout(this.reconnectTimers.get(sessionId));
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
         }
 
         // Verificar se já excedeu o máximo de tentativas
-        if (session.reconnectAttempts >= this.config.maxReconnectAttempts) {
-            console.error(`❌ Máximo de tentativas de reconexão atingido para sessão ${sessionId}`);
-            session.status = 'max_reconnect_attempts';
-            session.lastError = 'Máximo de tentativas de reconexão atingido';
+        if (this.session.reconnectAttempts >= this.config.maxReconnectAttempts) {
+            console.error(`❌ Máximo de tentativas de reconexão atingido`);
+            this.session.status = 'max_reconnect_attempts';
+            this.session.lastError = 'Máximo de tentativas de reconexão atingido';
             return;
         }
 
         // Calcular delay com backoff exponencial
         const delay = Math.min(
-            this.config.reconnectDelay * Math.pow(2, session.reconnectAttempts),
+            this.config.reconnectDelay * Math.pow(2, this.session.reconnectAttempts),
             this.config.maxReconnectDelay
         );
 
-        session.reconnectAttempts++;
-        session.lastReconnectAttempt = new Date();
-        session.stats.reconnectCount++;
+        this.session.reconnectAttempts++;
+        this.session.lastReconnectAttempt = new Date();
+        this.session.stats.reconnectCount++;
 
-        console.log(`🔄 Agendando reconexão da sessão ${sessionId} em ${delay}ms (tentativa ${session.reconnectAttempts}/${this.config.maxReconnectAttempts})`);
+        console.log(`🔄 Agendando reconexão em ${delay}ms (tentativa ${this.session.reconnectAttempts}/${this.config.maxReconnectAttempts})`);
 
-        const timer = setTimeout(async () => {
-            this.reconnectTimers.delete(sessionId);
-            await this.reconnectSession(sessionId);
+        this.reconnectTimer = setTimeout(async () => {
+            this.reconnectTimer = null;
+            await this.reconnectSession();
         }, delay);
-
-        this.reconnectTimers.set(sessionId, timer);
     }
 
     /**
      * Reconecta a sessão
      */
-    async reconnectSession(sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session) return;
+    async reconnectSession() {
+        if (!this.session) return;
 
-        console.log(`🔄 Tentando reconectar sessão ${sessionId}...`);
-        session.status = 'reconnecting';
+        console.log(`🔄 Tentando reconectar sessão...`);
+        this.session.status = 'reconnecting';
 
         try {
             // Destruir socket antigo
             try {
-                if (session.socket) {
-                    session.socket.end(undefined);
+                if (this.session.socket) {
+                    this.session.socket.end(undefined);
                 }
             } catch (e) {
                 console.warn(`Aviso ao destruir socket antigo: ${e.message}`);
             }
 
             // Recriar sessão
-            await this.createSession(sessionId);
+            await this.createSession(this.DEFAULT_SESSION_ID);
         } catch (error) {
-            console.error(`❌ Erro ao reconectar sessão ${sessionId}:`, error.message);
-            session.status = 'reconnect_failed';
-            session.lastError = error.message;
+            console.error(`❌ Erro ao reconectar sessão:`, error.message);
+            this.session.status = 'reconnect_failed';
+            this.session.lastError = error.message;
             
             // Tentar novamente se não excedeu o limite
-            if (session.reconnectAttempts < this.config.maxReconnectAttempts) {
-                this.scheduleReconnect(sessionId);
+            if (this.session.reconnectAttempts < this.config.maxReconnectAttempts) {
+                this.scheduleReconnect();
             }
         }
     }
 
     /**
-     * Inicia health check periódico para uma sessão
+     * Inicia health check periódico
      */
-    startHealthCheck(sessionId) {
+    startHealthCheck() {
         // Cancelar health check anterior se existir
-        if (this.healthCheckIntervals.has(sessionId)) {
-            clearInterval(this.healthCheckIntervals.get(sessionId));
+        if (this.healthCheckInterval) {
+            clearInterval(this.healthCheckInterval);
         }
 
-        const interval = setInterval(async () => {
-            await this.performHealthCheck(sessionId);
+        this.healthCheckInterval = setInterval(async () => {
+            await this.performHealthCheck();
         }, this.config.healthCheckInterval);
-
-        this.healthCheckIntervals.set(sessionId, interval);
     }
 
     /**
      * Realiza health check da sessão
      */
-    async performHealthCheck(sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session) return;
+    async performHealthCheck() {
+        if (!this.session) return;
 
         try {
             // Verificar se o socket está ativo
-            if (session.socket && session.isReady && session.isConnected) {
+            if (this.session.socket && this.session.isReady && this.session.isConnected) {
                 // Verificar estado da conexão
-                const isHealthy = session.status === 'connected';
-                session.healthCheck.lastCheck = new Date();
-                session.healthCheck.isHealthy = isHealthy;
-                session.healthCheck.consecutiveFailures = isHealthy ? 0 : session.healthCheck.consecutiveFailures + 1;
+                const isHealthy = this.session.status === 'connected';
+                this.session.healthCheck.lastCheck = new Date();
+                this.session.healthCheck.isHealthy = isHealthy;
+                this.session.healthCheck.consecutiveFailures = isHealthy ? 0 : this.session.healthCheck.consecutiveFailures + 1;
 
-                if (!isHealthy && session.healthCheck.consecutiveFailures >= 3) {
-                    console.warn(`⚠️ Health check falhou 3 vezes consecutivas para sessão ${sessionId}. Tentando reconectar...`);
-                    this.scheduleReconnect(sessionId);
+                if (!isHealthy && this.session.healthCheck.consecutiveFailures >= 3) {
+                    console.warn(`⚠️ Health check falhou 3 vezes consecutivas. Tentando reconectar...`);
+                    this.scheduleReconnect();
                 }
             } else {
-                session.healthCheck.isHealthy = false;
-                session.healthCheck.consecutiveFailures++;
+                this.session.healthCheck.isHealthy = false;
+                this.session.healthCheck.consecutiveFailures++;
             }
         } catch (error) {
-            console.error(`❌ Erro no health check da sessão ${sessionId}:`, error.message);
-            session.healthCheck.isHealthy = false;
-            session.healthCheck.consecutiveFailures++;
+            console.error(`❌ Erro no health check:`, error.message);
+            this.session.healthCheck.isHealthy = false;
+            this.session.healthCheck.consecutiveFailures++;
 
-            if (session.healthCheck.consecutiveFailures >= 3) {
-                this.scheduleReconnect(sessionId);
+            if (this.session.healthCheck.consecutiveFailures >= 3) {
+                this.scheduleReconnect();
             }
         }
     }
@@ -443,17 +442,16 @@ class WhatsAppBaileysManager {
     /**
      * Adiciona mensagem à fila quando a sessão está desconectada
      */
-    addToMessageQueue(sessionId, phoneNumber, message, media) {
-        const session = this.sessions.get(sessionId);
-        if (!session) return false;
+    addToMessageQueue(phoneNumber, message, media) {
+        if (!this.session) return false;
 
         // Verificar tamanho máximo da fila
-        if (session.messageQueue.length >= this.config.messageQueueMaxSize) {
-            console.warn(`⚠️ Fila de mensagens cheia para sessão ${sessionId}. Descartando mensagem mais antiga.`);
-            session.messageQueue.shift();
+        if (this.session.messageQueue.length >= this.config.messageQueueMaxSize) {
+            console.warn(`⚠️ Fila de mensagens cheia. Descartando mensagem mais antiga.`);
+            this.session.messageQueue.shift();
         }
 
-        session.messageQueue.push({
+        this.session.messageQueue.push({
             phoneNumber,
             message,
             media,
@@ -461,36 +459,35 @@ class WhatsAppBaileysManager {
             retries: 0
         });
 
-        session.stats.messagesQueued++;
+        this.session.stats.messagesQueued++;
         return true;
     }
 
     /**
      * Processa fila de mensagens pendentes
      */
-    async processMessageQueue(sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session || !session.isReady) return;
+    async processMessageQueue() {
+        if (!this.session || !this.session.isReady) return;
 
-        if (session.messageQueue.length === 0) return;
+        if (this.session.messageQueue.length === 0) return;
 
-        console.log(`📨 Processando ${session.messageQueue.length} mensagens na fila da sessão ${sessionId}...`);
+        console.log(`📨 Processando ${this.session.messageQueue.length} mensagens na fila...`);
 
-        const messages = [...session.messageQueue];
-        session.messageQueue = [];
+        const messages = [...this.session.messageQueue];
+        this.session.messageQueue = [];
 
         for (const queuedMessage of messages) {
             try {
-                await this.sendMessageInternal(sessionId, queuedMessage.phoneNumber, queuedMessage.message, queuedMessage.media);
+                await this.sendMessageInternal(queuedMessage.phoneNumber, queuedMessage.message, queuedMessage.media);
                 console.log(`✅ Mensagem da fila enviada com sucesso para ${queuedMessage.phoneNumber}`);
             } catch (error) {
                 console.error(`❌ Erro ao enviar mensagem da fila:`, error.message);
                 // Se falhar, adicionar de volta à fila (com limite de retries)
                 if (queuedMessage.retries < 3) {
                     queuedMessage.retries++;
-                    session.messageQueue.push(queuedMessage);
+                    this.session.messageQueue.push(queuedMessage);
                 } else {
-                    session.stats.messagesFailed++;
+                    this.session.stats.messagesFailed++;
                 }
             }
 
@@ -502,24 +499,23 @@ class WhatsAppBaileysManager {
     /**
      * Verifica rate limit antes de enviar mensagem
      */
-    checkRateLimit(sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session) return false;
+    checkRateLimit() {
+        if (!this.session) return false;
 
         const now = Date.now();
         
         // Limpar mensagens antigas da janela
-        session.rateLimitBucket = session.rateLimitBucket.filter(
+        this.session.rateLimitBucket = this.session.rateLimitBucket.filter(
             timestamp => now - timestamp < this.config.rateLimitWindow
         );
 
         // Verificar se excedeu o limite
-        if (session.rateLimitBucket.length >= this.config.rateLimitMaxMessages) {
+        if (this.session.rateLimitBucket.length >= this.config.rateLimitMaxMessages) {
             return false;
         }
 
         // Adicionar timestamp atual
-        session.rateLimitBucket.push(now);
+        this.session.rateLimitBucket.push(now);
         return true;
     }
 
@@ -537,64 +533,61 @@ class WhatsAppBaileysManager {
     }
 
     /**
-     * Obtém status de uma sessão
+     * Obtém status da sessão (sempre 'default')
      */
     getStatus(sessionId = 'default') {
-        const session = this.sessions.get(sessionId);
-        
-        if (!session) {
+        // Sempre usar 'default', ignorar sessionId passado
+        if (!this.session) {
             return {
                 exists: false,
                 status: 'not_initialized',
-                sessionId
+                sessionId: this.DEFAULT_SESSION_ID
             };
         }
 
         const now = Date.now();
-        const connectedAt = session.connectedAt ? new Date(session.connectedAt).getTime() : null;
+        const connectedAt = this.session.connectedAt ? new Date(this.session.connectedAt).getTime() : null;
         const uptime = connectedAt ? now - connectedAt : 0;
 
         return {
             exists: true,
-            sessionId: session.sessionId,
-            isReady: session.isReady,
-            isConnected: session.isConnected,
-            status: session.status,
-            qrCode: session.qrCodeBase64,
-            connectedAt: session.connectedAt,
-            lastError: session.lastError,
-            reconnectAttempts: session.reconnectAttempts,
-            lastReconnectAttempt: session.lastReconnectAttempt,
-            messageQueueSize: session.messageQueue.length,
+            sessionId: this.DEFAULT_SESSION_ID,
+            isReady: this.session.isReady,
+            isConnected: this.session.isConnected,
+            status: this.session.status,
+            qrCode: this.session.qrCodeBase64,
+            connectedAt: this.session.connectedAt,
+            lastError: this.session.lastError,
+            reconnectAttempts: this.session.reconnectAttempts,
+            lastReconnectAttempt: this.session.lastReconnectAttempt,
+            messageQueueSize: this.session.messageQueue.length,
             healthCheck: {
-                ...session.healthCheck,
-                lastCheck: session.healthCheck.lastCheck
+                ...this.session.healthCheck,
+                lastCheck: this.session.healthCheck.lastCheck
             },
             stats: {
-                ...session.stats,
+                ...this.session.stats,
                 uptime: uptime,
-                messagesInQueue: session.messageQueue.length
+                messagesInQueue: this.session.messageQueue.length
             }
         };
     }
 
     /**
-     * Obtém status de todas as sessões
+     * Obtém status de todas as sessões (compatibilidade - sempre retorna apenas 'default')
      */
     getAllSessionsStatus() {
-        const allStatus = {};
-        for (const [sessionId] of this.sessions) {
-            allStatus[sessionId] = this.getStatus(sessionId);
-        }
-        return allStatus;
+        return {
+            [this.DEFAULT_SESSION_ID]: this.getStatus()
+        };
     }
 
     /**
-     * Envia mensagem
+     * Envia mensagem (sempre usa sessão 'default')
      * @param {string} phoneNumber - Número de telefone (formato: 258XXXXXXXXX ou sem código)
      * @param {string} message - Mensagem de texto
      * @param {Object|null} media - Objeto com {url, mimetype} ou null
-     * @param {string} sessionId - ID da sessão a usar (padrão: 'default')
+     * @param {string} sessionId - Ignorado, sempre usa 'default'
      */
     async sendMessage(phoneNumber, message, media = null, sessionId = 'default') {
         try {
@@ -605,34 +598,33 @@ class WhatsAppBaileysManager {
             }
             
             // Garantir que a sessão está inicializada (sem gerar QR automaticamente)
-            if (!this.sessions.has(sessionId)) {
+            if (!this.session) {
                 // Tentar inicializar, mas não falhar se não conseguir
                 try {
-                    await this.initialize(sessionId);
+                    await this.initialize();
                 } catch (initError) {
                     console.warn('⚠️ Erro ao inicializar sessão WhatsApp - ignorando:', initError.message);
                     return { success: false, error: 'Sessão não disponível', ignored: true };
                 }
             }
 
-            const session = this.sessions.get(sessionId);
-            if (!session) {
+            if (!this.session) {
                 return { success: false, error: 'Sessão não encontrada', ignored: true };
             }
 
             // Se a sessão não está pronta, ignorar silenciosamente (não enfileirar)
-            if (!session.isReady || !session.isConnected) {
+            if (!this.session.isReady || !this.session.isConnected) {
                 // Não logar - apenas ignorar silenciosamente
                 return { success: false, error: 'Sessão não conectada', ignored: true };
             }
 
             // Verificar rate limit
-            if (!this.checkRateLimit(sessionId)) {
+            if (!this.checkRateLimit()) {
                 // Se excedeu rate limit, ignorar silenciosamente
                 return { success: false, error: 'Rate limit excedido', ignored: true };
             }
 
-            return await this.sendMessageInternal(sessionId, phoneNumber, message, media);
+            return await this.sendMessageInternal(phoneNumber, message, media);
         } catch (error) {
             // Ignorar silenciosamente se Baileys não estiver disponível
             if (error.code === 'MODULE_NOT_FOUND' || error.message.includes('Cannot find module')) {
@@ -648,10 +640,9 @@ class WhatsAppBaileysManager {
     /**
      * Método interno para enviar mensagem (sem verificações de fila/rate limit)
      */
-    async sendMessageInternal(sessionId, phoneNumber, message, media = null) {
-        const session = this.sessions.get(sessionId);
-        if (!session || !session.isReady) {
-            throw new Error(`Sessão ${sessionId} não está pronta`);
+    async sendMessageInternal(phoneNumber, message, media = null) {
+        if (!this.session || !this.session.isReady) {
+            throw new Error(`Sessão não está pronta`);
         }
 
         try {
@@ -667,7 +658,7 @@ class WhatsAppBaileysManager {
                         const buffer = Buffer.from(response.data);
                         const mimetype = response.headers['content-type'] || 'application/octet-stream';
                         
-                        await session.socket.sendMessage(jid, {
+                        await this.session.socket.sendMessage(jid, {
                             document: buffer,
                             mimetype: mimetype,
                             fileName: media.filename || 'arquivo',
@@ -675,14 +666,14 @@ class WhatsAppBaileysManager {
                         });
                     } catch (urlError) {
                         // Se falhar ao baixar, enviar como texto com URL
-                        await session.socket.sendMessage(jid, { 
+                        await this.session.socket.sendMessage(jid, { 
                             text: `${message}\n\n🔗 Link: ${media.url}` 
                         });
                     }
                 } else if (media.data && media.mimetype) {
                     // Dados base64
                     const buffer = Buffer.from(media.data, 'base64');
-                    await session.socket.sendMessage(jid, {
+                    await this.session.socket.sendMessage(jid, {
                         document: buffer,
                         mimetype: media.mimetype,
                         fileName: media.filename || 'arquivo',
@@ -690,25 +681,25 @@ class WhatsAppBaileysManager {
                     });
                 } else {
                     // Formato desconhecido, enviar como texto
-                    await session.socket.sendMessage(jid, { text: message });
+                    await this.session.socket.sendMessage(jid, { text: message });
                 }
             } else {
                 // Enviar texto
-                await session.socket.sendMessage(jid, { text: message });
+                await this.session.socket.sendMessage(jid, { text: message });
             }
 
             // Atualizar estatísticas
-            session.stats.messagesSent++;
-            session.stats.lastMessageAt = new Date();
+            this.session.stats.messagesSent++;
+            this.session.stats.lastMessageAt = new Date();
 
             return { success: true, message: 'Mensagem enviada com sucesso' };
         } catch (error) {
-            console.error(`Erro ao enviar mensagem na sessão ${sessionId}:`, error);
-            session.stats.messagesFailed++;
+            console.error(`Erro ao enviar mensagem:`, error);
+            this.session.stats.messagesFailed++;
             
             // Se for erro de conexão, tentar reconectar
             if (error.message.includes('Not connected') || error.message.includes('disconnected')) {
-                this.scheduleReconnect(sessionId);
+                this.scheduleReconnect();
             }
             
             throw error;
@@ -735,26 +726,28 @@ class WhatsAppBaileysManager {
     }
 
     /**
-     * Reseta uma sessão
+     * Reseta a sessão (sempre 'default')
      */
     async reset(sessionId = 'default') {
-        const session = this.sessions.get(sessionId);
-        if (session) {
+        // Sempre usar 'default'
+        sessionId = this.DEFAULT_SESSION_ID;
+        
+        if (this.session) {
             try {
                 // Cancelar timers
-                if (this.reconnectTimers.has(sessionId)) {
-                    clearTimeout(this.reconnectTimers.get(sessionId));
-                    this.reconnectTimers.delete(sessionId);
+                if (this.reconnectTimer) {
+                    clearTimeout(this.reconnectTimer);
+                    this.reconnectTimer = null;
                 }
-                if (this.healthCheckIntervals.has(sessionId)) {
-                    clearInterval(this.healthCheckIntervals.get(sessionId));
-                    this.healthCheckIntervals.delete(sessionId);
+                if (this.healthCheckInterval) {
+                    clearInterval(this.healthCheckInterval);
+                    this.healthCheckInterval = null;
                 }
 
                 // Desconectar socket
-                if (session.socket) {
+                if (this.session.socket) {
                     try {
-                        session.socket.end(undefined);
+                        this.session.socket.end(undefined);
                     } catch (e) {
                         // Ignorar erros
                     }
@@ -769,41 +762,43 @@ class WhatsAppBaileysManager {
                 }
 
                 // Remover sessão
-                this.sessions.delete(sessionId);
-                this.notificationSent.delete(sessionId);
+                this.session = null;
+                this.notificationSent = false;
                 
-                console.log(`✅ Sessão ${sessionId} resetada com sucesso`);
+                console.log(`✅ Sessão resetada com sucesso`);
                 
                 // Criar nova sessão
-                return await this.initialize(sessionId);
+                return await this.initialize();
             } catch (error) {
-                console.error(`Erro ao resetar sessão ${sessionId}:`, error);
+                console.error(`Erro ao resetar sessão:`, error);
                 throw error;
             }
         } else {
             // Criar nova sessão se não existir
-            return await this.initialize(sessionId);
+            return await this.initialize();
         }
     }
 
     /**
-     * Apaga uma sessão completamente
+     * Apaga a sessão completamente (sempre 'default')
      */
     async delete(sessionId = 'default') {
+        // Sempre usar 'default'
+        sessionId = this.DEFAULT_SESSION_ID;
+        
         // Cancelar timers
-        if (this.reconnectTimers.has(sessionId)) {
-            clearTimeout(this.reconnectTimers.get(sessionId));
-            this.reconnectTimers.delete(sessionId);
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
         }
-        if (this.healthCheckIntervals.has(sessionId)) {
-            clearInterval(this.healthCheckIntervals.get(sessionId));
-            this.healthCheckIntervals.delete(sessionId);
+        if (this.healthCheckInterval) {
+            clearInterval(this.healthCheckInterval);
+            this.healthCheckInterval = null;
         }
 
-        const session = this.sessions.get(sessionId);
-        if (session && session.socket) {
+        if (this.session && this.session.socket) {
             try {
-                session.socket.end(undefined);
+                this.session.socket.end(undefined);
             } catch (e) {
                 // Ignorar erros
             }
@@ -818,16 +813,16 @@ class WhatsAppBaileysManager {
         }
 
         // Remover sessão
-        this.sessions.delete(sessionId);
-        this.notificationSent.delete(sessionId);
+        this.session = null;
+        this.notificationSent = false;
         
-        console.log(`✅ Sessão ${sessionId} apagada com sucesso`);
+        console.log(`✅ Sessão apagada com sucesso`);
         
-        return { success: true, message: `Sessão ${sessionId} apagada com sucesso` };
+        return { success: true, message: `Sessão apagada com sucesso` };
     }
 
     /**
-     * Testa uma sessão enviando mensagem de teste
+     * Testa a sessão enviando mensagem de teste (sempre 'default')
      */
     async test(testPhoneNumber, sessionId = 'default') {
         if (!testPhoneNumber) {
@@ -836,37 +831,35 @@ class WhatsAppBaileysManager {
 
         const testMessage = `🧪 *Teste de Sessão WhatsApp Baileys*\n\n` +
             `Esta é uma mensagem de teste\n` +
-            `Sessão: ${sessionId}\n` +
             `Enviada em: ${new Date().toLocaleString('pt-BR')}\n\n` +
             `Se você recebeu esta mensagem, a sessão está funcionando corretamente! ✅`;
 
-        return await this.sendMessage(testPhoneNumber, testMessage, null, sessionId);
+        return await this.sendMessage(testPhoneNumber, testMessage, null);
     }
 
     /**
      * Emite evento de atualização de sessão
      */
-    emitSessionUpdate(sessionId) {
+    emitSessionUpdate() {
         // Placeholder para futuras implementações de WebSocket
         if (process.env.WHATSAPP_DEBUG === 'true') {
-            console.log(`📡 Atualização de sessão WhatsApp: ${sessionId}`);
+            console.log(`📡 Atualização de sessão WhatsApp`);
         }
     }
 
     /**
-     * Obtém QR Code de uma sessão
+     * Obtém QR Code da sessão (sempre 'default')
      */
     getQRCode(sessionId = 'default') {
-        const session = this.sessions.get(sessionId);
-        if (!session) {
+        if (!this.session) {
             return null;
         }
 
         return {
-            qrCode: session.qrCode,
-            qrCodeBase64: session.qrCodeBase64,
-            status: session.status,
-            sessionId
+            qrCode: this.session.qrCode,
+            qrCodeBase64: this.session.qrCodeBase64,
+            status: this.session.status,
+            sessionId: this.DEFAULT_SESSION_ID
         };
     }
 
@@ -874,7 +867,7 @@ class WhatsAppBaileysManager {
      * Adiciona log ao sistema
      * @param {string} type - Tipo do log (info, success, warning, error, debug)
      * @param {string} message - Mensagem do log
-     * @param {string} sessionId - ID da sessão (opcional)
+     * @param {string} sessionId - Ignorado (compatibilidade)
      */
     addLog(type, message, sessionId = null) {
         const logEntry = {
@@ -883,17 +876,16 @@ class WhatsAppBaileysManager {
             message: message
         };
         
-        // Se sessionId especificado, adicionar log àquela sessão
-        if (sessionId && this.sessions.has(sessionId)) {
-            const session = this.sessions.get(sessionId);
-            if (!session.logs || !Array.isArray(session.logs)) {
-                session.logs = [];
+        // Adicionar log à sessão se existir
+        if (this.session) {
+            if (!this.session.logs || !Array.isArray(this.session.logs)) {
+                this.session.logs = [];
             }
-            session.logs.push(logEntry);
+            this.session.logs.push(logEntry);
             
             // Limitar tamanho do array de logs da sessão
-            if (session.logs.length > this.maxLogs) {
-                session.logs.shift();
+            if (this.session.logs.length > this.maxLogs) {
+                this.session.logs.shift();
             }
         }
         
@@ -917,34 +909,29 @@ class WhatsAppBaileysManager {
             'debug': '🔍'
         }[type] || '📝';
         
-        const sessionPrefix = sessionId ? `[${sessionId}]` : '';
-        console.log(`${emoji} [WhatsApp Baileys]${sessionPrefix} ${message}`);
+        console.log(`${emoji} [WhatsApp Baileys] ${message}`);
     }
 
     /**
      * Obtém logs da sessão
      * @param {number} limit - Limite de logs a retornar
-     * @param {string} sessionId - ID da sessão (opcional, para logs específicos)
+     * @param {string} sessionId - Ignorado (compatibilidade)
      */
     getLogs(limit = 100, sessionId = null) {
         try {
-            // Se sessionId especificado, retornar logs daquela sessão
-            if (sessionId && this.sessions.has(sessionId)) {
-                const session = this.sessions.get(sessionId);
-                if (session.logs && Array.isArray(session.logs)) {
-                    const sessionLogs = session.logs.slice(-limit);
-                    return sessionLogs.map(log => {
-                        if (!log || typeof log !== 'object') {
-                            return null;
-                        }
-                        return {
-                            timestamp: log.timestamp instanceof Date ? log.timestamp.toISOString() : (log.timestamp || new Date().toISOString()),
-                            type: log.type || 'info',
-                            message: log.message || ''
-                        };
-                    }).filter(log => log !== null);
-                }
-                return [];
+            // Se sessão existe, retornar logs da sessão
+            if (this.session && this.session.logs && Array.isArray(this.session.logs)) {
+                const sessionLogs = this.session.logs.slice(-limit);
+                return sessionLogs.map(log => {
+                    if (!log || typeof log !== 'object') {
+                        return null;
+                    }
+                    return {
+                        timestamp: log.timestamp instanceof Date ? log.timestamp.toISOString() : (log.timestamp || new Date().toISOString()),
+                        type: log.type || 'info',
+                        message: log.message || ''
+                    };
+                }).filter(log => log !== null);
             }
             
             // Logs globais (fallback)
@@ -981,14 +968,9 @@ class WhatsAppBaileysManager {
     /**
      * Envia notificações de inicialização quando a sessão estiver conectada
      */
-    async sendInitializationNotifications(sessionId) {
+    async sendInitializationNotifications() {
         try {
-            this.addLog('info', `Enviando notificações de inicialização para sessão ${sessionId}...`, sessionId);
-            
-            // Apenas enviar notificação para sessão 'default' ou 'sistema'
-            if (sessionId !== 'default' && sessionId !== 'sistema') {
-                return;
-            }
+            this.addLog('info', `Enviando notificações de inicialização...`);
             
             // Importar serviços necessários
             const emailManagerService = require('./emailManagerService');
@@ -1006,43 +988,42 @@ class WhatsAppBaileysManager {
             
             // Preparar mensagem
             const mensagem = `✅ Sessão WhatsApp Baileys do RatixPay foi inicializada e está pronta para uso!\n\n` +
-                `Sessão: ${sessionId}\n` +
                 `Data: ${new Date().toLocaleString('pt-BR')}\n\n` +
                 `O sistema de notificações WhatsApp está ativo e funcionando corretamente.`;
             
             // Enviar WhatsApp para admin
             const adminPhone = process.env.ADMIN_WHATSAPP || '258867792543';
             try {
-                await this.sendMessage(adminPhone, mensagem, null, sessionId);
-                this.addLog('success', `WhatsApp enviado para admin: ${adminPhone}`, sessionId);
+                await this.sendMessage(adminPhone, mensagem, null);
+                this.addLog('success', `WhatsApp enviado para admin: ${adminPhone}`);
             } catch (error) {
-                this.addLog('warning', `Erro ao enviar WhatsApp para admin: ${error.message}`, sessionId);
+                this.addLog('warning', `Erro ao enviar WhatsApp para admin: ${error.message}`);
             }
             
-            this.addLog('success', `Notificações de inicialização enviadas com sucesso para sessão ${sessionId}!`, sessionId);
+            this.addLog('success', `Notificações de inicialização enviadas com sucesso!`);
             
         } catch (error) {
-            this.addLog('error', `Erro ao enviar notificações de inicialização: ${error.message}`, sessionId);
+            this.addLog('error', `Erro ao enviar notificações de inicialização: ${error.message}`);
             console.error('Erro ao enviar notificações de inicialização:', error);
         }
     }
 
     /**
-     * Salva estado persistido das sessões
+     * Salva estado persistido da sessão
      */
     async saveState() {
         try {
             const state = {
                 timestamp: new Date().toISOString(),
-                sessions: {}
+                session: null
             };
 
-            for (const [sessionId, session] of this.sessions) {
-                state.sessions[sessionId] = {
-                    stats: session.stats,
-                    reconnectAttempts: session.reconnectAttempts,
-                    lastReconnectAttempt: session.lastReconnectAttempt,
-                    connectedAt: session.connectedAt
+            if (this.session) {
+                state.session = {
+                    stats: this.session.stats,
+                    reconnectAttempts: this.session.reconnectAttempts,
+                    lastReconnectAttempt: this.session.lastReconnectAttempt,
+                    connectedAt: this.session.connectedAt
                 };
             }
 
@@ -1094,33 +1075,31 @@ class WhatsAppBaileysManager {
             console.log(`\n🛑 Recebido sinal ${signal}. Iniciando graceful shutdown...`);
 
             // Cancelar todos os timers
-            for (const timer of this.reconnectTimers.values()) {
-                clearTimeout(timer);
+            if (this.reconnectTimer) {
+                clearTimeout(this.reconnectTimer);
             }
-            for (const interval of this.healthCheckIntervals.values()) {
-                clearInterval(interval);
+            if (this.healthCheckInterval) {
+                clearInterval(this.healthCheckInterval);
             }
             if (this.statePersistInterval) clearInterval(this.statePersistInterval);
 
             // Salvar estado final
             await this.saveState();
 
-            // Desconectar todas as sessões
-            for (const [sessionId, session] of this.sessions) {
-                if (session.socket) {
-                    try {
-                        await Promise.race([
-                            new Promise((resolve) => {
-                                session.socket.end(undefined);
-                                resolve();
-                            }),
-                            new Promise((_, reject) => 
-                                setTimeout(() => reject(new Error('Timeout')), this.config.gracefulShutdownTimeout)
-                            )
-                        ]);
-                    } catch (error) {
-                        console.warn(`Timeout no graceful shutdown da sessão ${sessionId}. Forçando encerramento...`);
-                    }
+            // Desconectar sessão
+            if (this.session && this.session.socket) {
+                try {
+                    await Promise.race([
+                        new Promise((resolve) => {
+                            this.session.socket.end(undefined);
+                            resolve();
+                        }),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Timeout')), this.config.gracefulShutdownTimeout)
+                        )
+                    ]);
+                } catch (error) {
+                    console.warn(`Timeout no graceful shutdown. Forçando encerramento...`);
                 }
             }
 
@@ -1145,12 +1124,12 @@ class WhatsAppBaileysManager {
                 return { success: false, error: 'Baileys não disponível', ignored: true };
             }
             
-            const status = this.getStatus(sessionId);
+            const status = this.getStatus();
             if (!status.exists || !status.isConnected) {
                 // Não logar warning - apenas ignorar silenciosamente
                 return { success: false, error: 'Sessão não conectada', ignored: true };
             }
-            return await this.sendMessage(phoneNumber, message, media, sessionId);
+            return await this.sendMessage(phoneNumber, message, media);
         } catch (error) {
             // Ignorar silenciosamente se Baileys não estiver disponível
             if (error.code === 'MODULE_NOT_FOUND' || error.message.includes('Cannot find module')) {
@@ -1158,7 +1137,7 @@ class WhatsAppBaileysManager {
                 return { success: false, error: 'Baileys não disponível', ignored: true };
             }
             // Logar apenas erros não relacionados à disponibilidade
-            this.addLog('error', `Erro ao enviar notificação para ${phoneNumber}: ${error.message}`, sessionId);
+            this.addLog('error', `Erro ao enviar notificação para ${phoneNumber}: ${error.message}`);
             return { success: false, error: error.message, ignored: true };
         }
     }
@@ -1175,11 +1154,12 @@ class WhatsAppBaileysManager {
     // Método já implementado acima, não precisa duplicar
 
     getValidSessionTypes() {
-        return ['default', 'vendas-cliente', 'vendas-vendedor', 'ofertas', 'sistema', 'suporte', 'afiliados'];
+        return ['default'];
     }
 
     isValidSessionType(sessionId) {
-        return this.getValidSessionTypes().includes(sessionId);
+        // Sempre aceitar 'default', ignorar outros
+        return sessionId === 'default' || !sessionId;
     }
 
     async resetSession(sessionId = 'default') {

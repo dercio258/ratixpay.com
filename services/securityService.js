@@ -196,12 +196,10 @@ class SecurityService {
                     let mensagem = '';
                     
                     if (codigoDesbloqueio) {
-                        mensagem = `🔓 *RatixPay - Código de Desbloqueio*\n\nOlá ${usuario.nome || usuario.username},\n\nSua conta foi bloqueada por motivos de segurança.\n\n*Código de desbloqueio:* ${codigoDesbloqueio}\n\n⚠️ *Importante:*\n• Código válido por 15 minutos\n• Use apenas uma vez\n• Não compartilhe\n\n📞 Suporte: +258 86 2127 7274`;
+                        mensagem = `🔓 *Código de Desbloqueio*\n\n*${codigoDesbloqueio}*\n\n⏰ Válido por 15 minutos\n\nRatixPay`;
                     } else {
                         const linkDesbloqueio = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/desbloquear-conta?token=${tokenDesbloqueio}`;
-                        mensagem = isTentativaAcesso 
-                            ? `🔓 *RatixPay - Novo Link de Desbloqueio*\n\nOlá ${usuario.nome || usuario.username},\n\nDetectamos uma tentativa de acesso à sua conta bloqueada.\n\nPara desbloquear, clique no link:\n${linkDesbloqueio}\n\n⚠️ *Importante:*\n• Link válido por 24h\n• Use apenas uma vez\n• Não compartilhe\n\n📞 Suporte: +258 86 2127 7274`
-                            : `🔓 *RatixPay - Desbloqueio de Conta*\n\nOlá ${usuario.nome || usuario.username},\n\nSua conta foi bloqueada por motivos de segurança.\n\nPara desbloquear, clique no link:\n${linkDesbloqueio}\n\n⚠️ *Importante:*\n• Link válido por 24h\n• Use apenas uma vez\n• Não compartilhe\n\n📞 Suporte: +258 86 2127 7274`;
+                        mensagem = `🔓 *Desbloqueio de Conta*\n\n🔗 ${linkDesbloqueio}\n\n⏰ Válido por 24h\n\nRatixPay`;
                     }
                     
                     const whatsappManager = require('./whatsappManager');

@@ -499,7 +499,25 @@ const whatsappManager = require('../services/whatsappManager');
 router.get('/session', authenticateToken, async (req, res) => {
     try {
         const sessionId = req.query.sessionId || 'default';
-        const status = whatsappManager.getStatus(sessionId);
+        let status = whatsappManager.getStatus(sessionId);
+        
+        // Se tem QR string mas não tem base64, gerar agora
+        if (status && status.qrCode === null) {
+            const qrData = whatsappManager.getQRCode(sessionId);
+            if (qrData && qrData.qrCode && !qrData.qrCodeBase64) {
+                try {
+                    const base64 = await whatsappManager.generateQRBase64(qrData.qrCode);
+                    if (base64) {
+                        // Atualizar status com QR Code base64
+                        status.qrCode = base64;
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao gerar QR code base64 na rota de status:', error);
+                }
+            } else if (qrData && qrData.qrCodeBase64) {
+                status.qrCode = qrData.qrCodeBase64;
+            }
+        }
         
         res.json({
             success: true,
@@ -601,6 +619,18 @@ router.get('/session/qrcode', authenticateToken, async (req, res) => {
         
         const qrData = whatsappManager.getQRCode(sessionId);
         
+        // Se tem QR string mas não tem base64, gerar agora
+        if (qrData && qrData.qrCode && !qrData.qrCodeBase64) {
+            try {
+                const base64 = await whatsappManager.generateQRBase64(qrData.qrCode);
+                if (base64) {
+                    qrData.qrCodeBase64 = base64;
+                }
+            } catch (error) {
+                console.error('❌ Erro ao gerar QR code base64 na rota:', error);
+            }
+        }
+        
         if (qrData && qrData.qrCodeBase64) {
             res.json({
                 success: true,
@@ -608,6 +638,14 @@ router.get('/session/qrcode', authenticateToken, async (req, res) => {
                 qrCodeText: qrData.qrCode,
                 status: qrData.status,
                 sessionId: qrData.sessionId || sessionId
+            });
+        } else if (qrData && qrData.qrCode) {
+            // Se tem QR string mas base64 falhou, retornar erro
+            res.json({
+                success: false,
+                message: 'Erro ao gerar QR Code. Tente novamente.',
+                qrCode: null,
+                sessionId
             });
         } else {
             // Se não tem QR, verificar se está conectado

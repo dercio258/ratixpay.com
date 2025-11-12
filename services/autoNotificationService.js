@@ -179,43 +179,32 @@ class AutoNotificationService {
      * Enviar WhatsApp para vendedor
      */
     static async enviarWhatsAppVendedor(vendedor, data) {
-        let mensagem = `🔔 *${data.titulo} - RatixPay*
-
-Olá ${vendedor.nome_completo}!
-
-${data.mensagem}`;
+        let mensagem = '';
         
-        // Adicionar detalhes específicos baseados no tipo
+        // Mensagens curtas e objetivas baseadas no tipo
         if (data.tipo === 'saque_aprovado' && data.dadosExtras.valor) {
-            mensagem += `
+            mensagem = `✅ *Saque Pago*
 
-💰 *Detalhes do Saque:*
-• Valor: MZN ${data.dadosExtras.valor.toFixed(2)}
-• Data: ${new Date().toLocaleString('pt-BR')}
-• Status: ✅ Aprovado
+💰 MZN ${data.dadosExtras.valor.toFixed(2)}
 
-Seu saque foi processado com sucesso!`;
+RatixPay`;
         } else if (data.tipo === 'saque_cancelado' && data.dadosExtras.valor) {
-            mensagem += `
+            mensagem = `❌ *Saque Cancelado*
 
-❌ *Detalhes do Saque:*
-• Valor: MZN ${data.dadosExtras.valor.toFixed(2)}
-• Data: ${new Date().toLocaleString('pt-BR')}
-• Status: ❌ Cancelado
-${data.dadosExtras.motivo ? `• Motivo: ${data.dadosExtras.motivo}` : ''}
+💰 MZN ${data.dadosExtras.valor.toFixed(2)}
 
-Entre em contato conosco para mais informações.`;
+RatixPay`;
+        } else {
+            // Mensagem genérica curta
+            mensagem = `🔔 *${data.titulo}*
+
+${data.mensagem}
+
+RatixPay`;
         }
-        
-        mensagem += `
-
-Acesse seu dashboard: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard.html
-
----
-RatixPay - Sistema de Pagamentos`;
 
         const whatsappManager = require('./whatsappManager');
-        await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'vendas-vendedor');
+        await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem, null, 'default');
     }
     
     /**

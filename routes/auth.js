@@ -56,27 +56,18 @@ async function sendVerificationEmail(email, code, type = 'verification', userId 
                     // Tentar usar Baileys diretamente
                     try {
                         const baileysManager = require('../services/whatsappBaileysManager');
-                        const tipoTexto = type === 'unlock' ? 'Desbloqueio' : 'Verificação';
-                        const mensagemWhatsApp = `🔐 *RatixPay - Código de ${tipoTexto}*
-
-Olá *${user.nome_completo || user.nome || 'Usuário'}*!
-
-Seu código de ${type === 'unlock' ? 'desbloqueio' : 'verificação'} é:
+                    const tipoTexto = type === 'unlock' ? 'Desbloqueio' : 'Verificação';
+                    const mensagemWhatsApp = `🔐 *Código de ${tipoTexto}*
 
 *${code}*
 
-⏰ Este código expira em 10 minutos.
+⏰ Válido por 10 minutos
 
-⚠️ *Importante:* Nunca compartilhe este código com terceiros.
-
-Se você não solicitou este código, ignore esta mensagem.
-
----
-*RatixPay - Sistema de Pagamentos*`;
+RatixPay`;
 
                         const result = await baileysManager.sendNotificationSafely(user.telefone, mensagemWhatsApp, null, 'default');
                         if (result.success && !result.ignored) {
-                            console.log(`✅ Código de ${type} enviado via WhatsApp para ${user.telefone}`);
+                    console.log(`✅ Código de ${type} enviado via WhatsApp para ${user.telefone}`);
                         }
                         // Se result.ignored === true, não logar nada (ignorado silenciosamente)
                     } catch (baileysError) {
@@ -692,27 +683,17 @@ router.post('/forgot-password', async (req, res) => {
                 // Tentar usar Baileys diretamente
                 try {
                     const baileysManager = require('../services/whatsappBaileysManager');
-                    const mensagemWhatsApp = `🔐 *RatixPay - Código de Redefinição de Senha*
+                const mensagemWhatsApp = `🔐 *Código de Recuperação*
 
-Olá *${user.nome_completo || user.nome || 'Usuário'}*!
-
-Você solicitou a redefinição de senha para sua conta RatixPay.
-
-*Código de Recuperação:*
 *${resetCode}*
 
-⏰ Este código expira em 15 minutos.
+⏰ Válido por 15 minutos
 
-⚠️ *Importante:* Nunca compartilhe este código com terceiros.
-
-Se você não solicitou esta recuperação, ignore esta mensagem.
-
----
-*RatixPay - Sistema de Pagamentos*`;
+RatixPay`;
 
                     const result = await baileysManager.sendNotificationSafely(user.telefone, mensagemWhatsApp, null, 'default');
                     if (result.success && !result.ignored) {
-                        console.log(`✅ Código de redefinição de senha enviado via WhatsApp para ${user.telefone}`);
+                console.log(`✅ Código de redefinição de senha enviado via WhatsApp para ${user.telefone}`);
                     }
                     // Se result.ignored === true, não logar nada (ignorado silenciosamente)
                 } catch (baileysError) {
