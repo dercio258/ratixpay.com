@@ -169,6 +169,7 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('  - discount_config:', req.body.discount_config);
     console.log('  - timer_config:', req.body.timer_config);
     console.log('  - blackfriday_config:', req.body.blackfriday_config);
+    console.log('  - remarketing_config:', req.body.remarketing_config);
 
     // Extrair dados do produto
   const {
@@ -189,12 +190,15 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       discount_config,
       timer_config,
       blackfriday_config,
+      remarketing_config,
       // Configurações de afiliados
       permitir_afiliados,
       comissao_afiliados,
       comissao_minima,
       tipo_comissao,
-      tier_config
+      tier_config,
+      // Solicitação de aprovação manual
+      solicitar_aprovacao
     } = req.body;
 
     // Validações
@@ -258,12 +262,16 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     let verificacaoGemini = null;
     
     try {
-      // Verificar se a API key do Gemini está configurada
-      if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'sua_chave_gemini_aqui') {
+      // Verificar se a API key do Gemini está configurada (suporta ambas as variáveis)
+      const geminiApiKey = process.env.Google_gimine_key_api || process.env.GEMINI_API_KEY;
+      
+      if (geminiApiKey && geminiApiKey !== 'sua_chave_gemini_aqui' && geminiApiKey.trim() !== '') {
         console.log('🤖 Verificando produto com Gemini AI...');
         
         const dadosVerificacao = {
           nome: name,
+          tipo: type || 'digital',
+          categoria: category || '',
           descricao: description,
           conteudo_link: contentLink || null,
           conteudo_arquivo_nome: null // Sem arquivo na criação simples
@@ -273,22 +281,186 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
         
         if (!verificacaoGemini.aprovado) {
           console.log('❌ Produto rejeitado pelo Gemini AI:', verificacaoGemini.motivo);
+          
+          // Verificar se o usuário quer solicitar aprovação manual
+          const solicitarAprovacao = solicitar_aprovacao === 'true' || solicitar_aprovacao === true;
+          
+          if (solicitarAprovacao) {
+            // Salvar produto como rascunho pendente de aprovação
+            console.log('📝 Salvando produto como rascunho pendente de aprovação manual...');
+            
+            const publicId = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Processar configurações integradas
+            let discountConfig = null;
+            let timerConfig = null;
+            let blackFridayConfig = null;
+            let remarketingConfig = null;
+
+            if (discount_config) {
+              try {
+                discountConfig = typeof discount_config === 'string' ? JSON.parse(discount_config) : discount_config;
+              } catch (error) {
+                console.log('❌ Erro ao processar discount_config:', error);
+              }
+            }
+
+            if (timer_config) {
+              try {
+                timerConfig = typeof timer_config === 'string' ? JSON.parse(timer_config) : timer_config;
+              } catch (error) {
+                console.log('❌ Erro ao processar timer_config:', error);
+              }
+            }
+
+            if (blackfriday_config) {
+              try {
+                blackFridayConfig = typeof blackfriday_config === 'string' ? JSON.parse(blackfriday_config) : blackfriday_config;
+              } catch (error) {
+                console.log('❌ Erro ao processar blackfriday_config:', error);
+              }
+            }
+
+            if (remarketing_config) {
+              try {
+                remarketingConfig = typeof remarketing_config === 'string' ? JSON.parse(remarketing_config) : remarketing_config;
+              } catch (error) {
+                console.log('❌ Erro ao processar remarketing_config:', error);
+              }
+            }
+            
+            const produto = await Produto.create({
+              public_id: publicId,
+              custom_id: customId,
+              vendedor_id: req.user.id,
+              nome: name,
+              categoria: category,
+              descricao: description,
+              preco: parseFloat(price),
+              preco_final: parseFloat(finalPrice),
+              tipo: type || 'digital',
+              imagem_url: imagem_url,
+              imagem_public_id: imagem_url ? imagem_url.split('/').pop().split('.')[0] : null,
+              conteudo_link: contentLink || null,
+              conteudo_arquivo: null,
+              conteudo_arquivo_nome: null,
+              link_conteudo: contentLink || null,
+              marketplace: marketplace === 'true',
+              observacoes: observations || null,
+              ativo: false, // Produto inativo até aprovação
+              status_aprovacao: 'pendente_aprovacao',
+              motivo_rejeicao: verificacaoGemini.motivo,
+              order_bump_ativo: order_bump_ativo === true || order_bump_ativo === 'true' || false,
+              permitir_afiliados: permitir_afiliados === true || permitir_afiliados === 'true' || false,
+              comissao_afiliados: parseFloat(comissao_afiliados) || 0,
+              comissao_minima: parseFloat(comissao_minima) || 0,
+              tipo_comissao: tipo_comissao || 'percentual',
+              tier_config: tier_config ? JSON.parse(tier_config) : null,
+              order_bump_produtos: Array.isArray(order_bump_produtos) ? order_bump_produtos : null,
+              discount_config: discountConfig,
+              timer_config: timerConfig,
+              blackfriday_config: blackFridayConfig,
+              remarketing_config: remarketingConfig
+            });
+            
+            // Notificar admin sobre solicitação de aprovação
+            try {
+              const emailManagerService = require('../services/emailManagerService');
+              const { Usuario } = require('../config/database');
+              const vendedor = await Usuario.findByPk(req.user.id);
+              
+              // Buscar admin (verificar múltiplos campos possíveis)
+              const admin = await Usuario.findOne({ 
+                where: {
+                  [Op.or]: [
+                    { role: 'admin' },
+                    { tipo_conta: 'admin' },
+                    { email: 'ratixpay.mz@gmail.com' }
+                  ]
+                },
+                order: [['created_at', 'DESC']]
+              });
+              
+              if (admin && admin.email) {
+                await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+                  email: admin.email,
+                  nome: admin.nome_completo || 'Administrador',
+                  produto: {
+                    id: produto.id,
+                    custom_id: produto.custom_id,
+                    nome: produto.nome,
+                    descricao: produto.descricao,
+                    categoria: produto.categoria,
+                    tipo: produto.tipo,
+                    imagem_url: produto.imagem_url
+                  },
+                  vendedor: {
+                    nome: vendedor.nome_completo || vendedor.email,
+                    email: vendedor.email
+                  },
+                  motivo_rejeicao: verificacaoGemini.motivo
+                });
+                console.log(`📧 Notificação de solicitação de aprovação enviada para admin: ${admin.email}`);
+              }
+            } catch (emailError) {
+              console.error('⚠️ Erro ao enviar notificação de solicitação de aprovação:', emailError);
+            }
+            
+            return res.status(200).json({
+              success: true,
+              message: 'Produto salvo como rascunho e enviado para aprovação manual do administrador',
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                status_aprovacao: produto.status_aprovacao,
+                ativo: produto.ativo
+              },
+              verificacao: {
+                aprovado: false,
+                motivo: verificacaoGemini.motivo,
+                score: verificacaoGemini.score || 0,
+                resposta_ia: verificacaoGemini.resposta_ia,
+                timestamp: verificacaoGemini.timestamp || new Date().toISOString()
+              },
+              pendente_aprovacao: true
+            });
+          }
+          
+          // Se não solicitou aprovação, retornar erro
           return res.status(400).json({
             success: false,
-            error: 'Produto rejeitado',
-            message: `Produto não aprovado: ${verificacaoGemini.motivo}`,
-            verificacao: verificacaoGemini
+            error: 'PRODUTO_REJEITADO',
+            message: `Produto não aprovado pela verificação automática: ${verificacaoGemini.motivo || 'Não atende aos critérios da plataforma'}`,
+            verificacao: {
+              aprovado: false,
+              motivo: verificacaoGemini.motivo,
+              score: verificacaoGemini.score || 0,
+              resposta_ia: verificacaoGemini.resposta_ia,
+              timestamp: verificacaoGemini.timestamp || new Date().toISOString()
+            },
+            pode_solicitar_aprovacao: true
           });
         }
         
-        console.log('✅ Produto aprovado pelo Gemini AI');
+        console.log('✅ Produto aprovado pelo Gemini AI (Score:', verificacaoGemini.score || 100, ')');
       } else {
-        console.log('⚠️ Gemini AI não configurado - produto será criado sem verificação');
+        console.log('⚠️ Gemini AI não configurado - produto será criado sem verificação automática');
+        console.log('💡 Configure Google_gimine_key_api no arquivo .env para ativar verificação automática');
       }
     } catch (error) {
       console.error('❌ Erro na verificação do Gemini AI:', error);
-      // Continuar com a criação mesmo se houver erro na verificação
-      console.log('⚠️ Continuando criação do produto sem verificação');
+      // Em caso de erro, rejeitar o produto para segurança
+      return res.status(500).json({
+        success: false,
+        error: 'ERRO_VERIFICACAO',
+        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',
+        verificacao: {
+          aprovado: false,
+          motivo: 'Erro técnico na verificação automática',
+          erro: error.message
+        }
+      });
     }
 
     // Gerar public_id único (6 dígitos)
@@ -299,10 +471,12 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('📋 discount_config recebido:', discount_config);
     console.log('📋 timer_config recebido:', timer_config);
     console.log('📋 blackfriday_config recebido:', blackfriday_config);
+    console.log('📋 remarketing_config recebido:', remarketing_config);
     
     let discountConfig = null;
     let timerConfig = null;
     let blackFridayConfig = null;
+    let remarketingConfig = null;
 
     if (discount_config) {
       try {
@@ -331,12 +505,22 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       }
     }
 
+    if (remarketing_config) {
+      try {
+        remarketingConfig = typeof remarketing_config === 'string' ? JSON.parse(remarketing_config) : remarketing_config;
+        console.log('✅ remarketing_config processado:', remarketingConfig);
+      } catch (error) {
+        console.log('❌ Erro ao processar remarketing_config:', error);
+      }
+    }
+
     // Criar produto
     console.log('💾 Salvando produto no banco de dados...');
     console.log('🔧 Configurações que serão salvas:');
     console.log('  - discount_config:', discountConfig);
     console.log('  - timer_config:', timerConfig);
     console.log('  - blackfriday_config:', blackFridayConfig);
+    console.log('  - remarketing_config:', remarketingConfig);
     
     const produto = await Produto.create({
       public_id: publicId,
@@ -357,6 +541,7 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       marketplace: marketplace === 'true',
       observacoes: observations || null,
       ativo: true,
+      status_aprovacao: 'aprovado', // Aprovado automaticamente pelo Gemini
       // Persistir configuração Order Bump se enviada
       order_bump_ativo: order_bump_ativo === true || order_bump_ativo === 'true' || false,
       // Configurações de afiliados
@@ -369,7 +554,8 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       // Configurações integradas
       discount_config: discountConfig,
       timer_config: timerConfig,
-      blackfriday_config: blackFridayConfig
+      blackfriday_config: blackFridayConfig,
+      remarketing_config: remarketingConfig
     });
     
     console.log('✅ Produto criado com sucesso!');
@@ -377,8 +563,32 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('  - discount_config:', produto.discount_config);
     console.log('  - timer_config:', produto.timer_config);
     console.log('  - blackfriday_config:', produto.blackfriday_config);
+    console.log('  - remarketing_config:', produto.remarketing_config);
 
     console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
+
+    // Enviar notificação de criação de produto ao vendedor
+    try {
+      const { Usuario } = require('../config/database');
+      const vendedor = await Usuario.findByPk(req.user.id);
+      if (vendedor && vendedor.email) {
+        const emailManagerService = require('../services/emailManagerService');
+        await emailManagerService.enviarEmailSistema('notificacao_produto_criado', {
+          email: vendedor.email,
+          nome: vendedor.nome_completo || vendedor.email,
+          produto: {
+            id: produto.id,
+            custom_id: produto.custom_id,
+            nome: produto.nome,
+            preco: produto.preco
+          }
+        });
+        console.log(`📧 Notificação de criação de produto enviada para: ${vendedor.email}`);
+      }
+    } catch (emailError) {
+      console.error('⚠️ Erro ao enviar notificação de criação de produto:', emailError);
+      // Não bloquear a operação se o email falhar
+    }
 
     res.status(201).json({
       success: true,
@@ -396,7 +606,9 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       verificacao: verificacaoGemini ? {
         aprovado: verificacaoGemini.aprovado,
         motivo: verificacaoGemini.motivo,
-        resposta_ia: verificacaoGemini.resposta_ia
+        score: verificacaoGemini.score,
+        resposta_ia: verificacaoGemini.resposta_ia,
+        timestamp: verificacaoGemini.timestamp
       } : null
     });
 
@@ -431,7 +643,8 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
       finalPrice,
       marketplace,
       contentLink,
-      observations
+      observations,
+      solicitar_aprovacao
     } = req.body;
 
     // Validações
@@ -475,12 +688,16 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
     let verificacaoGemini = null;
     
     try {
-      // Verificar se a API key do Gemini está configurada
-      if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'sua_chave_gemini_aqui') {
+      // Verificar se a API key do Gemini está configurada (suporta ambas as variáveis)
+      const geminiApiKey = process.env.Google_gimine_key_api || process.env.GEMINI_API_KEY;
+      
+      if (geminiApiKey && geminiApiKey !== 'sua_chave_gemini_aqui' && geminiApiKey.trim() !== '') {
         console.log('🤖 Verificando produto com Gemini AI...');
         
         const dadosVerificacao = {
           nome: name,
+          tipo: type || 'digital',
+          categoria: category || '',
           descricao: description,
           conteudo_link: contentLink || null,
           conteudo_arquivo_nome: uploads.contentFile ? uploads.contentFile.fileName : null
@@ -490,22 +707,137 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
         
         if (!verificacaoGemini.aprovado) {
           console.log('❌ Produto rejeitado pelo Gemini AI:', verificacaoGemini.motivo);
+          
+          // Verificar se o usuário quer solicitar aprovação manual
+          const solicitarAprovacao = solicitar_aprovacao === 'true' || solicitar_aprovacao === true;
+          
+          if (solicitarAprovacao) {
+            // Salvar produto como rascunho pendente de aprovação
+            console.log('📝 Salvando produto como rascunho pendente de aprovação manual...');
+            
+            const publicId = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            const produto = await Produto.create({
+              public_id: publicId,
+              custom_id: customId,
+              vendedor_id: req.user.id,
+              nome: name,
+              categoria: category,
+              descricao: description,
+              preco: parseFloat(price),
+              preco_final: parseFloat(finalPrice),
+              tipo: type || 'digital',
+              imagem_url: uploads.image.url,
+              imagem_public_id: uploads.image.publicId || null,
+              conteudo_link: contentLink || null,
+              conteudo_arquivo: uploads.contentFile ? uploads.contentFile.url : null,
+              conteudo_arquivo_nome: uploads.contentFile ? uploads.contentFile.fileName : null,
+              link_conteudo: contentLink || null,
+              marketplace: marketplace === 'true',
+              observacoes: observations || null,
+              ativo: false, // Produto inativo até aprovação
+              status_aprovacao: 'pendente_aprovacao',
+              motivo_rejeicao: verificacaoGemini.motivo
+            });
+            
+            // Notificar admin sobre solicitação de aprovação
+            try {
+              const emailManagerService = require('../services/emailManagerService');
+              const { Usuario } = require('../config/database');
+              const vendedor = await Usuario.findByPk(req.user.id);
+              
+              // Buscar admin (verificar múltiplos campos possíveis)
+              const admin = await Usuario.findOne({ 
+                where: {
+                  [Op.or]: [
+                    { role: 'admin' },
+                    { tipo_conta: 'admin' },
+                    { email: 'ratixpay.mz@gmail.com' }
+                  ]
+                },
+                order: [['created_at', 'DESC']]
+              });
+              
+              if (admin && admin.email) {
+                await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+                  email: admin.email,
+                  nome: admin.nome_completo || 'Administrador',
+                  produto: {
+                    id: produto.id,
+                    custom_id: produto.custom_id,
+                    nome: produto.nome,
+                    descricao: produto.descricao,
+                    categoria: produto.categoria,
+                    tipo: produto.tipo,
+                    imagem_url: produto.imagem_url
+                  },
+                  vendedor: {
+                    nome: vendedor.nome_completo || vendedor.email,
+                    email: vendedor.email
+                  },
+                  motivo_rejeicao: verificacaoGemini.motivo
+                });
+                console.log(`📧 Notificação de solicitação de aprovação enviada para admin: ${admin.email}`);
+              }
+            } catch (emailError) {
+              console.error('⚠️ Erro ao enviar notificação de solicitação de aprovação:', emailError);
+            }
+            
+            return res.status(200).json({
+              success: true,
+              message: 'Produto salvo como rascunho e enviado para aprovação manual do administrador',
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                status_aprovacao: produto.status_aprovacao,
+                ativo: produto.ativo
+              },
+              verificacao: {
+                aprovado: false,
+                motivo: verificacaoGemini.motivo,
+                score: verificacaoGemini.score || 0,
+                resposta_ia: verificacaoGemini.resposta_ia,
+                timestamp: verificacaoGemini.timestamp || new Date().toISOString()
+              },
+              pendente_aprovacao: true
+            });
+          }
+          
+          // Se não solicitou aprovação, retornar erro
           return res.status(400).json({
             success: false,
-            error: 'Produto rejeitado',
-            message: `Produto não aprovado: ${verificacaoGemini.motivo}`,
-            verificacao: verificacaoGemini
+            error: 'PRODUTO_REJEITADO',
+            message: `Produto não aprovado pela verificação automática: ${verificacaoGemini.motivo || 'Não atende aos critérios da plataforma'}`,
+            verificacao: {
+              aprovado: false,
+              motivo: verificacaoGemini.motivo,
+              score: verificacaoGemini.score || 0,
+              resposta_ia: verificacaoGemini.resposta_ia,
+              timestamp: verificacaoGemini.timestamp || new Date().toISOString()
+            },
+            pode_solicitar_aprovacao: true
           });
         }
         
-        console.log('✅ Produto aprovado pelo Gemini AI');
+        console.log('✅ Produto aprovado pelo Gemini AI (Score:', verificacaoGemini.score || 100, ')');
       } else {
-        console.log('⚠️ Gemini AI não configurado - produto será criado sem verificação');
+        console.log('⚠️ Gemini AI não configurado - produto será criado sem verificação automática');
+        console.log('💡 Configure Google_gimine_key_api no arquivo .env para ativar verificação automática');
       }
     } catch (error) {
       console.error('❌ Erro na verificação do Gemini AI:', error);
-      // Continuar com a criação mesmo se houver erro na verificação
-      console.log('⚠️ Continuando criação do produto sem verificação');
+      // Em caso de erro, rejeitar o produto para segurança
+      return res.status(500).json({
+        success: false,
+        error: 'ERRO_VERIFICACAO',
+        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',
+        verificacao: {
+          aprovado: false,
+          motivo: 'Erro técnico na verificação automática',
+          erro: error.message
+        }
+      });
     }
 
     // Gerar public_id único (6 dígitos)
@@ -535,6 +867,29 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
 
     console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
 
+    // Enviar notificação de criação de produto ao vendedor
+    try {
+      const { Usuario } = require('../config/database');
+      const vendedor = await Usuario.findByPk(req.user.id);
+      if (vendedor && vendedor.email) {
+        const emailManagerService = require('../services/emailManagerService');
+        await emailManagerService.enviarEmailSistema('notificacao_produto_criado', {
+          email: vendedor.email,
+          nome: vendedor.nome_completo || vendedor.email,
+          produto: {
+            id: produto.id,
+            custom_id: produto.custom_id,
+            nome: produto.nome,
+            preco: produto.preco
+          }
+        });
+        console.log(`📧 Notificação de criação de produto enviada para: ${vendedor.email}`);
+      }
+    } catch (emailError) {
+      console.error('⚠️ Erro ao enviar notificação de criação de produto:', emailError);
+      // Não bloquear a operação se o email falhar
+    }
+
     res.status(201).json({
       success: true,
       message: 'Produto criado com sucesso',
@@ -551,7 +906,9 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
       verificacao: verificacaoGemini ? {
         aprovado: verificacaoGemini.aprovado,
         motivo: verificacaoGemini.motivo,
-        resposta_ia: verificacaoGemini.resposta_ia
+        score: verificacaoGemini.score,
+        resposta_ia: verificacaoGemini.resposta_ia,
+        timestamp: verificacaoGemini.timestamp
       } : null
     });
 

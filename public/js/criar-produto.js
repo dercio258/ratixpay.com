@@ -702,6 +702,62 @@ function loadIntegratedConfigs(produto) {
         document.getElementById('orderBumpAtivo').checked = true;
         toggleOrderBump();
     }
+    
+    // Carregar configurações de Remarketing
+    if (produto.remarketing_config) {
+        const config = produto.remarketing_config;
+        const enableRemarketing = document.getElementById('enableRemarketing');
+        const tempoEnvio = document.getElementById('remarketingTempoEnvio');
+        
+        if (enableRemarketing) {
+            enableRemarketing.checked = config.enabled || false;
+            if (config.enabled) {
+                // Expandir seção se estiver ativada
+                const remarketingSection = document.getElementById('remarketingSection');
+                if (remarketingSection) {
+                    remarketingSection.style.display = 'block';
+                    const configSection = remarketingSection.closest('.config-section');
+                    if (configSection) {
+                        configSection.classList.add('active');
+                    }
+                }
+            }
+        }
+        
+        if (tempoEnvio) {
+            // Verificar se é tempo personalizado
+            if (config.tempo_minutos !== undefined) {
+                const tempoMinutos = config.tempo_minutos;
+                // Verificar se corresponde a algum valor padrão
+                if (tempoMinutos === 0) {
+                    tempoEnvio.value = '0';
+                } else if (tempoMinutos === 5) {
+                    tempoEnvio.value = '5';
+                } else if (tempoMinutos === 60) {
+                    tempoEnvio.value = '60';
+                } else if (tempoMinutos === 1440) {
+                    tempoEnvio.value = '1440';
+                } else {
+                    // Tempo personalizado
+                    tempoEnvio.value = 'custom';
+                    const customTimeGroup = document.getElementById('customTimeGroup');
+                    const customTime = document.getElementById('remarketingTempoCustom');
+                    const customUnidade = document.getElementById('remarketingTempoUnidade');
+                    
+                    if (customTimeGroup) customTimeGroup.style.display = 'block';
+                    if (customTime && customUnidade) {
+                        if (tempoMinutos >= 60) {
+                            customTime.value = tempoMinutos / 60;
+                            customUnidade.value = 'horas';
+                        } else {
+                            customTime.value = tempoMinutos;
+                            customUnidade.value = 'minutos';
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 async function createProduct(event) {
@@ -779,10 +835,42 @@ async function createProduct(event) {
             message: blackFridayMessage
         };
         
+        // Verificar configurações de Remarketing
+        const enableRemarketing = document.getElementById('enableRemarketing');
+        const remarketingEnabled = enableRemarketing ? enableRemarketing.checked : false;
+        const tempoEnvioSelect = document.getElementById('remarketingTempoEnvio');
+        let tempoMinutos = 0;
+        
+        if (remarketingEnabled && tempoEnvioSelect) {
+            const tempoEnvioValue = tempoEnvioSelect.value;
+            
+            if (tempoEnvioValue === 'custom') {
+                const customTime = document.getElementById('remarketingTempoCustom');
+                const customUnidade = document.getElementById('remarketingTempoUnidade');
+                
+                if (customTime && customUnidade) {
+                    const valor = parseFloat(customTime.value) || 0;
+                    if (customUnidade.value === 'horas') {
+                        tempoMinutos = valor * 60;
+                    } else {
+                        tempoMinutos = valor;
+                    }
+                }
+            } else {
+                tempoMinutos = parseInt(tempoEnvioValue) || 0;
+            }
+        }
+        
+        const remarketingConfig = {
+            enabled: remarketingEnabled,
+            tempo_minutos: tempoMinutos
+        };
+        
         console.log('Configurações coletadas:', {
             discount: discountConfig,
             timer: timerConfig,
-            blackFriday: blackFridayConfig
+            blackFriday: blackFridayConfig,
+            remarketing: remarketingConfig
         });
         
         // Configurações integradas
@@ -790,12 +878,14 @@ async function createProduct(event) {
         console.log('  - discount_config:', JSON.stringify(discountConfig));
         console.log('  - timer_config:', JSON.stringify(timerConfig));
         console.log('  - blackfriday_config:', JSON.stringify(blackFridayConfig));
+        console.log('  - remarketing_config:', JSON.stringify(remarketingConfig));
         
         console.log('🔍 VERIFICANDO SE AS CONFIGURAÇÕES ESTÃO SENDO ADICIONADAS AO FORMDATA');
         
         formData.append('discount_config', JSON.stringify(discountConfig));
         formData.append('timer_config', JSON.stringify(timerConfig));
         formData.append('blackfriday_config', JSON.stringify(blackFridayConfig));
+        formData.append('remarketing_config', JSON.stringify(remarketingConfig));
         formData.append('order_bump_ativo', productData.orderBump.enabled);
         formData.append('order_bump_produtos', JSON.stringify(productData.orderBump.products));
         
@@ -824,7 +914,12 @@ async function createProduct(event) {
                 window.location.href = 'gestao-produtos.html';
             }, 2000);
         } else {
-            showError(result.error || 'Erro ao criar produto');
+            // Verificar se é rejeição do Gemini AI
+            if (result.error === 'PRODUTO_REJEITADO' && result.verificacao) {
+                showRejectionModal(result.verificacao, result.message);
+            } else {
+                showError(result.message || result.error || 'Erro ao criar produto');
+            }
         }
         
     } catch (error) {
@@ -847,6 +942,355 @@ function showError(message) {
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function showRejectionModal(verificacao, message) {
+    // Criar ou obter modal de rejeição
+    let modal = document.getElementById('rejectionModal');
+    
+    if (!modal) {
+        // Criar modal se não existir
+        modal = document.createElement('div');
+        modal.id = 'rejectionModal';
+        modal.className = 'rejection-modal';
+        modal.innerHTML = `
+            <div class="rejection-modal-overlay"></div>
+            <div class="rejection-modal-content">
+                <div class="rejection-modal-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h2>Produto Não Aprovado</h2>
+                    <button class="rejection-modal-close" onclick="closeRejectionModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="rejection-modal-body">
+                    <div class="rejection-alert">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>Seu produto foi analisado pela nossa verificação automática e não foi aprovado para publicação.</p>
+                    </div>
+                    <div class="rejection-reason">
+                        <h3><i class="fas fa-info-circle"></i> Motivo da Rejeição:</h3>
+                        <div class="rejection-message" id="rejectionMessage"></div>
+                        <div class="rejection-details" id="rejectionDetails" style="display: none;">
+                            <h4 style="margin-top: 15px; margin-bottom: 10px; font-size: 14px; color: #666;">
+                                <i class="fas fa-clipboard-list"></i> Detalhes da Verificação:
+                            </h4>
+                            <div id="rejectionDetailsContent" style="font-size: 13px; color: #666; line-height: 1.6;"></div>
+                        </div>
+                    </div>
+                    <div class="rejection-actions">
+                        <button class="btn btn-primary" onclick="closeRejectionModal()">
+                            <i class="fas fa-check"></i> Entendi, vou revisar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Adicionar CSS se não existir
+        if (!document.getElementById('rejectionModalStyles')) {
+            const style = document.createElement('style');
+            style.id = 'rejectionModalStyles';
+            style.textContent = `
+                .rejection-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 10000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .rejection-modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(4px);
+                }
+                .rejection-modal-content {
+                    position: relative;
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    width: 90%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                    animation: modalSlideIn 0.3s ease-out;
+                }
+                @keyframes modalSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-50px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .rejection-modal-header {
+                    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                    color: white;
+                    padding: 20px 25px;
+                    border-radius: 12px 12px 0 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    position: relative;
+                }
+                .rejection-modal-header i {
+                    font-size: 24px;
+                }
+                .rejection-modal-header h2 {
+                    margin: 0;
+                    flex: 1;
+                    font-size: 20px;
+                }
+                .rejection-modal-close {
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.2s;
+                }
+                .rejection-modal-close:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+                .rejection-modal-body {
+                    padding: 25px;
+                }
+                .rejection-alert {
+                    background: #fff3cd;
+                    border: 2px solid #ffc107;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: start;
+                    gap: 12px;
+                }
+                .rejection-alert i {
+                    color: #856404;
+                    font-size: 20px;
+                    margin-top: 2px;
+                }
+                .rejection-alert p {
+                    margin: 0;
+                    color: #856404;
+                    line-height: 1.6;
+                }
+                .rejection-reason {
+                    background: #f8f9fa;
+                    border-left: 4px solid #dc3545;
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                }
+                .rejection-reason h3 {
+                    margin: 0 0 15px 0;
+                    color: #dc3545;
+                    font-size: 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .rejection-message {
+                    background: white;
+                    padding: 15px;
+                    border-radius: 6px;
+                    color: #333;
+                    line-height: 1.8;
+                    font-size: 15px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+                .rejection-message p {
+                    margin: 0 0 10px 0;
+                    line-height: 1.8;
+                }
+                .rejection-message p:last-child {
+                    margin-bottom: 0;
+                }
+                .rejection-details {
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid #dee2e6;
+                }
+                .rejection-details h4 {
+                    margin: 0 0 10px 0;
+                    font-size: 14px;
+                    color: #666;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .rejection-details-content {
+                    font-size: 13px;
+                    color: #666;
+                    line-height: 1.6;
+                }
+                .rejection-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                }
+                .rejection-actions .btn {
+                    padding: 12px 24px;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 15px;
+                    font-weight: 600;
+                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .rejection-actions .btn-primary {
+                    background: #007bff;
+                    color: white;
+                }
+                .rejection-actions .btn-primary:hover {
+                    background: #0056b3;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+                }
+                @media (max-width: 600px) {
+                    .rejection-modal-content {
+                        width: 95%;
+                        margin: 20px;
+                    }
+                    .rejection-modal-header {
+                        padding: 15px 20px;
+                    }
+                    .rejection-modal-body {
+                        padding: 20px;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+    
+    // Preencher conteúdo do modal
+    const rejectionMessage = document.getElementById('rejectionMessage');
+    if (rejectionMessage) {
+        const motivo = verificacao.motivo || 'Não atende aos critérios da plataforma';
+        
+        // Formatar o motivo para melhor visualização
+        // Quebrar o texto em parágrafos para melhor legibilidade
+        let motivoFormatado = motivo;
+        
+        // Quebrar em frases para melhor leitura
+        // Substituir pontos seguidos de espaço por quebra de parágrafo
+        motivoFormatado = motivo
+            .replace(/\. /g, '.\n')
+            .replace(/\.\n\n/g, '.\n') // Evitar quebras duplas
+            .trim();
+        
+        // Se houver vírgulas, quebrar também (mas manter na mesma linha se for curto)
+        const linhas = motivoFormatado.split('\n');
+        const linhasFormatadas = linhas.map(linha => {
+            // Se a linha for muito longa (> 100 caracteres), quebrar em vírgulas
+            if (linha.length > 100 && linha.includes(',')) {
+                return linha.split(',').map((parte, index, array) => {
+                    if (index === array.length - 1) {
+                        return parte.trim();
+                    }
+                    return parte.trim() + ',';
+                }).join('\n');
+            }
+            return linha.trim();
+        });
+        
+        motivoFormatado = linhasFormatadas.join('\n');
+        
+        // Criar HTML formatado com parágrafos
+        const paragrafos = motivoFormatado
+            .split('\n')
+            .filter(linha => linha.trim().length > 0)
+            .map(linha => linha.trim());
+        
+        if (paragrafos.length > 1) {
+            // Múltiplos parágrafos
+            rejectionMessage.innerHTML = paragrafos
+                .map(paragrafo => `<p style="margin: 0 0 12px 0; line-height: 1.8; text-align: left;">${paragrafo}</p>`)
+                .join('');
+        } else {
+            // Texto único
+            rejectionMessage.innerHTML = `<p style="margin: 0; line-height: 1.8; text-align: left;">${motivo}</p>`;
+        }
+        
+        // Garantir que o texto seja legível
+        rejectionMessage.style.textAlign = 'left';
+        rejectionMessage.style.fontSize = '15px';
+        rejectionMessage.style.color = '#333';
+    }
+    
+    // Preencher detalhes adicionais se disponíveis
+    const rejectionDetails = document.getElementById('rejectionDetails');
+    const rejectionDetailsContent = document.getElementById('rejectionDetailsContent');
+    if (rejectionDetails && rejectionDetailsContent) {
+        const details = [];
+        
+        if (verificacao.score !== undefined) {
+            details.push(`<strong>Score de Confiança:</strong> ${verificacao.score}%`);
+        }
+        
+        if (verificacao.resposta_ia) {
+            details.push(`<strong>Resposta da IA:</strong> ${verificacao.resposta_ia}`);
+        }
+        
+        if (verificacao.timestamp) {
+            const data = new Date(verificacao.timestamp);
+            details.push(`<strong>Data da Verificação:</strong> ${data.toLocaleString('pt-BR')}`);
+        }
+        
+        if (details.length > 0) {
+            rejectionDetailsContent.innerHTML = details.join('<br>');
+            rejectionDetails.style.display = 'block';
+        }
+    }
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
+    
+    // Fechar ao clicar no overlay
+    const overlay = modal.querySelector('.rejection-modal-overlay');
+    if (overlay) {
+        overlay.onclick = closeRejectionModal;
+    }
+    
+    // Fechar com ESC
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeRejectionModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+}
+
+function closeRejectionModal() {
+    const modal = document.getElementById('rejectionModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
 }
 

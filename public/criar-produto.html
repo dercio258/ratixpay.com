@@ -1,14 +1,50 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
         
+
 <title>RatixPay - Criar Produto</title>
+
     <link rel="stylesheet" href="css/style.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
         
+
 <style>
+        /* ============================================
+           VARI√ÅVEIS CSS
+           ============================================ */
+        :root {
+            --primary-color: #ff6b35;
+            --primary-hover: #e55a2b;
+            --secondary-color: #6c757d;
+            --secondary-hover: #545b62;
+            --text-dark: #2c3e50;
+            --text-light: #6c757d;
+            --border-color: #e9ecef;
+            --bg-light: #f8f9fa;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #3498db;
+            --border-radius: 8px;
+            --border-radius-lg: 10px;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ============================================
+           LAYOUT PRINCIPAL
+           ============================================ */
         .main-container {
             display: grid;
             grid-template-columns: 1fr 300px;
@@ -21,2477 +57,4952 @@
         .create-container {
             padding: 20px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
         }
 
         .preview-container {
             padding: 20px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
             position: sticky;
             top: 20px;
             height: fit-content;
         }
-        
+
         .create-header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid var(--border-color);
         }
-        
+
         .create-header h1 {
-            color: #2c3e50;
+            color: var(--text-dark);
             margin-bottom: 10px;
+            font-size: 1.8rem;
         }
-        
+
         .create-header p {
-            color: #6c757d;
+            color: var(--text-light);
             font-size: 16px;
         }
-        
+
+        /* ============================================
+           FORMUL√ÅRIO
+           ============================================ */
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--text-dark);
             font-size: 14px;
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            transition: var(--transition);
+            box-sizing: border-box;
         }
-        
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #ff6b35;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
         }
-        
+
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+
         
+
         .checkbox-group {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-        
-        .image-section {
-            border: 2px dashed #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            background: #f8f9fa;
-        }
-        
-        .image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 8px;
-            margin: 10px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .upload-btn {
-            background: #ff6b35;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-        
-        .upload-btn:hover {
-            background: #e55a2b;
+
         }
 
-        /* Estilos para ·rea de upload de arquivo */
-        .file-upload-area {
-            border: 2px dashed #e9ecef;
-            border-radius: 8px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            margin-bottom: 15px;
+        
+
+        .checkbox-group input[type="checkbox"] {
+
+            width: auto;
+
+            margin: 0;
+
         }
+
+        
+
+        .image-section {
+
+            border: 2px dashed #e9ecef;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            text-align: center;
+
+            background: #f8f9fa;
+
+        }
+
+        
+
+        .image-preview {
+
+            max-width: 200px;
+
+            max-height: 200px;
+
+            border-radius: 8px;
+
+            margin: 10px 0;
+
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        }
+
+        
+
+        .upload-btn {
+
+            background: #ff6b35;
+
+            color: white;
+
+            border: none;
+
+            padding: 10px 20px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            transition: background-color 0.3s ease;
+
+        }
+
+        
+
+        .upload-btn:hover {
+
+            background: #e55a2b;
+
+        }
+
+
+
+        /* Estilos para √°rea de upload de arquivo */
+
+        .file-upload-area {
+
+            border: 2px dashed #e9ecef;
+
+            border-radius: 8px;
+
+            padding: 30px 20px;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+            background: #f8f9fa;
+
+            margin-bottom: 15px;
+
+        }
+
+
 
         .file-upload-area:hover {
+
             border-color: #ff6b35;
+
             background: #fff5f2;
+
         }
+
+
 
         .file-upload-area.dragover {
+
             border-color: #ff6b35;
+
             background: #fff5f2;
+
             transform: scale(1.02);
+
         }
+
+
 
         .file-upload-area i {
+
             display: block;
+
             margin-bottom: 10px;
+
         }
+
+
 
         .file-upload-area p {
+
             margin: 10px 0;
+
             color: #495057;
+
             font-weight: 500;
+
         }
+
+
 
         .file-upload-area small {
+
             color: #6c757d;
+
             font-size: 12px;
+
         }
+
+
 
         .file-preview {
+
             background: #f8f9fa;
+
             border: 1px solid #e9ecef;
+
             border-radius: 8px;
+
             padding: 15px;
+
             margin-top: 15px;
+
             display: none;
+
         }
+
+
 
         .file-info {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
         }
+
+
 
         .file-details {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
         }
+
+
 
         .file-icon {
+
             font-size: 24px;
+
             color: #6c757d;
+
         }
+
+
 
         .file-name {
+
             font-weight: 600;
+
             color: #2c3e50;
+
             margin-bottom: 5px;
+
         }
+
+
 
         .file-size {
+
             color: #6c757d;
+
             font-size: 12px;
+
         }
 
-        /* Estilos para sincronizaÁ„o */
+
+
+        /* Estilos para sincroniza√ß√£o */
+
         .sync-indicator {
+
             display: inline-flex;
+
             align-items: center;
+
             gap: 5px;
+
             font-size: 12px;
+
             color: #28a745;
+
             margin-top: 5px;
+
         }
+
+
 
         .sync-indicator.disabled {
+
             color: #dc3545;
+
         }
+
+
 
         .sync-indicator i {
+
             font-size: 14px;
+
         }
+
+
 
         .form-group.disabled {
+
             opacity: 0.6;
+
             pointer-events: none;
+
         }
+
+
 
         .form-group.disabled input,
+
         .form-group.disabled .file-upload-area {
+
             background-color: #f8f9fa;
+
             border-color: #e9ecef;
+
         }
+
+
 
         .form-help {
+
             color: #6c757d;
+
             font-size: 12px;
+
             margin-top: 5px;
+
         }
+
+
 
         .remove-file {
+
             background: #dc3545;
+
             color: white;
+
             border: none;
+
             padding: 6px 12px;
+
             border-radius: 4px;
+
             cursor: pointer;
+
             font-size: 12px;
+
             transition: background-color 0.3s ease;
+
         }
+
+
 
         .remove-file:hover {
+
             background: #c82333;
-        }
-        
-        .create-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #e9ecef;
-        }
-        
-        .btn-create {
-            background: #ff6b35;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        
-        .btn-create:hover {
-            background: #e55a2b;
-        }
-        
-        .btn-cancel {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        
-        .btn-cancel:hover {
-            background: #545b62;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .loading i {
-            font-size: 24px;
-            color: #ff6b35;
-            animation: spin 1s linear infinite;
+
         }
 
-        /* Estilos para seÁ„o de afiliados */
-        .affiliate-section {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
+        
+
+        .create-actions {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+
+            margin-top: 20px;
+
+            padding-top: 20px;
+
+            border-top: 2px solid #e9ecef;
+
         }
+
+        
+
+        .btn-create {
+
+            background: #ff6b35;
+
+            color: white;
+
+            border: none;
+
+            padding: 12px 30px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            transition: background-color 0.3s ease;
+
+        }
+
+        
+
+        .btn-create:hover {
+
+            background: #e55a2b;
+
+        }
+
+        
+
+        .btn-cancel {
+
+            background: #6c757d;
+
+            color: white;
+
+            border: none;
+
+            padding: 12px 30px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            transition: background-color 0.3s ease;
+
+        }
+
+        
+
+        .btn-cancel:hover {
+
+            background: #545b62;
+
+        }
+
+        
+
+        .loading {
+
+            display: none;
+
+            text-align: center;
+
+            padding: 20px;
+
+        }
+
+        
+
+        .loading i {
+
+            font-size: 24px;
+
+            color: #ff6b35;
+
+            animation: spin 1s linear infinite;
+
+        }
+
+
+
+        /* Estilos para se√ß√£o de afiliados */
+
+        .affiliate-section {
+
+            background: #f8f9fa;
+
+            border: 2px solid #e9ecef;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
+            margin: 20px 0;
+
+        }
+
+
 
         .affiliate-section h3 {
+
             color: #2c3e50;
+
             margin-bottom: 20px;
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
         }
+
+
 
         .affiliate-section h4 {
+
             color: #495057;
+
             margin: 20px 0 15px 0;
+
             font-size: 16px;
+
         }
+
+
 
         .tier-levels {
+
             display: flex;
+
             flex-direction: column;
+
             gap: 15px;
+
         }
+
+
 
         .tier-level {
+
             display: flex;
+
             align-items: center;
+
             gap: 15px;
+
             padding: 10px;
+
             background: white;
+
             border-radius: 8px;
+
             border: 1px solid #dee2e6;
+
         }
+
+
 
         .tier-level label {
+
             min-width: 150px;
+
             font-weight: 600;
+
             color: #495057;
+
             margin: 0;
+
         }
+
+
 
         .tier-input {
+
             width: 100px;
+
             padding: 8px 12px;
+
             border: 2px solid #e9ecef;
+
             border-radius: 6px;
+
             font-size: 14px;
+
         }
+
+
 
         .tier-input:focus {
+
             outline: none;
+
             border-color: #ff6b35;
+
             box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+
         }
+
         
+
         @keyframes spin {
+
             0% { transform: rotate(0deg); }
+
             100% { transform: rotate(360deg); }
+
         }
+
         
+
         .error-message {
+
             background: #f8d7da;
+
             color: #721c24;
+
             padding: 10px;
+
             border-radius: 6px;
+
             margin-bottom: 20px;
+
             display: none;
+
         }
+
         
+
         .success-message {
+
             background: #d4edda;
+
             color: #155724;
+
             padding: 10px;
+
             border-radius: 6px;
+
             margin-bottom: 20px;
+
             display: none;
+
         }
+
+
 
         /* Modal de Processamento */
+
         .processing-modal {
+
             display: none;
+
             position: fixed;
+
             top: 0;
+
             left: 0;
+
             width: 100%;
+
             height: 100%;
+
             background: rgba(0, 0, 0, 0.7);
+
             z-index: 100000;
+
             justify-content: center;
+
             align-items: center;
+
         }
+
+
 
         .processing-modal.active {
+
             display: flex;
+
         }
+
+
 
         .processing-content {
+
             background: white;
+
             border-radius: 12px;
+
             padding: 40px;
+
             max-width: 500px;
+
             width: 90%;
+
             text-align: center;
+
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+
         }
+
+
 
         .processing-spinner {
+
             width: 60px;
+
             height: 60px;
+
             border: 4px solid #f3f3f3;
+
             border-top: 4px solid #ff6b35;
+
             border-radius: 50%;
+
             animation: spin 1s linear infinite;
+
             margin: 0 auto 20px;
+
         }
+
+
 
         .processing-step {
+
             font-size: 18px;
+
             font-weight: 600;
+
             color: #2c3e50;
+
             margin: 10px 0;
+
             min-height: 28px;
+
         }
+
+
 
         .processing-step.active {
+
             color: #ff6b35;
+
         }
+
+
 
         .processing-step.completed {
+
             color: #28a745;
+
         }
+
+
 
         .processing-step.completed::before {
+
             content: "? ";
+
             color: #28a745;
+
             font-weight: bold;
+
         }
 
-        /* NotificaÁ„o de campo obrigatÛrio */
+
+
+        /* Notifica√ß√£o de campo obrigat√≥rio */
+
         .field-error {
+
             border: 2px solid #dc3545 !important;
+
             background-color: #fff5f5 !important;
+
             animation: shake 0.5s;
+
         }
+
+
 
         @keyframes shake {
+
             0%, 100% { transform: translateX(0); }
+
             25% { transform: translateX(-10px); }
+
             75% { transform: translateX(10px); }
+
         }
+
+
 
         .field-error-message {
+
             color: #dc3545;
+
             font-size: 14px;
+
             margin-top: 5px;
+
             display: block;
+
             font-weight: 500;
+
         }
 
-        /* SeÁıes de ConfiguraÁıes AvanÁadas */
+
+
+        /* Se√ß√µes de Configura√ß√µes Avan√ßadas */
+
         .advanced-configurations {
+
             margin-top: 30px;
+
             padding-top: 20px;
+
             border-top: 2px solid #e9ecef;
+
         }
+
+
 
         .config-section {
+
             background: #f8f9fa;
+
             border: 1px solid #e9ecef;
+
             border-radius: 8px;
+
             margin-bottom: 15px;
+
             overflow: hidden;
+
             transition: all 0.3s ease;
+
         }
+
+
 
         .config-section:hover {
+
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
         }
+
+
 
         .config-section-header {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             padding: 15px 20px;
+
             cursor: pointer;
+
             background: white;
+
             border-bottom: 1px solid #e9ecef;
+
             transition: background 0.2s ease;
+
         }
+
+
 
         .config-section-header:hover {
+
             background: #f8f9fa;
+
         }
+
+
 
         .config-section-title {
+
             display: flex;
+
             align-items: center;
+
             gap: 12px;
+
             flex: 1;
+
         }
+
+
 
         .config-section-title input[type="checkbox"] {
+
             width: 20px;
+
             height: 20px;
+
             cursor: pointer;
+
             margin: 0;
+
         }
+
+
 
         .config-section-title label {
+
             margin: 0;
+
             cursor: pointer;
+
             font-weight: 600;
+
             color: #2c3e50;
+
             display: flex;
+
             align-items: center;
+
             gap: 8px;
+
         }
+
+
 
         .config-section-title label i {
+
             color: #6c757d;
+
             font-size: 16px;
+
         }
+
+
 
         .config-arrow {
+
             color: #6c757d;
+
             transition: transform 0.3s ease;
+
             font-size: 14px;
+
         }
+
+
 
         .config-section.active .config-arrow {
+
             transform: rotate(180deg);
+
         }
+
+
 
         .config-section-content {
+
             padding: 20px;
+
             background: white;
+
             display: none;
+
             animation: slideDown 0.3s ease;
+
         }
+
+
 
         .config-section.active .config-section-content {
+
             display: block;
+
         }
 
-        /* Estilo especial para seÁ„o de Black Friday */
+
+
+        /* Estilo especial para se√ß√£o de Black Friday */
+
         #blackFridaySection {
+
             background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+
             color: white;
+
             border-radius: 8px;
+
         }
+
+
 
         #blackFridaySection .form-group label {
+
             color: white;
+
         }
+
+
 
         #blackFridaySection .form-group input,
+
         #blackFridaySection .form-group select {
+
             background: #333;
+
             color: white;
+
             border-color: #555;
+
         }
+
+
 
         #blackFridaySection .form-group input:focus,
+
         #blackFridaySection .form-group select:focus {
+
             border-color: #ff6b35;
+
             background: #444;
+
         }
 
-        /* Estilo para seÁ„o de timer */
+
+
+        /* Estilo para se√ß√£o de timer */
+
         #timerSection {
+
             background: #fffbf0;
+
         }
+
+
 
         #timerSection .form-group label {
+
             color: #856404;
+
         }
+
+
 
         @keyframes slideDown {
+
             from {
+
                 opacity: 0;
+
                 max-height: 0;
+
             }
+
             to {
+
                 opacity: 1;
+
                 max-height: 1000px;
+
             }
+
         }
 
-        /* SeÁ„o de Desconto Simples */
+
+
+        /* Se√ß√£o de Desconto Simples */
+
         .discount-section {
+
             background: transparent;
+
             border: none;
+
             padding: 0;
+
             margin: 0;
+
         }
+
+
 
         .local-save-indicator {
+
             background: #e3f2fd;
+
             color: #1976d2;
+
             padding: 8px 12px;
+
             border-radius: 6px;
+
             font-size: 12px;
+
             margin-bottom: 15px;
+
             border: 1px solid #bbdefb;
+
             animation: fadeIn 0.3s ease;
+
         }
+
+
 
         .local-save-indicator i {
+
             margin-right: 6px;
+
             color: #1976d2;
+
         }
+
+
 
         @keyframes fadeIn {
+
             from { opacity: 0; transform: translateY(-10px); }
+
             to { opacity: 1; transform: translateY(0); }
+
         }
+
+
 
         .discount-toggle {
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             margin-bottom: 15px;
+
         }
+
+
 
         .discount-toggle input[type="checkbox"] {
+
             width: 20px;
+
             height: 20px;
+
         }
+
+
 
         .discount-options {
+
             display: none;
+
             margin-top: 15px;
+
         }
 
+
+
         .discount-options.active {
+
             display: block;
+
         }
+
+
+
+
 
 
 
         /* Preview styles */
+
         .preview-header {
+
             text-align: center;
+
             margin-bottom: 20px;
+
             padding-bottom: 15px;
+
             border-bottom: 2px solid #e9ecef;
+
         }
+
+
 
         .preview-header h3 {
+
             color: #2c3e50;
+
             margin: 0;
+
             font-size: 1.2rem;
+
         }
+
+
 
         .preview-product {
+
             text-align: center;
+
         }
+
+
 
         .preview-image {
+
             width: 100%;
+
             max-width: 200px;
+
             height: 150px;
+
             object-fit: cover;
+
             border-radius: 8px;
+
             margin: 0 auto 15px auto;
+
             background: #f8f9fa;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             color: #6c757d;
+
             font-size: 14px;
+
         }
+
+
 
         .preview-name {
+
             font-size: 1.1rem;
+
             font-weight: 600;
+
             color: #2c3e50;
+
             margin-bottom: 10px;
+
             min-height: 1.5rem;
+
         }
+
+
 
         .preview-price {
+
             font-size: 1.3rem;
+
             font-weight: 700;
+
             color: #ff6b35;
+
             margin-bottom: 15px;
+
         }
+
+
 
         .preview-placeholder {
+
             color: #6c757d;
+
             font-style: italic;
+
         }
+
+
 
         /* Responsive */
+
         @media (max-width: 768px) {
+
             .main-container {
+
                 grid-template-columns: 1fr;
+
                 gap: 15px;
+
             }
+
             
+
             .preview-container {
+
                 position: relative;
+
                 order: -1;
+
             }
+
         }
+
     </style>
 
-    <!-- Sistema de AutenticaÁ„o Global -->
+
+
+    <!-- Sistema de Autentica√ß√£o Global -->
+
     <script src="/js/server-check.js"></script>
+
     <script src="/js/global-auth.js"></script>
+
 </head>
+
 <body>
+
     <div class="container">
+
         <div class="main-container">
+
             <div class="create-container">
+
                 <div class="create-header">
+
                     <h1><i class="fas fa-plus"></i> Criar Produto</h1>
-                    <p>Preencha as informaÁıes do produto abaixo</p>
+
+                    <p>Preencha as informa√ß√µes do produto abaixo</p>
+
                 </div>
+
                 
+
                 <div class="error-message" id="errorMessage"></div>
+
                 <div class="success-message" id="successMessage"></div>
+
                 
+
                 <div class="loading" id="loading">
+
                     <i class="fas fa-spinner"></i>
+
                     <p>Processando produto...</p>
+
                 </div>
+
                 
+
                 <!-- Modal de Processamento -->
+
                 <div class="processing-modal" id="processingModal">
+
                     <div class="processing-content">
+
                         <div class="processing-spinner"></div>
-                        <div class="processing-step" id="processingStep">Verificando informaÁıes...</div>
+
+                        <div class="processing-step" id="processingStep">Verificando informa√ß√µes...</div>
+
                     </div>
+
                 </div>
+
                 
+
                 <form id="createProductForm">
-                    <!-- Campos ocultos para configuraÁıes -->
+
+                    <!-- Campos ocultos para configura√ß√µes -->
+
                     <input type="hidden" id="discountConfig" name="discount_config">
+
                     <input type="hidden" id="timerConfig" name="timer_config">
+
                     <input type="hidden" id="blackFridayConfig" name="blackfriday_config">
+
                     
+
                     <div class="form-row">
+
                         <div class="form-group">
+
                             <label for="productType">Tipo de Produto:</label>
+
                             <select id="productType" required>
+
                                 <option value="">Selecione o tipo</option>
+
                                 <option value="curso">?? Curso Online</option>
+
                                 <option value="ebook">?? eBook</option>
+
                                 <option value="digital">?? Produto Digital</option>
-                                <option value="servico">?? ServiÁo</option>
+
+                                <option value="servico">?? Servi√ßo</option>
+
                             </select>
+
                         </div>
 
+
+
                         <div class="form-group">
+
                             <label for="productCategory">Categoria:</label>
+
                             <select id="productCategory" required>
+
                                 <option value="">Selecione uma categoria</option>
+
                                 <option value="marketing">Marketing</option>
-                                <option value="programacao">ProgramaÁ„o</option>
+
+                                <option value="programacao">Programa√ß√£o</option>
+
                                 <option value="financeiro">Financeiro</option>
+
                                 <option value="idiomas">Idiomas</option>
-                                <option value="saude">Sa˙de</option>
-                                <option value="educacao">EducaÁ„o</option>
-                                <option value="negocios">NegÛcios</option>
+
+                                <option value="saude">Sa√∫de</option>
+
+                                <option value="educacao">Educa√ß√£o</option>
+
+                                <option value="negocios">Neg√≥cios</option>
+
                                 <option value="outros">Outros</option>
+
                             </select>
+
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productName">Nome do Produto:</label>
-                        <input type="text" id="productName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="productDescription">DescriÁ„o:</label>
-                        <textarea id="productDescription" required></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="productPrice">PreÁo (MZN):</label>
-                            <input type="number" id="productPrice" step="0.01" required>
-                        </div>
-                    
-                        <div class="form-group">
-                            <label for="finalPrice">PreÁo Final:</label>
-                            <input type="text" id="finalPrice" readonly>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="marketPlace">
-                            <label for="marketPlace">DisponÌvel no Marketplace</label>
-                        </div>
+
                     </div>
 
+                    
+
                     <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="orderBumpAtivo">
-                            <label for="orderBumpAtivo">Ativar Order Bump para este produto</label>
-                        </div>
+
+                        <label for="productName">Nome do Produto:</label>
+
+                        <input type="text" id="productName" required>
+
                     </div>
+
+                    
+
+                    <div class="form-group">
+
+                        <label for="productDescription">Descri√ß√£o:</label>
+
+                        <textarea id="productDescription" required></textarea>
+
+                    </div>
+
+                    
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="productPrice">Pre√ßo (MZN):</label>
+
+                            <input type="number" id="productPrice" step="0.01" required>
+
+                        </div>
+
+                    
+
+                        <div class="form-group">
+
+                            <label for="finalPrice">Pre√ßo Final:</label>
+
+                            <input type="text" id="finalPrice" readonly>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="form-group">
+
+                        <div class="checkbox-group">
+
+                            <input type="checkbox" id="marketPlace">
+
+                            <label for="marketPlace">Dispon√≠vel no Marketplace</label>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <div class="checkbox-group">
+
+                            <input type="checkbox" id="orderBumpAtivo">
+
+                            <label for="orderBumpAtivo">Ativar Order Bump para este produto</label>
+
+                        </div>
+
+                    </div>
+
+
 
                     <div class="form-group" id="orderBumpProdutosGroup" style="display:none;">
-                        <label>Produtos Complementares (selecione atÈ 3)</label>
-                        <small style="display:block;color:#6c757d;margin-bottom:6px;">Ser„o exibidos no checkout deste produto</small>
+
+                        <label>Produtos Complementares (selecione at√© 3)</label>
+
+                        <small style="display:block;color:#6c757d;margin-bottom:6px;">Ser√£o exibidos no checkout deste produto</small>
+
                         <div id="orderBumpProdutosContainer" class="checkbox-group" style="max-height:180px;overflow:auto;border:1px solid #e5e7eb;border-radius:8px;padding:10px;"></div>
+
                     </div>
+
                     
+
                     <div class="form-group">
+
                         <label>Imagem do Produto:</label>
+
                         <div class="image-section">
+
                             <div id="currentImage">
+
                                 <img id="imagePreview" class="image-preview" style="display: none;">
+
                                 <p id="noImageText">Nenhuma imagem carregada</p>
+
                             </div>
+
                             <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+
                             <button type="button" class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+
                                 <i class="fas fa-upload"></i> Upload de Imagem
+
                             </button>
+
                             <p style="margin-top: 10px; color: #6c757d; font-size: 12px;">
+
                                 Ou cole a URL da imagem abaixo:
+
                             </p>
+
                             <input type="url" id="imageUrl" placeholder="https://exemplo.com/imagem.jpg" style="margin-top: 10px;">
+
                         </div>
+
                     </div>
+
                     
+
                     <div class="form-group" id="linkGroup">
-                        <label for="contentUrl">Link do Conte˙do:</label>
+
+                        <label for="contentUrl">Link do Conte√∫do:</label>
+
                         <input type="url" id="contentUrl" placeholder="https://exemplo.com/conteudo">
-                        <small class="form-help">Insira um link para o conte˙do do produto</small>
+
+                        <small class="form-help">Insira um link para o conte√∫do do produto</small>
+
                         <div class="sync-indicator" id="linkSyncIndicator">
+
                             <i class="fas fa-link"></i>
+
                             <span>Link ativo</span>
+
                         </div>
+
                     </div>
+
+
 
                     <div class="form-group" id="uploadGroup">
-                        <label>Arquivo do Conte˙do:</label>
+
+                        <label>Arquivo do Conte√∫do:</label>
+
                         <div class="file-upload-area" id="fileUploadArea">
+
                             <i class="fas fa-cloud-upload-alt"></i>
+
                             <p>Arraste um arquivo aqui ou clique para selecionar</p>
-                            <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m·x. 150MB)</small>
+
+                            <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m√°x. 150MB)</small>
+
                         </div>
+
                         <input type="file" id="contentFile" style="display: none;" accept="*/*">
+
                         
+
                         <div class="file-preview" id="filePreview">
+
                             <div class="file-info">
+
                                 <div class="file-details">
+
                                     <i class="fas fa-file file-icon" id="fileIcon"></i>
+
                                     <div>
+
                                         <div class="file-name" id="fileName"></div>
+
                                         <div class="file-size" id="fileSize"></div>
+
                                     </div>
+
                                 </div>
+
                                 <button class="remove-file" onclick="removeFile()">Remover</button>
+
                             </div>
+
                         </div>
-                        <small class="form-help">FaÁa upload de um arquivo ou use o link acima</small>
+
+                        <small class="form-help">Fa√ßa upload de um arquivo ou use o link acima</small>
+
                         <div class="sync-indicator" id="uploadSyncIndicator">
+
                             <i class="fas fa-upload"></i>
+
                             <span>Upload ativo</span>
+
                         </div>
+
                     </div>
+
                 </form>
+
             </div>
+
+
 
             <!-- Preview Container -->
+
             <div class="preview-container">
+
                 <div class="preview-header">
+
                     <h3><i class="fas fa-eye"></i> Preview do Produto</h3>
-                </div>
-                
-                <div class="preview-product">
-                    <div class="preview-image" id="previewImage">
-                        <span class="preview-placeholder">Nenhuma imagem selecionada</span>
-                    </div>
-                    
-                    <div class="preview-name" id="previewName">
-                        <span class="preview-placeholder">Nome do produto</span>
-                    </div>
-                    
-                    <div class="preview-price" id="previewPrice">
-                        <span class="preview-placeholder">PreÁo</span>
-                    </div>
-                </div>
-                
-                <div class="create-actions">
-                    <button type="button" class="btn-cancel" onclick="window.location.href='gestao-produtos.html'">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="button" class="btn-create" onclick="submitFormWithConfigurations()">
-                        <i class="fas fa-plus"></i> Criar Produto
-                    </button>
+
                 </div>
 
-                <!-- SeÁıes de ConfiguraÁıes AvanÁadas -->
+                
+
+                <div class="preview-product">
+
+                    <div class="preview-image" id="previewImage">
+
+                        <span class="preview-placeholder">Nenhuma imagem selecionada</span>
+
+                    </div>
+
+                    
+
+                    <div class="preview-name" id="previewName">
+
+                        <span class="preview-placeholder">Nome do produto</span>
+
+                    </div>
+
+                    
+
+                    <div class="preview-price" id="previewPrice">
+
+                        <span class="preview-placeholder">Pre√ßo</span>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="create-actions">
+
+                    <button type="button" class="btn-cancel" onclick="window.location.href='gestao-produtos.html'">
+
+                        <i class="fas fa-times"></i> Cancelar
+
+                    </button>
+
+                    <button type="button" class="btn-create" onclick="submitFormWithConfigurations()">
+
+                        <i class="fas fa-plus"></i> Criar Produto
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- Se√ß√µes de Configura√ß√µes Avan√ßadas -->
+
                 <div class="advanced-configurations">
+
                     <h3 style="margin-bottom: 20px; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">
-                        <i class="fas fa-cog"></i> ConfiguraÁıes AvanÁadas
+
+                        <i class="fas fa-cog"></i> Configura√ß√µes Avan√ßadas
+
                     </h3>
 
-                    <!-- SeÁ„o de Desconto Simples -->
+
+
+                    <!-- Se√ß√£o de Desconto Simples -->
+
                     <div class="config-section">
+
                         <div class="config-section-header" onclick="toggleConfigSection('discountSection', event)">
+
                             <div class="config-section-title">
+
                                 <input type="checkbox" id="enableDiscount" onclick="event.stopPropagation(); toggleConfigSection('discountSection')">
+
                                 <label for="enableDiscount">
+
                                     <i class="fas fa-percentage"></i> Desconto Simples
+
                                 </label>
+
                             </div>
+
                             <i class="fas fa-chevron-down config-arrow" id="discountSectionArrow"></i>
+
                         </div>
+
                         <div class="config-section-content" id="discountSection" style="display: none;">
+
                             <div id="localSaveIndicator" class="local-save-indicator" style="display: none;">
-                                <i class="fas fa-save"></i> ConfiguraÁıes salvas localmente
+
+                                <i class="fas fa-save"></i> Configura√ß√µes salvas localmente
+
                             </div>
+
                             
+
                             <div class="form-row">
+
                     <div class="form-group">
+
                                     <label for="discountType">Tipo de Desconto:</label>
+
                                     <select id="discountType">
+
                                         <option value="percentage">Percentual (%)</option>
+
                                         <option value="fixed">Valor Fixo (MZN)</option>
+
                                     </select>
+
                         </div>
+
                                 
+
                                 <div class="form-group">
+
                                     <label for="discountValue">Valor do Desconto:</label>
+
                                     <input type="number" id="discountValue" step="0.01" min="0">
+
                                 </div>
+
                             </div>
 
+
+
                         </div>
+
                     </div>
 
-                    <!-- SeÁ„o de Temporizador de UrgÍncia -->
+
+
+                    <!-- Se√ß√£o de Temporizador de Urg√™ncia -->
+
                     <div class="config-section">
+
                         <div class="config-section-header" onclick="toggleConfigSection('timerSection', event)">
+
                             <div class="config-section-title">
+
                                 <input type="checkbox" id="enableTimer" onclick="event.stopPropagation(); toggleConfigSection('timerSection')">
+
                                 <label for="enableTimer">
-                                    <i class="fas fa-clock"></i> Temporizador de UrgÍncia
+
+                                    <i class="fas fa-clock"></i> Temporizador de Urg√™ncia
+
                                 </label>
+
                             </div>
+
                             <i class="fas fa-chevron-down config-arrow" id="timerSectionArrow"></i>
+
                         </div>
+
                         <div class="config-section-content" id="timerSection" style="display: none;">
+
                             <div class="form-group">
-                                <label for="timerDuration">DuraÁ„o (minutos):</label>
+
+                                <label for="timerDuration">Dura√ß√£o (minutos):</label>
+
                                 <select id="timerDuration">
-                                    <option value="0">Selecione a duraÁ„o</option>
+
+                                    <option value="0">Selecione a dura√ß√£o</option>
+
                                     <option value="5">5 minutos</option>
+
                                     <option value="10">10 minutos</option>
+
                                     <option value="15">15 minutos</option>
+
                                     <option value="30">30 minutos</option>
+
                                 </select>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <!-- SeÁ„o de Black Friday -->
+
+
+                    <!-- Se√ß√£o de Black Friday -->
+
                     <div class="config-section">
+
                         <div class="config-section-header" onclick="toggleConfigSection('blackFridaySection', event)">
+
                             <div class="config-section-title">
+
                                 <input type="checkbox" id="enableBlackFriday" onclick="event.stopPropagation(); toggleConfigSection('blackFridaySection')">
+
                                 <label for="enableBlackFriday">
+
                                     <i class="fas fa-fire"></i> Black Friday
+
                                 </label>
+
                             </div>
+
                             <i class="fas fa-chevron-down config-arrow" id="blackFridaySectionArrow"></i>
+
                         </div>
+
                         <div class="config-section-content" id="blackFridaySection" style="display: none;">
+
                             <div class="form-group">
+
                                 <label for="blackFridayDiscount">Desconto Black Friday (%):</label>
+
                                 <input type="number" id="blackFridayDiscount" min="0" max="90" placeholder="Digite o desconto" onchange="updateBlackFridayPreview()">
+
                             </div>
+
                             
+
                             <div class="blackfriday-preview" id="blackFridayPreview" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center;">
+
                                 <div style="background: #ff6b35; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: inline-block;" id="blackFridayBadge">-0%</div>
+
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
+
                                     <div style="text-decoration: line-through; color: rgba(255,255,255,0.7);" id="blackFridayOriginal">0,00 MZN</div>
+
                                     <div style="color: #ffd700; font-weight: bold; font-size: 18px;" id="blackFridayDiscounted">0,00 MZN</div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <!-- SeÁ„o de ConfiguraÁ„o de Afiliados -->
+
+
+                    <!-- Se√ß√£o de Configura√ß√£o de Afiliados -->
+
                     <div class="config-section">
+
                         <div class="config-section-header" onclick="toggleConfigSection('affiliateSection', event)">
+
                             <div class="config-section-title">
+
                                 <input type="checkbox" id="permitirAfiliados" onclick="event.stopPropagation(); toggleAffiliateSettings()">
+
                                 <label for="permitirAfiliados">
-                                    <i class="fas fa-handshake"></i> ConfiguraÁ„o de Afiliados
+
+                                    <i class="fas fa-handshake"></i> Configura√ß√£o de Afiliados
+
                                 </label>
+
                             </div>
+
                             <i class="fas fa-chevron-down config-arrow" id="affiliateSectionArrow"></i>
+
                         </div>
+
                         <div class="config-section-content" id="affiliateSection" style="display: none;">
+
                             <div class="form-group">
+
                         <small class="form-help">Ative para permitir que afiliados promovam este produto</small>
+
                     </div>
+
+
 
                     <div id="affiliateSettings" style="display: none;">
+
                         <div class="form-row">
+
                             <div class="form-group">
-                                <label for="comissaoAfiliados">Comiss„o dos Afiliados (%):</label>
+
+                                <label for="comissaoAfiliados">Comiss√£o dos Afiliados (%):</label>
+
                                 <input type="number" id="comissaoAfiliados" min="0" max="50" step="0.1" placeholder="Ex: 15.0">
-                                <small class="form-help">Percentual de comiss„o para afiliados (0-50%)</small>
+
+                                <small class="form-help">Percentual de comiss√£o para afiliados (0-50%)</small>
+
                             </div>
+
                             
+
                             <div class="form-group">
-                                <label for="comissaoMinima">Comiss„o MÌnima (MZN):</label>
+
+                                <label for="comissaoMinima">Comiss√£o M√≠nima (MZN):</label>
+
                                 <input type="number" id="comissaoMinima" min="0" step="0.01" placeholder="Ex: 5.00">
-                                <small class="form-help">Valor mÌnimo de comiss„o por venda</small>
+
+                                <small class="form-help">Valor m√≠nimo de comiss√£o por venda</small>
+
                             </div>
+
                         </div>
+
+
 
                         <div class="form-group">
-                            <label for="tipoComissao">Tipo de Comiss„o:</label>
+
+                            <label for="tipoComissao">Tipo de Comiss√£o:</label>
+
                             <select id="tipoComissao">
+
                                 <option value="percentual">Percentual (%)</option>
+
                                 <option value="fixo">Valor Fixo (MZN)</option>
-                                <option value="tier">Sistema de NÌveis</option>
+
+                                <option value="tier">Sistema de N√≠veis</option>
+
                             </select>
-                            <small class="form-help">Escolha como a comiss„o ser· calculada</small>
+
+                            <small class="form-help">Escolha como a comiss√£o ser√° calculada</small>
+
                         </div>
 
+
+
                         <div id="tierSettings" style="display: none;">
-                            <h4>ConfiguraÁ„o de NÌveis de Comiss„o</h4>
+
+                            <h4>Configura√ß√£o de N√≠veis de Comiss√£o</h4>
+
                             <div class="tier-levels">
+
                                 <div class="tier-level">
-                                    <label>NÌvel 1 (1-10 vendas):</label>
+
+                                    <label>N√≠vel 1 (1-10 vendas):</label>
+
                                     <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+
                                 </div>
+
                                 <div class="tier-level">
-                                    <label>NÌvel 2 (11-50 vendas):</label>
+
+                                    <label>N√≠vel 2 (11-50 vendas):</label>
+
                                     <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+
                                 </div>
+
                                 <div class="tier-level">
-                                    <label>NÌvel 3 (50+ vendas):</label>
+
+                                    <label>N√≠vel 3 (50+ vendas):</label>
+
                                     <input type="number" class="tier-input" min="0" max="50" step="0.1" placeholder="%">
+
                                 </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                    <!-- Se√ß√£o de Remarketing -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('remarketingSection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="enableRemarketing" onclick="event.stopPropagation(); toggleConfigSection('remarketingSection')">
+                                <label for="enableRemarketing">
+                                    <i class="fas fa-bullhorn"></i> Remarketing
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="remarketingSectionArrow"></i>
+                        </div>
+                        <div class="config-section-content" id="remarketingSection" style="display: none;">
+                            <div class="form-group">
+                                <label for="remarketingTempoEnvio">Tempo para envio da notifica√ß√£o (ap√≥s cancelamento):</label>
+                                <select id="remarketingTempoEnvio" onchange="toggleCustomTime()">
+                                    <option value="0">Imediato (0 min)</option>
+                                    <option value="5">+5 minutos</option>
+                                    <option value="60">+1 hora</option>
+                                    <option value="1440">+24 horas</option>
+                                    <option value="custom">Personalizado</option>
+                                </select>
+                                <small class="form-help">Tempo de espera ap√≥s o cancelamento antes de enviar a notifica√ß√£o</small>
+                            </div>
+                            
+                            <div class="form-group" id="customTimeGroup" style="display: none;">
+                                <label for="remarketingTempoCustom">Tempo personalizado:</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="number" id="remarketingTempoCustom" min="0" step="1" placeholder="Digite o valor">
+                                    <select id="remarketingTempoUnidade">
+                                        <option value="minutos">Minutos</option>
+                                        <option value="horas">Horas</option>
+                                    </select>
+                                </div>
+                                <small class="form-help">Digite o tempo e selecione a unidade (minutos ou horas)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Preview da Mensagem:</label>
+                                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                                    <p id="remarketingPreview" style="margin: 0; color: #495057;">
+                                        Ol√° <strong>{nome_cliente}</strong>,<br><br>
+                                        Vimos que voc√™ tentou comprar <strong>{nome_produto}</strong>, mas n√£o concluiu.<br><br>
+                                        üëâ <strong>Finalize agora com desconto especial:</strong><br>
+                                        <a href="#" style="color: #007bff;">ratixpay.com/checkout.html?produto={id_produto}</a><br><br>
+                                        A oferta √© por tempo limitado!
+                                    </p>
+                                </div>
+                                <small class="form-help">A mensagem ser√° enviada automaticamente ap√≥s o tempo configurado</small>
                             </div>
                         </div>
                     </div>
-                </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
+
+
     <script src="js/server-check.js"></script>
+
     <!-- Temporariamente comentado para evitar conflito
+
     <script src="js/criar-produto.js"></script>
+
     -->
+
     
+
     <script>
-        // SincronizaÁ„o entre Link e Upload
+
+        // Sincroniza√ß√£o entre Link e Upload
+
         let syncState = {
+
             linkActive: false,
+
             uploadActive: false,
+
             uploadInProgress: false
+
         };
 
+
+
         function initializeSync() {
+
             const contentUrl = document.getElementById('contentUrl');
+
             const contentFile = document.getElementById('contentFile');
+
             const linkGroup = document.getElementById('linkGroup');
+
             const uploadGroup = document.getElementById('uploadGroup');
+
             const linkSyncIndicator = document.getElementById('linkSyncIndicator');
+
             const uploadSyncIndicator = document.getElementById('uploadSyncIndicator');
 
-            // Event listener para mudanÁas no link
+
+
+            // Event listener para mudan√ßas no link
+
             contentUrl.addEventListener('input', function() {
-                // N„o resetar se h· upload em andamento
+
+                // N√£o resetar se h√° upload em andamento
+
                 if (syncState.uploadInProgress) {
+
                     console.log('?? Upload em andamento, ignorando reset do link');
+
                     return;
+
                 }
+
                 
+
                 if (this.value.trim() !== '') {
+
                     activateLinkMode();
+
                 } else {
+
                     resetSync();
+
                 }
+
             });
 
-            // Event listener para mudanÁas no upload
+
+
+            // Event listener para mudan√ßas no upload
+
             contentFile.addEventListener('change', function() {
+
                 if (this.files.length > 0) {
+
                     syncState.uploadInProgress = true;
+
                     activateUploadMode();
+
                 } else {
+
                     syncState.uploadInProgress = false;
+
                     resetSync();
+
                 }
+
             });
+
+
 
             function activateLinkMode() {
+
                 syncState.linkActive = true;
+
                 syncState.uploadActive = false;
+
                 
+
                 // Desabilitar upload
+
                 uploadGroup.classList.add('disabled');
+
                 uploadSyncIndicator.classList.add('disabled');
+
                 uploadSyncIndicator.innerHTML = '<i class="fas fa-ban"></i><span>Desabilitado (Link ativo)</span>';
+
                 
+
                 // Ativar link
+
                 linkSyncIndicator.classList.remove('disabled');
+
                 linkSyncIndicator.innerHTML = '<i class="fas fa-link"></i><span>Link ativo</span>';
+
                 
+
                 console.log('?? Modo Link ativado');
+
             }
+
+
 
             function activateUploadMode() {
+
                 syncState.linkActive = false;
+
                 syncState.uploadActive = true;
+
                 
+
                 // Desabilitar link
+
                 linkGroup.classList.add('disabled');
+
                 linkSyncIndicator.classList.add('disabled');
+
                 linkSyncIndicator.innerHTML = '<i class="fas fa-ban"></i><span>Desabilitado (Upload ativo)</span>';
+
                 
+
                 // Ativar upload
+
                 uploadSyncIndicator.classList.remove('disabled');
+
                 uploadSyncIndicator.innerHTML = '<i class="fas fa-upload"></i><span>Upload ativo</span>';
+
                 
+
                 console.log('?? Modo Upload ativado');
+
             }
+
+
 
             function resetSync() {
-                // N„o resetar se h· upload em andamento
+
+                // N√£o resetar se h√° upload em andamento
+
                 if (syncState.uploadInProgress) {
-                    console.log('?? Upload em andamento, n„o resetando sincronizaÁ„o');
+
+                    console.log('?? Upload em andamento, n√£o resetando sincroniza√ß√£o');
+
                     return;
+
                 }
+
                 
+
                 syncState.linkActive = false;
+
                 syncState.uploadActive = false;
+
                 
+
                 // Reabilitar ambos
+
                 linkGroup.classList.remove('disabled');
+
                 uploadGroup.classList.remove('disabled');
+
                 
+
                 // Reset indicadores
+
                 linkSyncIndicator.classList.remove('disabled');
+
                 linkSyncIndicator.innerHTML = '<i class="fas fa-link"></i><span>Link ativo</span>';
+
                 
+
                 uploadSyncIndicator.classList.remove('disabled');
+
                 uploadSyncIndicator.innerHTML = '<i class="fas fa-upload"></i><span>Upload ativo</span>';
+
                 
-                console.log('?? SincronizaÁ„o resetada');
+
+                console.log('?? Sincroniza√ß√£o resetada');
+
             }
 
-            // FunÁ„o para detectar quando o upload foi concluÌdo
+
+
+            // Fun√ß√£o para detectar quando o upload foi conclu√≠do
+
             function checkUploadCompletion() {
+
                 if (syncState.uploadInProgress && contentUrl.value.trim() !== '') {
-                    console.log('? Upload concluÌdo, link preenchido:', contentUrl.value);
+
+                    console.log('? Upload conclu√≠do, link preenchido:', contentUrl.value);
+
                     syncState.uploadInProgress = false;
+
                     
+
                     // Atualizar indicador do link para mostrar que foi preenchido automaticamente
+
                     linkSyncIndicator.innerHTML = '<i class="fas fa-check"></i><span>Link gerado automaticamente</span>';
+
                     linkSyncIndicator.style.color = '#28a745';
+
                 }
+
             }
 
-            // Verificar periodicamente se o upload foi concluÌdo
+
+
+            // Verificar periodicamente se o upload foi conclu√≠do
+
             setInterval(checkUploadCompletion, 500);
+
         }
 
-        // Inicializar sincronizaÁ„o quando a p·gina carregar
+
+
+        // Inicializar sincroniza√ß√£o quando a p√°gina carregar
+
         document.addEventListener('DOMContentLoaded', function() {
+
             initializeSync();
+
         });
 
-        // FunÁ„o para expandir/colapsar seÁıes de configuraÁ„o
+
+
+        // Fun√ß√£o para expandir/colapsar se√ß√µes de configura√ß√£o
+
         function toggleConfigSection(sectionId, event) {
+
             if (event) {
+
                 event.stopPropagation();
+
             }
+
             
+
             const section = document.getElementById(sectionId);
+
             const checkbox = document.getElementById(
+
                 sectionId === 'discountSection' ? 'enableDiscount' :
+
                 sectionId === 'timerSection' ? 'enableTimer' :
-                sectionId === 'blackFridaySection' ? 'enableBlackFriday' : null
+
+                sectionId === 'blackFridaySection' ? 'enableBlackFriday' :
+
+                sectionId === 'remarketingSection' ? 'enableRemarketing' : null
+
             );
+
             const arrow = document.getElementById(sectionId + 'Arrow');
+
             const configSection = section ? section.closest('.config-section') : null;
+
             
+
             if (!section || !configSection) return;
+
             
-            // Toggle da seÁ„o baseado no estado atual
+
+            // Toggle da se√ß√£o baseado no estado atual
+
             const isActive = configSection.classList.contains('active');
+
             
+
             if (isActive) {
+
                 // Desativando
+
                 configSection.classList.remove('active');
+
                 section.style.display = 'none';
+
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
+
                 if (checkbox) checkbox.checked = false;
+
             } else {
+
                 // Ativando - verificar conflitos
-                // Se est· ativando Desconto, desativar Black Friday
+
+                // Se est√° ativando Desconto, desativar Black Friday
+
                 if (sectionId === 'discountSection') {
+
                     deactivateBlackFriday();
+
                 }
-                // Se est· ativando Black Friday, desativar Desconto
+
+                // Se est√° ativando Black Friday, desativar Desconto
+
                 if (sectionId === 'blackFridaySection') {
+
                     deactivateDiscount();
+
                 }
+
                 
+
                 configSection.classList.add('active');
+
                 section.style.display = 'block';
+
                 if (arrow) arrow.style.transform = 'rotate(180deg)';
+
                 if (checkbox) checkbox.checked = true;
+
                 
-                // Atualizar previews apÛs ativar
+
+                // Atualizar previews ap√≥s ativar
+
                 if (sectionId === 'blackFridaySection') {
+
                     setTimeout(() => updateBlackFridayPreview(), 100);
+
                 }
+
             }
+
         }
+
         
-        // FunÁ„o para desativar Black Friday
+
+        // Fun√ß√£o para desativar Black Friday
+
         function deactivateBlackFriday() {
+
             const blackFridayCheckbox = document.getElementById('enableBlackFriday');
+
             const blackFridaySection = document.getElementById('blackFridaySection');
+
             const blackFridayArrow = document.getElementById('blackFridaySectionArrow');
+
             const blackFridayConfigSection = blackFridaySection ? blackFridaySection.closest('.config-section') : null;
+
             
+
             if (blackFridayConfigSection && blackFridayConfigSection.classList.contains('active')) {
+
                 blackFridayConfigSection.classList.remove('active');
+
                 blackFridaySection.style.display = 'none';
+
                 if (blackFridayArrow) blackFridayArrow.style.transform = 'rotate(0deg)';
+
                 if (blackFridayCheckbox) blackFridayCheckbox.checked = false;
+
                 
+
                 // Limpar valor do desconto Black Friday
+
                 const blackFridayDiscount = document.getElementById('blackFridayDiscount');
+
                 if (blackFridayDiscount) blackFridayDiscount.value = '';
+
             }
+
         }
+
         
-        // FunÁ„o para desativar Desconto Simples
+
+        // Fun√ß√£o para desativar Desconto Simples
+
         function deactivateDiscount() {
+
             const discountCheckbox = document.getElementById('enableDiscount');
+
             const discountSection = document.getElementById('discountSection');
+
             const discountArrow = document.getElementById('discountSectionArrow');
+
             const discountConfigSection = discountSection ? discountSection.closest('.config-section') : null;
+
             
+
             if (discountConfigSection && discountConfigSection.classList.contains('active')) {
+
                 discountConfigSection.classList.remove('active');
+
                 discountSection.style.display = 'none';
+
                 if (discountArrow) discountArrow.style.transform = 'rotate(0deg)';
+
                 if (discountCheckbox) discountCheckbox.checked = false;
+
                 
+
                 // Limpar valores do desconto
+
                 const discountValue = document.getElementById('discountValue');
+
                 const discountType = document.getElementById('discountType');
+
                 if (discountValue) discountValue.value = '';
+
                 if (discountType) discountType.value = 'percentage';
+
+            }
+
+        }
+
+
+
+        // Fun√ß√£o para mostrar/ocultar campo de tempo personalizado no Remarketing
+        function toggleCustomTime() {
+            const tempoEnvio = document.getElementById('remarketingTempoEnvio');
+            const customTimeGroup = document.getElementById('customTimeGroup');
+            
+            if (tempoEnvio && customTimeGroup) {
+                if (tempoEnvio.value === 'custom') {
+                    customTimeGroup.style.display = 'block';
+                } else {
+                    customTimeGroup.style.display = 'none';
+                }
             }
         }
 
-        // FunÁıes para controle da seÁ„o de afiliados
+        // Fun√ß√µes para controle da se√ß√£o de afiliados
+
         function toggleAffiliateSettings() {
+
             const permitirAfiliados = document.getElementById('permitirAfiliados');
+
             const affiliateSection = document.getElementById('affiliateSection');
+
             const affiliateSettings = document.getElementById('affiliateSettings');
+
             const arrow = document.getElementById('affiliateSectionArrow');
+
             const configSection = affiliateSection.closest('.config-section');
+
             
+
             if (!permitirAfiliados || !affiliateSection || !configSection) return;
+
             
+
             const isChecked = permitirAfiliados.checked;
+
             
-            // Expandir/colapsar a seÁ„o
+
+            // Expandir/colapsar a se√ß√£o
+
             if (isChecked) {
+
                 configSection.classList.add('active');
+
                 affiliateSection.style.display = 'block';
+
                 if (arrow) arrow.style.transform = 'rotate(180deg)';
+
                 
-                // Mostrar configuraÁıes de afiliados
+
+                // Mostrar configura√ß√µes de afiliados
+
                 setTimeout(() => {
+
                 affiliateSettings.style.display = 'block';
+
                 }, 100);
+
             } else {
+
                 configSection.classList.remove('active');
+
                 affiliateSection.style.display = 'none';
+
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
+
                 affiliateSettings.style.display = 'none';
+
                 
+
                 // Limpar campos quando desabilitado
+
                 document.getElementById('comissaoAfiliados').value = '';
+
                 document.getElementById('comissaoMinima').value = '';
+
                 document.getElementById('tipoComissao').value = 'percentual';
+
                 toggleTierSettings();
+
             }
+
         }
+
+
 
         function toggleTierSettings() {
+
             const tipoComissao = document.getElementById('tipoComissao').value;
+
             const tierSettings = document.getElementById('tierSettings');
+
             
+
             if (tipoComissao === 'tier') {
+
                 tierSettings.style.display = 'block';
+
             } else {
+
                 tierSettings.style.display = 'none';
+
                 // Limpar campos de tier quando desabilitado
+
                 const tierInputs = document.querySelectorAll('.tier-input');
+
                 tierInputs.forEach(input => input.value = '');
+
             }
+
         }
 
-        // Adicionar event listener para tipo de comiss„o
+
+
+        // Adicionar event listener para tipo de comiss√£o
+
         document.addEventListener('DOMContentLoaded', function() {
+
             const tipoComissaoSelect = document.getElementById('tipoComissao');
+
             if (tipoComissaoSelect) {
+
                 tipoComissaoSelect.addEventListener('change', toggleTierSettings);
+
             }
+
         });
 
-        // FunÁ„o centralizada para calcular desconto (consistente com JavaScript)
+
+
+        // Fun√ß√£o centralizada para calcular desconto (consistente com JavaScript)
+
         function calculateDiscountHTML(originalPrice, discountType, discountValue) {
+
             if (!originalPrice || originalPrice <= 0 || !discountValue || discountValue <= 0) {
+
                 return {
+
                     originalPrice: originalPrice || 0,
+
                     finalPrice: originalPrice || 0,
+
                     discountPercent: 0,
+
                     discountAmount: 0
+
                 };
+
             }
+
             
+
             let discountAmount = 0;
+
             let finalPrice = originalPrice;
+
             let discountPercent = 0;
+
             
+
             if (discountType === 'percentage') {
+
                 discountAmount = (originalPrice * discountValue) / 100;
+
                 finalPrice = originalPrice - discountAmount;
+
                 discountPercent = discountValue;
+
             } else {
+
                 // Valor fixo
+
                 discountAmount = discountValue;
+
                 finalPrice = originalPrice - discountValue;
+
                 discountPercent = (discountValue / originalPrice) * 100;
+
             }
+
             
-            // Garantir que o preÁo final n„o seja negativo
+
+            // Garantir que o pre√ßo final n√£o seja negativo
+
             if (finalPrice < 0) {
+
                 finalPrice = 0;
+
                 discountAmount = originalPrice;
+
                 discountPercent = 100;
+
             }
+
             
+
             return {
+
                 originalPrice: originalPrice,
+
                 finalPrice: finalPrice,
+
                 discountPercent: discountPercent,
+
                 discountAmount: discountAmount
+
             };
+
         }
+
+
 
         function updateDiscountPreview() {
+
             const price = parseFloat(document.getElementById('productPrice').value) || 0;
+
             const discountType = document.getElementById('discountType').value;
+
             const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
             
-            // Usar funÁ„o centralizada para calcular desconto
+
+            // Usar fun√ß√£o centralizada para calcular desconto
+
             const discountResult = calculateDiscountHTML(price, discountType, discountValue);
+
             
-            // Atualizar preÁo final no formul·rio
+
+            // Atualizar pre√ßo final no formul√°rio
+
             const finalPriceField = document.getElementById('finalPrice');
+
             if (finalPriceField) {
+
                 finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+
             }
+
             
+
             // Atualizar preview principal do produto
+
             updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+
         }
+
         
-        // FunÁ„o para atualizar preview do Black Friday
+
+        // Fun√ß√£o para atualizar preview do Black Friday
+
         function updateBlackFridayPreview() {
+
             const price = parseFloat(document.getElementById('productPrice').value) || 0;
+
             const blackFridayDiscount = parseFloat(document.getElementById('blackFridayDiscount').value) || 0;
+
             
+
             if (blackFridayDiscount <= 0 || price <= 0) {
-                // Resetar preview se n„o h· desconto ou preÁo
+
+                // Resetar preview se n√£o h√° desconto ou pre√ßo
+
                 const badge = document.getElementById('blackFridayBadge');
+
                 const original = document.getElementById('blackFridayOriginal');
+
                 const discounted = document.getElementById('blackFridayDiscounted');
+
                 
+
                 if (badge) badge.textContent = '-0%';
+
                 if (original) original.textContent = '0,00 MZN';
+
                 if (discounted) discounted.textContent = '0,00 MZN';
+
                 return;
+
             }
+
             
-            // Calcular desconto (Black Friday sempre È percentual)
+
+            // Calcular desconto (Black Friday sempre √© percentual)
+
             const discountResult = calculateDiscountHTML(price, 'percentage', blackFridayDiscount);
+
             
+
             // Atualizar preview do Black Friday
+
             const badge = document.getElementById('blackFridayBadge');
+
             const original = document.getElementById('blackFridayOriginal');
+
             const discounted = document.getElementById('blackFridayDiscounted');
+
             
+
             if (badge) badge.textContent = `-${discountResult.discountPercent.toFixed(0)}%`;
+
             if (original) original.textContent = `${discountResult.originalPrice.toFixed(2).replace('.', ',')} MZN`;
+
             if (discounted) discounted.textContent = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+
             
-            // Atualizar preÁo final no formul·rio
+
+            // Atualizar pre√ßo final no formul√°rio
+
             const finalPriceField = document.getElementById('finalPrice');
+
             if (finalPriceField) {
+
                 finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+
             }
+
             
+
             // Atualizar preview principal do produto
+
             updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+
         }
+
+
 
         // Atualizar preview principal do produto
+
         function updateMainPreview(originalPrice, finalPrice, discountPercent) {
+
             const previewPrice = document.getElementById('previewPrice');
+
             
+
             if (!previewPrice) return;
+
             
+
             if (discountPercent > 0) {
-                // Mostrar preÁo com desconto
+
+                // Mostrar pre√ßo com desconto
+
                 previewPrice.innerHTML = `
+
                     <div style="text-align: center;">
+
                         <div style="text-decoration: line-through; color: #6c757d; font-size: 0.9rem; margin-bottom: 5px;">
+
                             ${originalPrice.toFixed(2).replace('.', ',')} MZN
+
                         </div>
+
                         <div style="color: #28a745; font-weight: bold; font-size: 1.3rem;">
+
                             ${finalPrice.toFixed(2).replace('.', ',')} MZN
+
                         </div>
+
                         <div style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-top: 5px; display: inline-block;">
+
                             -${discountPercent.toFixed(0)}% OFF
+
                         </div>
+
                     </div>
+
                 `;
+
             } else {
-                // Mostrar preÁo normal
+
+                // Mostrar pre√ßo normal
+
                 previewPrice.innerHTML = `${originalPrice.toFixed(2).replace('.', ',')} MZN`;
+
             }
+
         }
 
-        // Atualizar preview quando preÁo muda
+
+
+        // Atualizar preview quando pre√ßo muda
+
         function updatePricePreview() {
+
             const price = parseFloat(document.getElementById('productPrice').value) || 0;
+
             
-            // Verificar qual desconto est· ativo
+
+            // Verificar qual desconto est√° ativo
+
             const enableDiscount = document.getElementById('enableDiscount');
+
             const enableBlackFriday = document.getElementById('enableBlackFriday');
+
             
+
             if (enableBlackFriday && enableBlackFriday.checked) {
-                // Se Black Friday est· ativo, usar seu preview
+
+                // Se Black Friday est√° ativo, usar seu preview
+
                 updateBlackFridayPreview();
+
             } else if (enableDiscount && enableDiscount.checked) {
-                // Se Desconto Simples est· ativo, usar seu preview
+
+                // Se Desconto Simples est√° ativo, usar seu preview
+
             const discountType = document.getElementById('discountType').value;
+
             const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
             
-            // Usar funÁ„o centralizada para calcular desconto
+
+            // Usar fun√ß√£o centralizada para calcular desconto
+
             const discountResult = calculateDiscountHTML(price, discountType, discountValue);
+
             
-            // Atualizar preÁo final no formul·rio
+
+            // Atualizar pre√ßo final no formul√°rio
+
                 const finalPriceField = document.getElementById('finalPrice');
+
                 if (finalPriceField) {
+
                     finalPriceField.value = `${discountResult.finalPrice.toFixed(2).replace('.', ',')} MZN`;
+
                 }
+
             
+
             // Atualizar preview principal
+
             updateMainPreview(discountResult.originalPrice, discountResult.finalPrice, discountResult.discountPercent);
+
             } else {
-                // Nenhum desconto ativo, mostrar preÁo normal
+
+                // Nenhum desconto ativo, mostrar pre√ßo normal
+
                 const finalPriceField = document.getElementById('finalPrice');
+
                 if (finalPriceField) {
+
                     finalPriceField.value = `${price.toFixed(2).replace('.', ',')} MZN`;
+
                 }
+
                 updateMainPreview(price, price, 0);
+
             }
+
         }
 
-        // FunÁ„o para salvar configuraÁıes localmente (HTML)
+
+
+        // Fun√ß√£o para salvar configura√ß√µes localmente (HTML)
+
         function saveConfigurationsLocally() {
+
             try {
+
             const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
                 const discountType = document.getElementById('discountType').value;
+
                 
+
                 const timerDuration = parseInt(document.getElementById('timerDuration').value) || 0;
+
                 
+
                 const blackFridayDiscount = parseInt(document.getElementById('blackFridayDiscount').value) || 0;
+
                 
+
                 const configs = {
+
                     discount: {
+
                         enabled: discountValue > 0,
+
                         type: discountType,
+
                         value: discountValue
+
                     },
+
                     timer: {
+
                         enabled: timerDuration > 0,
+
                         duration: timerDuration
+
                     },
+
                     blackFriday: {
+
                         enabled: blackFridayDiscount > 0,
+
                         discount: blackFridayDiscount
+
                     }
+
                 };
+
                 
+
                 localStorage.setItem('ratixpay_product_configs', JSON.stringify(configs));
-                console.log('?? ConfiguraÁıes salvas localmente:', configs);
+
+                console.log('?? Configura√ß√µes salvas localmente:', configs);
+
                 
+
                 // Mostrar indicador visual
+
                 showLocalSaveIndicator();
+
                 
+
                 return configs;
+
             } catch (error) {
-                console.error('? Erro ao salvar configuraÁıes localmente:', error);
+
+                console.error('? Erro ao salvar configura√ß√µes localmente:', error);
+
                 return null;
+
             }
+
         }
+
         
-        // FunÁ„o para mostrar indicador de salvamento
+
+        // Fun√ß√£o para mostrar indicador de salvamento
+
         function showLocalSaveIndicator() {
+
             const indicator = document.getElementById('localSaveIndicator');
+
             if (indicator) {
+
                 indicator.style.display = 'block';
+
                 setTimeout(() => {
+
                     indicator.style.display = 'none';
+
                 }, 3000);
+
             }
+
         }
+
         
-        // FunÁ„o de debug tempor·ria no HTML
+
+        // Fun√ß√£o de debug tempor√°ria no HTML
+
         function debugConfigurationsHTML() {
-            console.log('?? DEBUG HTML: Verificando configuraÁıes...');
+
+            console.log('?? DEBUG HTML: Verificando configura√ß√µes...');
+
             
+
             // Verificar localStorage
+
             const localConfigs = JSON.parse(localStorage.getItem('ratixpay_product_configs') || '{}');
-            console.log('?? ConfiguraÁıes locais:', localConfigs);
+
+            console.log('?? Configura√ß√µes locais:', localConfigs);
+
             
-            // Verificar campos do formul·rio
+
+            // Verificar campos do formul√°rio
+
             const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
             const discountType = document.getElementById('discountType').value;
+
             console.log('?? Campos de desconto:', {
+
                 discountValue,
+
                 discountType
+
             });
+
             
+
             return {
+
                 localConfigs,
+
                 formFields: {
+
                     discountValue,
+
                     discountType
+
                 }
+
             };
+
         }
+
         
-        // FunÁ„o para coletar configuraÁıes para envio
+
+        // Fun√ß√£o para coletar configura√ß√µes para envio
+
         function collectConfigurationsForSubmission() {
+
             try {
-                // Verificar quais descontos est„o realmente ativos (checkboxes marcados)
+
+                // Verificar quais descontos est√£o realmente ativos (checkboxes marcados)
+
                 const enableDiscount = document.getElementById('enableDiscount');
+
                 const enableBlackFriday = document.getElementById('enableBlackFriday');
+
                 
+
                 const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
                 const discountType = document.getElementById('discountType').value;
+
                 
+
                 const timerDuration = parseInt(document.getElementById('timerDuration').value) || 0;
+
                 
+
                 const blackFridayDiscount = parseInt(document.getElementById('blackFridayDiscount').value) || 0;
+
                 
+
                 // Garantir que apenas um desconto esteja ativo (prioridade: Black Friday > Desconto Simples)
+
                 const isBlackFridayActive = enableBlackFriday && enableBlackFriday.checked && blackFridayDiscount > 0;
+
                 const isDiscountActive = !isBlackFridayActive && enableDiscount && enableDiscount.checked && discountValue > 0;
+
                 
+
                 const configs = {
+
                     discount: {
+
                         enabled: isDiscountActive,
+
                         type: isDiscountActive ? discountType : 'percentage',
+
                         value: isDiscountActive ? discountValue : 0
+
                     },
+
                     timer: {
+
                         enabled: timerDuration > 0,
+
                         duration: timerDuration
+
                     },
+
                     blackFriday: {
+
                         enabled: isBlackFridayActive,
+
                         discount: isBlackFridayActive ? blackFridayDiscount : 0
+
                     }
+
                 };
+
                 
-                console.log('?? ConfiguraÁıes coletadas para envio:', configs);
+
+                console.log('?? Configura√ß√µes coletadas para envio:', configs);
+
                 return configs;
+
             } catch (error) {
-                console.error('? Erro ao coletar configuraÁıes:', error);
+
+                console.error('? Erro ao coletar configura√ß√µes:', error);
+
                 return null;
+
             }
+
         }
+
         
-        // Tornar funÁ„o disponÌvel globalmente
+
+        // Tornar fun√ß√£o dispon√≠vel globalmente
+
         window.debugConfigurationsHTML = debugConfigurationsHTML;
+
         window.collectConfigurationsForSubmission = collectConfigurationsForSubmission;
 
-        // FunÁ„o para remover erro de um campo quando o usu·rio comeÁar a preencher
+
+
+        // Fun√ß√£o para remover erro de um campo quando o usu√°rio come√ßar a preencher
+
         function setupFieldErrorRemoval() {
+
             const fieldsToWatch = [
+
                 'productType',
+
                 'productCategory',
+
                 'productName',
+
                 'productDescription',
+
                 'productPrice',
+
                 'contentUrl',
+
                 'imageUrl'
+
             ];
 
+
+
             fieldsToWatch.forEach(fieldId => {
+
                 const field = document.getElementById(fieldId);
+
                 if (!field) return;
 
-                // Remover erro quando o usu·rio comeÁar a interagir com o campo
+
+
+                // Remover erro quando o usu√°rio come√ßar a interagir com o campo
+
                 const removeError = () => {
+
                     field.classList.remove('field-error');
+
                     const errorMsg = field.parentElement.querySelector('.field-error-message');
+
                     if (errorMsg) {
+
                         errorMsg.style.transition = 'opacity 0.3s ease';
+
                         errorMsg.style.opacity = '0';
+
                         setTimeout(() => errorMsg.remove(), 300);
+
                     }
+
                 };
+
+
 
                 // Para campos de texto/textarea
+
                 if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') {
+
                     field.addEventListener('input', removeError);
+
                     field.addEventListener('focus', removeError);
+
                 }
+
                 
+
                 // Para campos select
+
                 if (field.tagName === 'SELECT') {
+
                     field.addEventListener('change', removeError);
+
                     field.addEventListener('focus', removeError);
+
                 }
+
             });
+
         }
 
+
+
         // Inicializar funcionalidades
+
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('?? Configurando event listeners para preview de preÁo...');
+
+            console.log('?? Configurando event listeners para preview de pre√ßo...');
+
             
-            // Configurar remoÁ„o din‚mica de erros
+
+            // Configurar remo√ß√£o din√¢mica de erros
+
             setupFieldErrorRemoval();
+
             
+
             const productPrice = document.getElementById('productPrice');
+
             const discountValue = document.getElementById('discountValue');
+
             const discountType = document.getElementById('discountType');
+
             if (productPrice) {
+
                 productPrice.addEventListener('input', updatePricePreview);
+
                 console.log('? Event listener adicionado para productPrice');
+
             }
+
             
+
             if (discountValue) {
+
                 discountValue.addEventListener('input', function() {
+
                     updateDiscountPreview();
+
                     saveConfigurationsLocally();
+
                 });
+
                 console.log('? Event listener adicionado para discountValue');
+
             }
+
             
+
             if (discountType) {
+
                 discountType.addEventListener('change', function() {
+
                     updateDiscountPreview();
+
                     saveConfigurationsLocally();
+
                 });
+
                 console.log('? Event listener adicionado para discountType');
+
             }
+
             
+
             // Adicionar listeners para timer e Black Friday
+
             const timerDuration = document.getElementById('timerDuration');
+
             const blackFridayDiscount = document.getElementById('blackFridayDiscount');
+
             
+
             if (timerDuration) {
+
                 timerDuration.addEventListener('change', saveConfigurationsLocally);
+
             }
+
             if (blackFridayDiscount) {
+
                 blackFridayDiscount.addEventListener('input', function() {
+
                     updateBlackFridayPreview();
+
                     saveConfigurationsLocally();
+
                 });
+
             }
+
             
-            // FunÁ„o para preencher campos ocultos
+
+            // Fun√ß√£o para preencher campos ocultos
+
             function fillHiddenFields() {
-                console.log('?? Preenchendo campos ocultos com configuraÁıes...');
+
+                console.log('?? Preenchendo campos ocultos com configura√ß√µes...');
+
                 
-                // Coletar configuraÁıes
+
+                // Coletar configura√ß√µes
+
                 const configs = collectConfigurationsForSubmission();
+
                 
+
                 if (configs) {
+
                     // Preencher campos ocultos
+
                     document.getElementById('discountConfig').value = JSON.stringify(configs.discount);
+
                     document.getElementById('timerConfig').value = JSON.stringify(configs.timer);
+
                     document.getElementById('blackFridayConfig').value = JSON.stringify(configs.blackFriday);
+
                     
-                    console.log('? ConfiguraÁıes adicionadas aos campos ocultos:', {
+
+                    console.log('? Configura√ß√µes adicionadas aos campos ocultos:', {
+
                         discount: configs.discount,
+
                         timer: configs.timer,
+
                         blackFriday: configs.blackFriday
+
                     });
+
                     
+
                     // Verificar se os campos foram preenchidos
+
                     console.log('?? Verificando campos ocultos:');
+
                     console.log('  - discountConfig:', document.getElementById('discountConfig').value);
+
                     console.log('  - timerConfig:', document.getElementById('timerConfig').value);
+
                     console.log('  - blackFridayConfig:', document.getElementById('blackFridayConfig').value);
+
                     
+
                     return true;
+
                 }
+
                 return false;
+
             }
+
             
-            // Adicionar listener para o formul·rio
+
+            // Adicionar listener para o formul√°rio
+
             const form = document.getElementById('createProductForm');
+
             if (form) {
+
                 form.addEventListener('submit', function(event) {
-                    console.log('?? Formul·rio sendo enviado, coletando configuraÁıes...');
+
+                    console.log('?? Formul√°rio sendo enviado, coletando configura√ß√µes...');
+
                     fillHiddenFields();
+
                 });
+
                 
-                // TambÈm adicionar listener para o bot„o de criar produto
+
+                // Tamb√©m adicionar listener para o bot√£o de criar produto
+
                 const createButton = document.querySelector('button[type="submit"]');
+
                 if (createButton) {
+
                     createButton.addEventListener('click', function() {
-                        console.log('??? Bot„o de criar produto clicado, coletando configuraÁıes...');
+
+                        console.log('??? Bot√£o de criar produto clicado, coletando configura√ß√µes...');
+
                         fillHiddenFields();
+
                     });
+
                 }
+
             }
+
             
+
                 // Upload de imagem (frontend -> API enhanced upload)
+
                 async function uploadProductImage(file) {
+
                     const form = new FormData();
+
                     form.append('image', file);
+
                     form.append('folder', 'produtos');
+
                     const res = await fetch('/api/upload/enhanced/single', {
+
                         method: 'POST',
+
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` },
+
                         body: form
+
                     });
+
                     const data = await res.json();
+
                     if (!data.success) throw new Error(data.message || 'Falha no upload da imagem');
+
                     // Tentar resolver URL retornada em diferentes formatos
+
                     const result = data.data || {};
+
                     const url = result.original?.url || result.url || result.secure_url || result.path || '';
-                    if (!url) throw new Error('URL da imagem n„o retornada');
+
+                    if (!url) throw new Error('URL da imagem n√£o retornada');
+
                     return url;
+
                 }
 
-                // Upload de arquivo de conte˙do
+
+
+                // Upload de arquivo de conte√∫do
+
                 async function uploadContentFile(file) {
+
                     console.log('?? Iniciando upload do arquivo:', file.name);
+
                     
+
                     const form = new FormData();
+
                     form.append('contentFile', file);
+
                     form.append('folder', 'conteudo');
+
                     
+
                     const res = await fetch('/api/upload/enhanced-content/single', {
+
                         method: 'POST',
+
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` },
+
                         body: form
+
                     });
+
                     
+
                     const data = await res.json();
+
                     console.log('?? Resposta do servidor:', data);
+
                     
-                    if (!data.success) throw new Error(data.message || 'Falha no upload do conte˙do');
+
+                    if (!data.success) throw new Error(data.message || 'Falha no upload do conte√∫do');
+
                     
+
                     const result = data.data || {};
+
                     // A URL pode estar em result.original.url, result.url, result.secure_url ou result.path
+
                     const url = result.original?.url || result.url || result.secure_url || result.path || result.original?.path || '';
+
                     
-                    console.log('?? URL extraÌda:', url);
+
+                    console.log('?? URL extra√≠da:', url);
+
                     console.log('?? Dados completos:', result);
+
                     console.log('?? Tentativas de URL:', {
+
                         'result.original.url': result.original?.url,
+
                         'result.url': result.url,
+
                         'result.secure_url': result.secure_url,
+
                         'result.path': result.path,
+
                         'result.original.path': result.original?.path
+
                     });
+
                     
+
                     return { url, meta: result };
+
                 }
 
-                // FunÁ„o para atualizar preview do produto
+
+
+                // Fun√ß√£o para atualizar preview do produto
+
                 function updateProductPreview() {
+
                     const previewImage = document.getElementById('previewImage');
+
                     const previewName = document.getElementById('previewName');
+
                     const imagePreview = document.getElementById('imagePreview');
+
                     const imageUrl = document.getElementById('imageUrl');
+
                     const productName = document.getElementById('productName');
+
                     
+
                     if (!previewImage) return;
+
                     
-                    // Verificar se h· imagem carregada
+
+                    // Verificar se h√° imagem carregada
+
                     let imageSrc = null;
+
                     if (imagePreview && imagePreview.src && imagePreview.style.display !== 'none') {
+
                         imageSrc = imagePreview.src;
+
                     } else if (imageUrl && imageUrl.value) {
+
                         imageSrc = imageUrl.value;
+
                     }
+
                     
+
                     if (imageSrc) {
+
                         previewImage.innerHTML = `<img src="${imageSrc}" alt="Preview do produto" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+
                     } else {
+
                         previewImage.innerHTML = '<span class="preview-placeholder">Nenhuma imagem selecionada</span>';
+
                     }
+
                     
+
                     // Atualizar nome do produto no preview
+
                     if (previewName && productName) {
+
                         const productNameValue = productName.value.trim();
+
                         if (productNameValue) {
+
                             previewName.innerHTML = `<h4>${productNameValue}</h4>`;
+
                         } else {
+
                             previewName.innerHTML = '<span class="preview-placeholder">Nome do produto</span>';
+
                         }
+
                     }
+
                 }
+
+
 
                 // Handlers de imagem
+
                 (function setupImageUploadHandlers() {
+
                     const input = document.getElementById('imageUpload');
+
                     const previewImg = document.getElementById('imagePreview');
+
                     const noImageText = document.getElementById('noImageText');
+
                     if (!input) return;
+
                     input.addEventListener('change', async (e) => {
+
                         const file = e.target.files && e.target.files[0];
+
                         if (!file) return;
+
                         try {
+
                             // Preview local imediato
+
                             const reader = new FileReader();
+
                             reader.onload = () => {
+
                                 if (previewImg) {
+
                                     previewImg.src = reader.result;
+
                                     previewImg.style.display = 'block';
+
                                 }
+
                                 if (noImageText) noImageText.style.display = 'none';
+
                                 
+
                                 // Atualizar preview do produto
+
                                 updateProductPreview();
+
                             };
+
                             reader.readAsDataURL(file);
 
+
+
                             // Upload para servidor
+
                             let url = await uploadProductImage(file);
+
                             
+
                             // Normalizar URL: se for caminho relativo com barras invertidas, converter para barras normais
+
                             if (url && url.includes('\\')) {
+
                                 url = url.replace(/\\/g, '/');
+
                             }
+
                             
-                            // Se a URL for relativa e n„o comeÁar com /, adicionar /
+
+                            // Se a URL for relativa e n√£o come√ßar com /, adicionar /
+
                             if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+
                                 url = '/' + url;
+
                             }
+
                             
-                            // Preencher campo URL para API de criaÁ„o
+
+                            // Preencher campo URL para API de cria√ß√£o
+
                             const imageUrlInput = document.getElementById('imageUrl');
+
                             if (imageUrlInput) {
+
                                 imageUrlInput.value = url;
+
                                 console.log('? URL da imagem preenchida:', url);
+
                                 
+
                                 // Remover erro se existir
+
                                 imageUrlInput.classList.remove('field-error');
+
                                 const errorMsg = imageUrlInput.parentElement.querySelector('.field-error-message');
+
                                 if (errorMsg) {
+
                                     errorMsg.style.transition = 'opacity 0.3s ease';
+
                                     errorMsg.style.opacity = '0';
+
                                     setTimeout(() => errorMsg.remove(), 300);
+
                                 }
-                                // Disparar evento para atualizar validaÁ„o
+
+                                // Disparar evento para atualizar valida√ß√£o
+
                                 imageUrlInput.dispatchEvent(new Event('input', { bubbles: true }));
+
                             }
+
                             
+
                             // Atualizar preview com URL do servidor
+
                             updateProductPreview();
+
                         } catch (err) {
+
                             console.error('? Erro no upload da imagem:', err);
+
                             alert('Erro ao enviar imagem: ' + err.message);
+
                         } finally {
-                            // Limpar input para permitir re-seleÁ„o do mesmo arquivo
+
+                            // Limpar input para permitir re-sele√ß√£o do mesmo arquivo
+
                             e.target.value = '';
+
                         }
+
                     });
+
                 })();
+
+
 
                 // Listener para campo de URL da imagem
+
                 (function setupImageUrlHandler() {
+
                     const imageUrlInput = document.getElementById('imageUrl');
+
                     if (imageUrlInput) {
+
                         imageUrlInput.addEventListener('input', function() {
+
                             updateProductPreview();
-                            // Remover erro quando o usu·rio comeÁar a digitar
+
+                            // Remover erro quando o usu√°rio come√ßar a digitar
+
                             this.classList.remove('field-error');
+
                             const errorMsg = this.parentElement.querySelector('.field-error-message');
+
                             if (errorMsg) {
+
                                 errorMsg.style.transition = 'opacity 0.3s ease';
+
                                 errorMsg.style.opacity = '0';
+
                                 setTimeout(() => errorMsg.remove(), 300);
+
                             }
+
                         });
+
                     }
+
                 })();
+
+
 
                 // Listener para campo de nome do produto
+
                 (function setupProductNameHandler() {
+
                     const productNameInput = document.getElementById('productName');
+
                     if (productNameInput) {
+
                         productNameInput.addEventListener('input', updateProductPreview);
+
                         productNameInput.addEventListener('keyup', updateProductPreview);
+
                         
-                        // Atualizar preview inicialmente se j· houver valor
+
+                        // Atualizar preview inicialmente se j√° houver valor
+
                         setTimeout(() => updateProductPreview(), 100);
+
                     }
+
                 })();
 
-                // Listener para campo de URL do conte˙do
+
+
+                // Listener para campo de URL do conte√∫do
+
                 (function setupContentUrlHandler() {
+
                     const contentUrlInput = document.getElementById('contentUrl');
+
                     if (contentUrlInput) {
+
                         contentUrlInput.addEventListener('input', function() {
+
                             console.log('?? Campo contentUrl alterado para:', this.value);
+
                         });
+
                     }
+
                 })();
 
-                // Handlers de upload do arquivo de conte˙do (clique/drag&drop)
+
+
+                // Handlers de upload do arquivo de conte√∫do (clique/drag&drop)
+
                 (function setupContentUploadHandlers() {
+
                     const area = document.getElementById('fileUploadArea');
+
                     const input = document.getElementById('contentFile');
+
                     const nameEl = document.getElementById('fileName');
+
                     const sizeEl = document.getElementById('fileSize');
+
                     const previewBox = document.getElementById('filePreview');
+
                     if (!area || !input) return;
 
+
+
                     const openPicker = () => input.click();
+
                     area.addEventListener('click', openPicker);
 
+
+
                     // Drag & Drop
+
                     area.addEventListener('dragover', (e) => { 
+
                         e.preventDefault(); 
+
                         area.classList.add('dragover');
+
                     });
+
                     area.addEventListener('dragleave', () => { 
+
                         area.classList.remove('dragover');
+
                     });
+
                     area.addEventListener('drop', async (e) => {
+
                         e.preventDefault(); 
+
                         area.classList.remove('dragover');
+
                         const file = e.dataTransfer.files && e.dataTransfer.files[0];
+
                         if (file) await handleContentFile(file);
+
                     });
+
+
 
                     input.addEventListener('change', async (e) => {
+
                         const file = e.target.files && e.target.files[0];
+
                         if (file) await handleContentFile(file);
+
                         e.target.value = '';
+
                     });
 
+
+
                     async function handleContentFile(file) {
+
                         try {
-                            // Mostrar loading na ·rea de upload
+
+                            // Mostrar loading na √°√°rea de upload
+
                             area.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Enviando arquivo...</p>';
+
                             
+
                             // Atualizar preview textual
+
                             if (nameEl) nameEl.textContent = file.name;
+
                             if (sizeEl) sizeEl.textContent = `${(file.size/1024/1024).toFixed(2)} MB`;
+
                             if (previewBox) previewBox.style.display = 'block';
 
+
+
                             let { url } = await uploadContentFile(file);
+
                             
+
                             // Se a URL for relativa, converter para absoluta
+
                             if (url && url.startsWith('/')) {
+
                                 url = window.location.origin + url;
+
                             }
+
                             
+
                             // Debug: Log da URL retornada
+
                             console.log('?? URL do arquivo gerada:', url);
+
                             
+
                             if (!url) {
-                                console.error('? URL n„o foi gerada! Verifique a resposta do servidor.');
-                                throw new Error('URL do arquivo n„o foi gerada');
+
+                                console.error('? URL n√£o foi gerada! Verifique a resposta do servidor.');
+
+                                throw new Error('URL do arquivo n√£o foi gerada');
+
                             }
+
                             
+
                             // Preencher o campo contentUrl diretamente
+
                             console.log('?? Tentando preencher contentUrl com:', url);
+
                             
-                            // FunÁ„o para preencher o campo contentUrl
+
+                            // Fun√ß√£o para preencher o campo contentUrl
+
                             function fillContentUrlField(url) {
+
                                 // Validar URL
+
                                 if (!url || url.trim() === '') {
-                                    console.error('? URL vazia ou inv·lida:', url);
+
+                                    console.error('? URL vazia ou inv√°lida:', url);
+
                                     return false;
+
                                 }
+
                                 
-                                // Tentar m˙ltiplas formas de encontrar o campo
+
+                                // Tentar m√∫ltiplas formas de encontrar o campo
+
                                 let contentUrl = document.getElementById('contentUrl');
+
                                 
+
                                 if (!contentUrl) {
+
                                     contentUrl = document.querySelector('input[type="url"][id*="content"]');
+
                                     console.log('?? Tentativa 2 - Campo encontrado via querySelector:', contentUrl);
+
                                 }
+
                                 
+
                                 if (!contentUrl) {
+
                                     contentUrl = document.querySelector('input[placeholder*="conteudo"]');
+
                                     console.log('?? Tentativa 3 - Campo encontrado via placeholder:', contentUrl);
+
                                 }
+
                                 
+
                                 if (!contentUrl) {
+
                                     contentUrl = document.querySelector('input[type="url"]');
+
                                     console.log('?? Tentativa 4 - Campo encontrado via type url:', contentUrl);
+
                                 }
+
                                 
+
                                 console.log('?? Campo contentUrl encontrado:', contentUrl);
+
                                 
+
                                 if (contentUrl) {
+
                                     console.log('?? Preenchendo campo contentUrl com URL:', url);
+
                                     contentUrl.value = url;
+
                                     console.log('? Campo preenchido com:', contentUrl.value);
+
                                     
+
                                     // Remover erro se existir
+
                                     contentUrl.classList.remove('field-error');
+
                                     const errorMsg = contentUrl.parentElement.querySelector('.field-error-message');
+
                                     if (errorMsg) {
+
                                         errorMsg.style.transition = 'opacity 0.3s ease';
+
                                         errorMsg.style.opacity = '0';
+
                                         setTimeout(() => errorMsg.remove(), 300);
+
                                     }
+
                                     
+
                                     // Disparar eventos para garantir que seja reconhecido
+
                                     contentUrl.dispatchEvent(new Event('input', { bubbles: true }));
+
                                     contentUrl.dispatchEvent(new Event('change', { bubbles: true }));
+
                                     
+
                                     // Feedback visual
+
                                     contentUrl.style.borderColor = '#28a745';
+
                                     contentUrl.style.backgroundColor = '#f8fff9';
+
                                     
+
                                     setTimeout(() => {
+
                                         contentUrl.style.borderColor = '';
+
                                         contentUrl.style.backgroundColor = '';
+
                                     }, 2000);
+
                                     
+
                                     return true;
+
                                 } else {
-                                    console.error('? Campo contentUrl n„o encontrado em nenhuma tentativa!');
+
+                                    console.error('? Campo contentUrl n√£o encontrado em nenhuma tentativa!');
+
                                     console.log('?? Todos os inputs URL encontrados:', document.querySelectorAll('input[type="url"]'));
+
                                     return false;
+
                                 }
+
                             }
+
                             
+
                             // Tentar preencher imediatamente
+
                             let success = fillContentUrlField(url);
+
                             
-                            // Se n„o conseguiu, tentar novamente com delays
+
+                            // Se n√£o conseguiu, tentar novamente com delays
+
                             if (!success) {
+
                                 setTimeout(() => {
+
                                     console.log('?? Tentativa 1 - Preenchendo contentUrl...');
+
                                     success = fillContentUrlField(url);
+
                                 }, 100);
+
                                 
+
                                 setTimeout(() => {
+
                                     if (!success) {
+
                                         console.log('?? Tentativa 2 - Preenchendo contentUrl...');
+
                                         success = fillContentUrlField(url);
+
                                     }
+
                                 }, 300);
+
                                 
+
                                 setTimeout(() => {
+
                                     if (!success) {
+
                                         console.log('?? Tentativa 3 - Preenchendo contentUrl...');
+
                                         success = fillContentUrlField(url);
+
                                     }
+
                                 }, 500);
+
                             }
+
                             
-                            // VerificaÁ„o final
+
+                            // Verifica√ß√£o final
+
                             setTimeout(() => {
+
                                 const finalCheck = document.getElementById('contentUrl');
-                                console.log('?? VerificaÁ„o final - Campo contentUrl:', finalCheck ? finalCheck.value : 'Campo n„o encontrado');
+
+                                console.log('?? Verifica√ß√£o final - Campo contentUrl:', finalCheck ? finalCheck.value : 'Campo n√£o encontrado');
+
                             }, 1000);
+
                             
-                            // Restaurar ·rea de upload
+
+                            // Restaurar √°√°rea de upload
+
                             area.innerHTML = `
+
                                 <i class="fas fa-cloud-upload-alt"></i>
+
                                 <p>Arraste um arquivo aqui ou clique para selecionar</p>
-                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m·x. 150MB)</small>
+
+                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m√°x. 150MB)</small>
+
                             `;
+
                             
+
                         } catch (err) {
-                            console.error('? Erro no upload do conte˙do:', err);
+
+                            console.error('? Erro no upload do conte√∫do:', err);
+
                             alert('Erro ao enviar arquivo: ' + err.message);
+
                             
-                            // Restaurar ·rea de upload em caso de erro
+
+                            // Restaurar √°√°rea de upload em caso de erro
+
                             area.innerHTML = `
+
                                 <i class="fas fa-cloud-upload-alt"></i>
+
                                 <p>Arraste um arquivo aqui ou clique para selecionar</p>
-                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m·x. 150MB)</small>
+
+                                <small>PDF, DOC, XLS, PPT, ZIP, RAR, MP4, AVI (m√°x. 150MB)</small>
+
                             `;
+
                         }
+
                     }
+
                 })();
 
-                // FunÁ„o para remover arquivo
+
+
+                // Fun√ß√£o para remover arquivo
+
                 window.removeFile = function() {
+
                     const previewBox = document.getElementById('filePreview');
+
                     const contentUrl = document.getElementById('contentUrl');
+
                     const contentFile = document.getElementById('contentFile');
+
                     
+
                     if (previewBox) previewBox.style.display = 'none';
+
                     if (contentUrl) contentUrl.value = '';
+
                     if (contentFile) contentFile.value = '';
+
                 };
 
-                // FunÁ„o para validar campos obrigatÛrios
+
+
+                // Fun√ß√£o para validar campos obrigat√≥rios
+
             function validateRequiredFields() {
+
                 const requiredFields = [
+
                     { id: 'productType', name: 'Tipo de Produto', element: document.getElementById('productType') },
+
                     { id: 'productCategory', name: 'Categoria', element: document.getElementById('productCategory') },
+
                     { id: 'productName', name: 'Nome do Produto', element: document.getElementById('productName') },
-                    { id: 'productDescription', name: 'DescriÁ„o', element: document.getElementById('productDescription') },
-                    { id: 'productPrice', name: 'PreÁo', element: document.getElementById('productPrice') },
-                    { id: 'contentUrl', name: 'Link do Conte˙do', element: document.getElementById('contentUrl') },
+
+                    { id: 'productDescription', name: 'Descri√ß√£o', element: document.getElementById('productDescription') },
+
+                    { id: 'productPrice', name: 'Pre√ßo', element: document.getElementById('productPrice') },
+
+                    { id: 'contentUrl', name: 'Link do Conte√∫do', element: document.getElementById('contentUrl') },
+
                     { id: 'imageUrl', name: 'Link da Imagem', element: document.getElementById('imageUrl') }
+
                 ];
 
+
+
                 let firstInvalidField = null;
+
                 const errors = [];
 
+
+
                 // Remover erros anteriores
+
                 requiredFields.forEach(field => {
+
                     if (field.element) {
+
                         field.element.classList.remove('field-error');
+
                         const errorMsg = field.element.parentElement.querySelector('.field-error-message');
+
                         if (errorMsg) errorMsg.remove();
+
                     }
+
                 });
+
+
 
                 // Validar cada campo
+
                 requiredFields.forEach(field => {
+
                     if (!field.element) return;
+
                     
+
                     const value = field.element.value.trim();
+
                     let isValid = true;
+
                     let errorMessage = '';
 
+
+
                     if (field.id === 'contentUrl') {
-                        // Link do conte˙do È obrigatÛrio
+
+                        // Link do conte√∫do √© obrigat√≥rio
+
                         if (!value) {
+
                             isValid = false;
-                            errorMessage = 'O link do produto È obrigatÛrio. Por favor, preencha o link do conte˙do.';
+
+                            errorMessage = 'O link do produto √© obrigat√≥rio. Por favor, preencha o link do conte√∫do.';
+
                         } else if (!isValidUrl(value)) {
+
                             isValid = false;
-                            errorMessage = 'Por favor, insira um link v·lido (ex: https://exemplo.com/conteudo)';
+
+                            errorMessage = 'Por favor, insira um link v√°lido (ex: https://exemplo.com/conteudo)';
+
                         }
+
                     } else if (field.id === 'imageUrl') {
-                        // Link da imagem È obrigatÛrio
+
+                        // Link da imagem √© obrigat√≥rio
+
                         if (!value) {
+
                             isValid = false;
-                            errorMessage = 'O link da imagem È obrigatÛrio. Por favor, preencha o link da imagem ou faÁa upload de uma imagem.';
+
+                            errorMessage = 'O link da imagem √© obrigat√≥rio. Por favor, preencha o link da imagem ou fa√ßa upload de uma imagem.';
+
                         } else if (!isValidUrl(value)) {
+
                             isValid = false;
-                            errorMessage = 'Por favor, insira um link de imagem v·lido (ex: https://exemplo.com/imagem.jpg)';
+
+                            errorMessage = 'Por favor, insira um link de imagem v√°lido (ex: https://exemplo.com/imagem.jpg)';
+
                         }
+
                     } else if (!value) {
+
                         isValid = false;
+
                         errorMessage = `Por favor, preencha o ${field.name.toLowerCase()}`;
+
                     }
+
+
 
                     if (!isValid) {
+
                         field.element.classList.add('field-error');
+
                         const errorDiv = document.createElement('div');
+
                         errorDiv.className = 'field-error-message';
+
                         errorDiv.textContent = errorMessage;
+
                         field.element.parentElement.appendChild(errorDiv);
+
                         
+
                         errors.push(field);
+
                         if (!firstInvalidField) {
+
                             firstInvalidField = field.element;
+
                         }
+
                     }
+
                 });
 
-                // Se houver erros, focar no primeiro campo e rolar atÈ ele
+
+
+                // Se houver erros, focar no primeiro campo e rolar at√© ele
+
                 if (firstInvalidField) {
+
                     firstInvalidField.focus();
+
                     firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
                     
-                    // Mostrar notificaÁ„o interativa
+
+                    // Mostrar notifica√ß√£o interativa
+
                     showFieldNotification(firstInvalidField, errors[0].name);
+
                     
+
                     return false;
+
                 }
+
+
 
                 return true;
+
             }
 
-            // FunÁ„o para validar URL (aceita URLs absolutas e caminhos relativos)
+
+
+            // Fun√ß√£o para validar URL (aceita URLs absolutas e caminhos relativos)
+
             function isValidUrl(string) {
+
                 if (!string || string.trim() === '') {
+
                     return false;
+
                 }
+
                 
+
                 const trimmed = string.trim();
+
                 
+
                 // Aceitar URLs absolutas (http:// ou https://)
+
                 try {
+
                     const url = new URL(trimmed);
+
                     if (url.protocol === 'http:' || url.protocol === 'https:') {
+
                         return true;
+
                     }
+
                 } catch (_) {
-                    // N„o È uma URL absoluta, verificar se È um caminho relativo v·lido
+
+                    // N√£o √© uma URL absoluta, verificar se √© um caminho relativo v√°lido
+
                 }
+
                 
-                // Aceitar caminhos relativos que comeÁam com /
+
+                // Aceitar caminhos relativos que come√ßam com /
+
                 if (trimmed.startsWith('/')) {
+
                     // Normalizar barras invertidas do Windows para barras normais
+
                     const normalized = trimmed.replace(/\\/g, '/');
-                    // Verificar se parece um caminho de arquivo v·lido
+
+                    // Verificar se parece um caminho de arquivo v√°lido
+
                     return normalized.length > 1 && !normalized.includes('..');
+
                 }
+
                 
+
                 return false;
+
             }
 
-            // FunÁ„o para mostrar notificaÁ„o interativa
+
+
+            // Fun√ß√£o para mostrar notifica√ß√£o interativa
+
             function showFieldNotification(field, fieldName) {
-                // Criar notificaÁ„o flutuante
+
+                // Criar notifica√ß√£o flutuante
+
                 const notification = document.createElement('div');
+
                 notification.style.cssText = `
+
                     position: fixed;
+
                     top: 20px;
+
                     right: 20px;
+
                     background: #dc3545;
+
                     color: white;
+
                     padding: 15px 20px;
+
                     border-radius: 8px;
+
                     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
                     z-index: 100001;
+
                     animation: slideInRight 0.3s ease;
+
                     max-width: 400px;
+
                     font-weight: 500;
+
                 `;
+
                 notification.innerHTML = `
+
                     <div style="display: flex; align-items: center; gap: 10px;">
+
                         <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+
                         <div>
-                            <strong>Campo obrigatÛrio vazio!</strong><br>
+
+                            <strong>Campo obrigat√≥rio vazio!</strong><br>
+
                             <span style="font-size: 14px;">Por favor, preencha: ${fieldName}</span>
+
                         </div>
+
                     </div>
+
                 `;
+
                 document.body.appendChild(notification);
 
-                // Remover apÛs 5 segundos
+
+
+                // Remover ap√≥s 5 segundos
+
                 setTimeout(() => {
+
                     notification.style.animation = 'slideOutRight 0.3s ease';
+
                     setTimeout(() => notification.remove(), 300);
+
                 }, 5000);
 
-                // Adicionar animaÁ„o de pulso no campo
+
+
+                // Adicionar anima√ß√£o de pulso no campo
+
                 field.style.animation = 'pulse 1s ease 3';
+
                 setTimeout(() => {
+
                     field.style.animation = '';
+
                 }, 3000);
+
             }
 
-            // Adicionar animaÁıes CSS
+
+
+            // Adicionar anima√ß√µes CSS
+
             const style = document.createElement('style');
+
             style.textContent = `
+
                 @keyframes slideInRight {
+
                     from { transform: translateX(100%); opacity: 0; }
+
                     to { transform: translateX(0); opacity: 1; }
+
                 }
+
                 @keyframes slideOutRight {
+
                     from { transform: translateX(0); opacity: 1; }
+
                     to { transform: translateX(100%); opacity: 0; }
+
                 }
+
                 @keyframes pulse {
+
                     0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+
                     50% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+
                 }
+
             `;
+
             document.head.appendChild(style);
 
-            // FunÁ„o para mostrar modal de processamento
+
+
+            // Fun√ß√£o para mostrar modal de processamento
+
             function showProcessingModal() {
+
                 const modal = document.getElementById('processingModal');
+
                 if (modal) {
+
                     modal.classList.add('active');
+
                 }
+
             }
 
-            // FunÁ„o para atualizar etapa do processamento
+
+
+            // Fun√ß√£o para atualizar etapa do processamento
+
             function updateProcessingStep(stepText, isActive = true, isCompleted = false) {
+
                 const stepElement = document.getElementById('processingStep');
+
                 if (stepElement) {
+
                     stepElement.textContent = stepText;
+
                     stepElement.className = 'processing-step';
+
                     if (isCompleted) {
+
                         stepElement.classList.add('completed');
+
                     } else if (isActive) {
+
                         stepElement.classList.add('active');
+
                     }
+
                 }
+
             }
 
-            // FunÁ„o para fechar modal de processamento
+
+
+            // Fun√ß√£o para fechar modal de processamento
+
             function closeProcessingModal() {
+
                 const modal = document.getElementById('processingModal');
+
                 if (modal) {
+
                     modal.classList.remove('active');
+
                 }
+
             }
 
-                // FunÁ„o para enviar formul·rio com configuraÁıes
+
+
+                // Fun√ß√£o para enviar formul√°rio com configura√ß√µes
+
             function submitFormWithConfigurations() {
-                console.log('?? Enviando formul·rio com configuraÁıes...');
+
+                console.log('?? Enviando formul√°rio com configura√ß√µes...');
+
                 
-                // Validar campos obrigatÛrios
+
+                // Validar campos obrigat√≥rios
+
                 if (!validateRequiredFields()) {
-                    console.log('? ValidaÁ„o falhou');
+
+                    console.log('? Valida√ß√£o falhou');
+
                     return;
+
                 }
+
                 
+
                 // Preencher campos ocultos
+
                 fillHiddenFields();
+
                 
+
                 // Mostrar modal de processamento
+
                 showProcessingModal();
+
                 
-                // Etapa 1: Verificando informaÁıes
-                updateProcessingStep('Verificando informaÁıes...', true, false);
+
+                // Etapa 1: Verificando informa√ß√µes
+
+                updateProcessingStep('Verificando informa√ß√µes...', true, false);
+
                 
+
                 // Simular delay para melhor UX
+
                 setTimeout(() => {
+
                     // Etapa 2: Avaliando legitimidade
+
                     updateProcessingStep('Avaliando legitimidade...', true, false);
+
                     
+
                     setTimeout(() => {
+
                         // Etapa 3: Adicionando produto
+
                         updateProcessingStep('Adicionando produto...', true, false);
+
                         
-                        // Coletar dados do formul·rio
+
+                        // Coletar dados do formul√°rio
+
                         const formData = new FormData(document.getElementById('createProductForm'));
+
                 
-                        // Adicionar campos obrigatÛrios com nomes corretos
+
+                        // Adicionar campos obrigat√≥rios com nomes corretos
+
                         formData.append('type', document.getElementById('productType').value);
+
                         formData.append('name', document.getElementById('productName').value);
+
                         formData.append('category', document.getElementById('productCategory').value);
+
                         formData.append('description', document.getElementById('productDescription').value);
+
                         formData.append('price', document.getElementById('productPrice').value);
+
                         formData.append('finalPrice', document.getElementById('finalPrice').value);
+
                         formData.append('marketplace', document.getElementById('marketPlace').checked);
+
                         formData.append('contentLink', document.getElementById('contentUrl').value);
+
                 
-                        // Adicionar imagem se disponÌvel
+
+                        // Adicionar imagem se dispon√≠vel
+
                         const imageUrl = document.getElementById('imageUrl').value;
+
                         if (imageUrl) {
+
                             formData.append('imagem_url', imageUrl);
+
                         }
+
                         
+
                         // Adicionar dados de afiliados
+
                         const permitirAfiliados = document.getElementById('permitirAfiliados').checked;
+
                         formData.append('permitir_afiliados', permitirAfiliados);
+
                         
+
                         if (permitirAfiliados) {
+
                             const comissaoAfiliados = document.getElementById('comissaoAfiliados').value;
+
                             const comissaoMinima = document.getElementById('comissaoMinima').value;
+
                             const tipoComissao = document.getElementById('tipoComissao').value;
+
                             
+
                             formData.append('comissao_afiliados', comissaoAfiliados || 0);
+
                             formData.append('comissao_minima', comissaoMinima || 0);
+
                             formData.append('tipo_comissao', tipoComissao);
+
                             
-                            // Se for sistema de nÌveis, adicionar configuraÁıes de tier
+
+                            // Se for sistema de n√≠veis, adicionar configura√ß√µes de tier
+
                             if (tipoComissao === 'tier') {
+
                                 const tierInputs = document.querySelectorAll('.tier-input');
+
                                 const tierLevels = [];
+
                                 tierInputs.forEach((input, index) => {
+
                                     tierLevels.push({
+
                                         level: index + 1,
+
                                         percentage: input.value || 0
+
                                     });
+
                                 });
+
                                 formData.append('tier_config', JSON.stringify(tierLevels));
+
                             }
+
                         }
+
                         
-                        // As configuraÁıes j· est„o nos campos ocultos preenchidos pela funÁ„o fillHiddenFields()
-                        console.log('? ConfiguraÁıes j· presentes nos campos ocultos do formul·rio');
+
+                        // As configura√ß√µes j√° est√£o nos campos ocultos preenchidos pela fun√ß√£o fillHiddenFields()
+
+                        console.log('? Configura√ß√µes j√° presentes nos campos ocultos do formul√°rio');
+
                         
-                        // Log dos dados que ser„o enviados
-                        console.log('?? Dados do formul·rio:');
+
+                        // Log dos dados que ser√£o enviados
+
+                        console.log('?? Dados do formul√°rio:');
+
                         for (let [key, value] of formData.entries()) {
+
                             console.log(`  - ${key}:`, value);
+
                         }
+
                         
+
                         // Enviar para o servidor
+
                         fetch('/api/produtos', {
+
                             method: 'POST',
+
                             headers: {
+
                                 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
+
                             },
+
                             body: formData
+
                         })
+
                         .then(response => response.json())
+
                         .then(result => {
+
                             if (result.success) {
+
                                 // Etapa 4: Produto adicionado com sucesso
+
                                 updateProcessingStep('Produto adicionado com sucesso!', false, true);
+
                                 
+
                                 setTimeout(() => {
+
                                     closeProcessingModal();
+
                                     console.log('? Produto criado com sucesso!');
+
                                     window.location.href = 'gestao-produtos.html';
+
                                 }, 1500);
+
                             } else {
+
                                 closeProcessingModal();
+
                                 console.error('? Erro ao criar produto:', result.error);
+
                                 
+
                                 // Mostrar erro de forma mais interativa
+
                                 const errorMessage = document.getElementById('errorMessage');
+
                                 if (errorMessage) {
+
                                     errorMessage.textContent = 'Erro ao criar produto: ' + result.error;
+
                                     errorMessage.style.display = 'block';
+
                                     errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
                                 } else {
+
                                     alert('Erro ao criar produto: ' + result.error);
+
                                 }
+
                             }
+
                         })
+
                         .catch(error => {
+
                             closeProcessingModal();
-                            console.error('? Erro na requisiÁ„o:', error);
+
+                            console.error('? Erro na requisi√ß√£o:', error);
+
                             
+
                             // Mostrar erro de forma mais interativa
+
                             const errorMessage = document.getElementById('errorMessage');
+
                             if (errorMessage) {
+
                                 errorMessage.textContent = 'Erro interno do servidor. Por favor, tente novamente.';
+
                                 errorMessage.style.display = 'block';
+
                                 errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
                             } else {
+
                                 alert('Erro interno do servidor');
+
                             }
+
                         });
+
                     }, 1000);
+
                 }, 1000);
+
             }
+
             
-            // Tornar funÁ„o disponÌvel globalmente para teste
+
+            // Tornar fun√ß√£o dispon√≠vel globalmente para teste
+
             window.fillHiddenFields = fillHiddenFields;
+
             window.submitFormWithConfigurations = submitFormWithConfigurations;
+
         });
+
     </script>
+
     
+
 </body>
+
 </html>
+
 </html>

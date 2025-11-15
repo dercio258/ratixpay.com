@@ -287,6 +287,7 @@ app.use('/api/admin', require('./routes/admin-produtos'));
 app.use('/api/chatbot', require('./routes/chatbot'));
 app.use('/api/ratixshop', require('./routes/ratixshop'));
 app.use('/api/admin', require('./routes/admin-cancelamentos'));
+app.use('/api/remarketing', require('./routes/remarketing'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/notifications', require('./routes/notification-api'));
 app.use('/api/notificacoes', notificationsRoutes);
@@ -755,6 +756,24 @@ async function startServer() {
                 // Serviço de cancelamento será inicializado apenas quando necessário
                 
                 // Push notifications removido do sistema
+                
+                // Inicializar cron job de remarketing
+                try {
+                    const remarketingService = require('./services/remarketingService');
+                    
+                    // Processar fila a cada 5 minutos
+                    setInterval(async () => {
+                        try {
+                            await remarketingService.processarFila();
+                        } catch (error) {
+                            console.error('❌ Erro ao processar fila de remarketing:', error);
+                        }
+                    }, 5 * 60 * 1000); // 5 minutos
+                    
+                    console.log('✅ Cron job de remarketing inicializado (executa a cada 5 minutos)');
+                } catch (error) {
+                    console.error('❌ Erro ao inicializar cron job de remarketing:', error);
+                }
             });
             
         } catch (error) {

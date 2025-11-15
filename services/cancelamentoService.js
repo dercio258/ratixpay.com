@@ -164,6 +164,30 @@ class CancelamentoService {
                 falha_id: falhaId
             });
 
+            // Adicionar à fila de remarketing se o produto tiver remarketing ativado
+            try {
+                const remarketingService = require('./remarketingService');
+                const { Produto } = require('../config/database');
+                
+                // Buscar produto
+                const produto = await Produto.findByPk(venda.produto_id);
+                
+                if (produto && produto.remarketing_config && produto.remarketing_config.enabled) {
+                    await remarketingService.adicionarVendaCancelada({
+                        cliente_id: venda.cliente_id,
+                        cliente_nome: venda.cliente_nome,
+                        produto_id: venda.produto_id,
+                        produto_nome: produto.nome,
+                        email: venda.cliente_email,
+                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                    });
+                    console.log(`📧 Venda ${venda.public_id} adicionada à fila de remarketing`);
+                }
+            } catch (remarketingError) {
+                console.error(`⚠️ Erro ao adicionar venda à fila de remarketing:`, remarketingError);
+                // Não falhar o cancelamento se o remarketing falhar
+            }
+
         } catch (error) {
             console.error(`❌ Erro ao cancelar venda ${venda.public_id}:`, error);
         }
