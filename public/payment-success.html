@@ -63,7 +63,7 @@
                     let orderValue = valor;
                     if (typeof orderData !== 'undefined' && orderData) {
                         orderValue = parseFloat(orderData.valor || orderData.pagamento?.valor || valor);
-            }
+                    }
                     
                     if (orderValue > 0 && pixelEvents.includes('Purchase')) {
                         fbq('track', 'Purchase', {
@@ -72,8 +72,8 @@
                             content_ids: [produto.id],
                             content_name: produto.nome
                         });
-                        }
-            }
+                    }
+                }
             
                 // Atualizar noscript
             const noscriptElement = document.getElementById('fb-pixel-noscript');
@@ -1438,7 +1438,12 @@
                 // Tentar carregar do localStorage se não estiverem na URL
                 const savedUtmParams = localStorage.getItem('utm_tracking_params');
                 if (savedUtmParams) {
-                    );
+                    try {
+                        const parsedParams = JSON.parse(savedUtmParams);
+                        Object.assign(utmParamsFromUrl, parsedParams);
+                    } catch (e) {
+                        console.warn('⚠️ Erro ao parsear UTM params do localStorage:', e);
+                    }
                 }
             }
         } catch (error) {
@@ -1470,8 +1475,8 @@
                     return;
                 }
                 
-                :', vendaId);
-                :', vendaIdNormalizado);
+                console.log('🔍 UTMIFY: vendaId original:', vendaId);
+                console.log('🔍 UTMIFY: vendaId normalizado:', vendaIdNormalizado);
                 // Verificar se já foi enviado - se sim, não tentar novamente
                 if (orderData && orderData.tracking_data && orderData.tracking_data.utmfy_enviado === true) {
                     return; // Não tentar enviar se já foi enviado
@@ -1509,7 +1514,8 @@
                 };
                 
                 // Tentar obter tracking_data da venda (orderData)
-                ,
+                console.log('🔍 UTMIFY: orderData recebido:', {
+                    hasOrderData: !!orderData,
                     trackingData: orderData?.tracking_data
                 });
                 
@@ -1524,7 +1530,7 @@
                         sck: orderData.tracking_data.sck || null,
                         ip: null // IP não disponível no frontend
                     };
-                    :', trackingParams);
+                    console.log('🔍 UTMIFY: Tracking params obtidos do orderData:', trackingParams);
                 } else {
                     // Fallback: tentar capturar da URL
                     const urlParamsUtm = new URLSearchParams(window.location.search);
@@ -1538,7 +1544,7 @@
                         sck: urlParamsUtm.get('sck') || null,
                         ip: null
                     };
-                    :', trackingParams);
+                    console.log('🔍 UTMIFY: Tracking params obtidos da URL:', trackingParams);
                     if (!orderData) {
                         console.warn('⚠️ UTMIFY: orderData não foi fornecido!');
                     } else if (!orderData.tracking_data) {
@@ -1574,9 +1580,11 @@
                 const utmifyResult = await utmifyResponse.json();
                 
                 if (utmifyResult.success) {
-                    } else if (utmifyResult.skipped) {
+                    console.log('✅ UTMIFY: Venda enviada com sucesso');
+                } else if (utmifyResult.skipped) {
                     const reason = utmifyResult.reason || utmifyResult.message || 'razão não especificada';
-                    } else {
+                    console.log('⏭️ UTMIFY: Envio ignorado -', reason);
+                } else {
                     console.error('❌ UTMIFY: Erro ao enviar venda:', utmifyResult.error || utmifyResult.message);
                     // Permite tentar novamente se houver erro
                 }
@@ -1690,7 +1698,6 @@
                             } else {
                             }
                     } else {
-                        `);
                         showErrorState(errorMessage);
                     }
                 }
@@ -1939,7 +1946,7 @@
         async function buscarProdutosComplementaresDoBanco(transactionId) {
             try {
                 // Primeiro tentar com o ID como está (pode ser public_id ou venda_id)
-                let response = await fetch(`${API_BASE}/api/produtos-complementares/venda/${transactionId}`, {
+                let response = await fetch(`${API_BASE}/produtos-complementares/venda/${transactionId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1949,10 +1956,10 @@
                 
                 // Se não encontrar e o ID parece ser um UUID (venda_id), tentar buscar o public_id
                 if (!response.ok && transactionId && transactionId.includes('-')) {
-                    , tentando buscar public_id...');
+                    console.log('🔍 Não encontrado com transactionId, tentando buscar public_id...');
                     
                     // Buscar o public_id da venda
-                    const vendaResponse = await fetch(`${API_BASE}/api/success/venda/${transactionId}`, {
+                    const vendaResponse = await fetch(`${API_BASE}/success/venda/${transactionId}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1965,7 +1972,7 @@
                         const publicId = vendaData.data?.venda?.public_id || vendaData.data?.pedido?.numero;
                         
                         if (publicId) {
-                            response = await fetch(`${API_BASE}/api/produtos-complementares/venda/${publicId}`, {
+                            response = await fetch(`${API_BASE}/produtos-complementares/venda/${publicId}`, {
                                 method: 'GET',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -2014,7 +2021,7 @@
                     }
 
                     // Ativar Premium usando o token de autenticação
-                    const response = await fetch(`${API_BASE}/api/marketing/activate-premium-payment`, {
+                    const response = await fetch(`${API_BASE}/marketing/activate-premium-payment`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -2190,7 +2197,7 @@
         
         // Display transaction data
         function displayTransactionData(data) {
-            );
+            console.log('📋 Exibindo dados da transação:', data);
             
             // Verificar se é produto premium através dos dados
             if (data && data.produto && data.produto.custom_id === 'V7XZPKGEF') {
@@ -2298,8 +2305,6 @@
                     emailLink.target = '_blank';
             emailLink.style.pointerEvents = 'auto';
             emailLink.style.opacity = '1';
-            
-            ');
             
             // Show content
             showContent();
@@ -2530,7 +2535,7 @@
                 formData.append('cliente_nome', orderData?.cliente?.nome || '');
                 formData.append('conversa', JSON.stringify(conversaAtual));
                 
-                const response = await fetch(`${API_BASE}/api/chatbot/enviar-pdf-vendedor`, {
+                const response = await fetch(`${API_BASE}/chatbot/enviar-pdf-vendedor`, {
                     method: 'POST',
                     body: formData
                 });
@@ -2857,7 +2862,7 @@
         // Inicializar chatbot
         async function inicializarChatbot() {
             try {
-                const response = await fetch(`${API_BASE}/api/chatbot/inicializar`, {
+                const response = await fetch(`${API_BASE}/chatbot/inicializar`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3021,7 +3026,7 @@
                 console.error('❌ Erro ao processar mensagem:', error);
                 
                 // Remover indicador de digitação
-                chatMessages.innerHTML = chatMessages.innerHTML.replace(typingMessage, '');
+                hideTypingIndicator();
                 
                 const errorMessage = `
                     <div class="message support">
@@ -3051,7 +3056,7 @@
                 const chatMessages = document.getElementById('chatMessages');
                 
                 // Enviar reclamação para o backend
-                const response = await fetch(`${API_BASE}/api/support-request`, {
+                const response = await fetch(`${API_BASE}/support-request`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3123,7 +3128,7 @@
             try {
                 const chatMessages = document.getElementById('chatMessages');
                 
-                const response = await fetch(`${API_BASE}/api/chatbot/mensagem`, {
+                const response = await fetch(`${API_BASE}/chatbot/mensagem`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3334,6 +3339,7 @@
             `;
             
             chatMessages.innerHTML += loadingMessage;
+            const loadingElement = chatMessages.lastElementChild;
             scrollToBottom();
             
             // Hide the form
@@ -3353,7 +3359,7 @@
                 };
                 
                 // Send to backend
-                const response = await fetch(`${API_BASE}/api/support-request`, {
+                const response = await fetch(`${API_BASE}/support-request`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3364,7 +3370,9 @@
                 const result = await response.json();
                 
                 // Remove loading message
-                chatMessages.innerHTML = chatMessages.innerHTML.replace(loadingMessage, '');
+                if (loadingElement && loadingElement.parentNode) {
+                    loadingElement.remove();
+                }
                 
                 if (result.success) {
                     // Show success message in chat
@@ -3434,7 +3442,16 @@
                 console.error('❌ Erro ao enviar reclamação:', error);
                 
                 // Remove loading message
-                chatMessages.innerHTML = chatMessages.innerHTML.replace(loadingMessage, '');
+                const loadingElements = chatMessages.querySelectorAll('.message.support');
+                if (loadingElements.length > 0) {
+                    const lastLoading = Array.from(loadingElements).find(el => 
+                        el.textContent.includes('Processando sua solicitação') || 
+                        el.textContent.includes('Aguarde um momento')
+                    );
+                    if (lastLoading) {
+                        lastLoading.remove();
+                    }
+                }
                 
                 // Show error message
                 const errorMessage = `
@@ -3660,7 +3677,7 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
                 
-                const response = await fetch(`${API_BASE}/api/send-content-whatsapp`, {
+                const response = await fetch(`${API_BASE}/send-content-whatsapp`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3707,7 +3724,7 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
                 
-                const response = await fetch(`${API_BASE}/api/send-content-email`, {
+                const response = await fetch(`${API_BASE}/send-content-email`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3786,7 +3803,6 @@
                 const updateNotification = document.getElementById('update-notification');
                 if (updateNotification) {
                     updateNotification.remove();
-                    ');
                 }
             }, 1000);
         });
