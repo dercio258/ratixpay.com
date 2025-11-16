@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Expires" content="0">
-    <title>Login - RatixPay</title>
+    <title>Login - Ratixpay</title>
     
-    <!-- BLOQUEAR SERVICE WORKER E INDEXEDDB IMEDIATAMENTE -->
+    <!-- Bloquear Service Worker e IndexedDB -->
     <script>
         (function() {
             'use strict';
             
-            // Bloquear registro de service workers ANTES de qualquer script carregar
             if ('serviceWorker' in navigator) {
                 const originalRegister = navigator.serviceWorker.register;
                 navigator.serviceWorker.register = function() {
@@ -20,7 +19,6 @@
                     return Promise.reject(new Error('Service Worker não permitido nesta página'));
                 };
                 
-                // Desregistrar todos os service workers existentes
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                     for (let registration of registrations) {
                         registration.unregister().then(function(success) {
@@ -32,7 +30,6 @@
                 });
             }
             
-            // Bloquear IndexedDB ANTES de qualquer script carregar
             if ('indexedDB' in window) {
                 const originalOpen = indexedDB.open;
                 indexedDB.open = function() {
@@ -46,7 +43,6 @@
                     };
                 };
                 
-                // Deletar bancos de dados conhecidos
                 const dbNames = ['RatixPayPushDB', 'RatixPayDB', 'RatixPayOfflineDB', 'RatixPayCacheDB'];
                 dbNames.forEach(function(dbName) {
                     indexedDB.deleteDatabase(dbName).onsuccess = function() {
@@ -55,7 +51,6 @@
                 });
             }
             
-            // Limpar caches
             if ('caches' in window) {
                 caches.keys().then(function(cacheNames) {
                     return Promise.all(
@@ -67,432 +62,23 @@
             }
         })();
     </script>
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="shortcut icon" href="/favicon.ico">
+    
+    <!-- Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff6b3540 0%, #f7931e6b 50%, #ff6b3540 100%);
-            background-size: 200% 200%;
-            animation: gradientShift 8s ease-in-out infinite;
-            min-height: 100vh;
-            min-height: 100dvh; /* suportar mobile moderno */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-  
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-            border: 2px solid #F64c00;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: #F64C00;
-            color: white;
-            padding: 30px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .logo {
-            margin-bottom: 15px;
-        }
-
-        .logo img {
-            max-width: 240px;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            filter: brightness(0) invert(1);
-            display: block;
-            margin: 0 auto;
-        }
-        
-        @media (max-width: 480px) {
-            .logo img {
-                max-width: 180px;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            .logo img {
-                max-width: 150px;
-            }
-        }
-
-        .subtitle {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .form-container {
-    padding-bottom: 3px;
-    padding-left: 30px;
-    padding-top: 10px;
-    padding-right: 30px;
-    flex: 1; /* ocupar o espaço disponível dentro do container */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* distribui conteúdo e botões */
-}
-
-        .account-type-selector {
-            display: flex;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 5px;
-        }
-
-        .account-type-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            color: #6c757d;
-        }
-
-        .account-type-btn.active {
-            background: #F64C00;
-            color: white;
-            box-shadow: 0 2px 8px rgba(246, 76, 0, 0.3);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #F64C00;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            font-size: 18px;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6c757d;
-            cursor: pointer;
-            font-size: 18px;
-            transition: color 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #F64C00;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 15px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #F64C00 0%, #E55A00 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .links {
-            text-align: center;
-        }
-
-        .links a {
-            color: #F64C00;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .links a:hover {
-            color: #2980b9;
-        }
-
-        .divider {
-            text-align: center;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e9ecef;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            color: #6c757d;
-            font-size: 14px;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .register-link a {
-            color: #F64C00;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #F64C00;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .verification-section, .unlock-section {
-            text-align: center;
-        }
-
-        .verification-section h3, .unlock-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        .verification-section p, .unlock-section p {
-            color: #6c757d;
-            margin-bottom: 25px;
-        }
-
-        .verification-code, .unlock-code {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .verification-code input, .unlock-code input {
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .verification-code input:focus, .unlock-code input:focus {
-            outline: none;
-            border-color: #F64C00;
-            background: white;
-        }
-
-        .resend-link {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        .resend-link a {
-            color: #F64C00;
-            text-decoration: none;
-        }
-
-        .resend-link a:hover {
-            text-decoration: underline;
-        }
-
-        .back-to-login {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-
-        .back-to-login a {
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .back-to-login a:hover {
-            color: #F64C00;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 0; /* ocupar 100% da viewport sem margens */
-                align-items: stretch;
-                justify-content: stretch;
-            }
-
-            .container {
-                width: 100vw;
-                max-width: none;
-                min-height: 100vh;
-                min-height: 100dvh; /* preencher a altura total da tela com barras */
-                margin: 0;
-                border-radius: 0; /* ocupar todo o body sem cantos arredondados */
-                overflow: hidden;
-                padding-bottom: env(safe-area-inset-bottom, 0);
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .form-container {
-                padding: 20px;
-                flex: 1; /* ocupar o restante e permitir rolagem */
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-
-        /* Tablets em retrato */
-        @media (min-width: 481px) and (max-width: 768px) {
-            .container {
-                max-width: 540px;
-                margin: 0 16px;
-            }
-        }
-
-        /* Telas muito estreitas */
-        @media (max-width: 360px) {
-            .header .subtitle { font-size: 13px; }
-            .form-control { font-size: 15px; padding: 14px 14px 14px 42px; }
-            .btn { padding: 14px; font-size: 15px; }
-            .logo img { max-width: 150px; }
-        }
-    </style>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-    
-
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="/assets/images/external/ratixpay-logo.png" alt="RatixPay Logo">
+                <img src="/assets/images/external/ratixpay-logo.png" alt="Ratixpay Logo">
             </div>
             <div class="subtitle">Faça login na sua conta</div>
         </div>
@@ -501,15 +87,21 @@
             <!-- Alertas -->
             <div id="alert" class="alert"></div>
 
-
             <!-- Formulário de login -->
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">Email/Contacto</label>
                     <div class="input-group">
                         <i class="fas fa-envelope input-icon"></i>
-                        <input type="text" id="username" name="username" class="form-control" 
-                               placeholder="Digite seu email ou contacto" required>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="form-control" 
+                            placeholder="Digite seu email ou contacto" 
+                            required
+                            autocomplete="username"
+                        >
                     </div>
                 </div>
 
@@ -517,14 +109,24 @@
                 <label for="password">Senha</label>
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="password" name="password" class="form-control" 
-                           placeholder="Digite sua senha" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-control" 
+                            placeholder="Digite sua senha" 
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            onclick="togglePassword()"
+                            aria-label="Mostrar/ocultar senha"
+                        >
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
-                <small style="color: #6c757d; font-size: 12px; margin-top: 5px; display: block;">
-                </small>
             </div>
 
                 <button type="submit" class="btn btn-primary" id="loginBtn">
@@ -540,7 +142,7 @@
 
             <!-- Links -->
             <div class="links">
-                <a href="#" onclick="showForgotPassword()">Esqueceu a sua senha?</a>
+                <a href="#" onclick="showForgotPassword(); return false;">Esqueceu a sua senha?</a>
             </div>
 
             <div class="divider">
@@ -551,722 +153,18 @@
             <div class="register-link">
                 <p>Não tem uma conta? <a href="register.html">Registar agora</a></p>
             </div>
+            
+            <!-- Link para termos e condições -->
+            <div class="terms-link" style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <p style="font-size: 12px; color: #6b7280;">
+                    Ao fazer login, você concorda com nossos 
+                    <a href="/termos-condicoes.html" target="_blank" style="color: #F64C00; text-decoration: underline;">Termos e Condições</a>
+                </p>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Configuração da API
-        const API_BASE = window.location.origin + '/api';
-
-        // Estado da aplicação
-        let currentAccountType = 'cliente'; // Cliente por padrão
-
-        // Elementos do DOM
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const loading = document.getElementById('loading');
-        const alert = document.getElementById('alert');
-        const accountTypeBtns = document.querySelectorAll('.account-type-btn');
-
-        // Verificar parâmetros de erro na URL
-        function checkUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            
-            if (error) {
-                let errorMessage = '';
-                switch (error) {
-                    case 'google_auth_failed':
-                        errorMessage = 'Falha na autenticação Google. Tente novamente.';
-                        break;
-                    case 'callback_failed':
-                        errorMessage = 'Erro no processo de autenticação. Tente fazer login novamente.';
-                        break;
-                    default:
-                        errorMessage = 'Erro de autenticação. Tente novamente.';
-                }
-                showAlert(errorMessage, 'error');
-                
-                // Limpar parâmetros da URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar parâmetros de erro
-            checkUrlParams();
-            
-
-            // Formulário de login
-            loginForm.addEventListener('submit', handleLogin);
-        });
-
-        // Variável para controlar se já está processando login
-        let isProcessingLogin = false;
-        let lastLoginAttempt = 0;
-        const LOGIN_COOLDOWN = 5000; // 5 segundos de cooldown
-        
-        // Função de login
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            // Evitar múltiplas chamadas simultâneas
-            if (isProcessingLogin) {
-                console.log('Login já está sendo processado, ignorando nova tentativa');
-                return;
-            }
-            
-            // Verificar cooldown entre tentativas
-            const now = Date.now();
-            if (now - lastLoginAttempt < LOGIN_COOLDOWN) {
-                console.log('Cooldown ativo, aguarde antes de tentar novamente');
-                showAlert('Aguarde alguns segundos antes de tentar novamente', 'error');
-                return;
-            }
-            
-            lastLoginAttempt = now;
-            isProcessingLogin = true;
-
-            // Obter valores dos inputs e fazer trim
-            const emailOrPhoneInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            
-            if (!emailOrPhoneInput || !passwordInput) {
-                console.error('❌ Campos de input não encontrados');
-                showAlert('Erro: Campos de formulário não encontrados', 'error');
-                isProcessingLogin = false;
-                return;
-            }
-
-            const emailOrPhone = emailOrPhoneInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            // Validação robusta
-            if (!emailOrPhone || emailOrPhone.length === 0) {
-                showAlert('Por favor, preencha o email ou telefone', 'error');
-                emailOrPhoneInput.focus();
-                isProcessingLogin = false;
-                return;
-            }
-
-            if (!password || password.length === 0) {
-                showAlert('Por favor, preencha a senha', 'error');
-                passwordInput.focus();
-                isProcessingLogin = false;
-                return;
-            }
-
-            // Determinar se é email ou telefone
-            const isEmail = emailOrPhone.includes('@');
-            const loginData = {
-                password: password, // Garantir que password não está vazio
-                tipo_conta: 'vendedor' // Padrão para todos os usuários
-            };
-
-            // Adicionar apenas email OU telefone, nunca os dois
-            if (isEmail) {
-                loginData.email = emailOrPhone;
-            } else {
-                loginData.telefone = emailOrPhone;
-            }
-
-            // Debug: Log dos dados antes de enviar
-            console.log('📤 Dados de login preparados:', {
-                hasEmail: !!loginData.email,
-                hasTelefone: !!loginData.telefone,
-                hasPassword: !!loginData.password,
-                passwordLength: loginData.password ? loginData.password.length : 0,
-                emailOrPhoneLength: emailOrPhone.length
-            });
-
-            try {
-                setLoading(true);
-
-                // Debug: Log do que está sendo enviado
-                console.log('📤 Enviando requisição de login para:', `${API_BASE}/auth/login`);
-                console.log('📤 Payload:', JSON.stringify(loginData, null, 2));
-
-                const response = await fetch(`${API_BASE}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(loginData)
-                });
-
-                // Debug: Log da resposta
-                console.log('📥 Status da resposta:', response.status, response.statusText);
-                
-                let data;
-                try {
-                    const responseText = await response.text();
-                    console.log('📥 Resposta bruta:', responseText);
-                    data = JSON.parse(responseText);
-                } catch (parseError) {
-                    console.error('❌ Erro ao parsear resposta JSON:', parseError);
-                    showAlert('Erro na resposta do servidor. Tente novamente.', 'error');
-                    isProcessingLogin = false;
-                    setLoading(false);
-                    return;
-                }
-
-                console.log('📥 Dados parseados:', data);
-
-                if (data.success) {
-                    if (data.requiresVerification) {
-                        // Mostrar seção de verificação
-                        showVerificationSection(data.userId);
-                        showAlert('Código de verificação enviado para email e WhatsApp', 'success');
-                    } else {
-                        // Login direto
-                        localStorage.setItem('authToken', data.token);
-                        localStorage.setItem('userData', JSON.stringify(data.user));
-                        
-                        showAlert('Login realizado com sucesso!', 'success');
-                        
-                        // Debug: Log da resposta
-                        console.log('🔍 Resposta do login:', data);
-                        console.log('🔍 RedirectPage:', data.redirectPage);
-                        console.log('🔍 User Role:', data.user?.role);
-                        console.log('🔍 User Tipo Conta:', data.user?.tipo_conta);
-                        
-                        // Redirecionar baseado na resposta do servidor
-                        setTimeout(() => {
-                            console.log('🔄 Iniciando redirecionamento...');
-                            let targetPage = 'index.html';
-                            
-                            // Verificação especial para email administrativo principal
-                            const isMainAdmin = data.user.email === 'ratixpay.mz@gmail.com';
-                            
-                            if (data.redirectPage) {
-                                targetPage = data.redirectPage;
-                                console.log('📍 Redirecionando para:', targetPage);
-                            } else if (data.user.role === 'admin' || isMainAdmin) {
-                                targetPage = 'admin-dashboard.html';
-                                console.log('📍 Redirecionando para admin-dashboard.html (email principal)');
-                            } else if (data.user.tipo_conta === 'vendedor') {
-                                targetPage = 'dashboard.html';
-                                console.log('📍 Redirecionando para dashboard.html');
-                            } else {
-                                console.log('📍 Redirecionando para index.html');
-                            }
-                            
-                            // Tentar diferentes métodos de redirecionamento
-                            try {
-                                console.log('🔄 Tentando redirecionamento para:', targetPage);
-                                window.location.replace(targetPage);
-                            } catch (error) {
-                                console.error('❌ Erro no redirecionamento:', error);
-                                // Fallback
-                                window.location.href = targetPage;
-                            }
-                        }, 1500);
-                    }
-                } else {
-                    // Log detalhado do erro
-                    console.error('❌ Login falhou:', {
-                        success: data.success,
-                        error: data.error,
-                        bloqueada: data.bloqueada,
-                        status: response.status
-                    });
-                    
-                    // Verificar se é conta bloqueada
-                    if (data.bloqueada && data.codigo_enviado) {
-                        showUnlockSection(data.email);
-                        showAlert(data.error, 'warning');
-                    } else {
-                        // Mensagem de erro mais específica
-                        const errorMessage = data.error || 'Erro ao fazer login. Verifique suas credenciais.';
-                        showAlert(errorMessage, 'error');
-                        console.error('❌ Detalhes do erro:', errorMessage);
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Erro no login (catch):', error);
-                console.error('❌ Stack trace:', error.stack);
-                showAlert('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
-            } finally {
-                setLoading(false);
-                isProcessingLogin = false; // Resetar flag de processamento
-                console.log('✅ Flag isProcessingLogin resetada');
-            }
-        }
-
-        // Função para mostrar seção de desbloqueio
-        function showUnlockSection(email) {
-            // Verificar se já existe uma seção de desbloqueio
-            if (document.getElementById('unlockSection')) {
-                console.log('Seção de desbloqueio já existe, não criando novamente');
-                return;
-            }
-            
-            console.log('Criando seção de desbloqueio para email:', email);
-            
-            // Criar seção de desbloqueio dinamicamente
-            const unlockHTML = `
-                <div class="unlock-section" id="unlockSection">
-                    <h3>🔓 Desbloquear Conta</h3>
-                    <p>Um código de desbloqueio foi enviado para seu email e WhatsApp. Digite o código abaixo:</p>
-                    
-                    <div class="unlock-code">
-                        <input type="text" maxlength="1" class="code-input" data-index="0">
-                        <input type="text" maxlength="1" class="code-input" data-index="1">
-                        <input type="text" maxlength="1" class="code-input" data-index="2">
-                        <input type="text" maxlength="1" class="code-input" data-index="3">
-                        <input type="text" maxlength="1" class="code-input" data-index="4">
-                        <input type="text" maxlength="1" class="code-input" data-index="5">
-                    </div>
-
-                    <button type="button" class="btn btn-primary" id="unlockBtn">
-                        <i class="fas fa-unlock"></i> Desbloquear
-                    </button>
-
-                    <div class="resend-link">
-                        <p>Não recebeu o código? <a href="#" onclick="resendUnlockCode('${email}')">Reenviar</a></p>
-                    </div>
-                    
-                    <div class="back-to-login">
-                        <a href="#" onclick="backToLogin()">← Voltar ao Login</a>
-                    </div>
-                </div>
-            `;
-
-            // Esconder formulário de login e mostrar desbloqueio
-            document.getElementById('loginForm').style.display = 'none';
-            document.querySelector('.links').style.display = 'none';
-            document.querySelector('.divider').style.display = 'none';
-            document.querySelector('.register-link').style.display = 'none';
-
-            // Adicionar seção de desbloqueio
-            const formContainer = document.querySelector('.form-container');
-            formContainer.insertAdjacentHTML('beforeend', unlockHTML);
-
-            // Configurar inputs de código
-            setupUnlockCodeInputs();
-            
-            // Configurar botão de desbloqueio
-            document.getElementById('unlockBtn').addEventListener('click', () => handleUnlock(email));
-        }
-
-        // Função para mostrar seção de verificação
-        function showVerificationSection(userId) {
-            // Verificar se já existe uma seção de verificação
-            if (document.getElementById('verificationSection')) {
-                console.log('Seção de verificação já existe, não criando novamente');
-                return;
-            }
-            
-            console.log('Criando seção de verificação para userId:', userId);
-            
-            // Criar seção de verificação dinamicamente
-            const verificationHTML = `
-                <div class="verification-section" id="verificationSection">
-                    <h3>🔐 Verificação de Segurança</h3>
-                    <p>Enviamos um código de verificação para seu email e WhatsApp. Digite o código abaixo:</p>
-                    
-                    <div class="verification-code">
-                        <input type="text" maxlength="1" class="code-input" data-index="0">
-                        <input type="text" maxlength="1" class="code-input" data-index="1">
-                        <input type="text" maxlength="1" class="code-input" data-index="2">
-                        <input type="text" maxlength="1" class="code-input" data-index="3">
-                        <input type="text" maxlength="1" class="code-input" data-index="4">
-                        <input type="text" maxlength="1" class="code-input" data-index="5">
-                    </div>
-
-                    <button type="button" class="btn btn-primary" id="verifyBtn">
-                        <i class="fas fa-check"></i> Verificar
-                    </button>
-
-                    <div class="resend-link">
-                        <p>Não recebeu o código? <a href="#" onclick="resendCode(${userId})">Reenviar</a></p>
-                    </div>
-                </div>
-            `;
-
-            // Esconder formulário de login e mostrar verificação
-            document.getElementById('loginForm').style.display = 'none';
-            document.querySelector('.links').style.display = 'none';
-            document.querySelector('.divider').style.display = 'none';
-            document.querySelector('.register-link').style.display = 'none';
-
-            // Adicionar seção de verificação
-            const formContainer = document.querySelector('.form-container');
-            formContainer.insertAdjacentHTML('beforeend', verificationHTML);
-
-            // Configurar inputs de código
-            setupCodeInputs();
-            
-            // Configurar botão de verificação
-            document.getElementById('verifyBtn').addEventListener('click', () => handleVerification(userId));
-        }
-
-        // Função para configurar inputs de código de desbloqueio
-        function setupUnlockCodeInputs() {
-            const codeInputs = document.querySelectorAll('#unlockSection .code-input');
-            
-            codeInputs.forEach((input, index) => {
-                input.addEventListener('input', function(e) {
-                    const value = e.target.value;
-                    
-                    if (value.length === 1) {
-                        if (index < codeInputs.length - 1) {
-                            codeInputs[index + 1].focus();
-                        }
-                    } else if (value.length === 0 && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-            });
-        }
-
-        // Função para obter código de desbloqueio
-        function getUnlockCode() {
-            const codeInputs = document.querySelectorAll('#unlockSection .code-input');
-            let code = '';
-            codeInputs.forEach(input => {
-                code += input.value;
-            });
-            return code;
-        }
-
-        // Função para processar desbloqueio
-        async function handleUnlock(email) {
-            const codigo = getUnlockCode();
-            
-            if (codigo.length !== 6) {
-                showAlert('Por favor, digite o código completo de 6 dígitos', 'error');
-                return;
-            }
-
-            try {
-                setLoading(true);
-                
-                const response = await fetch(`${API_BASE}/auth/desbloquear-codigo`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        codigo: codigo
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert('Conta desbloqueada com sucesso! Faça login novamente.', 'success');
-                    setTimeout(() => {
-                        backToLogin();
-                    }, 2000);
-                } else {
-                    showAlert(data.error || 'Erro ao desbloquear conta', 'error');
-                }
-            } catch (error) {
-                console.error('Erro no desbloqueio:', error);
-                showAlert('Erro de conexão. Tente novamente.', 'error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        // Função para reenviar código de desbloqueio
-        async function resendUnlockCode(email) {
-            try {
-                setLoading(true);
-                
-                const response = await fetch(`${API_BASE}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: 'dummy' // Senha dummy para trigger do bloqueio
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.bloqueada && data.codigo_enviado) {
-                    showAlert('Novo código de desbloqueio enviado!', 'success');
-                } else {
-                    showAlert('Erro ao reenviar código', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao reenviar código:', error);
-                showAlert('Erro de conexão. Tente novamente.', 'error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        // Função para voltar ao login
-        function backToLogin() {
-            // Remover seção de desbloqueio
-            const unlockSection = document.getElementById('unlockSection');
-            if (unlockSection) {
-                unlockSection.remove();
-            }
-
-            // Mostrar formulário de login novamente
-            document.getElementById('loginForm').style.display = 'block';
-            document.querySelector('.links').style.display = 'block';
-            document.querySelector('.divider').style.display = 'block';
-            document.querySelector('.register-link').style.display = 'block';
-
-            // Limpar campos
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            
-            // Limpar seleção de tipo de conta
-            accountTypeBtns.forEach(btn => btn.classList.remove('active'));
-            currentAccountType = 'cliente';
-            accountTypeBtns[0].classList.add('active');
-        }
-
-        // Função para configurar inputs de código
-        function setupCodeInputs() {
-            const codeInputs = document.querySelectorAll('.code-input');
-            
-            codeInputs.forEach((input, index) => {
-                input.addEventListener('input', function(e) {
-                    const value = e.target.value;
-                    
-                    if (value.length === 1) {
-                        if (index < codeInputs.length - 1) {
-                            codeInputs[index + 1].focus();
-                        }
-                    } else if (value.length === 0 && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-            });
-        }
-
-        // Função para obter código de verificação
-        function getVerificationCode() {
-            const codeInputs = document.querySelectorAll('.code-input');
-            let code = '';
-            
-            codeInputs.forEach(input => {
-                code += input.value;
-            });
-            
-            return code;
-        }
-
-        // Função para verificar código
-        async function handleVerification(userId) {
-            const code = getVerificationCode();
-            
-            if (code.length !== 6) {
-                showAlert('Digite o código completo de 6 dígitos', 'error');
-                return;
-            }
-
-            try {
-                setLoading(true);
-
-                const response = await fetch(`${API_BASE}/auth/verify`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userId: userId,
-                        code: code
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Salvar token e dados do usuário
-                    localStorage.setItem('authToken', result.token);
-                    localStorage.setItem('userData', JSON.stringify(result.user));
-                    
-                    showAlert('Verificação realizada com sucesso!', 'success');
-                    
-                    // Debug: Log da resposta
-                    console.log('🔍 Resposta da verificação:', result);
-                    console.log('🔍 RedirectPage:', result.redirectPage);
-                    console.log('🔍 User Role:', result.user?.role);
-                    console.log('🔍 User Tipo Conta:', result.user?.tipo_conta);
-                    
-                    // Redirecionar baseado na resposta do servidor
-                    setTimeout(() => {
-                        console.log('🔄 Iniciando redirecionamento após verificação...');
-                        let targetPage = 'index.html';
-                        
-                        // Verificação especial para email administrativo principal
-                        const isMainAdmin = result.user.email === 'ratixpay.mz@gmail.com';
-                        
-                        if (result.redirectPage) {
-                            targetPage = result.redirectPage;
-                            console.log('📍 Redirecionando para:', targetPage);
-                        } else if (result.user.role === 'admin' || isMainAdmin) {
-                            targetPage = 'admin-dashboard.html';
-                            console.log('📍 Redirecionando para admin-dashboard.html (email principal)');
-                        } else if (result.user.tipo_conta === 'vendedor') {
-                            targetPage = 'dashboard.html';
-                            console.log('📍 Redirecionando para dashboard.html');
-                        } else {
-                            console.log('📍 Redirecionando para index.html');
-                        }
-                        
-                        // Tentar diferentes métodos de redirecionamento
-                        try {
-                            console.log('🔄 Tentando redirecionamento para:', targetPage);
-                            window.location.replace(targetPage);
-                        } catch (error) {
-                            console.error('❌ Erro no redirecionamento:', error);
-                            // Fallback
-                            window.location.href = targetPage;
-                        }
-                    }, 1500);
-                } else {
-                    showAlert(result.error || 'Erro na verificação', 'error');
-                }
-            } catch (error) {
-                console.error('Erro na verificação:', error);
-                showAlert('Erro de conexão. Tente novamente.', 'error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        // Função para reenviar código
-        async function resendCode(userId) {
-            try {
-                const response = await fetch(`${API_BASE}/auth/resend-verification`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userId: userId
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showAlert('Código reenviado com sucesso!', 'success');
-                } else {
-                    showAlert(result.error || 'Erro ao reenviar código', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao reenviar código:', error);
-                showAlert('Erro de conexão. Tente novamente.', 'error');
-            }
-        }
-
-        // Função para mostrar/esconder senha
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleBtn = document.querySelector('.password-toggle i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.className = 'fas fa-eye-slash';
-            } else {
-                passwordInput.type = 'password';
-                toggleBtn.className = 'fas fa-eye';
-            }
-        }
-
-        // Função para mostrar alertas
-        function showAlert(message, type) {
-            alert.textContent = message;
-            alert.className = `alert alert-${type}`;
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-        }
-
-        // Função para controlar loading
-        function setLoading(isLoading) {
-            if (isLoading) {
-                loginBtn.disabled = true;
-                loading.style.display = 'block';
-            } else {
-                loginBtn.disabled = false;
-                loading.style.display = 'none';
-            }
-        }
-
-        // Função para mostrar página de esqueceu senha
-        function showForgotPassword() {
-            window.location.href = 'forgot-password.html';
-        }
-
-        // Verificar se já está logado (opcional - comentado para evitar redirecionamento automático)
-        function checkAuth() {
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                // Verificar se o token ainda é válido
-                fetch(`${API_BASE}/auth/verify-token`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirecionar se já estiver logado
-                        if (data.user.tipo_conta === 'vendedor') {
-                            window.location.href = '/dashboard.html';
-                        } else {
-                            window.location.href = '/index.html';
-                        }
-                    }
-                })
-                .catch(error => {
-                    // Token inválido, remover do localStorage
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('userData');
-                });
-            }
-        }
-
-        // Verificar autenticação ao carregar a página (desabilitado para evitar redirecionamento automático)
-        // checkAuth();
-        
-        // Verificar mensagens na URL
-        function checkUrlMessage() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const message = urlParams.get('message');
-            
-            if (message === 'verified') {
-                showAlert('Email verificado com sucesso! Você pode fazer login agora.', 'success');
-            } else if (message === 'verify-email') {
-                showAlert('Verifique seu email para ativar a conta', 'info');
-            }
-        }
-
-        // Verificar mensagem ao carregar a página
-        checkUrlMessage();
-        
-        // Desabilitar qualquer verificação automática que possa causar loops
-        console.log('Página de login carregada - verificações automáticas desabilitadas');
-    </script>
-    
+    <!-- JavaScript -->
+    <script src="/js/login-handler.js"></script>
 </body>
 </html>

@@ -57,6 +57,26 @@ class EmailManagerService {
                     return await this.sistema.enviarNotificacaoSistema(dados);
                 case 'recuperacao_senha':
                     return await this.sistema.enviarRecuperacaoSenha(dados);
+                case 'notificacao_login':
+                    return await this.sistema.enviarNotificacaoLogin(dados);
+                case 'notificacao_bloqueio':
+                    return await this.sistema.enviarNotificacaoBloqueio(dados);
+                case 'notificacao_bloqueio_conta':
+                    return await this.sistema.enviarNotificacaoBloqueioConta(dados);
+                case 'notificacao_desbloqueio_conta':
+                    return await this.sistema.enviarNotificacaoDesbloqueioConta(dados);
+                case 'notificacao_exclusao_conta':
+                    return await this.sistema.enviarNotificacaoExclusaoConta(dados);
+                case 'notificacao_produto_criado':
+                    return await this.sistema.enviarNotificacaoProdutoCriado(dados);
+                case 'notificacao_produto_ativado':
+                    return await this.sistema.enviarNotificacaoProdutoAtivado(dados);
+                case 'notificacao_produto_deletado':
+                    return await this.sistema.enviarNotificacaoProdutoDeletado(dados);
+                case 'solicitacao_aprovacao_produto':
+                    return await this.sistema.enviarSolicitacaoAprovacaoProduto(dados);
+                case 'notificacao_produto_aprovado_admin':
+                    return await this.sistema.enviarNotificacaoProdutoAprovadoAdmin(dados);
                 default:
                     throw new Error(`Tipo de email de sistema inválido: ${tipo}`);
             }
@@ -166,7 +186,7 @@ class EmailManagerService {
                     email: 'vendas@ratixpay.com'
                 },
                 sistema: {
-                    tipos: ['codigo_verificacao', 'boas_vindas', 'notificacao_sistema', 'recuperacao_senha'],
+                    tipos: ['codigo_verificacao', 'boas_vindas', 'notificacao_sistema', 'recuperacao_senha', 'notificacao_login', 'notificacao_bloqueio', 'notificacao_bloqueio_conta', 'notificacao_desbloqueio_conta', 'notificacao_exclusao_conta', 'notificacao_produto_criado', 'notificacao_produto_ativado', 'notificacao_produto_deletado', 'solicitacao_aprovacao_produto', 'notificacao_produto_aprovado_admin'],
                     email: 'sistema@ratixpay.com'
                 },
                 suporte: {

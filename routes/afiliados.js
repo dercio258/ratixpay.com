@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Afiliado, VendaAfiliado, LinkTracking, Venda, Produto, sequelize } = require('../config/database');
+const { Afiliado, VendaAfiliado, LinkTracking, Venda, Produto, BannerAfiliado, sequelize } = require('../config/database');
 const { authenticateToken, isAdmin } = require('../middleware/auth');
 const { authenticateAfiliado } = require('../middleware/authAfiliado');
 const { Op } = require('sequelize');
@@ -455,6 +455,14 @@ router.post('/solicitar-saque', authenticateAfiliado, async (req, res) => {
         
         // TODO: Criar registro na tabela de saques de afiliados quando implementada
         // await SaqueAfiliado.create(saque);
+        
+        // Enviar notificação de saque pendente
+        const { enviarNotificacaoSaqueAfiliado } = require('./pagamento');
+        try {
+            await enviarNotificacaoSaqueAfiliado(req.afiliado, valorFloat, 'pendente', numero_conta);
+        } catch (error) {
+            console.error('⚠️ Erro ao enviar notificação de saque (não crítico):', error);
+        }
         
         res.json({
             success: true,
@@ -954,59 +962,36 @@ router.post('/:id/gerar-link', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-// GET - Rastrear clique no link de afiliado (público)
+// GET - Rastrear clique no link de afiliado (DESABILITADO - cliques agora são rastreados apenas no botão "Pagar Agora")
+// Esta rota foi desabilitada para evitar contagem duplicada de cliques
+// Os cliques agora são rastreados apenas quando o cliente clica em "Pagar Agora" no checkout
 router.get('/track/:codigo', async (req, res) => {
     try {
-        const { codigo } = req.params;
-        const { url } = req.query;
+        const { codigo } = req.params; // Usar req.params para parâmetros de rota
+        const { produto, url } = req.query;
         
-        // Buscar o link de afiliado pelo código
-        const linkTracking = await LinkTracking.findOne({
-            where: {
-                link_afiliado: {
-                    [require('sequelize').Op.like]: `%ref=${codigo}%`
-                }
-            }
-        });
+        // Apenas redirecionar para o checkout sem rastrear clique
+        // O clique será rastreado apenas quando o cliente clicar em "Pagar Agora"
+        const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
+        let linkCheckout = `${baseUrl}/checkout.html`;
         
-        if (!linkTracking) {
-            console.log(`❌ Link não encontrado para código: ${codigo}`);
-            // Redirecionar para página de produto sem referência de afiliado
-            const linkSemAfiliado = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${req.query.produto}`;
-            return res.redirect(linkSemAfiliado);
+        // Adicionar parâmetros se existirem
+        const params = new URLSearchParams();
+        if (produto) params.append('produto', produto);
+        if (codigo) params.append('ref', codigo);
+        if (params.toString()) {
+            linkCheckout += `?${params.toString()}`;
         }
         
-        // Incrementar cliques
-        await linkTracking.increment('cliques');
-        await linkTracking.update({
-            ultimo_clique: new Date()
-        });
+        console.log(`🔗 Redirecionando para checkout com código de afiliado: ${codigo} (clique será rastreado apenas no botão "Pagar Agora")`);
         
-        // Atualizar última atividade do afiliado
-        if (linkTracking.afiliado_id) {
-            await Afiliado.update({
-                ultima_atividade: new Date()
-            }, {
-                where: { id: linkTracking.afiliado_id }
-            });
-        }
-        
-        console.log(`✅ Clique rastreado: ${codigo} -> ${url}`);
-        res.json({
-            success: true,
-            message: 'Clique rastreado com sucesso',
-            data: {
-                link_afiliado: linkTracking.link_afiliado,
-                afiliado_id: linkTracking.afiliado_id
-            }
-        });
+        return res.redirect(linkCheckout);
     } catch (error) {
-        console.error('❌ Erro ao rastrear clique:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao rastrear clique',
-            error: error.message
-        });
+        console.error('❌ Erro ao redirecionar:', error);
+        // Em caso de erro, redirecionar para checkout sem referência
+        const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
+        const linkCheckout = `${baseUrl}/checkout.html${req.query.produto ? `?produto=${req.query.produto}` : ''}`;
+        return res.redirect(linkCheckout);
     }
 });
 
@@ -1137,15 +1122,30 @@ router.put('/vendas/atualizar-status', async (req, res) => {
     }
 });
 
-// POST - Registrar clique válido (quando usuário clica em "Pagar" no checkout)
+// POST - Registrar clique válido (quando usuário clica em "Pagar Agora" no checkout)
 router.post('/registrar-clique-valido', async (req, res) => {
     try {
-        const { codigo_afiliado, produto_id, produto_custom_id } = req.body;
+        const { 
+            codigo_afiliado, 
+            produto_id, 
+            produto_custom_id,
+            ip_address: ipAddressClient,
+            fingerprint: fingerprintClient,
+            screen_info,
+            timezone,
+            language
+        } = req.body;
         
-        // Obter informações do cliente
-        const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
+        // Obter informações do cliente (priorizar IP do cliente, depois do servidor)
+        const ipAddress = ipAddressClient || 
+                         req.ip || 
+                         req.connection.remoteAddress || 
+                         req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+                         req.headers['x-real-ip'] ||
+                         'unknown';
+        
         const userAgent = req.headers['user-agent'] || 'unknown';
-        const referer = req.headers.referer || req.headers.referrer || null;
+        const referer = req.headers.referer || req.headers.referrer || req.body.referer || null;
 
         // Validar dados obrigatórios
         if (!codigo_afiliado) {
@@ -1206,13 +1206,17 @@ router.post('/registrar-clique-valido', async (req, res) => {
             });
         }
         
-        // Validar clique contra fraudes
+        // Validar clique contra fraudes (com dados adicionais)
         const validacao = await fraudeDetectionService.validarClique({
             ipAddress,
             userAgent,
             afiliadoId: afiliado.id,
             produtoId: produto?.id || null,
-            referer
+            referer,
+            fingerprint: fingerprintClient,
+            screen_info: screen_info,
+            timezone: timezone,
+            language: language
         });
 
         // Preparar dados de fraude
@@ -1328,6 +1332,7 @@ router.put('/venda/:vendaId/status', authenticateToken, isAdmin, async (req, res
 // GET - Estatísticas de vendas do afiliado (requer autenticação)
 router.get('/minhas-vendas-estatisticas', authenticateAfiliado, async (req, res) => {
     try {
+        console.log(`📊 [ESTATISTICAS] Carregando estatísticas de vendas para afiliado: ${req.afiliado.nome} (${req.afiliado.id})`);
         const { periodo = '30d' } = req.query;
         
         const stats = await afiliadoVendaService.obterEstatisticasVendas(req.afiliado.id, periodo);
@@ -1342,6 +1347,349 @@ router.get('/minhas-vendas-estatisticas', authenticateAfiliado, async (req, res)
         res.status(500).json({
             success: false,
             message: 'Erro interno do servidor',
+            error: error.message
+        });
+    }
+});
+
+// ==================== ROTAS DE BANNERS ====================
+
+// GET - Listar banners do afiliado
+router.get('/banners', authenticateAfiliado, async (req, res) => {
+    try {
+        const banners = await BannerAfiliado.findAll({
+            where: {
+                afiliado_id: req.afiliado.id
+            },
+            include: [
+                {
+                    model: Produto,
+                    as: 'produto',
+                    attributes: ['id', 'nome', 'custom_id', 'imagem_url']
+                },
+                {
+                    model: LinkTracking,
+                    as: 'linkTracking',
+                    attributes: ['id', 'link_afiliado', 'cliques', 'conversoes']
+                }
+            ],
+            order: [['created_at', 'DESC']]
+        });
+
+        res.json({
+            success: true,
+            data: banners
+        });
+    } catch (error) {
+        console.error('❌ Erro ao listar banners:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao listar banners',
+            error: error.message
+        });
+    }
+});
+
+// POST - Criar banner
+router.post('/banners', authenticateAfiliado, async (req, res) => {
+    try {
+        const { titulo, mensagem, imagem_url, link_tracking_id, produto_id } = req.body;
+
+        if (!titulo || !imagem_url) {
+            return res.status(400).json({
+                success: false,
+                message: 'Título e imagem são obrigatórios'
+            });
+        }
+
+        // Buscar link tracking se fornecido
+        let linkTracking = null;
+        let linkAfiliado = null;
+        
+        if (link_tracking_id) {
+            linkTracking = await LinkTracking.findOne({
+                where: {
+                    id: link_tracking_id,
+                    afiliado_id: req.afiliado.id
+                }
+            });
+            
+            if (!linkTracking) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Link de tracking não encontrado'
+                });
+            }
+            
+            linkAfiliado = linkTracking.link_afiliado;
+        } else if (produto_id) {
+            // Buscar link tracking do produto
+            linkTracking = await LinkTracking.findOne({
+                where: {
+                    produto_id: produto_id,
+                    afiliado_id: req.afiliado.id
+                }
+            });
+            
+            if (linkTracking) {
+                linkAfiliado = linkTracking.link_afiliado;
+            } else {
+                // Gerar link básico se não existir
+                const produto = await Produto.findByPk(produto_id);
+                if (produto) {
+                    const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
+                    linkAfiliado = `${baseUrl}/checkout.html?produto=${produto.custom_id}&ref=${req.afiliado.codigo_afiliado}`;
+                }
+            }
+        } else {
+            // Gerar link genérico
+            const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
+            linkAfiliado = `${baseUrl}/checkout.html?ref=${req.afiliado.codigo_afiliado}`;
+        }
+
+        if (!linkAfiliado) {
+            return res.status(400).json({
+                success: false,
+                message: 'Não foi possível gerar link de afiliado'
+            });
+        }
+
+        // Gerar código HTML do banner
+        const codigoHtml = `
+<a href="${linkAfiliado}" target="_blank" style="display: inline-block; text-decoration: none;">
+    <div style="border: 2px solid #F64C00; border-radius: 12px; overflow: hidden; max-width: 100%; background: white;">
+        <img src="${imagem_url}" alt="${titulo}" style="width: 100%; height: auto; display: block;">
+        ${mensagem ? `<div style="padding: 15px; background: linear-gradient(135deg, #F64C00 0%, #E04500 100%); color: white; text-align: center; font-weight: bold;">
+            ${mensagem}
+        </div>` : ''}
+    </div>
+</a>`;
+
+        // Criar banner
+        const banner = await BannerAfiliado.create({
+            afiliado_id: req.afiliado.id,
+            link_tracking_id: linkTracking?.id || null,
+            produto_id: produto_id || null,
+            titulo: titulo,
+            mensagem: mensagem || null,
+            imagem_url: imagem_url,
+            link_afiliado: linkAfiliado,
+            codigo_html: codigoHtml,
+            ativo: true,
+            cliques: 0
+        });
+
+        // Recarregar com relacionamentos
+        await banner.reload({
+            include: [
+                {
+                    model: Produto,
+                    as: 'produto',
+                    attributes: ['id', 'nome', 'custom_id', 'imagem_url']
+                },
+                {
+                    model: LinkTracking,
+                    as: 'linkTracking',
+                    attributes: ['id', 'link_afiliado', 'cliques', 'conversoes']
+                }
+            ]
+        });
+
+        res.json({
+            success: true,
+            message: 'Banner criado com sucesso',
+            data: banner
+        });
+    } catch (error) {
+        console.error('❌ Erro ao criar banner:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao criar banner',
+            error: error.message
+        });
+    }
+});
+
+// PUT - Atualizar banner
+router.put('/banners/:id', authenticateAfiliado, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { titulo, mensagem, imagem_url, ativo } = req.body;
+
+        const banner = await BannerAfiliado.findOne({
+            where: {
+                id: id,
+                afiliado_id: req.afiliado.id
+            }
+        });
+
+        if (!banner) {
+            return res.status(404).json({
+                success: false,
+                message: 'Banner não encontrado'
+            });
+        }
+
+        // Atualizar campos
+        if (titulo !== undefined) banner.titulo = titulo;
+        if (mensagem !== undefined) banner.mensagem = mensagem;
+        if (imagem_url !== undefined) banner.imagem_url = imagem_url;
+        if (ativo !== undefined) banner.ativo = ativo;
+
+        // Regenerar código HTML se necessário
+        if (titulo || mensagem || imagem_url) {
+            const codigoHtml = `
+<a href="${banner.link_afiliado}" target="_blank" style="display: inline-block; text-decoration: none;">
+    <div style="border: 2px solid #F64C00; border-radius: 12px; overflow: hidden; max-width: 100%; background: white;">
+        <img src="${banner.imagem_url}" alt="${banner.titulo}" style="width: 100%; height: auto; display: block;">
+        ${banner.mensagem ? `<div style="padding: 15px; background: linear-gradient(135deg, #F64C00 0%, #E04500 100%); color: white; text-align: center; font-weight: bold;">
+            ${banner.mensagem}
+        </div>` : ''}
+    </div>
+</a>`;
+            banner.codigo_html = codigoHtml;
+        }
+
+        await banner.save();
+
+        // Recarregar com relacionamentos
+        await banner.reload({
+            include: [
+                {
+                    model: Produto,
+                    as: 'produto',
+                    attributes: ['id', 'nome', 'custom_id', 'imagem_url']
+                },
+                {
+                    model: LinkTracking,
+                    as: 'linkTracking',
+                    attributes: ['id', 'link_afiliado', 'cliques', 'conversoes']
+                }
+            ]
+        });
+
+        res.json({
+            success: true,
+            message: 'Banner atualizado com sucesso',
+            data: banner
+        });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar banner:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao atualizar banner',
+            error: error.message
+        });
+    }
+});
+
+// DELETE - Deletar banner
+router.delete('/banners/:id', authenticateAfiliado, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const banner = await BannerAfiliado.findOne({
+            where: {
+                id: id,
+                afiliado_id: req.afiliado.id
+            }
+        });
+
+        if (!banner) {
+            return res.status(404).json({
+                success: false,
+                message: 'Banner não encontrado'
+            });
+        }
+
+        await banner.destroy();
+
+        res.json({
+            success: true,
+            message: 'Banner deletado com sucesso'
+        });
+    } catch (error) {
+        console.error('❌ Erro ao deletar banner:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao deletar banner',
+            error: error.message
+        });
+    }
+});
+
+// POST - Upload de imagem para banner
+router.post('/banners/upload-imagem', authenticateAfiliado, async (req, res) => {
+    try {
+        const multer = require('multer');
+        const path = require('path');
+        const fs = require('fs');
+        const LocalImageService = require('../services/localImageService');
+
+        // Configurar multer
+        const storage = multer.diskStorage({
+            destination: (req, file, cb) => {
+                const baseDir = LocalImageService.ensureUploadsDir();
+                const dest = path.join(baseDir, 'banners');
+                fs.mkdirSync(dest, { recursive: true });
+                cb(null, dest);
+            },
+            filename: (req, file, cb) => {
+                const timestamp = Date.now();
+                const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+                cb(null, `banner_${req.afiliado.id}_${timestamp}_${safeName}`);
+            }
+        });
+
+        const upload = multer({
+            storage,
+            limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+            fileFilter: (req, file, cb) => {
+                const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (allowed.includes(file.mimetype)) return cb(null, true);
+                cb(new Error('Tipo de arquivo não suportado. Use: JPEG, PNG, GIF ou WebP'));
+            }
+        });
+
+        // Processar upload
+        upload.single('imagem')(req, res, (err) => {
+            if (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nenhuma imagem fornecida'
+                });
+            }
+
+            try {
+                const uploadsDir = LocalImageService.getUploadsDir();
+                const relativePath = path.relative(uploadsDir, req.file.path).replace(/\\/g, '/');
+                const publicUrl = LocalImageService.buildPublicUrl(relativePath);
+
+                res.json({
+                    success: true,
+                    url: publicUrl,
+                    path: relativePath
+                });
+            } catch (error) {
+                console.error('Erro ao processar upload:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Erro ao processar upload da imagem'
+                });
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro no upload de imagem:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao fazer upload da imagem',
             error: error.message
         });
     }

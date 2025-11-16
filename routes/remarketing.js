@@ -1,5 +1,5 @@
 /**
- * Rotas para Remarketing
+ * Rotas da API para Remarketing Automático
  */
 
 const express = require('express');
@@ -9,19 +9,29 @@ const { authenticateToken, isAdmin } = require('../middleware/auth');
 
 /**
  * POST /api/remarketing/adicionar
- * Adicionar venda cancelada à fila de remarketing
+ * Adiciona venda cancelada à fila de remarketing
+ * Requer autenticação
  */
 router.post('/adicionar', authenticateToken, async (req, res) => {
     try {
-        const { cliente_id, cliente_nome, produto_id, produto_nome, email, telefone } = req.body;
+        const {
+            cliente_id,
+            cliente_nome,
+            produto_id,
+            produto_nome,
+            email,
+            telefone
+        } = req.body;
 
+        // Validações
         if (!cliente_id || !cliente_nome || !produto_id || !produto_nome) {
             return res.status(400).json({
                 success: false,
-                message: 'Dados obrigatórios não fornecidos'
+                message: 'Dados obrigatórios não fornecidos: cliente_id, cliente_nome, produto_id, produto_nome'
             });
         }
 
+        // Adicionar à fila
         const resultado = await remarketingService.adicionarVendaCancelada({
             cliente_id,
             cliente_nome,
@@ -31,24 +41,23 @@ router.post('/adicionar', authenticateToken, async (req, res) => {
             telefone
         });
 
-        if (resultado.success) {
-            res.json({
+        if (resultado.ignorado) {
+            return res.json({
                 success: true,
-                message: 'Venda cancelada adicionada à fila de remarketing',
-                data: resultado
-            });
-        } else {
-            res.status(400).json({
-                success: false,
-                message: resultado.message || 'Erro ao adicionar à fila'
+                ignorado: true,
+                motivo: resultado.motivo
             });
         }
 
+        res.json({
+            success: true,
+            item: resultado.item
+        });
     } catch (error) {
-        console.error('❌ Erro ao adicionar venda cancelada à fila:', error);
+        console.error('❌ Erro ao adicionar à fila de remarketing:', error);
         res.status(500).json({
             success: false,
-            message: 'Erro interno do servidor',
+            message: 'Erro ao adicionar à fila de remarketing',
             error: error.message
         });
     }
@@ -56,29 +65,27 @@ router.post('/adicionar', authenticateToken, async (req, res) => {
 
 /**
  * POST /api/remarketing/processar
- * Processar fila de remarketing (chamado pelo cron job)
+ * Processa a fila manualmente
+ * Requer secret de cron job
  */
 router.post('/processar', async (req, res) => {
     try {
-        // Verificar se é chamado internamente ou por cron job autorizado
-        const authHeader = req.headers.authorization;
-        const cronSecret = process.env.CRON_SECRET || 'cron-secret-key';
-        
-        if (authHeader !== `Bearer ${cronSecret}`) {
+        const cronSecret = req.headers.authorization?.replace('Bearer ', '');
+        const expectedSecret = process.env.CRON_SECRET || 'cron-secret-key';
+
+        if (cronSecret !== expectedSecret) {
             return res.status(401).json({
                 success: false,
                 message: 'Não autorizado'
             });
         }
 
-        const resultado = await remarketingService.processarFila();
+        const stats = await remarketingService.processarFila();
 
         res.json({
             success: true,
-            message: 'Fila processada com sucesso',
-            data: resultado
+            stats
         });
-
     } catch (error) {
         console.error('❌ Erro ao processar fila de remarketing:', error);
         res.status(500).json({
@@ -91,7 +98,8 @@ router.post('/processar', async (req, res) => {
 
 /**
  * GET /api/remarketing/estatisticas
- * Obter estatísticas da fila de remarketing
+ * Retorna estatísticas da fila
+ * Requer autenticação + admin
  */
 router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     try {
@@ -101,9 +109,8 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
             success: true,
             data: stats
         });
-
     } catch (error) {
-        console.error('❌ Erro ao obter estatísticas:', error);
+        console.error('❌ Erro ao obter estatísticas de remarketing:', error);
         res.status(500).json({
             success: false,
             message: 'Erro ao obter estatísticas',

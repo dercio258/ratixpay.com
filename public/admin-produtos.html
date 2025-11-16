@@ -446,6 +446,10 @@
                         <i class="fas fa-times"></i>
                         Limpar
                     </button>
+                    <button class="btn btn-danger btn-custom" onclick="excluirProdutosSelecionados()" id="btnExcluirSelecionados" disabled>
+                        <i class="fas fa-trash"></i>
+                        Deletar Selecionados (<span id="contadorSelecionados">0</span>)
+                    </button>
                     <button class="btn btn-success btn-custom" onclick="exportarProdutos()">
                         <i class="fas fa-download"></i>
                         Exportar
@@ -536,6 +540,7 @@
     <script src="js/server-check.js"></script>
     <script src="js/config.js"></script>
     <script src="js/admin-utils.js"></script>
+    <script src="js/admin-produtos-multiplos.js"></script>
     <script>
         let produtos = [];
         let vendedores = [];
@@ -638,18 +643,41 @@
                     
                     return `
                         <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input produto-checkbox" value="${produto.id}" data-produto-id="${produto.id}">
+                            </td>
                             <td><code>${customId}</code></td>
                             <td><strong>${produtoNome}</strong></td>
                             <td><strong>${vendedorNome}</strong></td>
                             <td><strong class="text-primary">${precoFormatado}</strong></td>
                             <td>
-                                <button class="btn btn-danger btn-sm" onclick="excluirProduto(${produto.id})" title="Apagar produto">
-                                    <i class="fas fa-trash"></i> Apagar
-                                </button>
+                                <span class="badge ${produto.ativo ? 'bg-success' : 'bg-danger'} mb-2 d-block">
+                                    ${produto.ativo ? 'Ativo' : 'Inativo'}
+                                </span>
+                                <div class="btn-group" role="group">
+                                    ${produto.ativo ? 
+                                        `<button class="btn btn-warning btn-sm" onclick="desativarProduto('${produto.id}')" title="Desativar produto">
+                                            <i class="fas fa-ban"></i> Desativar
+                                        </button>` :
+                                        `<button class="btn btn-success btn-sm" onclick="ativarProduto('${produto.id}')" title="Ativar produto">
+                                            <i class="fas fa-check"></i> Ativar
+                                        </button>`
+                                    }
+                                    <button class="btn btn-danger btn-sm" onclick="excluirProduto('${produto.id}')" title="Excluir produto permanentemente">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
                 }).join('');
+                
+                // Atualizar contador após renderizar
+                setTimeout(() => {
+                    if (typeof atualizarContadorSelecionados === 'function') {
+                        atualizarContadorSelecionados();
+                    }
+                }, 100);
             }
         }
 
@@ -805,6 +833,73 @@
             } catch (error) {
                 console.error(`Erro ao ${acao} produto:`, error);
                 mostrarNotificacao(`Erro ao ${acao} produto: ${error.message}`, 'error');
+            }
+        }
+
+        async function desativarProduto(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            const confirmacao = confirm(`Tem certeza que deseja desativar o produto "${produto.nome}"?\n\nO produto será desativado mas não será excluído permanentemente.`);
+            if (!confirmacao) return;
+
+            try {
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                const response = await fetch(`/api/admin/produtos/${produtoId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ativo: false })
+                });
+
+                if (response.ok) {
+                    mostrarNotificacao('Produto desativado com sucesso!', 'success');
+                    const index = produtos.findIndex(p => p.id === produtoId);
+                    if (index !== -1) {
+                        produtos[index].ativo = false;
+                    }
+                    renderizarTabelaProdutos();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao desativar produto');
+                }
+            } catch (error) {
+                console.error('Erro ao desativar produto:', error);
+                mostrarNotificacao(`Erro ao desativar produto: ${error.message}`, 'error');
+            }
+        }
+
+        async function ativarProduto(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            try {
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                const response = await fetch(`/api/admin/produtos/${produtoId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ativo: true })
+                });
+
+                if (response.ok) {
+                    mostrarNotificacao('Produto ativado com sucesso!', 'success');
+                    const index = produtos.findIndex(p => p.id === produtoId);
+                    if (index !== -1) {
+                        produtos[index].ativo = true;
+                    }
+                    renderizarTabelaProdutos();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao ativar produto');
+                }
+            } catch (error) {
+                console.error('Erro ao ativar produto:', error);
+                mostrarNotificacao(`Erro ao ativar produto: ${error.message}`, 'error');
             }
         }
 

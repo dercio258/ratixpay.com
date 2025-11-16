@@ -8,6 +8,7 @@ const { Usuario, TentativaLogin, BloqueioConta } = require('../config/database')
 const { authenticateToken } = require('../middleware/auth');
 const advancedSecurity = require('../middleware/advancedSecurity');
 const professionalEmailService = require('../services/professionalEmailService');
+const emailManagerService = require('../services/emailManagerService');
 
 const router = express.Router();
 
@@ -236,22 +237,7 @@ router.post('/login', advancedSecurity.validateAuth(), async (req, res) => {
             await recordLoginAttempt(user.id, emailTrimmed || telefoneTrimmed, ip, userAgent, false, 'Senha incorreta');
             advancedSecurity.recordFailedAttempt(ip, 'INVALID_PASSWORD');
             
-            // Incrementar tentativas de login
-            user.tentativas_login = (user.tentativas_login || 0) + 1;
-            await user.save();
-
-            // Bloquear conta se muitas tentativas
-            if (user.tentativas_login >= 5) {
-                await createAccountBlock(user.id, user.email, 'tentativas_excedidas', 'Muitas tentativas de login falhadas');
-                return res.status(403).json({
-        success: false,
-                    error: 'Conta bloqueada por muitas tentativas de login',
-                    bloqueada: true,
-                    codigo_enviado: true,
-                    email: user.email
-                });
-            }
-
+            // Não bloquear automaticamente - bloqueios serão feitos manualmente pelo admin
             return res.status(401).json({
                 success: false,
                 error: 'Credenciais inválidas'
@@ -285,6 +271,25 @@ router.post('/login', advancedSecurity.validateAuth(), async (req, res) => {
         const token = generateJWTToken(user);
         
         await recordLoginAttempt(user.id, emailTrimmed || telefoneTrimmed, ip, userAgent, true);
+
+        // Enviar notificação de login por email
+        try {
+            await emailManagerService.enviarEmailSistema('notificacao_login', {
+                email: user.email,
+                nome: user.nome_completo || user.email,
+                ip: ip,
+                userAgent: userAgent,
+                dataHora: new Date().toLocaleString('pt-BR', { 
+                    timeZone: 'Africa/Maputo',
+                    dateStyle: 'full',
+                    timeStyle: 'long'
+                })
+            });
+            console.log(`📧 Notificação de login enviada para: ${user.email}`);
+        } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação de login:', emailError);
+            // Não bloquear o login se o email falhar
+        }
 
         // Determinar página de redirecionamento
         let redirectPage = 'index.html';

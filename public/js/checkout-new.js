@@ -2,7 +2,6 @@
 // Usar a variável API_BASE já definida em server-check.js e config.js
 // Não precisamos redeclarar aqui, apenas usamos window.API_BASE
 
-console.log('Checkout script carregado com sucesso');
 
 // Função debounce para otimizar chamadas
 function debounce(func, wait) {
@@ -32,7 +31,6 @@ function handleAutoAuth() {
     const nome = urlParams.get('nome');
     
     if (auth === 'auto' && email && nome) {
-        console.log('🔐 Autenticação automática detectada:', { email, nome });
         
         // Preencher campos automaticamente
         const emailInput = document.getElementById('email');
@@ -79,11 +77,9 @@ function showAutoAuthIndicator() {
 // Função para verificar Black Friday
 async function checkBlackFriday(productId) {
     try {
-        console.log('🔍 Verificando Black Friday para produto:', productId);
         
         // Não fazer chamada para API inexistente, retornar false
         // O Black Friday será verificado diretamente nas configurações do produto
-        console.log('ℹ️ Black Friday será verificado nas configurações do produto');
         hideBlackFridayBanner();
         return false;
     } catch (error) {
@@ -115,7 +111,6 @@ function showBlackFridayBanner(blackFridayConfig) {
             </div>
         `;
         banner.style.display = 'block';
-        console.log('🔥 Banner de Black Friday exibido:', blackFridayConfig.message);
     }
 }
 
@@ -169,11 +164,9 @@ function showUrgencyMessage(message) {
 // Função para verificar Descontos Inteligentes
 async function checkDescontosInteligentes(productId) {
     try {
-        console.log('🔍 Verificando Descontos Inteligentes para produto:', productId);
         
         // Não fazer chamada para API inexistente, retornar false
         // Os descontos serão verificados diretamente nas configurações do produto
-        console.log('ℹ️ Descontos serão verificados nas configurações do produto');
         hideDescontoInteligente();
         return false;
     } catch (error) {
@@ -319,10 +312,8 @@ function gerarLinkSeguroSucesso(pedidoNumero, productId, clientName, amount) {
             
             if (utmQueryParams.length > 0) {
                 url += '&' + utmQueryParams.join('&');
-                console.log('✅ Parâmetros UTM incluídos na URL de redirecionamento:', utmParams);
             }
         } else {
-            console.log('ℹ️ Nenhum parâmetro UTM encontrado no localStorage para incluir na URL');
         }
     } catch (error) {
         console.warn('⚠️ Erro ao incluir parâmetros UTM na URL:', error);
@@ -340,7 +331,6 @@ async function apiRequest(endpoint, options = {}) {
             window.API_BASE = window.location.origin + '/api';
         }
         
-        console.log(`Fazendo requisição para: ${window.API_BASE}${endpoint}`);
         
         const response = await fetch(`${window.API_BASE}${endpoint}`, {
             credentials: 'include', // Importante para permitir cookies de sessão
@@ -352,12 +342,10 @@ async function apiRequest(endpoint, options = {}) {
             ...options
         });
         
-        console.log(`Resposta recebida com status: ${response.status}`);
         
         let responseData;
         try {
             responseData = await response.json();
-            console.log('Dados da resposta:', responseData);
         } catch (parseError) {
             console.error('Erro ao analisar resposta JSON:', parseError);
             throw new Error(`Erro ao processar resposta do servidor: ${response.status}`);
@@ -580,18 +568,15 @@ function showProductNotFoundMessage(productId) {
 // Função para verificar autenticação e tipo de conta
 async function verifyUserAuthentication() {
     try {
-        console.log('🔐 Verificando autenticação do usuário...');
         
         // Verificar se há token
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         
         if (!token) {
-            console.log('❌ Token não encontrado!');
             showAuthenticationError('Você precisa estar logado para comprar produtos Premium.');
             return null;
         }
         
-        console.log('🔑 Token encontrado, validando...');
         
         // Verificar se o token é válido
         const response = await fetch(`${window.API_BASE}/auth/me`, {
@@ -603,26 +588,21 @@ async function verifyUserAuthentication() {
         });
         
         if (!response.ok) {
-            console.log('❌ Token inválido ou expirado!');
             showAuthenticationError('Sua sessão expirou. Faça login novamente.');
             return null;
         }
         
         const responseData = await response.json();
-        console.log('✅ Resposta da API:', responseData);
         
         // Extrair dados do usuário da resposta
         const userData = responseData.user || responseData;
-        console.log('✅ Dados do usuário:', userData);
         
         // Verificar se é vendedor
         if (userData.role !== 'user') {
-            console.log('❌ Usuário não é vendedor! Role:', userData.role);
             showAuthenticationError('Apenas vendedores podem comprar produtos Premium.');
             return null;
         }
         
-        console.log('✅ Vendedor verificado com sucesso!');
         return userData;
         
     } catch (error) {
@@ -726,7 +706,6 @@ function closeAuthErrorModal() {
 // Função para identificar vendedor para produtos Premium
 async function identifyVendorForPremium(productId) {
     try {
-        console.log('🔍 Identificando vendedor para produto Premium...');
         
         // Verificar autenticação
         const userData = await verifyUserAuthentication();
@@ -736,7 +715,6 @@ async function identifyVendorForPremium(productId) {
         
         // Se chegou até aqui, usuário está autenticado e é vendedor
         vendorEmail = userData.email;
-        console.log('✅ Vendedor identificado:', vendorEmail);
         
         // Preencher automaticamente os campos do formulário
         fillUserDataInForm(userData);
@@ -756,7 +734,6 @@ async function identifyVendorForPremium(productId) {
 // Função para lidar com produto especial N0SAITYAX
 async function handleSpecialProduct(productId) {
     try {
-        console.log('🎯 Processando produto especial N0SAITYAX...');
         
         // Mostrar banner especial
         showSpecialProductBanner();
@@ -806,7 +783,6 @@ function showSpecialProductBanner() {
 
 // Função para configurar funcionalidades exclusivas do produto especial
 function setupSpecialProductFeatures() {
-    console.log('⚙️ Configurando funcionalidades exclusivas do produto especial...');
     
     // Adicionar indicador visual especial
     const productContainer = document.querySelector('.product-info');
@@ -822,13 +798,11 @@ function setupSpecialProductFeatures() {
     
     // Modificar comportamento do checkout para produto especial
     window.specialProductActive = true;
-    console.log('✅ Funcionalidades exclusivas ativadas para produto especial');
 }
 
 // Função para identificar vendedor para produto especial
 async function identifyVendorForSpecialProduct(productId) {
     try {
-        console.log('🔍 Identificando vendedor para produto especial...');
         
         // Verificar autenticação
         const userData = await verifyUserAuthentication();
@@ -838,7 +812,6 @@ async function identifyVendorForSpecialProduct(productId) {
         
         // Se chegou até aqui, usuário está autenticado e é vendedor
         vendorEmail = userData.email;
-        console.log('✅ Vendedor identificado para produto especial:', vendorEmail);
         
         // Preencher automaticamente os campos do formulário
         fillUserDataInForm(userData);
@@ -870,37 +843,31 @@ function updateSpecialVendorIdentificationUI() {
 // Função para preencher dados do usuário no formulário
 function fillUserDataInForm(userData) {
     try {
-        console.log('📝 Preenchendo dados do usuário no formulário...');
         
         // Preencher nome completo
         const fullNameInput = document.getElementById('fullName');
         if (fullNameInput && userData.nome_completo) {
             fullNameInput.value = userData.nome_completo;
-            console.log('✅ Nome preenchido:', userData.nome_completo);
         }
         
         // Preencher email
         const emailInput = document.getElementById('email');
         if (emailInput && userData.email) {
             emailInput.value = userData.email;
-            console.log('✅ Email preenchido:', userData.email);
         }
         
         // Preencher telefone se disponível
         const phoneInput = document.getElementById('phone');
         if (phoneInput && userData.telefone) {
             phoneInput.value = userData.telefone;
-            console.log('✅ Telefone preenchido:', userData.telefone);
         }
         
         // Preencher WhatsApp se disponível
         const whatsappInput = document.getElementById('whatsapp');
         if (whatsappInput && userData.whatsapp_contact) {
             whatsappInput.value = userData.whatsapp_contact;
-            console.log('✅ WhatsApp preenchido:', userData.whatsapp_contact);
         }
         
-        console.log('✅ Dados do usuário preenchidos automaticamente no formulário');
         
     } catch (error) {
         console.error('❌ Erro ao preencher dados do usuário:', error);
@@ -942,30 +909,24 @@ async function loadProduct() {
         return;
     }
     
-    console.log('Tentando carregar produto com ID:', productId);
-    console.log('API_BASE atual:', window.API_BASE);
     
     // Verificar autenticação automática
     const isAutoAuth = handleAutoAuth();
     if (isAutoAuth) {
-        console.log('🔐 Autenticação automática ativada');
     }
     
     // Verificar se é o produto Premium e identificar vendedor
     if (productId === '1PZO2Y0M6') {
-        console.log('🎯 Produto Premium detectado! Identificando vendedor...');
         await identifyVendorForPremium(productId);
     }
     
     // Verificar se é o produto especial N0SAITYAX
     if (productId === 'N0SAITYAX') {
-        console.log('🎯 Produto Especial N0SAITYAX detectado! Ativando funcionalidades exclusivas...');
         await handleSpecialProduct(productId);
     }
 
     // As configurações de Black Friday e descontos serão verificadas diretamente
     // nas configurações do produto após o carregamento
-    console.log('ℹ️ Configurações de desconto serão verificadas após carregamento do produto');
     
     try {
         // Verificar se API_BASE está definido
@@ -975,7 +936,6 @@ async function loadProduct() {
         
         // Tentar buscar por customId primeiro, depois por ID
         const endpoint = `/produtos/public/${productId}`;
-        console.log('Fazendo requisição para:', window.API_BASE + endpoint);
         
         // Para checkout, não precisamos de autenticação
         const response = await fetch(`${window.API_BASE}${endpoint}`, {
@@ -1019,45 +979,30 @@ async function loadProduct() {
             throw new Error('PRODUTO_NAO_ENCONTRADO');
         }
         
-        console.log('📦 Estrutura do produto recebida:', {
-            hasWrapper: !!responseData.produto,
-            produtoId: currentProduct.id || currentProduct.custom_id,
-            produtoNome: currentProduct.nome
-        });
-        
         // Sempre salvar dados do produto no localStorage
         if (currentProduct && currentProduct.nome) {
             localStorage.setItem("currentProductName", currentProduct.nome);
             localStorage.setItem("currentProductId", currentProduct.id || currentProduct.custom_id);
-            console.log("✅ Dados do produto salvos no localStorage:", {
-                id: currentProduct.id || currentProduct.custom_id,
-                nome: currentProduct.nome
-            });
             
             // Salvar Pixel ID e eventos se existirem
             if (currentProduct.pixel_id) {
                 localStorage.setItem("currentPixelId", currentProduct.pixel_id);
-                console.log("✅ Pixel ID salvo no localStorage:", currentProduct.pixel_id);
                 
                 // Salvar eventos do pixel se existirem
                 if (currentProduct.pixel_events && Array.isArray(currentProduct.pixel_events)) {
                     localStorage.setItem("currentPixelEvents", JSON.stringify(currentProduct.pixel_events));
-                    console.log("✅ Eventos do Pixel salvos no localStorage:", currentProduct.pixel_events);
                 } else {
                     localStorage.removeItem("currentPixelEvents");
-                    console.log("⚠️ Nenhum evento do Pixel configurado para este produto");
                 }
             } else {
                 localStorage.removeItem("currentPixelId");
                 localStorage.removeItem("currentPixelEvents");
-                console.log("⚠️ Nenhum Pixel ID configurado para este produto");
             }
         } else {
             localStorage.removeItem("currentProductId");
             localStorage.removeItem("currentProductName");
             localStorage.removeItem("currentPixelId");
             localStorage.removeItem("currentPixelEvents");
-            console.log("⚠️ Dados do produto não encontrados");
         }
         
         
@@ -1066,7 +1011,6 @@ async function loadProduct() {
         if (typeof window.updateTotalPrice === 'function') {
             try { window.updateTotalPrice(); } catch (_) {}
         }
-        console.log('Produto carregado com sucesso:', currentProduct);
         displayProduct(currentProduct);
     } catch (error) {
         console.error('Erro ao carregar produto:', error);
@@ -1117,7 +1061,6 @@ function formatPrice(price) {
 
 // Função para exibir o produto na página
 function displayProduct(currentProduct) {
-    console.log('Exibindo produto:', currentProduct);
     
     // Disparar evento customizado quando produto for exibido
     if (typeof window.CustomEvent !== 'undefined') {
@@ -1140,15 +1083,6 @@ function displayProduct(currentProduct) {
     if (customIdEl) customIdEl.textContent = currentProduct.customId || '';
     
     // Processar configurações de desconto salvas
-    console.log('🔍 Verificando configurações do produto:', {
-        hasDiscountConfig: !!currentProduct.discount_config,
-        discountConfig: currentProduct.discount_config,
-        hasTimerConfig: !!currentProduct.timer_config,
-        timerConfig: currentProduct.timer_config,
-        hasBlackFridayConfig: !!currentProduct.blackfriday_config,
-        blackFridayConfig: currentProduct.blackfriday_config
-    });
-    
     // Processar configurações (tratar arrays duplicados)
     let blackFridayConfig = null;
     let discountConfig = null;
@@ -1203,16 +1137,8 @@ function displayProduct(currentProduct) {
         }
     }
     
-    // Log das configurações processadas
-    console.log('📋 Configurações processadas:', {
-        blackFridayConfig,
-        discountConfig,
-        timerConfig
-    });
-    
     // Aplicar configurações processadas
     if (blackFridayConfig && blackFridayConfig.enabled) {
-        console.log('🔥 Black Friday ativo:', blackFridayConfig);
         currentProduct.blackfriday_config = blackFridayConfig;
         applyBlackFridayDiscount(currentProduct);
         
@@ -1222,14 +1148,12 @@ function displayProduct(currentProduct) {
         // Atualizar exibição de preço com desconto
         updatePriceDisplay(currentProduct);
     } else if (discountConfig && discountConfig.enabled) {
-        console.log('💰 Configuração de desconto encontrada:', discountConfig);
         currentProduct.discount_config = discountConfig;
         applyDiscountConfig(currentProduct);
         
         // Atualizar exibição de preço com desconto
         updatePriceDisplay(currentProduct);
     } else {
-        console.log('❌ Nenhuma configuração de desconto ativa');
         // Atualizar preço normal se não há desconto configurado
         updatePriceDisplay(currentProduct);
     }
@@ -1247,45 +1171,35 @@ function displayProduct(currentProduct) {
 
     // Montar a url da imagem com fallback SVG em base64
     let imagemUrl = '';
-    console.log('Montando URL da imagem para o produto:', currentProduct);
     
     // Priorizar imagem_url direta se disponível
     if (currentProduct.imagem_url) {
         // Usar URL direta da imagem (mais confiável)
         imagemUrl = currentProduct.imagem_url;
-        console.log('Usando imagem_url direta:', imagemUrl);
     } else if (currentProduct.imagemUrl) {
         // Usar URL direta se disponível
         imagemUrl = currentProduct.imagemUrl;
-        console.log('Usando imagemUrl para imagem:', imagemUrl);
     } else if (currentProduct.imageUrl) {
         // Compatibilidade com campo alternativo
         imagemUrl = currentProduct.imageUrl;
-        console.log('Usando imageUrl para imagem:', imagemUrl);
     } else if (currentProduct.custom_id) {
         // Fallback para rota da API com custom_id
         imagemUrl = `${window.API_BASE}/produtos/imagem/${currentProduct.custom_id}`;
-        console.log('Usando custom_id para URL da imagem:', imagemUrl);
     } else if (currentProduct.id) {
         // Fallback para id numérico
         imagemUrl = `${window.API_BASE}/produtos/imagem/${currentProduct.id}`;
-        console.log('Usando id para URL da imagem:', imagemUrl);
     } else {
         // Fallback para imagem padrão
         imagemUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjhGOUZBIi8+CjxwYXRoIGQ9Ik00MCAyOEMzNy43OTA5IDI4IDM2IDI5Ljc5MDkgMzYgMzJWNDhDMzYgNTAuMjA5MSAzNy43OTA5IDUyIDQwIDUySDQ4QzUwLjIwOTEgNTIgNTIgNTAuMjA5MSA1MiA0OFY0OEM1MiA0NS43OTA5IDUwLjIwOTEgNDQgNDggNDRINDBDMzcuNzkwOSA0NCAzNiA0NS43OTA5IDM2IDQ4VjMyWiIgZmlsbD0iI0U5RUNFRiIvPgo8L3N2Zz4K';
-        console.log('Nenhuma URL de imagem encontrada, usando imagem padrão');
     }
     
     // Atualizar a imagem existente ou criar uma nova
     const productCard = document.getElementById('productCard');
-    console.log('Elemento productCard:', productCard);
-    console.log('DOM completo:', document.body.innerHTML.substring(0, 500));
     
     let productCardElement = productCard;
     
     if (!productCard) {
         console.error('Elemento productCard não encontrado no DOM');
-        console.log('Tentando criar o elemento productCard...');
         
         // Criar o elemento se não existir
         const newProductCard = document.createElement('section');
@@ -1296,7 +1210,6 @@ function displayProduct(currentProduct) {
         const checkoutContainer = document.querySelector('.checkout-container');
         if (checkoutContainer) {
             checkoutContainer.insertBefore(newProductCard, checkoutContainer.firstChild);
-            console.log('Elemento productCard criado e inserido');
             productCardElement = newProductCard;
         } else {
             console.error('Não foi possível encontrar o checkout-container');
@@ -1314,20 +1227,203 @@ function displayProduct(currentProduct) {
     const flexContainer = document.createElement('div');
     flexContainer.style = 'display: flex; align-items: center; width: 100%; margin-bottom: 15px;';
     
-    // Criar e adicionar a nova imagem
-    const newImg = document.createElement('img');
-    newImg.className = 'product-image';
-    newImg.src = imagemUrl;
-    newImg.alt = currentProduct.nome || 'Produto';
-    newImg.style = 'width: 120px; height: 120px; border-radius: 8px; object-fit: cover; margin-right: 10px;';
-    newImg.onerror = function() {
-        console.log('Erro ao carregar imagem, usando fallback');
-        this.onerror = null;
-        this.src = fallbackImageUrl;
+    // Criar container protegido para a imagem
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'product-image-container';
+    imageContainer.style = 'position: relative; display: inline-block; margin-right: 10px;';
+    
+    // Criar canvas para renderizar a imagem (proteção adicional)
+    // Usar dimensões maiores para melhor qualidade e depois escalar com CSS
+    const displayWidth = 120;
+    const displayHeight = 120;
+    const scaleFactor = 2; // Fator de escala para melhor qualidade (retina displays)
+    const canvasWidth = displayWidth * scaleFactor;
+    const canvasHeight = displayHeight * scaleFactor;
+    
+    const canvas = document.createElement('canvas');
+    canvas.className = 'product-image-canvas';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style = `width: ${displayWidth}px; height: ${displayHeight}px; border-radius: 8px; display: block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; user-drag: none; pointer-events: none; -webkit-touch-callout: none; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;`;
+    canvas.setAttribute('draggable', 'false');
+    
+    // Criar imagem oculta para carregar e renderizar no canvas
+    const hiddenImg = document.createElement('img');
+    hiddenImg.style.display = 'none';
+    // Tentar definir crossOrigin apenas se a imagem vier de outro domínio
+    try {
+        const imgUrl = new URL(imagemUrl, window.location.origin);
+        if (imgUrl.origin !== window.location.origin) {
+            hiddenImg.crossOrigin = 'anonymous';
+        }
+    } catch (e) {
+        // Se a URL for relativa, não precisa de crossOrigin
+    }
+    
+    // Função para renderizar imagem no canvas com proporções corretas e alta qualidade
+    const renderImageToCanvas = function(img) {
+        try {
+            const ctx = canvas.getContext('2d');
+            
+            // Habilitar suavização de imagem para melhor qualidade
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calcular proporções para manter aspect ratio
+            const imgAspectRatio = img.naturalWidth / img.naturalHeight;
+            const canvasAspectRatio = canvasWidth / canvasHeight;
+            
+            let drawWidth, drawHeight, offsetX, offsetY;
+            
+            if (imgAspectRatio > canvasAspectRatio) {
+                // Imagem é mais larga - ajustar altura
+                drawHeight = canvasHeight;
+                drawWidth = drawHeight * imgAspectRatio;
+                offsetX = (canvasWidth - drawWidth) / 2;
+                offsetY = 0;
+            } else {
+                // Imagem é mais alta - ajustar largura
+                drawWidth = canvasWidth;
+                drawHeight = drawWidth / imgAspectRatio;
+                offsetX = 0;
+                offsetY = (canvasHeight - drawHeight) / 2;
+            }
+            
+            // Criar clipping path para bordas arredondadas (aplicar escala)
+            const radius = 8 * scaleFactor;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(canvasWidth - radius, 0);
+            ctx.quadraticCurveTo(canvasWidth, 0, canvasWidth, radius);
+            ctx.lineTo(canvasWidth, canvasHeight - radius);
+            ctx.quadraticCurveTo(canvasWidth, canvasHeight, canvasWidth - radius, canvasHeight);
+            ctx.lineTo(radius, canvasHeight);
+            ctx.quadraticCurveTo(0, canvasHeight, 0, canvasHeight - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.clip();
+            
+            // Desenhar imagem no canvas com proporções corretas e alta qualidade
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+            
+            // Adicionar marca d'água sutil (opcional - pode ser removido)
+            ctx.globalAlpha = 0.05;
+            ctx.fillStyle = '#000000';
+            ctx.font = `${10 * scaleFactor}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('RatixPay', canvasWidth / 2, canvasHeight / 2);
+            ctx.globalAlpha = 1.0;
+            
+        } catch (error) {
+            console.error('❌ Erro ao renderizar imagem no canvas:', error);
+            // Em caso de erro, usar fallback
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#f3f4f6';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
     };
     
-    // Adicionar a imagem ao container flexível
-    flexContainer.appendChild(newImg);
+    // Carregar imagem e renderizar no canvas
+    hiddenImg.onload = function() {
+        renderImageToCanvas(this);
+    };
+    
+    hiddenImg.onerror = function() {
+        // Renderizar imagem de fallback
+        const fallbackImg = new Image();
+        fallbackImg.onload = function() {
+            renderImageToCanvas(this);
+        };
+        fallbackImg.src = fallbackImageUrl;
+    };
+    
+    hiddenImg.src = imagemUrl;
+    
+    // Prevenir todas as ações de download/cópia no canvas
+    canvas.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    canvas.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    canvas.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    // Prevenir extração de dados do canvas
+    const originalToDataURL = canvas.toDataURL;
+    canvas.toDataURL = function() {
+        return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    };
+    
+    const originalToBlob = canvas.toBlob;
+    if (canvas.toBlob) {
+        canvas.toBlob = function() {
+            return null;
+        };
+    }
+    
+    // Criar overlay transparente para bloquear interações (sem indicadores visuais)
+    const overlay = document.createElement('div');
+    overlay.className = 'product-image-overlay';
+    overlay.style = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1; cursor: default; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; border-radius: 8px; pointer-events: auto;';
+    
+    // Prevenir ações no overlay (bloquear todas as interações)
+    overlay.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    overlay.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    overlay.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    overlay.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    overlay.addEventListener('mouseup', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    overlay.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, false);
+    
+    // Adicionar canvas, imagem oculta e overlay ao container
+    imageContainer.appendChild(canvas);
+    imageContainer.appendChild(hiddenImg);
+    imageContainer.appendChild(overlay);
+    
+    // Adicionar o container ao flexContainer
+    flexContainer.appendChild(imageContainer);
     
     // Criar e adicionar os detalhes do produto
     const detailsDiv = document.createElement('div');
@@ -1507,7 +1603,7 @@ function applyBlackFridayDiscount(product) {
     // Adicionar efeitos visuais especiais
     addBlackFridayVisualEffects();
     
-    console.log('🔥 Black Friday aplicado:', {
+    console.log('Black Friday aplicado:', {
         originalPrice,
         discountPercent,
         finalPrice: safeFinalPrice,
@@ -1576,7 +1672,7 @@ function applyDiscountConfig(product) {
         showDiscountMessage(discountConfig.message);
     }
     
-    console.log('💰 Desconto aplicado:', {
+    console.log('Desconto aplicado:', {
         original: originalPrice,
         final: finalPrice,
         percent: discountPercent,
@@ -1586,13 +1682,10 @@ function applyDiscountConfig(product) {
 
 // Função para atualizar tag de desconto na product-card
 function updateDiscountTag(product) {
-    console.log('🏷️ updateDiscountTag chamada com produto:', product);
     const discountTag = document.getElementById('discountTag');
     if (!discountTag) {
-        console.log('❌ Elemento discountTag não encontrado');
         return;
     }
-    console.log('✅ Elemento discountTag encontrado:', discountTag);
     
     const preco = parseFloat(product.preco) || 0;
     let precoComDesconto = parseFloat(product.precoComDesconto) || 0;
@@ -1630,7 +1723,6 @@ function updateDiscountTag(product) {
     }
     
     if (temDesconto) {
-        console.log('✅ Desconto detectado, exibindo tag');
         const precoOriginal = preco.toFixed(2).replace('.', ',');
         const precoFinal = precoComDesconto.toFixed(2).replace('.', ',');
         const economia = (preco - precoComDesconto).toFixed(2).replace('.', ',');
@@ -1648,9 +1740,7 @@ function updateDiscountTag(product) {
             <div class="savings-info">💰 Economize ${economia} MZN</div>
         `;
         discountTag.style.display = 'flex';
-        console.log('🏷️ Tag de desconto exibida:', discountTag.innerHTML);
     } else {
-        console.log('❌ Nenhum desconto detectado, ocultando tag');
         discountTag.style.display = 'none';
     }
 }
@@ -2442,7 +2532,6 @@ async function processPayment(customerData) {
                 vendedor_id: produto.vendedor_id || currentProduct.vendedor_id
             }));
             
-            console.log('🎯 Incluindo produtos do Order Bump:', orderBumpProducts.length);
             
             // Recalcular valor total incluindo Order Bump
             let valorTotal = valorPagamento;
@@ -2452,13 +2541,11 @@ async function processPayment(customerData) {
             });
             
             valorPagamento = valorTotal;
-            console.log('💰 Valor total com Order Bump:', valorPagamento);
         }
 
         // Verificar se é produto especial N0SAITYAX
         const isSpecialProduct = currentProduct.custom_id === 'N0SAITYAX' || currentProduct.id === 'N0SAITYAX';
         if (isSpecialProduct) {
-            console.log('🎯 Produto especial N0SAITYAX detectado - ativando funcionalidades premium');
         }
 
         // Preparar dados do pagamento para E2Payment
@@ -2468,7 +2555,6 @@ async function processPayment(customerData) {
             const savedUtmParams = localStorage.getItem('utm_tracking_params');
             if (savedUtmParams) {
                 utmTrackingParams = JSON.parse(savedUtmParams);
-                console.log('✅ Parâmetros UTM carregados do localStorage:', utmTrackingParams);
             }
         } catch (error) {
             console.warn('⚠️ Erro ao carregar parâmetros UTM do localStorage:', error);
@@ -2513,10 +2599,8 @@ async function processPayment(customerData) {
             }
             
             paymentData.vendorEmail = vendorEmail;
-            console.log('🎯 Incluindo email do vendedor para produto Premium:', vendorEmail);
         }
 
-        console.log('💳 Processando pagamento:', paymentData);
 
         // Persistir contexto para a página de sucesso
         try {
@@ -2543,7 +2627,6 @@ async function processPayment(customerData) {
                 timestamp: new Date().toISOString()
             };
             
-            console.log('💾 Salvando contexto de sucesso:', successContext);
             sessionStorage.setItem('lastPaymentSummary', JSON.stringify(successContext));
             
             // Também salvar em localStorage como backup
@@ -2556,9 +2639,7 @@ async function processPayment(customerData) {
         if (!window.offlineManager) {
             console.error('❌ Offline Manager não está disponível!');
             // Fallback: assumir que está online se offline-manager não estiver disponível
-            console.log('⚠️ Usando fallback: assumindo conexão online');
         } else if (!window.offlineManager.isConnected()) {
-            console.log('🔴 Modo offline - Adicionando pagamento à fila de sincronização');
             
             // Adicionar à fila offline
             window.addOfflineAction({
@@ -2577,7 +2658,6 @@ async function processPayment(customerData) {
         }
         
         // Fazer requisição para o backend
-        console.log(`Enviando requisição para: ${window.API_BASE}/pagar`);
         
         // Preparar headers com autenticação se disponível
         const headers = {
@@ -2589,7 +2669,6 @@ async function processPayment(customerData) {
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
-            console.log('🔑 Token de autenticação incluído na requisição');
         }
         
         const response = await fetch(`${window.API_BASE}/pagar`, {
@@ -2621,7 +2700,6 @@ async function processPayment(customerData) {
                                 result.message?.toLowerCase().includes('aguardando pagamento');
         
         if (result.error || (result.success === false && !isPendingPayment) || result.status === 'error' || result.status === 'failed') {
-            console.log('❌ API retornou erro diretamente:', result.error || result.message || result.status);
             hideLoadingSpinner();
             const errorMessage = result.error || result.message || result.status || 'Erro na API de pagamento';
             showTransactionStatus('failed', 'Erro da API', null, '', errorMessage);
@@ -2647,7 +2725,6 @@ async function processPayment(customerData) {
                                  result.data?.status === 'rejeitado';
         
         if (hasErrorInResponse) {
-            console.log('❌ Erro detectado na resposta da API:', result);
             hideLoadingSpinner();
             const errorMessage = result.message || result.status || 'Erro no processamento do pagamento';
             showTransactionStatus('failed', 'Erro no Pagamento', null, '', errorMessage);
@@ -2656,9 +2733,7 @@ async function processPayment(customerData) {
 
         // Processar resposta se for sucesso ou pagamento pendente
         if (result.success || isPendingPayment) {
-            console.log('📊 Resposta da API E2Payment:', result);
-            console.log('📊 Resposta completa da API:', JSON.stringify(result, null, 2));
-            console.log('📊 Estrutura da resposta recebida:', {
+            console.log('Resposta de pagamento:', {
                 success: result.success,
                 message: result.message,
                 status: result.status,
@@ -2678,14 +2753,14 @@ async function processPayment(customerData) {
                 const pagamentoStatus = pagamentoData.status || vendaData.pagamentoStatus || 'Pendente';
                 const transactionId = pagamentoData.transactionId || vendaData.transacaoId || vendaData.id || `TXN-${Date.now()}`;
                 
-                console.log('📊 Dados extraídos:', {
+                console.log('Dados da transação:', {
                     pagamentoStatus: pagamentoStatus,
                     transactionId: transactionId,
                     vendaData: vendaData,
                     pagamentoData: pagamentoData
                 });
                 
-                console.log('📊 Campos da resposta analisados:', {
+                console.log('Status detalhado:', {
                     resultMessage: result.message,
                     resultStatus: result.status,
                     pagamentoStatus: pagamentoStatus,
@@ -2785,7 +2860,7 @@ async function processPayment(customerData) {
                                       result.data?.venda?.pagamentoStatus === 'failed' ||
                                       result.data?.venda?.pagamentoStatus === 'error';
                 
-                console.log('📊 Status da resposta:', {
+                console.log('Análise de resposta:', {
                     message: result.message,
                     status: result.status,
                     pagamentoStatus: pagamentoStatus,
@@ -2793,7 +2868,7 @@ async function processPayment(customerData) {
                     isErrorResponse: isErrorResponse
                 });
                 
-                console.log('📊 Verificação detalhada de sucesso:', {
+                console.log('Verificações de sucesso:', {
                     messageMatch: result.message === 'Pagamento realizado com sucesso',
                     statusMatch: result.status === 'success' || result.status === 'Success' || result.status === 'Aprovado',
                     pagamentoStatusMatch: pagamentoStatus === 'Aprovado' || pagamentoStatus === 'aprovado' || pagamentoStatus === 'approved',
@@ -2810,7 +2885,6 @@ async function processPayment(customerData) {
                 // Mostrar status da transação baseado no resultado
                 if (isSuccessResponse) {
                     // Pagamento aprovado - mostrar modal de sucesso e redirecionar
-                    console.log('✅ Pagamento aprovado imediatamente - redirecionando para sucesso');
                     hideLoadingSpinner();
                     showTransactionStatus('success', 'Aprovado', transactionId);
                     
@@ -2825,7 +2899,6 @@ async function processPayment(customerData) {
                     }, 3000);
                 } else if (isErrorResponse) {
                     // Pagamento rejeitado/erro - mostrar modal de erro
-                    console.log('❌ Pagamento rejeitado/erro imediatamente - mostrando erro');
                     hideLoadingSpinner();
                     const falhaId = vendaData.falhaId || '';
                     const falhaMotivo = vendaData.falhaMotivo || result.message || 'Erro no processamento';
@@ -2833,7 +2906,6 @@ async function processPayment(customerData) {
                     showTransactionStatus('failed', pagamentoStatus, transactionId, falhaId, falhaMotivo);
                 } else if (pagamentoStatus === 'Pendente' || pagamentoStatus.toLowerCase() === 'pending') {
                     // Pagamento pendente - manter modal de processamento e verificar status
-                    console.log('🔄 Pagamento pendente - mantendo modal e iniciando verificação...');
                     
                     // Manter o modal de processamento visível
                     showProcessingModal(transactionId);
@@ -2842,7 +2914,6 @@ async function processPayment(customerData) {
                     startStatusCheck(transactionId);
                 } else {
                     // Status desconhecido - tratar como pendente por segurança
-                    console.log('❓ Status desconhecido, tratando como pendente:', pagamentoStatus);
                     hideLoadingSpinner();
                     showTransactionStatus('pending', 'Processado', transactionId);
                     
@@ -2855,7 +2926,6 @@ async function processPayment(customerData) {
                     }, 3000);
                 }
             } else {
-                console.log('📊 Resposta sem dados detalhados - analisando campos básicos');
                 
                 // Verificar se a resposta indica sucesso mesmo sem dados detalhados
                 const isSuccessResponse = result.message === 'Pagamento realizado com sucesso' || 
@@ -2892,7 +2962,7 @@ async function processPayment(customerData) {
                                       result.status === 'Cancelado' ||
                                       result.status === 'Rejeitado';
                 
-                console.log(`📊 Análise de resposta sem dados detalhados:`, {
+                console.log('Análise de resposta (fallback 3):', {
                     isSuccessResponse: isSuccessResponse,
                     isErrorResponse: isErrorResponse,
                     message: result.message,
@@ -2900,7 +2970,6 @@ async function processPayment(customerData) {
                 });
                 
                 if (isSuccessResponse) {
-                    console.log('✅ Pagamento aprovado (sem dados detalhados) - redirecionando para sucesso');
                     hideLoadingSpinner();
                     showTransactionStatus('success', 'Aprovado', null);
                     
@@ -2912,12 +2981,10 @@ async function processPayment(customerData) {
                         window.location.href = gerarLinkSeguroSucesso(transactionId, productId, clientName, amount);
                     }, 3000);
                 } else if (isErrorResponse) {
-                    console.log('❌ Pagamento rejeitado/erro (sem dados detalhados) - mostrando erro');
                     hideLoadingSpinner();
                     const errorMessage = result.message || result.error || 'Erro no processamento';
                     showTransactionStatus('failed', 'Erro', null, '', errorMessage);
                 } else if (isPendingPayment) {
-                    console.log('⏳ Pagamento pendente (sem dados detalhados) - mostrando status pendente');
                     hideLoadingSpinner();
                     showTransactionStatus('pending', 'Pendente', null);
                     
@@ -2930,9 +2997,8 @@ async function processPayment(customerData) {
                     }, 3000);
                 } else {
                     // Tratar caso onde result.data não existe e status é desconhecido
-                    console.log('❓ Resposta sem dados detalhados e status desconhecido:', result);
-                hideLoadingSpinner();
-                showTransactionStatus('pending', 'Processado', null);
+                    hideLoadingSpinner();
+                    showTransactionStatus('pending', 'Processado', null);
                 
                 // Redirecionar para página de sucesso genérica após 3 segundos
                 setTimeout(() => {
@@ -2947,9 +3013,7 @@ async function processPayment(customerData) {
             const falhaId = result.data?.venda?.falhaId || '';
             
             showTransactionStatus('failed', 'Falha', null, falhaId, errorMessage);
-            throw new Error(errorMessage);
         }
-
     } catch (error) {
         hideLoadingSpinner();
         console.error('❌ Erro no pagamento:', error);
@@ -3105,12 +3169,10 @@ async function startStatusCheck(transactionId) {
     const checkInterval = 5000; // Intervalo em ms (5 segundos)
     const timeoutMs = 60000; // 60 segundos de timeout total
     
-    console.log('🔄 Iniciando verificação de status - modal "Pagamento pendente" ativo');
     
     const statusCheckInterval = setInterval(async () => {
         try {
             checkCount++;
-            console.log(`🔄 Verificando status do pagamento (${checkCount}/${maxChecks})...`);
             
             const response = await fetch(`${window.API_BASE}/status/${transactionId}`, {
                 method: 'GET',
@@ -3121,7 +3183,6 @@ async function startStatusCheck(transactionId) {
             });
             
             if (!response.ok) {
-                console.log(`❌ Erro HTTP ${response.status} ao verificar status`);
                 
                 // Se for erro 404, 500, etc., considerar como erro de pagamento
                 if (response.status >= 400) {
@@ -3134,7 +3195,6 @@ async function startStatusCheck(transactionId) {
                     }
                     
                     const errorMessage = `Erro do servidor (${response.status}). Pagamento não pode ser processado.`;
-                    console.log('❌ Erro de servidor detectado, cancelando transação');
                     showTransactionStatus('failed', 'Erro do Servidor', transactionId, '', errorMessage);
                     
                     // Atualizar status da venda como cancelada no backend
@@ -3151,7 +3211,6 @@ async function startStatusCheck(transactionId) {
                                 motivo: `Erro do servidor (${response.status})`
                             })
                         });
-                        console.log('✅ Status da venda atualizado para CANCELADO no backend');
                     } catch (error) {
                         console.error('Erro ao atualizar status da venda:', error);
                     }
@@ -3164,11 +3223,9 @@ async function startStatusCheck(transactionId) {
             
             const result = await response.json();
             
-            console.log(`🔄 Verificação ${checkCount}/${maxChecks} - Resposta da API:`, result);
             
             // Verificar se a API retornou erro diretamente
             if (result.error || result.success === false) {
-                console.log('❌ API retornou erro diretamente:', result.error || result.message);
                 clearInterval(statusCheckInterval);
                 
                 // Remover modal de processamento
@@ -3194,7 +3251,6 @@ async function startStatusCheck(transactionId) {
                             motivo: errorMessage
                         })
                     });
-                    console.log('✅ Status da venda atualizado para CANCELADO no backend');
                 } catch (updateError) {
                     console.error('Erro ao atualizar status da venda:', updateError);
                 }
@@ -3225,9 +3281,7 @@ async function startStatusCheck(transactionId) {
                                venda.falha_id || // Campo do banco
                                '';
                 
-                console.log(`📊 Status atual: ${status}`);
-                console.log(`📊 Dados completos da resposta:`, result);
-                console.log(`📊 Campos de status testados:`, {
+                console.log('Status detalhado da venda:', {
                     pagamentoStatus: pagamento.status,
                     vendaStatus: venda.status,
                     vendaPagamentoStatus: venda.pagamentoStatus,
@@ -3259,7 +3313,7 @@ async function startStatusCheck(transactionId) {
                                       status.toLowerCase() === 'declined' ||
                                       status.toLowerCase() === 'timeout';
                 
-                console.log(`📊 Análise de status:`, {
+                console.log('Análise de status:', {
                     status: status,
                     isSuccessResponse: isSuccessResponse,
                     isErrorResponse: isErrorResponse,
@@ -3269,7 +3323,6 @@ async function startStatusCheck(transactionId) {
                 
                 // Se o status for final (aprovado, erro, cancelado), parar a verificação
                 if (isSuccessResponse || isErrorResponse) {
-                    console.log('🛑 Status final detectado, parando verificação');
                     clearInterval(statusCheckInterval);
                     
                     // Remover modal de processamento
@@ -3280,7 +3333,6 @@ async function startStatusCheck(transactionId) {
                     
                     // Mostrar resultado final
                     if (isSuccessResponse) {
-                        console.log('✅ Pagamento aprovado durante verificação - atualizando status para APROVADO');
                         showTransactionStatus('success', 'Aprovado', transactionId);
                         
                         // Atualizar status da venda como aprovada no backend
@@ -3297,7 +3349,6 @@ async function startStatusCheck(transactionId) {
                                     motivo: 'Pagamento confirmado com sucesso'
                                 })
                             });
-                            console.log('✅ Status da venda atualizado para APROVADO no backend');
                         } catch (error) {
                             console.error('Erro ao atualizar status da venda:', error);
                         }
@@ -3308,11 +3359,9 @@ async function startStatusCheck(transactionId) {
                             const amount = currentProduct?.produto?.preco || currentProduct?.preco || 0;
                             
                             const successUrl = `/payment-success.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
-                            console.log('🔗 Redirecionando para:', successUrl);
                             window.location.href = successUrl;
                         }, 2000);
                     } else if (isErrorResponse) {
-                        console.log('❌ Pagamento rejeitado/erro - atualizando status para CANCELADO');
                         showTransactionStatus('failed', status, transactionId, falhaId, falhaMotivo);
                         
                         // Atualizar status da venda como cancelada no backend
@@ -3329,7 +3378,6 @@ async function startStatusCheck(transactionId) {
                                     motivo: falhaMotivo || 'Pagamento rejeitado pelo servidor'
                                 })
                             });
-                            console.log('✅ Status da venda atualizado para CANCELADO no backend');
                         } catch (error) {
                             console.error('Erro ao atualizar status da venda:', error);
                         }
@@ -3350,8 +3398,6 @@ async function startStatusCheck(transactionId) {
                 }
             } else if (result.success && !result.data) {
                 // Caso onde a API responde com sucesso mas sem dados detalhados
-                console.log('📊 API respondeu com sucesso sem dados detalhados');
-                console.log('📊 Resposta completa:', result);
                 
                 // Verificar se a resposta indica sucesso
                 const isSuccessResponse = result.message === 'success' ||
@@ -3373,7 +3419,7 @@ async function startStatusCheck(transactionId) {
                                       result.status === 'Cancelado' ||
                                       result.status === 'Rejeitado';
                 
-                console.log(`📊 Análise de resposta simples:`, {
+                console.log('Análise de resposta (fallback 4):', {
                     isSuccessResponse: isSuccessResponse,
                     isErrorResponse: isErrorResponse,
                     message: result.message,
@@ -3381,7 +3427,6 @@ async function startStatusCheck(transactionId) {
                 });
                 
                 if (isSuccessResponse) {
-                    console.log('✅ Pagamento aprovado (resposta simples) - atualizando status para APROVADO');
                     clearInterval(statusCheckInterval);
                     
                     // Remover modal de processamento
@@ -3406,7 +3451,6 @@ async function startStatusCheck(transactionId) {
                                 motivo: 'Pagamento confirmado com sucesso'
                             })
                         });
-                        console.log('✅ Status da venda atualizado para APROVADO no backend');
                     } catch (error) {
                         console.error('Erro ao atualizar status da venda:', error);
                     }
@@ -3420,8 +3464,6 @@ async function startStatusCheck(transactionId) {
                 }
             } else if (result.status) {
                 // Caso onde a API responde diretamente com status (formato simplificado)
-                console.log('📊 API respondeu com status direto:', result.status);
-                
                 const status = result.status;
                 const isSuccessResponse = status === 'Aprovado' || 
                                         status === 'aprovado' ||
@@ -3442,14 +3484,13 @@ async function startStatusCheck(transactionId) {
                                       status.toLowerCase() === 'declined' ||
                                       status.toLowerCase() === 'timeout';
                 
-                console.log(`📊 Análise de status direto:`, {
+                console.log('Análise de status (fallback):', {
                     status: status,
                     isSuccessResponse: isSuccessResponse,
                     isErrorResponse: isErrorResponse
                 });
                 
                 if (isSuccessResponse || isErrorResponse) {
-                    console.log('🛑 Status final detectado (formato direto), parando verificação');
                     clearInterval(statusCheckInterval);
                     
                     // Remover modal de processamento
@@ -3459,7 +3500,6 @@ async function startStatusCheck(transactionId) {
                     }
                     
                     if (isSuccessResponse) {
-                        console.log('✅ Pagamento aprovado (formato direto) - redirecionando para sucesso');
                         showTransactionStatus('success', 'Aprovado', transactionId);
                         setTimeout(() => {
                             const productId = currentProduct?.produto?.id || currentProduct?.produto?.custom_id || currentProduct?.id || currentProduct?.customId || '';
@@ -3467,58 +3507,40 @@ async function startStatusCheck(transactionId) {
                             const amount = currentProduct?.produto?.preco || currentProduct?.preco || 0;
                             
                             const successUrl = `/payment-success.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
-                            console.log('🔗 Redirecionando para:', successUrl);
                             window.location.href = successUrl;
                         }, 2000);
                     } else {
-                        console.log('❌ Pagamento rejeitado (formato direto)');
                         showTransactionStatus('failed', status, transactionId, '', result.message || 'Pagamento rejeitado');
                     }
                 }
             }
             
-            // Parar após o número máximo de verificações (60 segundos)
+            // Parar após o número máximo de verificações, mas NÃO cancelar
+            // Apenas parar a verificação e aguardar o status real da PayMoz via webhook
             if (checkCount >= maxChecks) {
-                console.log('🛑 Timeout de 60 segundos atingido - cancelando transação');
                 clearInterval(statusCheckInterval);
                 
-                // Remover modal de processamento
+                // Remover modal de processamento, mas manter status pendente
                 const processingModal = document.querySelector('.processing-modal');
                 if (processingModal) {
                     processingModal.remove();
                 }
                 
-                // Cancelar transação automaticamente após 60 segundos sem resposta
-                showTransactionStatus('failed', 'Cancelado', transactionId, '', 'Transação cancelada automaticamente após 60 segundos sem resposta do servidor.');
+                // Mostrar mensagem informando que está aguardando status real
+                showTransactionStatus('pending', 'Pendente', transactionId, '', 'Aguardando confirmação do status real da transação da PayMoz. Você será notificado quando o status for atualizado.');
                 
-                // Atualizar status da transação como cancelada no backend
-                try {
-                    await fetch(`${window.API_BASE}/cancelar-transacao/${transactionId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify({
-                            motivo: 'Timeout de 60 segundos - transação cancelada automaticamente'
-                        })
-                    });
-                } catch (error) {
-                    console.error('Erro ao cancelar transação no backend:', error);
-                }
             }
         } catch (error) {
             console.error('❌ Erro ao verificar status:', error);
             
             // Se for erro de rede ou timeout, continuar tentando
             if (error.name === 'TypeError' || error.message.includes('fetch')) {
-            const processingModal = document.querySelector('.processing-modal');
-            if (processingModal) {
-                const statusText = processingModal.querySelector('.transaction-info p:last-child');
-                if (statusText) {
+                const processingModal = document.querySelector('.processing-modal');
+                if (processingModal) {
+                    const statusText = processingModal.querySelector('.transaction-info p:last-child');
+                    if (statusText) {
                         const tempoRestante = Math.max(0, 60 - (checkCount * 5));
-                    statusText.innerHTML = `
+                        statusText.innerHTML = `
                         <strong>⚠️ Não feche esta página!</strong><br>
                             Erro de conexão (${checkCount}/${maxChecks}). Tentando novamente... Tempo restante: ${tempoRestante}s.
                         `;
@@ -3526,7 +3548,6 @@ async function startStatusCheck(transactionId) {
                 }
             } else {
                 // Para outros tipos de erro, considerar como erro de pagamento
-                console.log('❌ Erro crítico detectado, cancelando transação');
                 clearInterval(statusCheckInterval);
                 
                 // Remover modal de processamento
@@ -3552,7 +3573,6 @@ async function startStatusCheck(transactionId) {
                             motivo: `Erro na verificação: ${error.message}`
                         })
                     });
-                    console.log('✅ Status da venda atualizado para CANCELADO no backend');
                 } catch (updateError) {
                     console.error('Erro ao atualizar status da venda:', updateError);
                 }
@@ -3621,7 +3641,11 @@ function updateTransactionStatusUI(status, transactionId, falhaId = '', falhaMot
     }
 }
 
-// Função para registrar clique válido de afiliado
+/**
+ * Função melhorada para registrar clique válido de afiliado
+ * Executada apenas quando o cliente clica em "Pagar Agora"
+ * Inclui: verificação de localStorage, IP, detecção de fraudes
+ */
 async function registrarCliqueValidoAfiliado() {
     try {
         // Verificar se há código de afiliado na URL
@@ -3629,12 +3653,80 @@ async function registrarCliqueValidoAfiliado() {
         const codigoAfiliado = urlParams.get('ref');
         
         if (!codigoAfiliado) {
-            return; // Não há afiliado, não precisa registrar
+            return { registrado: false, motivo: 'Sem código de afiliado' };
         }
 
         // Obter informações do produto
         const produtoId = window.currentProduct?.id || null;
         const produtoCustomId = window.currentProduct?.custom_id || null;
+
+        if (!produtoId && !produtoCustomId) {
+            console.warn('⚠️ Produto não encontrado para rastreio de clique');
+            return { registrado: false, motivo: 'Produto não encontrado' };
+        }
+
+        // Criar chave única para este clique (afiliado + produto)
+        const cliqueKey = `afiliado_clique_${codigoAfiliado}_${produtoId || produtoCustomId}`;
+        
+        // Verificar se já foi processado um clique para este afiliado/produto
+        const cliqueProcessado = localStorage.getItem(cliqueKey);
+        if (cliqueProcessado) {
+            const dadosProcessado = JSON.parse(cliqueProcessado);
+            const tempoDecorrido = Date.now() - dadosProcessado.timestamp;
+            
+            // Se foi processado há menos de 24 horas, não processar novamente
+            if (tempoDecorrido < 24 * 60 * 60 * 1000) {
+                return { 
+                    registrado: false, 
+                    motivo: 'Clique já processado',
+                    jaProcessado: true,
+                    dados: dadosProcessado
+                };
+            }
+        }
+
+        // Obter IP do cliente
+        let ipAddress = 'unknown';
+        try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'include'
+            });
+            const ipData = await ipResponse.json();
+            ipAddress = ipData.ip || 'unknown';
+        } catch (error) {
+            console.warn('⚠️ Não foi possível obter IP:', error);
+        }
+
+        // Coletar informações do navegador para detecção de fraude
+        const userAgent = navigator.userAgent || 'unknown';
+        const referer = document.referrer || window.location.href;
+        const screenInfo = {
+            width: window.screen.width,
+            height: window.screen.height,
+            colorDepth: window.screen.colorDepth
+        };
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const language = navigator.language || navigator.userLanguage;
+        
+        // Gerar fingerprint do navegador
+        const fingerprintData = `${userAgent}|${ipAddress}|${screenInfo.width}x${screenInfo.height}|${timezone}|${language}`;
+        const fingerprint = await generateFingerprint(fingerprintData);
+
+        // Preparar dados para envio
+        const dadosClique = {
+            codigo_afiliado: codigoAfiliado,
+            produto_id: produtoId,
+            produto_custom_id: produtoCustomId,
+            ip_address: ipAddress,
+            user_agent: userAgent,
+            referer: referer,
+            fingerprint: fingerprint,
+            screen_info: screenInfo,
+            timezone: timezone,
+            language: language,
+            timestamp: Date.now()
+        };
 
         // Registrar clique válido
         const apiBase = window.API_BASE || window.location.origin + '/api';
@@ -3644,26 +3736,74 @@ async function registrarCliqueValidoAfiliado() {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({
-                codigo_afiliado: codigoAfiliado,
-                produto_id: produtoId,
-                produto_custom_id: produtoCustomId
-            })
+            body: JSON.stringify(dadosClique)
         });
 
         const data = await response.json();
         
-        if (data.success && data.valido) {
-            console.log('✅ Clique válido registrado para afiliado');
-            if (data.creditosGerados) {
-                console.log(`💰 Crédito gerado: ${data.valorCredito} MZN`);
+        if (data.success) {
+            // Salvar no localStorage para evitar reprocessamento
+            localStorage.setItem(cliqueKey, JSON.stringify({
+                timestamp: Date.now(),
+                valido: data.valido,
+                motivo: data.motivo || null
+            }));
+
+            if (data.valido) {
+                if (data.creditosGerados) {
+                }
+                return { 
+                    registrado: true, 
+                    valido: true, 
+                    creditosGerados: data.creditosGerados || false,
+                    valorCredito: data.valorCredito || 0
+                };
+            } else {
+                console.warn('⚠️ Clique inválido (fraude detectada):', data.motivo);
+                return { 
+                    registrado: true, 
+                    valido: false, 
+                    motivo: data.motivo,
+                    fraude: true
+                };
             }
-        } else if (data.success && !data.valido) {
-            console.warn('⚠️ Clique inválido:', data.motivo);
+        } else {
+            console.error('❌ Erro ao registrar clique:', data.message);
+            return { registrado: false, motivo: data.message || 'Erro desconhecido' };
         }
     } catch (error) {
         console.error('❌ Erro ao registrar clique válido:', error);
         // Não bloquear o processo de pagamento por erro no tracking
+        return { registrado: false, motivo: error.message };
+    }
+}
+
+/**
+ * Gerar fingerprint hash do navegador
+ */
+async function generateFingerprint(data) {
+    try {
+        // Usar Web Crypto API se disponível
+        if (window.crypto && window.crypto.subtle) {
+            const encoder = new TextEncoder();
+            const dataBuffer = encoder.encode(data);
+            const hashBuffer = await window.crypto.subtle.digest('SHA-256', dataBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
+        } else {
+            // Fallback: hash simples
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash).toString(16).substring(0, 32);
+        }
+    } catch (error) {
+        console.warn('Erro ao gerar fingerprint, usando fallback:', error);
+        // Fallback simples
+        return btoa(data).substring(0, 32).replace(/[^a-zA-Z0-9]/g, '');
     }
 }
 
@@ -3774,7 +3914,6 @@ function showTransactionInfo(venda) {
 
 // Inicialização quando a página carregar - VERSÃO ATUALIZADA 2024
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔥 VERSÃO ATUALIZADA 2024 - Inicializando checkout...');
     
     // Carregar produto será chamado após verificar API_BASE
     
@@ -3792,7 +3931,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Adicionar seleção ao método clicado
             this.classList.add('selected');
             
-            console.log(`💳 Método selecionado: ${radio.value}`);
         });
     });
     
@@ -3812,7 +3950,6 @@ if (finishOrderBtn) {
     //     phoneInput.addEventListener('input', autoSelectPaymentMethodByPhone);
     // }
     
-    console.log('Checkout inicializado com sucesso');
 });
 
 // DESABILITADO: Função para auto selecionar método de pagamento baseado no número de telefone
@@ -3851,7 +3988,6 @@ function autoSelectPaymentMethodByPhone() {
             if (targetRadio && targetMethod) {
                 targetRadio.checked = true;
                 targetMethod.classList.add('selected');
-                console.log(`🔄 Auto selecionado: ${methodToSelect} para número ${phone}`);
             }
         }
     }

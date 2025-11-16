@@ -169,7 +169,6 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('  - discount_config:', req.body.discount_config);
     console.log('  - timer_config:', req.body.timer_config);
     console.log('  - blackfriday_config:', req.body.blackfriday_config);
-    console.log('  - remarketing_config:', req.body.remarketing_config);
 
     // Extrair dados do produto
   const {
@@ -520,7 +519,6 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('  - discount_config:', discountConfig);
     console.log('  - timer_config:', timerConfig);
     console.log('  - blackfriday_config:', blackFridayConfig);
-    console.log('  - remarketing_config:', remarketingConfig);
     
     const produto = await Produto.create({
       public_id: publicId,
@@ -563,7 +561,6 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
     console.log('  - discount_config:', produto.discount_config);
     console.log('  - timer_config:', produto.timer_config);
     console.log('  - blackfriday_config:', produto.blackfriday_config);
-    console.log('  - remarketing_config:', produto.remarketing_config);
 
     console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
 

@@ -379,13 +379,13 @@
                 <h1 class="welcome-title">
                     <i class="fas fa-chart-line"></i> Dashboard do Afiliado
                 </h1>
-                <p class="welcome-subtitle">Acompanhe suas vendas e comissões em tempo real</p>
+                <p class="welcome-subtitle">Acompanhe suas vendas e comissÃµes em tempo real</p>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- Estatísticas -->
+        <!-- EstatÃ­sticas -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="stats-card primary">
@@ -402,7 +402,7 @@
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stats-number" id="totalComissoes">MZN 0.00</div>
-                    <div class="stats-label">Comissões Ganhas</div>
+                    <div class="stats-label">ComissÃµes Ganhas</div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
@@ -411,7 +411,7 @@
                         <i class="fas fa-wallet"></i>
                     </div>
                     <div class="stats-number" id="saldoDisponivel">MZN 0.00</div>
-                    <div class="stats-label">Saldo Disponível</div>
+                    <div class="stats-label">Saldo DisponÃ­vel</div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
@@ -435,18 +435,106 @@
                         <thead>
                             <tr>
                                 <th>Produto</th>
-                                <th>Referência (Ref)</th>
+                                <th>ReferÃªncia (Ref)</th>
                                 <th>Link de Afiliado</th>
                                 <th>Cliques</th>
                                 <th>Vendas</th>
-                                <th>Taxa de Conversão</th>
-                                <th>Ações</th>
+                                <th>Taxa de ConversÃ£o</th>
+                                <th>AÃ§Ãµes</th>
                             </tr>
                         </thead>
                     <tbody id="linksTable">
                         <!-- Dados carregados via JavaScript -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Banners de Afiliado -->
+        <div class="table-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 class="table-title" style="margin: 0;">
+                    <i class="fas fa-image"></i> Meus Banners
+                </h3>
+                <button class="btn btn-action" onclick="abrirModalCriarBanner()">
+                    <i class="fas fa-plus"></i> Criar Banner
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Preview</th>
+                            <th>TÃ­tulo</th>
+                            <th>Mensagem</th>
+                            <th>Produto</th>
+                            <th>Cliques</th>
+                            <th>Status</th>
+                            <th>AÃ§Ãµes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bannersTable">
+                        <!-- Dados carregados via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Criar/Editar Banner -->
+    <div class="modal fade" id="modalBanner" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalBannerTitle">Criar Banner</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formBanner">
+                        <input type="hidden" id="bannerId" name="id">
+                        
+                        <div class="mb-3">
+                            <label for="bannerTitulo" class="form-label">TÃ­tulo do Banner *</label>
+                            <input type="text" class="form-control" id="bannerTitulo" name="titulo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bannerMensagem" class="form-label">Mensagem (opcional)</label>
+                            <textarea class="form-control" id="bannerMensagem" name="mensagem" rows="3" placeholder="Ex: Oferta especial! Clique aqui e ganhe desconto!"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bannerProduto" class="form-label">Produto (opcional)</label>
+                            <select class="form-control" id="bannerProduto" name="produto_id">
+                                <option value="">Selecione um produto (ou deixe vazio para link genÃ©rico)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bannerImagem" class="form-label">Imagem do Banner *</label>
+                            <input type="file" class="form-control" id="bannerImagem" accept="image/*" onchange="previewBannerImage(event)">
+                            <input type="hidden" id="bannerImagemUrl" name="imagem_url">
+                            <div id="bannerPreview" style="margin-top: 15px; display: none;">
+                                <img id="bannerPreviewImg" src="" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e9ecef;">
+                            </div>
+                            <small class="form-text text-muted">Formatos aceitos: JPEG, PNG, GIF, WebP (mÃ¡x. 5MB)</small>
+                        </div>
+
+                        <div class="mb-3" id="bannerCodigoHtmlContainer" style="display: none;">
+                            <label for="bannerCodigoHtml" class="form-label">CÃ³digo HTML do Banner</label>
+                            <textarea class="form-control" id="bannerCodigoHtml" name="codigo_html" rows="6" readonly style="font-family: monospace; font-size: 0.85rem;"></textarea>
+                            <button type="button" class="btn btn-outline-action btn-sm mt-2" onclick="copiarCodigoHtml()">
+                                <i class="fas fa-copy"></i> Copiar CÃ³digo HTML
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-action" onclick="salvarBanner()">
+                        <i class="fas fa-save"></i> Salvar Banner
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -458,288 +546,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Configurações
-        window.API_BASE = 'http://localhost:4000/api';
-        
-        // Variáveis globais
-        let afiliado = null;
-        let links = [];
-        let estatisticas = {};
-
-        // Carregar dados iniciais
-        async function carregarDados() {
-            try {
-                console.log('?? Carregando dados do afiliado...');
-                mostrarLoading(true);
-                
-                // Verificar se está logado
-                const token = localStorage.getItem('afiliado_token');
-                const afiliadoData = localStorage.getItem('afiliado_data');
-                
-                if (!token || !afiliadoData) {
-                    // Redirecionar para página de afiliados se não estiver logado
-                    window.location.href = '/afiliados.html';
-                    return;
-                }
-                
-                // Carregar dados do afiliado
-                afiliado = JSON.parse(afiliadoData);
-                
-                // Carregar links primeiro, depois estatísticas
-                await carregarLinks();
-                await carregarEstatisticas();
-                
-                atualizarInterface();
-                
-                // Configurar atualização automática
-                configurarAtualizacaoAutomatica();
-                
-                mostrarLoading(false);
-                
-            } catch (error) {
-                console.error('? Erro ao carregar dados:', error);
-                alert('Erro ao carregar dados: ' + error.message);
-                mostrarLoading(false);
-            }
-        }
-
-        // Carregar estatísticas
-        async function carregarEstatisticas() {
-            try {
-                // Calcular total de cliques baseado nos links carregados
-                const totalCliques = links.reduce((total, link) => total + (link.cliques || 0), 0);
-                
-                estatisticas = {
-                    totalVendas: afiliado.total_vendas || 0,
-                    totalComissoes: afiliado.total_comissoes || 0,
-                    saldoDisponivel: afiliado.saldo_disponivel || 0,
-                    totalCliques: totalCliques
-                };
-                
-                console.log('? Estatísticas carregadas - Total de cliques:', totalCliques);
-                console.log('?? Links disponíveis para cálculo:', links.length);
-                console.log('?? Dados dos links:', links.map(link => ({ cliques: link.cliques })));
-            } catch (error) {
-                console.error('? Erro ao carregar estatísticas:', error);
-            }
-        }
-
-        // Carregar links
-        async function carregarLinks() {
-            try {
-                // Carregar links reais da API
-                const token = localStorage.getItem('afiliado_token');
-                if (!token) {
-                    console.log('? Token não encontrado');
-                    return;
-                }
-
-                console.log('?? Carregando links com token:', token.substring(0, 20) + '...');
-
-                const response = await fetch(`${window.API_BASE}/afiliados/meus-links`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                console.log('?? Status da resposta:', response.status);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    links = data.data || [];
-                    console.log('? Links carregados da API:', links.length);
-                    console.log('?? Dados dos links:', links);
-                    
-                    // Renderizar tabela automaticamente após carregar
-                    renderizarTabelaLinks();
-                    
-                    // Atualizar estatísticas com os novos dados
-                    await carregarEstatisticas();
-                    atualizarInterface();
-                } else {
-                    console.log('?? Erro ao carregar links - Status:', response.status);
-                    const errorText = await response.text();
-                    console.log('Erro:', errorText);
-                    links = [];
-                    
-                    // Renderizar tabela vazia em caso de erro
-                    renderizarTabelaLinks();
-                }
-                
-            } catch (error) {
-                console.error('? Erro ao carregar links:', error);
-                links = [];
-            }
-        }
-
-        // Atualizar interface
-        function atualizarInterface() {
-            // Atualizar navbar
-            document.getElementById('afiliadoNome').textContent = afiliado.nome;
-            
-            // Atualizar estatísticas
-            document.getElementById('totalVendas').textContent = estatisticas.totalVendas;
-            document.getElementById('totalComissoes').textContent = `MZN ${parseFloat(estatisticas.totalComissoes).toFixed(2)}`;
-            document.getElementById('saldoDisponivel').textContent = `MZN ${parseFloat(estatisticas.saldoDisponivel).toFixed(2)}`;
-            document.getElementById('totalCliques').textContent = estatisticas.totalCliques;
-            console.log('?? Atualizando totalCliques no DOM:', estatisticas.totalCliques);
-            
-            // A renderização da tabela será feita automaticamente pelo carregarLinks
-        }
-
-        // Renderizar tabela de links
-        function renderizarTabelaLinks() {
-            const tbody = document.getElementById('linksTable');
-            if (!tbody) return;
-            
-            if (links.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-link"></i>
-                            <p>Nenhum link criado ainda</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = links.map(link => {
-                // Extrair referência do link
-                const refMatch = link.link_afiliado.match(/ref=([^&]+)/);
-                const referencia = refMatch ? refMatch[1] : 'N/A';
-                
-                return `
-                    <tr>
-                        <td><strong>${link.produto?.nome || 'Produto'}</strong></td>
-                        <td>
-                            <code style="font-size: 0.8rem; background: #e3f2fd; padding: 4px 8px; border-radius: 4px; color: #1976d2; font-weight: bold;">${referencia}</code>
-                        </td>
-                        <td>
-                            <code style="font-size: 0.8rem; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${link.link_afiliado}</code>
-                        </td>
-                        <td><span class="badge badge-info">${link.cliques || 0}</span></td>
-                        <td><span class="badge badge-success">${link.conversoes || 0}</span></td>
-                        <td><span class="badge ${parseFloat(link.taxa_conversao) >= 15 ? 'badge-success' : parseFloat(link.taxa_conversao) >= 10 ? 'badge-warning' : 'badge-info'}">${link.taxa_conversao || '0.00%'}</span></td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-action btn-sm" onclick="copiarLink('${link.link_afiliado}')" title="Copiar Link">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <button class="btn btn-outline-action btn-sm" onclick="verEstatisticas('${link.id}')" title="Ver Estatísticas">
-                                    <i class="fas fa-chart-bar"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Copiar link
-        function copiarLink(link) {
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Link copiado para a área de transferência!');
-            }).catch(err => {
-                console.error('Erro ao copiar:', err);
-                alert('Erro ao copiar link. Tente selecionar e copiar manualmente.');
-            });
-        }
-
-        // Ver estatísticas
-        function verEstatisticas(linkId) {
-            const link = links.find(l => l.id === linkId);
-            if (!link) return;
-            
-            // Extrair referência do link
-            const refMatch = link.link_afiliado.match(/ref=([^&]+)/);
-            const referencia = refMatch ? refMatch[1] : 'N/A';
-            
-            alert(`Estatísticas do Link:\n\n` +
-                  `Produto: ${link.produto?.nome || 'Produto'}\n` +
-                  `Referência: ${referencia}\n` +
-                  `Cliques: ${link.cliques || 0}\n` +
-                  `Vendas: ${link.conversoes || 0}\n` +
-                  `Taxa de Conversão: ${link.taxa_conversao || '0.00%'}\n` +
-                  `Último Clique: ${link.ultimo_clique ? new Date(link.ultimo_clique).toLocaleString() : 'Nunca'}\n` +
-                  `Link: ${link.link_afiliado}`);
-        }
-
-        // Mostrar loading
-        function mostrarLoading(mostrar) {
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        // Configurar atualização automática
-        function configurarAtualizacaoAutomatica() {
-            // Atualizar links a cada 30 segundos
-            setInterval(async () => {
-                console.log('?? Atualizando links automaticamente...');
-                await carregarLinks();
-                // A renderização será feita automaticamente pelo carregarLinks
-            }, 30000);
-        }
-        
-        // Função para adicionar novo link à tabela
-        function adicionarNovoLink(linkData) {
-            console.log('? Adicionando novo link:', linkData);
-            
-            // Adicionar à lista de links
-            links.unshift(linkData);
-            
-            // Atualizar tabela
-            renderizarTabelaLinks();
-            
-            // Mostrar notificação
-            mostrarNotificacao('Link gerado com sucesso!', 'success');
-        }
-        
-        // Mostrar notificação
-        function mostrarNotificacao(mensagem, tipo = 'info') {
-            // Criar elemento de notificação
-            const notificacao = document.createElement('div');
-            notificacao.className = `alert alert-${tipo} alert-dismissible fade show`;
-            notificacao.style.position = 'fixed';
-            notificacao.style.top = '20px';
-            notificacao.style.right = '20px';
-            notificacao.style.zIndex = '9999';
-            notificacao.innerHTML = `
-                ${mensagem}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.body.appendChild(notificacao);
-            
-            // Remover após 5 segundos
-            setTimeout(() => {
-                if (notificacao.parentNode) {
-                    notificacao.parentNode.removeChild(notificacao);
-                }
-            }, 5000);
-        }
-
-        // Logout
-        function logout() {
-            // Limpar dados do localStorage
-            localStorage.removeItem('afiliado_token');
-            localStorage.removeItem('afiliado_data');
-            
-            // Redirecionar para página de afiliados
-            window.location.href = '/afiliados.html';
-        }
-
-        // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('?? Inicializando dashboard do afiliado...');
-            carregarDados();
-        });
-    </script>
+    <script src="js/afiliadoAuth.js"></script>
+    <script src="js/afiliadoDashboard.js"></script>
     
 </body>
 </html>

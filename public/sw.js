@@ -149,14 +149,16 @@ self.addEventListener('fetch', event => {
     if (url.pathname.match(/\.(html|css|js)$/) || url.pathname === '/') {
       event.respondWith(
         fetch(request, {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
+          cache: 'no-store'
         }).catch(() => {
           // Fallback para cache apenas se rede falhar
-          return caches.match(request);
+          return caches.match(request).then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Se não houver cache, retornar Response vazia
+            return new Response('', { status: 404 });
+          });
         })
       );
       return;
@@ -168,10 +170,15 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // Ignorar URLs externas
+  // Ignorar URLs externas (CDNs, fontes, etc)
   if (url.hostname.includes('cloudinary.com') ||
       url.hostname.includes('fonts.gstatic.com') ||
-      url.hostname.includes('fonts.googleapis.com')) {
+      url.hostname.includes('fonts.googleapis.com') ||
+      url.hostname.includes('cdn.jsdelivr.net') ||
+      url.hostname.includes('jsdelivr.net') ||
+      url.hostname.includes('cdnjs.cloudflare.com') ||
+      url.hostname.includes('unpkg.com') ||
+      url.hostname.includes('cdn.jsdelivr.net')) {
     return;
   }
   
@@ -203,7 +210,13 @@ async function cacheFirstWithNetworkFallback(request) {
   if (IS_DEVELOPMENT) {
     // Em desenvolvimento, sempre buscar da rede
     return fetch(request, { cache: 'no-store' }).catch(() => {
-      return caches.match(request);
+      return caches.match(request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // Retornar Response vazia se não houver cache
+        return new Response('', { status: 404 });
+      });
     });
   }
   
@@ -273,12 +286,18 @@ function isNoCachePage(request) {
 // Estratégia Network Only (sempre da rede, sem cache)
 async function networkOnly(request) {
   try {
+    const url = new URL(request.url);
+    // Não adicionar headers customizados para requisições externas (evita CORS)
+    const isExternal = !url.hostname.includes(self.location.hostname) && 
+                       url.hostname !== 'localhost' && 
+                       url.hostname !== '127.0.0.1';
+    
+    if (isExternal) {
+      return await fetch(request, { cache: 'no-store' });
+    }
+    
     return await fetch(request, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
+      cache: 'no-store'
     });
   } catch (error) {
     return new Response('Página não disponível offline', { 
@@ -313,12 +332,14 @@ async function cacheFirst(request) {
 // Estratégia: Network First (para APIs e conteúdo dinâmico)
 async function networkFirst(request) {
   try {
+    const url = new URL(request.url);
+    // Não adicionar headers customizados para requisições externas (evita CORS)
+    const isExternal = !url.hostname.includes(self.location.hostname) && 
+                       url.hostname !== 'localhost' && 
+                       url.hostname !== '127.0.0.1';
+    
     const networkResponse = await fetch(request, {
-      cache: IS_DEVELOPMENT ? 'no-store' : 'default',
-      headers: IS_DEVELOPMENT ? {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      } : {}
+      cache: IS_DEVELOPMENT ? 'no-store' : 'default'
     });
     
     if (networkResponse.ok && request.method === 'GET' && !IS_DEVELOPMENT) {

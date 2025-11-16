@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; connect-src 'self' https:; img-src 'self' data: https:;">
+    <title>Termos e Condições - Ratixpay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+    
+    <style>
+        :root {
+            --primary-color: #F64C00;
+            --secondary-color: #2c3e50;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #E55A00 100%);
+            color: white;
+            padding: 60px 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .subsection-title {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .content-card p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .content-card ul, .content-card ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .content-card li {
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: var(--primary-color);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-section {
+            background: var(--secondary-color);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer-section a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+
+        .table-of-contents {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .table-of-contents h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .table-of-contents ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .table-of-contents li {
+            margin-bottom: 8px;
+        }
+
+        .table-of-contents a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .table-of-contents a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .back-button {
+                position: relative;
+                top: 0;
+                left: 0;
+                display: inline-block;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+
+    <div class="container-main">
+        <div class="header-section">
+            <h1><i class="fas fa-file-contract"></i> Termos e Condições de Uso</h1>
+            <p>Ratixpay - Plataforma de Pagamentos Digitais</p>
+            <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.9;">
+                Última atualização: <span id="dataAtualizacao"></span>
+            </p>
+        </div>
+
+        <div class="content-card">
+            <div class="table-of-contents">
+                <h3><i class="fas fa-list"></i> Índice</h3>
+                <ul>
+                    <li><a href="#1">1. Aceitação dos Termos</a></li>
+                    <li><a href="#2">2. Definições</a></li>
+                    <li><a href="#3">3. Descrição do Serviço</a></li>
+                    <li><a href="#4">4. Cadastro e Conta de Usuário</a></li>
+                    <li><a href="#5">5. Vendedores e Produtos</a></li>
+                    <li><a href="#6">6. Compras e Pagamentos</a></li>
+                    <li><a href="#7">7. Comissões e Afiliados</a></li>
+                    <li><a href="#8">8. Saques e Transferências</a></li>
+                    <li><a href="#9">9. Propriedade Intelectual</a></li>
+                    <li><a href="#10">10. Responsabilidades</a></li>
+                    <li><a href="#11">11. Política de Reembolso</a></li>
+                    <li><a href="#12">12. Privacidade e Proteção de Dados</a></li>
+                    <li><a href="#13">13. Modificações nos Termos</a></li>
+                    <li><a href="#14">14. Rescisão</a></li>
+                    <li><a href="#15">15. Disposições Gerais</a></li>
+                </ul>
+            </div>
+
+            <section id="1">
+                <h2 class="section-title">1. Aceitação dos Termos</h2>
+                <p>
+                    Ao acessar e utilizar a plataforma Ratixpay, você concorda em cumprir e estar vinculado a estes Termos e Condições de Uso. 
+                    Se você não concorda com qualquer parte destes termos, não deve utilizar nossos serviços.
+                </p>
+                <p>
+                    Estes termos constituem um acordo legal entre você e a Ratixpay. Ao criar uma conta, fazer uma compra, 
+                    vender um produto ou utilizar qualquer funcionalidade da plataforma, você confirma que leu, compreendeu e 
+                    aceita todos os termos aqui descritos.
+                </p>
+            </section>
+
+            <section id="2">
+                <h2 class="section-title">2. Definições</h2>
+                <p>Para fins destes Termos e Condições, as seguintes definições se aplicam:</p>
+                <ul>
+                    <li><strong>Plataforma:</strong> Refere-se ao site, aplicativo e todos os serviços oferecidos pela Ratixpay.</li>
+                    <li><strong>Usuário:</strong> Qualquer pessoa que acessa ou utiliza a plataforma.</li>
+                    <li><strong>Vendedor:</strong> Usuário que cadastra e vende produtos digitais através da plataforma.</li>
+                    <li><strong>Comprador:</strong> Usuário que adquire produtos digitais através da plataforma.</li>
+                    <li><strong>Produto Digital:</strong> Conteúdo intangível vendido através da plataforma (cursos, e-books, softwares, etc.).</li>
+                    <li><strong>Afiliado:</strong> Usuário que promove produtos de terceiros e recebe comissão por vendas realizadas.</li>
+                    <li><strong>Conta:</strong> Registro do usuário na plataforma com credenciais de acesso.</li>
+                </ul>
+            </section>
+
+            <section id="3">
+                <h2 class="section-title">3. Descrição do Serviço</h2>
+                <p>
+                    A Ratixpay é uma plataforma digital que permite a venda e compra de produtos digitais, oferecendo:
+                </p>
+                <ul>
+                    <li>Processamento de pagamentos online com múltiplos métodos (MPesa, eMola, cartões, etc.)</li>
+                    <li>Gestão de produtos digitais e conteúdo</li>
+                    <li>Sistema de afiliados e comissões</li>
+                    <li>Ferramentas de marketing e remarketing</li>
+                    <li>Gestão de vendas e relatórios</li>
+                    <li>Sistema de saques e transferências</li>
+                </ul>
+                <div class="info-box">
+                    <strong><i class="fas fa-info-circle"></i> Importante:</strong> A Ratixpay atua como intermediária entre vendedores e compradores, 
+                    facilitando transações e processamento de pagamentos. Não somos responsáveis pelo conteúdo dos produtos vendidos.
+                </div>
+            </section>
+
+            <section id="4">
+                <h2 class="section-title">4. Cadastro e Conta de Usuário</h2>
+                
+                <h3 class="subsection-title">4.1. Requisitos para Cadastro</h3>
+                <p>Para utilizar a plataforma, você deve:</p>
+                <ul>
+                    <li>Ter pelo menos 18 anos de idade ou ter autorização de um responsável legal</li>
+                    <li>Fornecer informações verdadeiras, precisas e atualizadas</li>
+                    <li>Manter a segurança de sua conta e senha</li>
+                    <li>Notificar imediatamente sobre uso não autorizado de sua conta</li>
+                </ul>
+
+                <h3 class="subsection-title">4.2. Verificação de Conta</h3>
+                <p>
+                    Podemos solicitar verificação de identidade e documentos para garantir a segurança da plataforma. 
+                    Contas não verificadas podem ter limitações de funcionalidades.
+                </p>
+
+                <h3 class="subsection-title">4.3. Responsabilidade pela Conta</h3>
+                <p>
+                    Você é totalmente responsável por todas as atividades que ocorrem em sua conta. 
+                    A Ratixpay não se responsabiliza por perdas resultantes do uso não autorizado de sua conta.
+                </p>
+
+                <div class="warning-box">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Atenção:</strong> 
+                    É proibido criar múltiplas contas para evitar limitações ou violar estes termos. 
+                    A violação pode resultar no bloqueio permanente de todas as contas associadas.
+                </div>
+            </section>
+
+            <section id="5">
+                <h2 class="section-title">5. Vendedores e Produtos</h2>
+                
+                <h3 class="subsection-title">5.1. Cadastro de Produtos</h3>
+                <p>Vendedores podem cadastrar produtos digitais na plataforma, desde que:</p>
+                <ul>
+                    <li>Tenham direito legal sobre o conteúdo do produto</li>
+                    <li>O produto não viole direitos de propriedade intelectual de terceiros</li>
+                    <li>O conteúdo seja legal e não viole leis locais ou internacionais</li>
+                    <li>As informações do produto sejam precisas e completas</li>
+                </ul>
+
+                <h3 class="subsection-title">5.2. Produtos Proibidos</h3>
+                <p>É estritamente proibido vender:</p>
+                <ul>
+                    <li>Conteúdo ilegal, fraudulento ou enganoso</li>
+                    <li>Material que viole direitos autorais ou propriedade intelectual</li>
+                    <li>Conteúdo ofensivo, discriminatório ou que promova violência</li>
+                    <li>Produtos que contenham malware, vírus ou código malicioso</li>
+                    <li>Qualquer conteúdo que viole leis de proteção ao consumidor</li>
+                </ul>
+
+                <h3 class="subsection-title">5.3. Preços e Comissões</h3>
+                <p>
+                    Os vendedores definem os preços de seus produtos. A Ratixpay pode cobrar taxas de transação 
+                    e comissões conforme estabelecido em nosso sistema de taxas. Todas as taxas serão claramente 
+                    comunicadas antes da conclusão da venda.
+                </p>
+
+                <h3 class="subsection-title">5.4. Moderação e Remoção</h3>
+                <p>
+                    Reservamos o direito de revisar, modificar ou remover qualquer produto que viole estes termos 
+                    ou nossas políticas, sem aviso prévio. Produtos removidos não gerarão reembolso automático, 
+                    exceto quando determinado pela política de reembolso.
+                </p>
+            </section>
+
+            <section id="6">
+                <h2 class="section-title">6. Compras e Pagamentos</h2>
+                
+                <h3 class="subsection-title">6.1. Processo de Compra</h3>
+                <p>
+                    Ao realizar uma compra, você concorda em pagar o preço total do produto, incluindo taxas aplicáveis. 
+                    O pagamento é processado através de nossos parceiros de pagamento seguros.
+                </p>
+
+                <h3 class="subsection-title">6.2. Métodos de Pagamento</h3>
+                <p>
+                    Aceitamos diversos métodos de pagamento, incluindo MPesa, eMola, cartões de crédito/débito e outros 
+                    métodos disponíveis em sua região. A disponibilidade de métodos pode variar conforme sua localização.
+                </p>
+
+                <h3 class="subsection-title">6.3. Confirmação e Entrega</h3>
+                <p>
+                    Após a confirmação do pagamento, você receberá acesso ao produto digital através da plataforma. 
+                    O acesso é fornecido imediatamente após a aprovação do pagamento.
+                </p>
+
+                <h3 class="subsection-title">6.4. Falhas no Pagamento</h3>
+                <p>
+                    Em caso de falha no processamento do pagamento, a compra não será concluída. 
+                    Não seremos responsáveis por perdas resultantes de falhas em sistemas de terceiros.
+                </p>
+            </section>
+
+            <section id="7">
+                <h2 class="section-title">7. Comissões e Afiliados</h2>
+                
+                <h3 class="subsection-title">7.1. Programa de Afiliados</h3>
+                <p>
+                    A plataforma oferece um sistema de afiliados onde usuários podem promover produtos de vendedores 
+                    e receber comissões por vendas realizadas através de seus links de afiliado.
+                </p>
+
+                <h3 class="subsection-title">7.2. Comissões</h3>
+                <p>
+                    As comissões são definidas pelo vendedor do produto e podem variar. A comissão é calculada sobre 
+                    o valor da venda após dedução de taxas da plataforma. Comissões são creditadas na conta do afiliado 
+                    após a confirmação da venda.
+                </p>
+
+                <h3 class="subsection-title">7.3. Requisitos para Saque de Comissões</h3>
+                <p>
+                    Afiliados podem solicitar saque de suas comissões acumuladas conforme nossa política de saques. 
+                    Podem ser aplicadas taxas de processamento e valores mínimos para saque.
+                </p>
+
+                <h3 class="subsection-title">7.4. Proibições no Programa de Afiliados</h3>
+                <p>É proibido:</p>
+                <ul>
+                    <li>Usar métodos fraudulentos para gerar cliques ou vendas</li>
+                    <li>Auto-comprar através de seus próprios links de afiliado</li>
+                    <li>Manipular ou falsificar estatísticas de vendas</li>
+                    <li>Usar spam ou métodos de marketing não autorizados</li>
+                </ul>
+            </section>
+
+            <section id="8">
+                <h2 class="section-title">8. Saques e Transferências</h2>
+                
+                <h3 class="subsection-title">8.1. Solicitação de Saque</h3>
+                <p>
+                    Vendedores e afiliados podem solicitar saque de seus saldos acumulados através da plataforma. 
+                    As solicitações são processadas conforme nossos prazos e políticas estabelecidas.
+                </p>
+
+                <h3 class="subsection-title">8.2. Métodos de Saque</h3>
+                <p>
+                    Oferecemos diversos métodos de saque, incluindo transferência bancária, MPesa, eMola e outros 
+                    métodos disponíveis. A disponibilidade pode variar conforme sua localização.
+                </p>
+
+                <h3 class="subsection-title">8.3. Taxas e Prazos</h3>
+                <p>
+                    Podem ser aplicadas taxas de processamento para saques. Os prazos de processamento variam 
+                    conforme o método escolhido e podem levar de 1 a 10 dias úteis.
+                </p>
+
+                <h3 class="subsection-title">8.4. Valores Mínimos</h3>
+                <p>
+                    Podem existir valores mínimos para solicitação de saque. Esses valores serão claramente 
+                    comunicados na plataforma.
+                </p>
+            </section>
+
+            <section id="9">
+                <h2 class="section-title">9. Propriedade Intelectual</h2>
+                
+                <h3 class="subsection-title">9.1. Propriedade da Plataforma</h3>
+                <p>
+                    Todo o conteúdo da plataforma Ratixpay, incluindo design, logos, textos, gráficos e software, 
+                    é propriedade da Ratixpay ou de seus licenciadores e está protegido por leis de propriedade intelectual.
+                </p>
+
+                <h3 class="subsection-title">9.2. Propriedade dos Produtos</h3>
+                <p>
+                    Os vendedores mantêm todos os direitos de propriedade intelectual sobre seus produtos. 
+                    Ao vender na plataforma, o vendedor concede à Ratixpay uma licença para exibir, distribuir 
+                    e promover o produto conforme necessário para operar a plataforma.
+                </p>
+
+                <h3 class="subsection-title">9.3. Uso de Conteúdo</h3>
+                <p>
+                    Você não pode copiar, reproduzir, distribuir ou criar trabalhos derivados do conteúdo da plataforma 
+                    sem autorização prévia por escrito.
+                </p>
+
+                <div class="warning-box">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Violação de Direitos:</strong> 
+                    Qualquer violação de direitos de propriedade intelectual pode resultar em remoção imediata do conteúdo 
+                    e possível ação legal.
+                </div>
+            </section>
+
+            <section id="10">
+                <h2 class="section-title">10. Responsabilidades</h2>
+                
+                <h3 class="subsection-title">10.1. Responsabilidade do Usuário</h3>
+                <p>Você é responsável por:</p>
+                <ul>
+                    <li>Manter a segurança de sua conta e informações</li>
+                    <li>Garantir que o conteúdo de seus produtos seja legal e não viole direitos de terceiros</li>
+                    <li>Fornecer informações precisas e atualizadas</li>
+                    <li>Cumprir todas as leis aplicáveis</li>
+                </ul>
+
+                <h3 class="subsection-title">10.2. Limitação de Responsabilidade da Ratixpay</h3>
+                <p>
+                    A Ratixpay atua como intermediária e não se responsabiliza por:
+                </p>
+                <ul>
+                    <li>Qualidade, precisão ou legalidade dos produtos vendidos</li>
+                    <li>Disputas entre vendedores e compradores</li>
+                    <li>Perdas resultantes de falhas em sistemas de terceiros (processadores de pagamento, etc.)</li>
+                    <li>Danos indiretos, incidentais ou consequenciais</li>
+                </ul>
+
+                <h3 class="subsection-title">10.3. Garantias</h3>
+                <p>
+                    A plataforma é fornecida "como está", sem garantias expressas ou implícitas. 
+                    Não garantimos que a plataforma estará sempre disponível, livre de erros ou atenderá todas as suas expectativas.
+                </p>
+            </section>
+
+            <section id="11">
+                <h2 class="section-title">11. Política de Reembolso</h2>
+                
+                <h3 class="subsection-title">11.1. Direito ao Reembolso</h3>
+                <p>
+                    Compradores têm direito a solicitar reembolso em casos específicos, conforme nossa Política de Reembolso. 
+                    Reembolsos são avaliados caso a caso e podem ser aprovados ou negados conforme as circunstâncias.
+                </p>
+
+                <h3 class="subsection-title">11.2. Processo de Reembolso</h3>
+                <p>
+                    Para solicitar reembolso, o comprador deve entrar em contato com o suporte da Ratixpay dentro do prazo 
+                    estabelecido. A solicitação será analisada e uma decisão será comunicada.
+                </p>
+
+                <h3 class="subsection-title">11.3. Reembolsos Aprovados</h3>
+                <p>
+                    Reembolsos aprovados serão processados no método de pagamento original utilizado na compra. 
+                    O prazo para crédito pode variar conforme o método de pagamento.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-info-circle"></i> Nota:</strong> 
+                    Produtos digitais consumidos ou baixados podem não ser elegíveis para reembolso, 
+                    exceto em casos de defeito técnico ou violação de garantias.
+                </div>
+            </section>
+
+            <section id="12">
+                <h2 class="section-title">12. Privacidade e Proteção de Dados</h2>
+                
+                <h3 class="subsection-title">12.1. Coleta de Dados</h3>
+                <p>
+                    Coletamos e processamos dados pessoais conforme descrito em nossa Política de Privacidade. 
+                    Ao utilizar a plataforma, você consente com a coleta e uso de seus dados conforme essa política.
+                </p>
+
+                <h3 class="subsection-title">12.2. Uso de Dados</h3>
+                <p>
+                    Utilizamos seus dados para fornecer e melhorar nossos serviços, processar transações, 
+                    comunicar com você e cumprir obrigações legais.
+                </p>
+
+                <h3 class="subsection-title">12.3. Segurança</h3>
+                <p>
+                    Implementamos medidas de segurança para proteger seus dados, mas não podemos garantir segurança absoluta. 
+                    Você é responsável por manter a segurança de suas credenciais de acesso.
+                </p>
+
+                <h3 class="subsection-title">12.4. Compartilhamento de Dados</h3>
+                <p>
+                    Podemos compartilhar dados com processadores de pagamento, parceiros de entrega e quando exigido por lei. 
+                    Não vendemos seus dados pessoais a terceiros.
+                </p>
+            </section>
+
+            <section id="13">
+                <h2 class="section-title">13. Modificações nos Termos</h2>
+                <p>
+                    Reservamos o direito de modificar estes Termos e Condições a qualquer momento. 
+                    Modificações significativas serão comunicadas através da plataforma ou por email.
+                </p>
+                <p>
+                    O uso continuado da plataforma após modificações constitui aceitação dos novos termos. 
+                    Se você não concordar com as modificações, deve cessar o uso da plataforma e solicitar 
+                    o encerramento de sua conta.
+                </p>
+                <div class="highlight-box">
+                    <strong><i class="fas fa-lightbulb"></i> Recomendação:</strong> 
+                    Revise periodicamente estes termos para estar ciente de quaisquer alterações.
+                </div>
+            </section>
+
+            <section id="14">
+                <h2 class="section-title">14. Rescisão</h2>
+                
+                <h3 class="subsection-title">14.1. Rescisão pelo Usuário</h3>
+                <p>
+                    Você pode encerrar sua conta a qualquer momento através das configurações da plataforma 
+                    ou entrando em contato com nosso suporte.
+                </p>
+
+                <h3 class="subsection-title">14.2. Rescisão pela Ratixpay</h3>
+                <p>
+                    Podemos suspender ou encerrar sua conta imediatamente, sem aviso prévio, se você:
+                </p>
+                <ul>
+                    <li>Violar estes Termos e Condições</li>
+                    <li>Engajar-se em atividades fraudulentas ou ilegais</li>
+                    <li>Fornecer informações falsas ou enganosas</li>
+                    <li>Não cumprir com obrigações de pagamento</li>
+                    <li>Violar direitos de terceiros</li>
+                </ul>
+
+                <h3 class="subsection-title">14.3. Efeitos da Rescisão</h3>
+                <p>
+                    Após a rescisão, você perderá acesso à sua conta e aos serviços da plataforma. 
+                    Obrigações pendentes (como pagamentos devidos) permanecerão válidas.
+                </p>
+            </section>
+
+            <section id="15">
+                <h2 class="section-title">15. Disposições Gerais</h2>
+                
+                <h3 class="subsection-title">15.1. Lei Aplicável</h3>
+                <p>
+                    Estes termos são regidos pelas leis de Moçambique. Qualquer disputa será resolvida nos 
+                    tribunais competentes de Moçambique.
+                </p>
+
+                <h3 class="subsection-title">15.2. Disputas</h3>
+                <p>
+                    Em caso de disputa, tentaremos resolver através de negociação direta. Se não for possível, 
+                    a disputa será resolvida através de mediação ou arbitragem conforme as leis aplicáveis.
+                </p>
+
+                <h3 class="subsection-title">15.3. Divisibilidade</h3>
+                <p>
+                    Se qualquer disposição destes termos for considerada inválida ou inaplicável, as demais 
+                    disposições permanecerão em pleno vigor.
+                </p>
+
+                <h3 class="subsection-title">15.4. Contato</h3>
+                <p>
+                    Para questões sobre estes termos, entre em contato:
+                </p>
+                <ul>
+                    <li><strong>Email:</strong> suporte@ratixpay.com</li>
+                    <li><strong>WhatsApp:</strong> +258 860 769 147</li>
+                    <li><strong>Website:</strong> <a href="https://ratixpay.com">ratixpay.com</a></li>
+                </ul>
+
+                <h3 class="subsection-title">15.5. Idioma</h3>
+                <p>
+                    Estes termos estão disponíveis em português. Em caso de conflito entre versões em diferentes 
+                    idiomas, a versão em português prevalecerá.
+                </p>
+            </section>
+
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h3 style="margin-top: 0; color: var(--primary-color);">
+                    <i class="fas fa-check-circle"></i> Aceitação dos Termos
+                </h3>
+                <p style="margin-bottom: 0;">
+                    Ao utilizar a plataforma Ratixpay, você confirma que leu, compreendeu e aceita todos os termos 
+                    e condições aqui descritos. Se você não concorda com qualquer parte destes termos, 
+                    não deve utilizar nossos serviços.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <p><strong>Ratixpay</strong> - Plataforma de Pagamentos Digitais</p>
+            <p>© 2024 Ratixpay. Todos os direitos reservados.</p>
+            <p>
+                <a href="/">Início</a> | 
+                <a href="/termos-condicoes.html">Termos e Condições</a> | 
+                <a href="mailto:suporte@ratixpay.com">Suporte</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Definir data de atualização
+        document.getElementById('dataAtualizacao').textContent = new Date().toLocaleDateString('pt-BR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Smooth scroll para links do índice
+        document.querySelectorAll('.table-of-contents a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

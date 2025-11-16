@@ -12,10 +12,17 @@
         /* Main Content */
         .main-content {
             padding-top: 0;
+            margin-left: 250px !important;
+            width: calc(100% - 250px) !important;
         }
 
         /* Responsividade */
         @media (max-width: 768px) {
+            .main-content {
+                margin-left: 80px !important;
+                width: calc(100% - 80px) !important;
+            }
+
             .header-pagamentos {
                 padding: 15px 20px;
                 min-height: 70px;
@@ -27,6 +34,11 @@
         }
 
         @media (max-width: 480px) {
+            .main-content {
+                margin-left: 70px !important;
+                width: calc(100% - 70px) !important;
+            }
+
             .header-pagamentos {
                 padding: 10px 15px;
                 min-height: 60px;

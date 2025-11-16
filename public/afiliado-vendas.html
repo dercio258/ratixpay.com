@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
 <title>Vendas - Afiliado RatixPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
-        
 <style>
         :root {
             --primary-color: #F64C00;
@@ -354,13 +352,13 @@
                 <h1 class="page-title">
                     <i class="fas fa-shopping-cart"></i> Suas Vendas
                 </h1>
-                <p class="page-subtitle">Acompanhe todas as vendas realizadas atravÈs dos seus links</p>
+                <p class="page-subtitle">Acompanhe todas as vendas realizadas atrav√©s dos seus links</p>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- EstatÌsticas -->
+        <!-- Estat√≠sticas -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="stats-card primary">
@@ -377,7 +375,7 @@
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stats-number" id="totalComissoes">MZN 0.00</div>
-                    <div class="stats-label">Comissıes Ganhas</div>
+                    <div class="stats-label">Comiss√µes Ganhas</div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
@@ -395,7 +393,7 @@
                         <i class="fas fa-percentage"></i>
                     </div>
                     <div class="stats-number" id="taxaConversao">0%</div>
-                    <div class="stats-label">Taxa de Convers„o</div>
+                    <div class="stats-label">Taxa de Convers√£o</div>
                 </div>
             </div>
         </div>
@@ -403,7 +401,7 @@
         <!-- Tabela de Vendas -->
         <div class="table-container">
             <h3 class="table-title">
-                <i class="fas fa-list"></i> HistÛrico de Vendas
+                <i class="fas fa-list"></i> Hist√≥rico de Vendas
             </h3>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -413,9 +411,9 @@
                             <th>Produto</th>
                             <th>Ref (Link Afiliado)</th>
                             <th>Valor da Venda</th>
-                            <th>Sua Comiss„o</th>
+                            <th>Sua Comiss√£o</th>
                             <th>Status</th>
-                            <th>AÁıes</th>
+                            <th>A√ß√µes</th>
                         </tr>
                     </thead>
                     <tbody id="vendasTable">
@@ -440,324 +438,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // ConfiguraÁıes
-        window.API_BASE = 'http://localhost:4000/api';
-        
-        // Vari·veis globais
-        let afiliado = null;
-        let vendas = [];
-        let estatisticas = {};
-
-        // Carregar dados iniciais
-        async function carregarDados() {
-            try {
-                console.log('?? Carregando dados do afiliado...');
-                mostrarLoading(true);
-                
-                // Verificar se est· logado
-                const token = localStorage.getItem('afiliado_token');
-                const afiliadoData = localStorage.getItem('afiliado_data');
-                
-                if (!token || !afiliadoData) {
-                    window.location.href = '/afiliados.html';
-                    return;
-                }
-                
-                afiliado = JSON.parse(afiliadoData);
-                document.getElementById('afiliadoNome').textContent = afiliado.nome;
-                
-                await Promise.all([
-                    carregarVendas(),
-                    carregarEstatisticas()
-                ]);
-                
-                atualizarInterface();
-                mostrarLoading(false);
-                
-            } catch (error) {
-                console.error('? Erro ao carregar dados:', error);
-                alert('Erro ao carregar dados: ' + error.message);
-                mostrarLoading(false);
-            }
-        }
-
-        // Carregar vendas
-        async function carregarVendas() {
-            try {
-                const token = localStorage.getItem('afiliado_token');
-                
-                const response = await fetch(`${window.API_BASE}/afiliados/minhas-vendas`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    vendas = data.data || [];
-                    console.log('? Vendas carregadas:', vendas.length);
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('?? Erro ao carregar vendas:', response.status, errorData);
-                    
-                    // Se for erro de autenticaÁ„o, redirecionar para login
-                    if (response.status === 401 || response.status === 403) {
-                        alert('Sua sess„o expirou. Por favor, faÁa login novamente.');
-                        localStorage.removeItem('afiliado_token');
-                        localStorage.removeItem('afiliado_data');
-                        window.location.href = '/afiliados.html';
-                        return;
-                    }
-                    
-                    vendas = [];
-                }
-                
-            } catch (error) {
-                console.error('? Erro ao carregar vendas:', error);
-                vendas = [];
-            }
-        }
-
-        // Carregar estatÌsticas
-        async function carregarEstatisticas() {
-            try {
-                const token = localStorage.getItem('afiliado_token');
-                
-                const response = await fetch(`${window.API_BASE}/afiliados/minhas-vendas-estatisticas`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    estatisticas = data.data || {};
-                    console.log('? EstatÌsticas carregadas');
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('?? Erro ao carregar estatÌsticas:', response.status, errorData);
-                    
-                    // Se for erro de autenticaÁ„o, redirecionar para login
-                    if (response.status === 401 || response.status === 403) {
-                        alert('Sua sess„o expirou. Por favor, faÁa login novamente.');
-                        localStorage.removeItem('afiliado_token');
-                        localStorage.removeItem('afiliado_data');
-                        window.location.href = '/afiliados.html';
-                        return;
-                    }
-                    
-                    estatisticas = {};
-                }
-                
-            } catch (error) {
-                console.error('? Erro ao carregar estatÌsticas:', error);
-                estatisticas = {};
-            }
-        }
-
-        // Atualizar interface
-        function atualizarInterface() {
-            // Atualizar estatÌsticas
-            document.getElementById('totalVendas').textContent = estatisticas.totalVendas || 0;
-            document.getElementById('totalComissoes').textContent = `MZN ${parseFloat(estatisticas.totalComissoes || 0).toFixed(2)}`;
-            document.getElementById('vendasPendentes').textContent = estatisticas.vendasPendentes || 0;
-            document.getElementById('taxaConversao').textContent = `${parseFloat(estatisticas.taxaConversao || 0).toFixed(1)}%`;
-            
-            // Renderizar tabela de vendas
-            renderizarTabelaVendas();
-        }
-
-        // Renderizar tabela de vendas
-        function renderizarTabelaVendas() {
-            const tbody = document.getElementById('vendasTable');
-            const emptyState = document.getElementById('emptyState');
-            
-            if (vendas.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            tbody.innerHTML = vendas.map(venda => {
-                const statusClass = getStatusClass(venda.status);
-                const statusText = getStatusText(venda.status);
-                
-                // Extrair referÍncia do link do afiliado
-                const refMatch = venda.link_afiliado ? venda.link_afiliado.match(/ref=([^&]+)/) : null;
-                const referencia = refMatch ? refMatch[1] : 'N/A';
-                
-                return `
-                    <tr>
-                        <td>${formatarData(venda.data_venda)}</td>
-                        <td><strong>${venda.produto_nome}</strong></td>
-                        <td>
-                            <code style="font-size: 0.8rem; background: #e3f2fd; padding: 4px 8px; border-radius: 4px; color: #1976d2; font-weight: bold;">${referencia}</code>
-                        </td>
-                        <td><strong>MZN ${parseFloat(venda.valor_venda).toFixed(2)}</strong></td>
-                        <td><strong style="color: var(--success-color);">MZN ${parseFloat(venda.valor_comissao).toFixed(2)}</strong></td>
-                        <td><span class="badge ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-outline-primary btn-sm" onclick="verificarStatusVenda('${venda.transaction_id}')" title="Verificar Status">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                                <button class="btn btn-outline-info btn-sm" onclick="verDetalhesVenda('${venda.id}')" title="Ver Detalhes">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            emptyState.style.display = 'none';
-        }
-
-        // Obter classe do status
-        function getStatusClass(status) {
-            switch (status) {
-                case 'pago':
-                    return 'badge-success';
-                case 'pendente':
-                    return 'badge-warning';
-                case 'cancelado':
-                    return 'badge-danger';
-                default:
-                    return 'badge-info';
-            }
-        }
-
-        // Obter texto do status
-        function getStatusText(status) {
-            switch (status) {
-                case 'pago':
-                    return 'Pago';
-                case 'pendente':
-                    return 'Pendente';
-                case 'cancelado':
-                    return 'Cancelado';
-                default:
-                    return status;
-            }
-        }
-
-        // Formatar data
-        function formatarData(data) {
-            if (!data) return 'N/A';
-            const date = new Date(data);
-            return date.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // Mostrar loading
-        function mostrarLoading(mostrar) {
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        // Verificar status da venda via API de pagamento
-        async function verificarStatusVenda(transactionId) {
-            try {
-                console.log('?? Verificando status da venda:', transactionId);
-                
-                const response = await fetch(`${window.API_BASE}/e2payments/status/${transactionId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('? Status da venda:', data);
-                    
-                    if (data.success && data.status === 'approved') {
-                        // Atualizar status da venda para pago
-                        await atualizarStatusVenda(transactionId, 'pago');
-                        alert('? Venda aprovada! Sua comiss„o foi creditada.');
-                        carregarVendas(); // Recarregar dados
-                    } else {
-                        alert(`Status atual: ${data.status || 'Pendente'}`);
-                    }
-                } else {
-                    alert('? Erro ao verificar status da venda');
-                }
-            } catch (error) {
-                console.error('? Erro ao verificar status:', error);
-                alert('? Erro ao verificar status da venda');
-            }
-        }
-        
-        // Atualizar status da venda
-        async function atualizarStatusVenda(transactionId, novoStatus) {
-            try {
-                const token = localStorage.getItem('afiliado_token');
-                if (!token) return;
-                
-                const response = await fetch(`${window.API_BASE}/afiliados/vendas/atualizar-status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        transaction_id: transactionId,
-                        status: novoStatus
-                    })
-                });
-                
-                if (response.ok) {
-                    console.log('? Status da venda atualizado');
-                }
-            } catch (error) {
-                console.error('? Erro ao atualizar status:', error);
-            }
-        }
-        
-        // Ver detalhes da venda
-        function verDetalhesVenda(vendaId) {
-            const venda = vendas.find(v => v.id === vendaId);
-            if (!venda) return;
-            
-            const detalhes = `
-?? DETALHES DA VENDA
-
-??? Produto: ${venda.produto_nome}
-?? Valor: MZN ${parseFloat(venda.valor_venda).toFixed(2)}
-?? Sua Comiss„o: MZN ${parseFloat(venda.valor_comissao).toFixed(2)}
-?? Data: ${formatarData(venda.data_venda)}
-?? Link Afiliado: ${venda.link_afiliado || 'N/A'}
-?? Status: ${getStatusText(venda.status)}
-            `;
-            
-            alert(detalhes);
-        }
-        
-        // Logout
-        function logout() {
-            localStorage.removeItem('afiliado_token');
-            localStorage.removeItem('afiliado_data');
-            window.location.href = '/afiliados.html';
-        }
-
-        // Inicializar p·gina
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('?? Inicializando p·gina de vendas...');
-            carregarDados();
-        });
-    </script>
-    
+    <script src="js/afiliadoAuth.js"></script>
+    <script src="js/afiliadoVendasPage.js"></script>
 </body>
 </html>
+

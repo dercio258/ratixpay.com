@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -419,7 +419,7 @@
         <div class="container">
             <div class="header-content">
                 <h1 class="page-title">
-                    <i class="fas fa-box"></i> Produtos Disponíveis
+                    <i class="fas fa-box"></i> Produtos DisponÃ¯Â¿Â½veis
                 </h1>
                 <p class="page-subtitle">Escolha os produtos para gerar seus links de afiliado</p>
             </div>
@@ -435,8 +435,8 @@
         <!-- Empty State -->
         <div class="empty-state" id="emptyState" style="display: none;">
             <i class="fas fa-box-open"></i>
-            <h3>Nenhum produto disponível</h3>
-            <p>Entre em contato com o administrador para mais informações.</p>
+            <h3>Nenhum produto disponÃ¯Â¿Â½vel</h3>
+            <p>Entre em contato com o administrador para mais informaÃ¯Â¿Â½Ã¯Â¿Â½es.</p>
         </div>
     </div>
 
@@ -466,7 +466,7 @@
                         <div class="link-display" id="modalLinkAfiliado"></div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><strong>Sua Comissão:</strong></label>
+                        <label class="form-label"><strong>Sua ComissÃ¯Â¿Â½o:</strong></label>
                         <p id="modalComissao"></p>
                     </div>
                 </div>
@@ -480,13 +480,13 @@
         </div>
     </div>
 
-    <!-- Modal para Descrição do Produto -->
+    <!-- Modal para DescriÃ¯Â¿Â½Ã¯Â¿Â½o do Produto -->
     <div class="modal fade" id="descricaoModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-info-circle"></i> Descrição do Produto
+                        <i class="fas fa-info-circle"></i> DescriÃ¯Â¿Â½Ã¯Â¿Â½o do Produto
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -496,7 +496,7 @@
                         <p id="modalDescricaoProdutoNome"></p>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><strong>Descrição:</strong></label>
+                        <label class="form-label"><strong>DescriÃ¯Â¿Â½Ã¯Â¿Â½o:</strong></label>
                         <div class="descricao-content" id="modalDescricaoConteudo"></div>
                     </div>
                 </div>
@@ -507,8 +507,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-        // Função para fallback de imagens
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/afiliadoAuth.js"></script>
+    <script src="js/afiliadoProdutosPage.js"></script>
+    <script>
+        // FunÃ¯Â¿Â½Ã¯Â¿Â½o para fallback de imagens
         function aplicarFallbackImagens() {
             const productImages = document.querySelectorAll('.product-image');
             productImages.forEach(img => {
@@ -539,256 +542,10 @@
             });
         }
         
-        // Aplicar fallback após carregar produtos
+        // Aplicar fallback apÃ³s carregar produtos
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(aplicarFallbackImagens, 1000);
         });
-</script>
-    <script>
-        // Configurações
-        window.API_BASE = 'http://localhost:4000/api';
-        
-        // Variáveis globais
-        let afiliado = null;
-        let produtos = [];
-        let linkAtual = '';
-
-        // Carregar dados iniciais
-        async function carregarDados() {
-            try {
-                console.log('?? Carregando dados do afiliado...');
-                mostrarLoading(true);
-                
-                // Verificar se está logado
-                const token = localStorage.getItem('afiliado_token');
-                const afiliadoData = localStorage.getItem('afiliado_data');
-                
-                if (!token || !afiliadoData) {
-                    window.location.href = '/afiliados.html';
-                    return;
-                }
-                
-                afiliado = JSON.parse(afiliadoData);
-                document.getElementById('afiliadoNome').textContent = afiliado.nome;
-                
-                await carregarProdutos();
-                mostrarLoading(false);
-                
-            } catch (error) {
-                console.error('? Erro ao carregar dados:', error);
-                alert('Erro ao carregar dados: ' + error.message);
-                mostrarLoading(false);
-            }
-        }
-
-        // Carregar produtos
-        async function carregarProdutos() {
-            try {
-                const token = localStorage.getItem('afiliado_token');
-                
-                if (!token) {
-                    console.error('? Token não encontrado');
-                    window.location.href = '/afiliados.html';
-                    return;
-                }
-                
-                console.log('?? Carregando produtos...');
-                const response = await fetch(`${window.API_BASE}/produtos/afiliados`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    produtos = data.data || [];
-                    console.log('? Produtos com afiliados carregados:', produtos.length);
-                    
-                    if (produtos.length > 0) {
-                    renderizarProdutos();
-                        // Aplicar fallback de imagens após renderizar
-                        setTimeout(() => {
-                            aplicarFallbackImagens();
-                        }, 100);
-                    } else {
-                        mostrarEmptyState();
-                    }
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('?? Erro ao carregar produtos:', response.status, errorData);
-                    
-                    // Se for erro de autenticação, redirecionar para login
-                    if (response.status === 401 || response.status === 403) {
-                        alert('Sua sessão expirou. Por favor, faça login novamente.');
-                        localStorage.removeItem('afiliado_token');
-                        localStorage.removeItem('afiliado_data');
-                        window.location.href = '/afiliados.html';
-                        return;
-                    }
-                    
-                    produtos = [];
-                    mostrarEmptyState();
-                }
-                
-            } catch (error) {
-                console.error('? Erro ao carregar produtos:', error);
-                produtos = [];
-                mostrarEmptyState();
-            }
-        }
-
-        // Renderizar produtos
-        function renderizarProdutos() {
-            const grid = document.getElementById('productsGrid');
-            const emptyState = document.getElementById('emptyState');
-            
-            if (produtos.length === 0) {
-                mostrarEmptyState();
-                return;
-            }
-            
-            grid.innerHTML = produtos.map(produto => {
-                const comissao = (parseFloat(produto.preco) * (afiliado.comissao_percentual / 100)).toFixed(2);
-                
-                // Construir URL da imagem usando a rota da API
-                let imagemUrl = '';
-                if (produto.custom_id) {
-                    imagemUrl = `${window.API_BASE}/produtos/imagem/${produto.custom_id}`;
-                } else if (produto.imagem_url) {
-                    // Se já for uma URL completa, usar diretamente
-                    imagemUrl = produto.imagem_url.startsWith('http') 
-                        ? produto.imagem_url 
-                        : `${window.API_BASE}/produtos/imagem/${produto.custom_id || produto.id}`;
-                } else if (produto.imagem) {
-                    imagemUrl = produto.imagem.startsWith('http') 
-                        ? produto.imagem 
-                        : `${window.API_BASE}/produtos/imagem/${produto.custom_id || produto.id}`;
-                }
-                
-                const tipo = produto.tipo || 'Digital';
-                const categoria = produto.categoria || 'Geral';
-                const descricao = produto.descricao || 'Produto digital de alta qualidade';
-                
-                return `
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="product-card">
-                            <div class="product-image" style="background-image: ${imagemUrl ? `url('${imagemUrl}')` : 'none'}; background-size: cover; background-position: center;">
-                                ${imagemUrl ? '' : '<div class="product-image-placeholder"><i class="fas fa-box"></i></div>'}
-                            </div>
-                            <div class="product-category">${categoria}</div>
-                            <div class="product-type">${tipo}</div>
-                            <h3 class="product-title">${produto.nome}</h3>
-                            <button class="btn btn-ver-descricao" onclick="mostrarDescricao('${produto.nome}', '${descricao.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-info-circle"></i> Ver Descrição
-                            </button>
-                            <div class="product-price">MZN ${parseFloat(produto.preco).toFixed(2)}</div>
-                            <div class="product-commission">
-                                <i class="fas fa-percentage"></i> Sua comissão: MZN ${comissao}
-                            </div>
-                            <button class="btn btn-generate-link" onclick="gerarLinkAfiliado('${produto.id}', '${produto.nome}', '${produto.preco}')">
-                                <i class="fas fa-link"></i> Gerar Link de Afiliado
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            emptyState.style.display = 'none';
-            
-            // Fallback de imagens já é aplicado em carregarProdutos após renderizar
-        }
-
-        // Mostrar estado vazio
-        function mostrarEmptyState() {
-            document.getElementById('productsGrid').innerHTML = '';
-            document.getElementById('emptyState').style.display = 'block';
-        }
-
-        // Gerar link de afiliado
-        async function gerarLinkAfiliado(produtoId, produtoNome, preco) {
-            try {
-                const token = localStorage.getItem('afiliado_token');
-                
-                const response = await fetch(`${window.API_BASE}/afiliados/gerar-link`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        produto_id: produtoId,
-                        produto_nome: produtoNome,
-                        preco: preco
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    linkAtual = data.link_afiliado;
-                    
-                    // Mostrar modal
-                    document.getElementById('modalProdutoNome').textContent = produtoNome;
-                    document.getElementById('modalLinkAfiliado').textContent = linkAtual;
-                    document.getElementById('modalComissao').textContent = `MZN ${(parseFloat(preco) * (afiliado.comissao_percentual / 100)).toFixed(2)}`;
-                    
-                    const modal = new bootstrap.Modal(document.getElementById('linkModal'));
-                    modal.show();
-                    
-                } else {
-                    const errorData = await response.json();
-                    alert('Erro ao gerar link: ' + errorData.message);
-                }
-                
-            } catch (error) {
-                console.error('? Erro ao gerar link:', error);
-                alert('Erro ao gerar link: ' + error.message);
-            }
-        }
-
-        // Copiar link do modal
-        function copiarLinkModal() {
-            if (linkAtual) {
-                navigator.clipboard.writeText(linkAtual).then(() => {
-                    alert('Link copiado para a área de transferência!');
-                }).catch(err => {
-                    console.error('Erro ao copiar:', err);
-                    alert('Erro ao copiar link. Tente selecionar e copiar manualmente.');
-                });
-            }
-        }
-
-        // Mostrar descrição do produto
-        function mostrarDescricao(nomeProduto, descricao) {
-            document.getElementById('modalDescricaoProdutoNome').textContent = nomeProduto;
-            document.getElementById('modalDescricaoConteudo').innerHTML = descricao;
-            
-            const modal = new bootstrap.Modal(document.getElementById('descricaoModal'));
-            modal.show();
-        }
-
-        // Mostrar loading
-        function mostrarLoading(mostrar) {
-            const loading = document.getElementById('loading');
-            if (loading) {
-                loading.style.display = mostrar ? 'block' : 'none';
-            }
-        }
-
-        // Logout
-        function logout() {
-            localStorage.removeItem('afiliado_token');
-            localStorage.removeItem('afiliado_data');
-            window.location.href = '/afiliados.html';
-        }
-
-        // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('?? Inicializando página de produtos...');
-            carregarDados();
-        });
     </script>
-    
 </body>
 </html>

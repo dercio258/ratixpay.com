@@ -499,7 +499,6 @@ async function apagarTodosDados() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando dashboard...');
     
     // Configurar filtro de período
     document.getElementById('filtro-periodo').addEventListener('change', function() {
@@ -525,6 +524,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carregar dados iniciais
     carregarDados();
     
-    console.log('Dashboard inicializado com sucesso');
 });
 

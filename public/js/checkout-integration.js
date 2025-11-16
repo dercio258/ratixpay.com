@@ -27,7 +27,6 @@ class CheckoutIntegration {
             if (window.paymentMonitor) {
                 this.paymentMonitor = window.paymentMonitor;
                 this.setupIntegration();
-                console.log('✅ Integração do checkout com monitor de pagamentos ativa');
             } else {
                 setTimeout(checkMonitor, 100);
             }
@@ -81,12 +80,10 @@ class CheckoutIntegration {
         const maxChecks = 12;
         const checkInterval = 5000;
 
-        console.log('🔄 Iniciando verificação de status integrada...');
 
         this.statusCheckInterval = setInterval(async () => {
             try {
                 checkCount++;
-                console.log(`🔄 Verificando status (${checkCount}/${maxChecks})...`);
 
                 const response = await fetch(`${window.API_BASE}/status/${transactionId}`, {
                     method: 'GET',
@@ -97,7 +94,6 @@ class CheckoutIntegration {
                 });
 
                 if (!response.ok) {
-                    console.log(`❌ Erro HTTP ${response.status} ao verificar status`);
                     
                     if (response.status >= 400) {
                         this.handleStatusError(transactionId, response.status);
@@ -108,7 +104,6 @@ class CheckoutIntegration {
                 }
 
                 const result = await response.json();
-                console.log(`🔄 Verificação ${checkCount}/${maxChecks} - Resposta:`, result);
 
                 if (result.error || result.success === false) {
                     this.handleStatusError(transactionId, result.error || result.message);
@@ -129,21 +124,21 @@ class CheckoutIntegration {
                 }
 
                 // Verificar se atingiu o limite de verificações
+                // NÃO cancelar, apenas parar verificação e aguardar status real da PayMoz
                 if (checkCount >= maxChecks) {
-                    this.handleStatusTimeout(transactionId);
+                    this.stopStatusChecks();
+                    // Manter status pendente, não cancelar
                     return;
                 }
 
             } catch (error) {
                 console.error('❌ Erro na verificação de status:', error);
-                this.handleStatusError(transactionId, error.message);
+                // Não cancelar por erro, apenas parar verificação
+                this.stopStatusChecks();
             }
         }, checkInterval);
 
-        // Timeout total
-        this.statusCheckTimeout = setTimeout(() => {
-            this.handleStatusTimeout(transactionId);
-        }, 60000);
+        // Removido timeout que força cancelamento - aguardar status real da PayMoz
     }
 
     /**
@@ -255,7 +250,6 @@ class CheckoutIntegration {
                     motivo: motivo
                 })
             });
-            console.log(`✅ Status da venda atualizado para ${status}`);
         } catch (error) {
             console.error('❌ Erro ao atualizar status da venda:', error);
         }
@@ -271,7 +265,6 @@ class CheckoutIntegration {
         }
 
         // Implementação padrão
-        console.log(`📊 Status da transação: ${status} - ${message}`);
         
         // Fechar modais existentes
         const existingModal = document.querySelector('.transaction-modal');

@@ -43,33 +43,12 @@ function getSimulatedProduct(id) {
     const simulatedProducts = {
         '1': {
             id: '1',
-            name: 'Curso de Marketing Digital',
-            type: 'curso',
-            price: 297.00,
-            finalPrice: 297.00,
-            discount: 0,
-            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDA3YmZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5NYXJrZXRpbmc8L3RleHQ+PC9zdmc+',
-            description: 'Aprenda as melhores estratégias de marketing digital'
         },
         '2': {
             id: '2',
-            name: 'eBook: Finanças Pessoais',
-            type: 'ebook',
-            price: 47.00,
-            finalPrice: 47.00,
-            discount: 0,
-            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjhjM2U1MCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RmluYW7Dp2FzPC90ZXh0Pjwvc3ZnPg==',
-            description: 'Guia completo para organizar suas finanças'
         },
         'L47FUIO0N': {
             id: 'L47FUIO0N',
-            name: 'Marketing Avançado - Plano Premium',
-            type: 'plano',
-            price: 297.00,
-            finalPrice: 297.00,
-            discount: 0,
-            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjAwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5QcmVtaXVtPC90ZXh0Pjwvc3ZnPg==',
-            description: 'Ative o Marketing Avançado por 30 dias e aumente suas vendas com automações inteligentes'
         }
     };
     
@@ -83,7 +62,6 @@ function autoFillVendorData() {
     const vendedorEmail = urlParams.get('email');
     const vendedorNome = urlParams.get('nome');
     
-    console.log('🔍 Parâmetros do vendedor:', { vendedorId, vendedorEmail, vendedorNome });
     
     if (vendedorEmail && vendedorNome) {
         // Preencher campos do formulário
@@ -94,14 +72,12 @@ function autoFillVendorData() {
             emailField.value = decodeURIComponent(vendedorEmail);
             emailField.readOnly = true; // Impedir edição
             emailField.style.backgroundColor = '#f8f9fa';
-            console.log('✅ Email do vendedor preenchido:', vendedorEmail);
         }
         
         if (nomeField) {
             nomeField.value = decodeURIComponent(vendedorNome);
             nomeField.readOnly = true; // Impedir edição
             nomeField.style.backgroundColor = '#f8f9fa';
-            console.log('✅ Nome do vendedor preenchido:', vendedorNome);
         }
         
         // Mostrar notificação de autenticação automática
@@ -290,29 +266,15 @@ async function processPayment(customerData) {
     // Criar dados do pedido
     const orderData = {
         id: Date.now().toString(),
-        product: currentProduct,
-        customer: customerData,
-        amount: finalPrice,
-        paymentMethod: customerData.paymentMethod,
-        status: 'pending',
-        createdAt: new Date().toISOString()
     };
 
     // Dados para API de pagamento E2Payment
     const paymentData = {
         produtoPublicId: currentProduct.public_id || currentProduct.id,
-        numeroCelular: customerData.phone,
-        metodo: customerData.paymentMethod || 'mpesa', // Usar método escolhido pelo cliente
-        nomeCliente: customerData.name,
-        emailCliente: customerData.email,
-        whatsappCliente: customerData.whatsapp || null,
-        valor: finalPrice,
-        productName: currentProduct.name,
         customerPhone: customerData.phone
     };
 
     try {
-        console.log(`Enviando requisição para: ${window.API_BASE}/pagar`);
         const response = await fetch(`${window.API_BASE}/pagar`, {
             method: 'POST',
             credentials: 'include', // Importante para permitir cookies de sessão
@@ -320,7 +282,6 @@ async function processPayment(customerData) {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify(paymentData)
         });
         const result = await response.json();
         if(result && result.status === 'success') {
@@ -407,14 +368,10 @@ function showNotification(message, type = 'info') {
         color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
         border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
         border-radius: 8px;
-        padding: 12px 16px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         z-index: 1000;
-        display: flex;
         align-items: center;
-        gap: 8px;
         font-weight: 500;
-        animation: slideIn 0.3s ease-out;
     `;
     
     document.body.appendChild(notification);

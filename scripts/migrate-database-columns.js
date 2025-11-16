@@ -148,6 +148,55 @@ const migrations = [
                 END IF;
             END $$;
         `
+    },
+    {
+        name: 'add_email_verification_to_afiliados',
+        sql: `
+            -- Adicionar campos de verificação de email na tabela afiliados
+            DO $$ 
+            BEGIN
+                -- Verificar se tabela afiliados existe
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'afiliados') THEN
+                    -- Adicionar coluna email_verificado se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'email_verificado'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN email_verificado BOOLEAN DEFAULT false NOT NULL;
+                        RAISE NOTICE 'Coluna email_verificado adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna email_verificado já existe na tabela afiliados';
+                    END IF;
+
+                    -- Adicionar coluna codigo_verificacao se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'codigo_verificacao'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN codigo_verificacao VARCHAR(10);
+                        RAISE NOTICE 'Coluna codigo_verificacao adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna codigo_verificacao já existe na tabela afiliados';
+                    END IF;
+
+                    -- Adicionar coluna codigo_verificacao_expira se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'codigo_verificacao_expira'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN codigo_verificacao_expira TIMESTAMP;
+                        RAISE NOTICE 'Coluna codigo_verificacao_expira adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna codigo_verificacao_expira já existe na tabela afiliados';
+                    END IF;
+                ELSE
+                    RAISE NOTICE 'Tabela afiliados não existe, pulando migração';
+                END IF;
+            END $$;
+        `
     }
 ];
 

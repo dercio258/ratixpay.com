@@ -254,6 +254,27 @@ body {
     flex-direction: column;
     box-shadow: 2px 0 15px rgba(0,0,0,0.4);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Garantir que logo fique no topo e fixa */
+.sidebar-logo {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+    order: -1;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    background: #000000;
+    z-index: 10;
 }
 
 .sidebar h2 {
@@ -265,6 +286,10 @@ body {
 .sidebar ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .sidebar ul li {
@@ -312,7 +337,9 @@ body {
     padding: 100px 30px 30px 30px;
     display: flex;
     flex-direction: column;
-    margin-top: 0;
+    margin-left: 250px;
+    min-height: 100vh;
+    width: calc(100% - 250px);
 }
 
 /* Dashboard Header */
@@ -701,6 +728,13 @@ body {
     .sidebar {
         width: 70px;
         padding: 10px 5px;
+        position: fixed;
+        height: 100vh;
+    }
+
+    .main-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
     }
 
     .sidebar ul li a {

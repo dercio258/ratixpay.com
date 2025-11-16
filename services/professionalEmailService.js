@@ -27,8 +27,8 @@ class ProfessionalEmailService {
             sistema: {
                 user: process.env.EMAIL_SISTEMA_USER || 'sistema@ratixpay.com',
                 pass: process.env.EMAIL_SISTEMA_PASS || '',
-                name: 'RatixPay Sistema',
-                from: '"RatixPay Sistema" <sistema@ratixpay.com>'
+                name: 'Ratixpay Segurança',
+                from: '"Ratixpay Segurança" <sistema@ratixpay.com>'
             },
             suporte: {
                 user: process.env.EMAIL_SUPORTE_USER || 'suporte@ratixpay.com',
@@ -210,8 +210,14 @@ class ProfessionalEmailService {
             return { success: false, error: `Configuração não encontrada para categoria: ${category}` };
         }
 
+        // Personalizar nome do remetente para emails de bloqueio
+        let fromAddress = config.from;
+        if (category === 'sistema' && tipo === 'notificacao_bloqueio') {
+            fromAddress = '"Bloqueio de Conta Ratixpay" <sistema@ratixpay.com>';
+        }
+
         const mailOptions = {
-            from: config.from,
+            from: fromAddress,
             to: validated.destinatario,
             subject: validated.assunto,
             html: this.formatarEmail(category, validated.conteudo, tipo)
@@ -365,7 +371,14 @@ class ProfessionalEmailService {
      */
     formatarEmail(category, conteudo, tipo) {
         // Verificar se o conteúdo já é um template HTML completo
-        if (conteudo.includes('<!DOCTYPE html>') || conteudo.includes('<html') || conteudo.includes('email-wrapper')) {
+        // Verificar por múltiplos indicadores de template completo
+        const isCompleteTemplate = conteudo.includes('<!DOCTYPE html>') || 
+                                   conteudo.includes('<html') || 
+                                   conteudo.includes('email-wrapper') ||
+                                   conteudo.includes('<head>') ||
+                                   (conteudo.includes('<style>') && conteudo.includes('@media'));
+        
+        if (isCompleteTemplate) {
             console.log('📧 Template HTML completo detectado - enviando sem cabeçalho adicional');
             return conteudo;
         }
@@ -379,7 +392,7 @@ class ProfessionalEmailService {
             },
             sistema: {
                 headerColor: '#F64C00',
-                title: 'RatixPay Sistema',
+                title: 'RatixPay',
                 footerText: 'Para suporte: Suporte',
                 footerLink: 'suporte@ratixpay.com'
             },
@@ -414,11 +427,47 @@ class ProfessionalEmailService {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${template.title}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; }
-                    .container { background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-                    .header { background: linear-gradient(135deg, ${corHeader} 0%, ${this.darkenColor(corHeader)} 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                    .content { padding: 30px; background-color: #ffffff; }
-                    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; color: #666; }
+                    body { 
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+                        line-height: 1.6; 
+                        color: #333; 
+                        margin: 0; 
+                        padding: 0; 
+                        background-color: #f4f4f4; 
+                    }
+                    .container { 
+                        max-width: 600px; 
+                        margin: 0 auto; 
+                        background: white; 
+                        border-radius: 8px; 
+                        padding: 0; 
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+                    }
+                    .header { 
+                        background: linear-gradient(135deg, ${corHeader} 0%, ${this.darkenColor(corHeader)} 100%); 
+                        color: white; 
+                        padding: 20px; 
+                        text-align: center; 
+                        border-radius: 8px 8px 0 0; 
+                    }
+                    .content { 
+                        padding: 30px 20px; 
+                        background-color: #ffffff; 
+                    }
+                    .footer { 
+                        background-color: #f8f9fa; 
+                        padding: 20px; 
+                        text-align: center; 
+                        border-radius: 0 0 8px 8px; 
+                        color: #666; 
+                    }
+                    @media only screen and (max-width: 600px) {
+                        body { padding: 10px !important; }
+                        .container { width: 100% !important; border-radius: 0 !important; }
+                        .header { padding: 15px !important; }
+                        .content { padding: 20px 15px !important; }
+                        .footer { padding: 15px !important; }
+                    }
                 </style>
             </head>
             <body>

@@ -7,51 +7,12 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 <style>
-        /* Header específico para Ferramentas */
-        .header-ferramentas {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 30px;
-            border-radius: 0 0 15px 15px;
-            min-height: 160px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            flex-wrap: wrap;
-            gap: 20px;
-            overflow: hidden;
-        }
-
-        .header-ferramentas::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(246, 76, 0, 0.1) 50%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .header-ferramentas h2 {
-            margin: 0;
-            font-size: 2rem;
-            color: #ffffff;
-            flex: 1;
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: 1px;
-        }
 
         /* Main Content */
         .main-content {
             padding-top: 0;
+            margin-left: 250px !important;
+            width: calc(100% - 250px) !important;
         }
 
         /* Configurações Container */
@@ -479,14 +440,11 @@
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .header-ferramentas {
-                padding: 15px 20px;
-                min-height: 70px;
+            .main-content {
+                margin-left: 80px !important;
+                width: calc(100% - 80px) !important;
             }
 
-            .header-ferramentas h2 {
-                font-size: 2rem;
-            }
 
             .config-container {
                 padding: 0 15px;
@@ -533,14 +491,11 @@
         }
 
         @media (max-width: 480px) {
-            .header-ferramentas {
-                padding: 10px 15px;
-                min-height: 60px;
+            .main-content {
+                margin-left: 70px !important;
+                width: calc(100% - 70px) !important;
             }
 
-            .header-ferramentas h2 {
-                font-size: 1.6rem;
-            }
 
             .config-container {
                 padding: 0 10px;
@@ -657,7 +612,7 @@
         <!-- Conteúdo Principal -->
         <div class="main-content">
             <!-- Header da Ferramentas -->
-            <div class="header-ferramentas">
+            <div>
                 <h2>FERRAMENTAS</h2>
             </div>
             
@@ -905,8 +860,6 @@
       <script>
         // Configuração da API
         window.API_BASE = window.location.origin + '/api';
-        console.log('🔧 API_BASE configurado:', window.API_BASE);
-        
         // Inicializar sidebar com seção ativa
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = new SidebarComponent();
@@ -986,14 +939,10 @@
                 uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
                 uploadBtn.disabled = true;
 
-                console.log('🖼️ Iniciando upload de avatar...');
-                
                 // Usar o sistema de upload interno do servidor
                 const formData = new FormData();
                 formData.append('image', file);
                 formData.append('folder', 'avatars');
-                
-                console.log('🔄 Fazendo upload para servidor interno...');
                 
                 const response = await fetch(`${window.API_BASE}/upload/enhanced/single`, {
                     method: 'POST',
@@ -1003,8 +952,6 @@
                     }
                 });
                 
-                console.log('📡 Resposta do upload:', response.status, response.statusText);
-                
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('❌ Erro na resposta do upload:', errorText);
@@ -1012,16 +959,12 @@
                 }
                 
                 const result = await response.json();
-                console.log('📦 Resultado do upload:', result);
-                
                 if (!result.success) {
                     throw new Error(result.message || 'Erro no upload');
                 }
                 
                 // Usar a URL gerada pelo sistema interno
                 const imageUrl = result.data.original.url;
-                console.log('✅ URL gerada pelo sistema interno:', imageUrl);
-                
                 // Atualizar dados do usuário no localStorage
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}');
                 userData.avatar_url = imageUrl;
@@ -1029,10 +972,6 @@
                 
                 // Salvar no banco de dados
                 try {
-                    console.log('🔄 Tentando salvar avatar no banco de dados...');
-                    console.log('🔧 API_BASE:', window.API_BASE);
-                    console.log('🔧 Token:', localStorage.getItem('authToken') || localStorage.getItem('token'));
-                    
                     const response = await fetch(`${window.API_BASE}/auth/profile`, {
                         method: 'PUT',
                         headers: {
@@ -1044,8 +983,6 @@
                         })
                     });
                     
-                    console.log('📡 Resposta do servidor:', response.status, response.statusText);
-                    
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error('❌ Erro na resposta:', errorText);
@@ -1053,16 +990,12 @@
                     }
                     
                     const result = await response.json();
-                    console.log('📦 Resultado:', result);
-                    
                     if (!result.success) {
                         throw new Error(result.error || 'Erro ao salvar avatar no banco');
                     }
                     
-                    console.log('✅ Avatar salvo no banco de dados:', result.user.avatar_url);
-                } catch (dbError) {
+                    } catch (dbError) {
                     console.error('❌ Erro ao salvar avatar no banco:', dbError);
-                    console.log('⚠️ Continuando com localStorage apenas');
                     // Continuar mesmo se falhar no banco, pois já salvou no localStorage
                 }
                 
@@ -1075,7 +1008,6 @@
                 
                 // Forçar atualização do avatar no dashboard se estiver aberto
                 if (window.opener && typeof window.opener.updateAvatarDisplay === 'function') {
-                    console.log('🔄 Atualizando avatar no dashboard...');
                     window.opener.updateAvatarDisplay();
                 }
                 
@@ -1084,7 +1016,6 @@
                     detail: { avatar_url: imageUrl } 
                 }));
                 
-                console.log('✅ Avatar enviado com sucesso:', imageUrl);
                 alert('Foto do perfil atualizada com sucesso!');
                 
             } catch (error) {
@@ -1127,8 +1058,7 @@
                             throw new Error(result.error || 'Erro ao remover avatar do banco');
                         }
                         
-                        console.log('✅ Avatar removido do banco de dados');
-                    } catch (dbError) {
+                        } catch (dbError) {
                         console.error('❌ Erro ao remover avatar do banco:', dbError);
                         // Continuar mesmo se falhar no banco, pois já removeu do localStorage
                     }
@@ -1145,7 +1075,6 @@
                     
                     // Forçar atualização do avatar no dashboard se estiver aberto
                     if (window.opener && typeof window.opener.updateAvatarDisplay === 'function') {
-                        console.log('🔄 Atualizando avatar no dashboard...');
                         window.opener.updateAvatarDisplay();
                     }
                     
@@ -1154,7 +1083,6 @@
                         detail: { avatar_url: null } 
                     }));
                     
-                    console.log('✅ Avatar removido com sucesso');
                     alert('Foto do perfil removida com sucesso!');
                     
                 } catch (error) {

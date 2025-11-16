@@ -4,6 +4,7 @@
 
 const { Afiliado, VendaAfiliado, LinkTracking, Venda, Produto, CliqueValidoAfiliado } = require('../config/database');
 const { Op } = require('sequelize');
+const afiliadoClickService = require('./afiliadoClickService');
 
 class AfiliadoVendaService {
     /**
@@ -204,6 +205,21 @@ class AfiliadoVendaService {
                 if (novoSaldo < saldoAtual + comissaoEsperada) {
                     await afiliado.increment('saldo_disponivel', { by: comissaoEsperada });
                     console.log(`💰 Comissão creditada no status update: MZN ${comissaoEsperada.toFixed(2)}`);
+                }
+
+                // Revalidar cliques após conversão aprovada
+                // Verificar se há lotes de cliques que agora podem ser validados
+                try {
+                    const venda = await Venda.findByPk(vendaAfiliado.venda_id);
+                    if (venda && venda.produto_id) {
+                        await afiliadoClickService.revalidarCliquesAposConversao(
+                            afiliado.id,
+                            venda.produto_id
+                        );
+                    }
+                } catch (error) {
+                    console.error('⚠️ Erro ao revalidar cliques após conversão (não crítico):', error);
+                    // Não falhar o processo por erro na revalidação de cliques
                 }
             }
             

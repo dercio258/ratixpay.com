@@ -62,10 +62,12 @@ class PaymentStatusManager extends EventEmitter {
         const paymentsToCheck = [];
 
         for (const [paymentId, paymentInfo] of this.pendingPayments) {
-            // Verificar timeout
+            // NÃO cancelar por timeout - aguardar status real da PayMoz via webhook
+            // Apenas remover da lista de verificações ativas, mas manter pendente
             if (now > paymentInfo.timeout) {
-                console.log(`⏰ Pagamento ${paymentId} expirou por timeout`);
-                await this.handlePaymentTimeout(paymentId);
+                console.log(`⏸️ Pagamento ${paymentId} atingiu timeout de verificação - aguardando status real da PayMoz via webhook`);
+                // Não chamar handlePaymentTimeout - apenas remover da verificação ativa
+                this.pendingPayments.delete(paymentId);
                 continue;
             }
 

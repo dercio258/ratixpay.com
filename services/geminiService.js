@@ -2,123 +2,202 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class GeminiService {
     constructor() {
-        this.apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAq56WV66j3T6Pgru2IlHJRMzCngVYmFNw'; // Chave de exemplo - substitua pela sua
+        // Suportar ambas as variáveis de ambiente para compatibilidade
+        this.apiKey = process.env.Google_gimine_key_api || 
+                     process.env.GEMINI_API_KEY || 
+                     'AIzaSyC2U7wos_ztcESqrFfCIHCdByEBMcbxpf0';
+        
+        if (!this.apiKey || this.apiKey === 'sua_chave_gemini_aqui') {
+            console.warn('⚠️ Chave da API do Gemini não configurada. Configure Google_gimine_key_api no .env');
+        } else {
+            try {
         this.genAI = new GoogleGenerativeAI(this.apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+                // Usar gemini-2.5-flash que é o modelo mais recente e estável
+                this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                console.log('🤖 GeminiService inicializado com sucesso (modelo: gemini-2.5-flash)');
+            } catch (error) {
+                console.error('❌ Erro ao inicializar Gemini AI:', error.message);
+                this.genAI = null;
+                this.model = null;
+            }
+        }
         
         // Cache para treinamento de produtos
         this.cacheTreinamento = new Map();
-        
-        console.log('🤖 GeminiService inicializado');
     }
 
     /**
      * Verifica se um produto é aceitável usando moderação de conteúdo
      * @param {Object} produto - Dados do produto para verificação
-     * @returns {Promise<Object>} - Resultado da verificação {aprovado: boolean, motivo?: string}
+     * @returns {Promise<Object>} - Resultado da verificação {aprovado: boolean, motivo?: string, score?: number}
      */
     async verificarProduto(produto) {
         try {
-            console.log('🔍 Verificando produto:', produto.nome);
+            // Verificar se a API está configurada
+            if (!this.genAI || !this.model) {
+                console.warn('⚠️ Gemini AI não configurado - produto será aprovado automaticamente');
+                return {
+                    aprovado: true,
+                    motivo: null,
+                    resposta_ia: 'Gemini AI não configurado',
+                    score: 0
+                };
+            }
+
+            // Garantir que estamos usando o modelo correto (gemini-2.5-flash)
+            // Sempre recriar o modelo para garantir que está usando o modelo correto
+            // Isso evita problemas com cache ou inicialização antiga
+            try {
+                console.log('🔄 Garantindo que o modelo está usando gemini-2.5-flash...');
+                this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                console.log('✅ Modelo gemini-2.5-flash configurado corretamente');
+            } catch (modelError) {
+                console.error('❌ Erro ao configurar modelo gemini-2.5-flash:', modelError.message);
+                // Tentar fallback para gemini-2.5-pro se gemini-2.5-flash falhar
+                try {
+                    console.log('🔄 Tentando fallback para gemini-2.5-pro...');
+                    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+                    console.log('✅ Modelo gemini-2.5-pro configurado como fallback');
+                } catch (fallbackError) {
+                    console.error('❌ Erro ao configurar modelo fallback:', fallbackError.message);
+                    throw modelError; // Lançar o erro original
+                }
+            }
+
+            console.log('🔍 Verificando produto com Gemini AI:', produto.nome);
             
             const prompt = `
-Prompt para Verificação de Produtos
+Você é um moderador de conteúdo especializado em produtos digitais para uma plataforma de vendas online.
 
-Você é um assistente de moderação de produtos em uma loja virtual.
-Sempre que receber informações de um produto (nome, descrição, link do arquivo ou nome do arquivo), você deve analisar e verificar se o produto é aceitável ou não.
+Sua função é analisar produtos e determinar se são adequados para publicação na plataforma.
 
-Objetivo: Retorne apenas uma das opções:
+IMPORTANTE: Seja JUSTO e CONTEXTUAL. Não rejeite produtos legítimos por palavras ambíguas ou interpretações exageradas.
+Considere o CONTEXTO COMPLETO antes de tomar uma decisão.
 
-"Sim" → Produto aprovado.
+INSTRUÇÕES DE ANÁLISE:
+1. Analise TODOS os campos: nome, descrição, tipo, categoria e links/arquivos
+2. Considere o contexto completo - um nome sozinho pode ser ambíguo, mas a descrição pode esclarecer
+3. Seja TOLERANTE com produtos educacionais, cursos, e-books e serviços digitais legítimos
+4. Apenas rejeite se houver EVIDÊNCIA CLARA de violação das políticas
+5. Produtos sobre saúde mental, bem-estar e educação são geralmente aceitos, desde que não promovam autolesão
 
-"Não" → Produto rejeitado (explique brevemente o motivo).
+CRITÉRIOS DE REJEIÇÃO (produto NÃO será aprovado APENAS se contiver EVIDÊNCIA CLARA de):
+- Conteúdo que PROMOVE ativamente violência sexual ou exploração (não apenas menciona)
+- Conteúdo que ENSINA ou PROMOVE burla, fraude ou golpes financeiros
+- Esquemas de pirâmide financeira EXPLÍCITOS (não apenas marketing multinível legítimo)
+- Conteúdo que INCITA diretamente ao suicídio ou autolesão (não apenas discute o tema educacionalmente)
+- Incitação EXPLÍCITA à violência física ou crimes
+- Venda de drogas ilegais ou substâncias controladas
+- Venda de armas de fogo ou armas brancas
+- Conteúdo de ódio, discriminação, racismo ou xenofobia EXPLÍCITOS
+- Conteúdo adulto ou sexual EXPLÍCITO (não apenas referências educacionais)
+- Qualquer forma de infração CLARA à lei
+- Produtos que PROMETEM resultados IMPOSSÍVEIS de forma ENGANOSA
 
-Critérios de rejeição (não aprovados):
+CRITÉRIOS DE APROVAÇÃO (produto SERÁ aprovado se):
+- For um produto digital legítimo (curso, e-book, software, serviço digital, consultoria)
+- Tiver descrição clara e honesta
+- Não violar NENHUM dos critérios de rejeição acima de forma CLARA
+- Estiver de acordo com as leis e regulamentações locais
+- For educacional, informativo ou de entretenimento legítimo
 
-Conteúdo sobre violência sexual
-Conteúdo sobre burla ou fraude
-Esquemas de pirâmide financeira
-Conteúdo sobre suicídio
-Incitação à violência
-Incitação a crimes
-Venda de drogas
-Venda de armas de fogo
-Conteúdo impróprio (ódio, discriminação, racismo, etc.)
-Conteúdo adulto ou sexual explícito
-Qualquer outra forma de infração da lei
+FORMATO DE RESPOSTA:
+Você DEVE responder APENAS em um dos seguintes formatos:
 
-Regras adicionais:
+Se APROVADO:
+"APROVADO"
 
-Não seja muito rigoroso em rejeitar (exemplo: se for apenas uma palavra ambígua que não representa risco real, aprove).
-Caso rejeite (responda "Não"), explique de forma simples o motivo, indicando se foi pelo nome, link, descrição ou conteúdo.
-Nunca devolva respostas longas, apenas:
+Se REJEITADO:
+"REJEITADO: [motivo claro e específico, mencionando qual campo causou a rejeição: nome, descrição, tipo, categoria ou conteúdo]"
 
-"Sim" (produto aceito)
-
-"Não – motivo" (produto rejeitado)
-
-Exemplo de uso
-
-Entrada:
-
-Nome: "Relógio Digital Luxo"
-Descrição: "Relógio masculino com mostrador LED."
-Link: "https://exemplo.com/produtos/relogio123.jpg"
-
-Saída:
-
-Sim
-
-Entrada:
-
-Nome: "Curso rápido para fraudar cartões"
-Descrição: "Aprenda a clonar cartões de crédito em minutos"
-Arquivo: "cursofraude.pdf"
-
-Saída:
-
-Não – contém indícios de fraude (descrição e nome do arquivo)
+Exemplos de respostas:
+- "APROVADO"
+- "REJEITADO: O nome do produto sugere conteúdo que incita ao suicídio"
+- "REJEITADO: A descrição contém material que promove fraude financeira"
+- "REJEITADO: O tipo/categoria indica venda de substâncias ilegais"
 
 ---
 
-Agora analise este produto:
+PRODUTO PARA ANÁLISE COMPLETA:
 
 Nome: "${produto.nome || 'Não informado'}"
+Tipo: "${produto.tipo || 'Não informado'}"
+Categoria: "${produto.categoria || 'Não informada'}"
 Descrição: "${produto.descricao || 'Não informada'}"
-${produto.conteudo_link ? `Link: "${produto.conteudo_link}"` : ''}
-${produto.conteudo_arquivo_nome ? `Arquivo: "${produto.conteudo_arquivo_nome}"` : ''}
+${produto.conteudo_link ? `Link do conteúdo: "${produto.conteudo_link}"` : ''}
+${produto.conteudo_arquivo_nome ? `Nome do arquivo: "${produto.conteudo_arquivo_nome}"` : ''}
+
+Analise TODOS os campos acima e responda APENAS com "APROVADO" ou "REJEITADO: [motivo claro]":
             `;
 
             const result = await this.model.generateContent(prompt);
             const response = await result.response;
-            const resultado = response.text().trim();
+            let resultado = response.text().trim();
+            
+            // Normalizar resposta para maiúsculas para processamento
+            resultado = resultado.toUpperCase();
 
             console.log('🤖 Resposta da IA:', resultado);
 
-            // Processar resposta
-            const aprovado = resultado.toLowerCase().startsWith('sim');
-            const motivo = aprovado ? null : resultado.replace(/^não\s*[-–]\s*/i, '').trim();
+            // Processar resposta de forma mais robusta
+            const aprovado = resultado.startsWith('APROVADO');
+            let motivo = null;
+            
+            if (!aprovado) {
+                // Extrair motivo da rejeição
+                const match = resultado.match(/REJEITADO:\s*(.+)/i);
+                motivo = match ? match[1].trim() : 'Produto não atende aos critérios da plataforma';
+            }
 
-            console.log(`✅ Verificação concluída: ${aprovado ? 'APROVADO' : 'REJEITADO'}`);
+            // Calcular score de confiança (0-100)
+            const score = aprovado ? 100 : 0;
+
+            console.log(`✅ Verificação concluída: ${aprovado ? '✅ APROVADO' : '❌ REJEITADO'}`);
             if (motivo) {
-                console.log(`📝 Motivo: ${motivo}`);
+                console.log(`📝 Motivo da rejeição: ${motivo}`);
             }
 
             return {
                 aprovado,
                 motivo: motivo || null,
-                resposta_ia: resultado
+                resposta_ia: resultado,
+                score: score,
+                timestamp: new Date().toISOString()
             };
 
         } catch (error) {
-            console.error('❌ Erro na verificação do produto:', error);
+            console.error('❌ Erro na verificação do produto com Gemini AI:', error);
             
-            // Em caso de erro, aprovar o produto para não bloquear o sistema
+            // Verificar se é erro de modelo não disponível ou erro de API
+            const isModelError = error.message && (
+                error.message.includes('404 Not Found') ||
+                error.message.includes('is not found') ||
+                error.message.includes('not supported')
+            );
+            
+            // Se for erro de modelo/API, aprovar o produto para não bloquear o sistema
+            // Mas registrar o erro para investigação
+            if (isModelError) {
+                console.warn('⚠️ Erro de modelo/API do Gemini - produto será aprovado automaticamente');
             return {
                 aprovado: true,
                 motivo: null,
+                    erro: error.message,
+                    resposta_ia: 'Erro de modelo/API - produto aprovado automaticamente',
+                    score: 0,
+                    timestamp: new Date().toISOString(),
+                    warning: 'Verificação automática não disponível - produto aprovado por segurança'
+                };
+            }
+            
+            // Para outros erros, rejeitar o produto para segurança
+            return {
+                aprovado: false,
+                motivo: `Erro na verificação automática: ${error.message}. Produto requer revisão manual.`,
                 erro: error.message,
-                resposta_ia: 'Erro na verificação - produto aprovado automaticamente'
+                resposta_ia: 'Erro na verificação - produto requer revisão manual',
+                score: 0,
+                timestamp: new Date().toISOString()
             };
         }
     }

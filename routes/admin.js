@@ -5,6 +5,7 @@ const { Op } = require('sequelize');
 const { authenticateToken } = require('../middleware/auth');
 const ReceitaService = require('../services/receitaService');
 const SaldoAdminService = require('../services/saldoAdminService'); // Novo serviço unificado
+const emailManagerService = require('../services/emailManagerService');
 
 // Middleware para verificar acesso de administrador
 const checkAdminAccess = async (req, res, next) => {
@@ -359,9 +360,40 @@ router.put('/vendedores/:id/status', authenticateToken, checkAdminAccess, async 
         }
         
         // Atualizar status
+        const statusAnterior = vendedor.ativo;
         await vendedor.update({
             ativo: ativo
         });
+        
+        // Se o usuário foi bloqueado (ativo = false), enviar email de notificação com fundos congelados
+        if (statusAnterior && !ativo && vendedor.email) {
+            try {
+                await emailManagerService.enviarEmailSistema('notificacao_bloqueio_conta', {
+                    email: vendedor.email,
+                    nome: vendedor.nome_completo || vendedor.email,
+                    numeroVendedor: vendedor.vendedor_id || 'N/A'
+                });
+                console.log(`📧 Notificação de bloqueio (com fundos congelados) enviada para: ${vendedor.email}`);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar notificação de bloqueio:', emailError);
+                // Não bloquear a operação se o email falhar
+            }
+        }
+        
+        // Se o usuário foi desbloqueado (ativo = true), enviar email de notificação
+        if (!statusAnterior && ativo && vendedor.email) {
+            try {
+                await emailManagerService.enviarEmailSistema('notificacao_desbloqueio_conta', {
+                    email: vendedor.email,
+                    nome: vendedor.nome_completo || vendedor.email,
+                    numeroVendedor: vendedor.vendedor_id || 'N/A'
+                });
+                console.log(`📧 Notificação de desbloqueio enviada para: ${vendedor.email}`);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar notificação de desbloqueio:', emailError);
+                // Não bloquear a operação se o email falhar
+            }
+        }
         
         console.log(`✅ Status do vendedor ${id} alterado para ${ativo ? 'ativo' : 'inativo'}`);
         
@@ -1376,6 +1408,7 @@ router.put('/vendedores/:id/toggle-status', authenticateToken, checkAdminAccess,
         }
         
         // Atualizar campos de status
+        const statusAnterior = vendedor.ativo;
         const updateData = { ativo };
         
         if (suspenso !== undefined) {
@@ -1395,6 +1428,36 @@ router.put('/vendedores/:id/toggle-status', authenticateToken, checkAdminAccess,
         }
         
         await vendedor.update(updateData);
+        
+        // Se o usuário foi bloqueado (ativo = false), enviar email de notificação com fundos congelados
+        if (statusAnterior && !ativo && vendedor.email) {
+            try {
+                await emailManagerService.enviarEmailSistema('notificacao_bloqueio_conta', {
+                    email: vendedor.email,
+                    nome: vendedor.nome_completo || vendedor.email,
+                    numeroVendedor: vendedor.vendedor_id || 'N/A'
+                });
+                console.log(`📧 Notificação de bloqueio (com fundos congelados) enviada para: ${vendedor.email}`);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar notificação de bloqueio:', emailError);
+                // Não bloquear a operação se o email falhar
+            }
+        }
+        
+        // Se o usuário foi desbloqueado (ativo = true), enviar email de notificação
+        if (!statusAnterior && ativo && vendedor.email) {
+            try {
+                await emailManagerService.enviarEmailSistema('notificacao_desbloqueio_conta', {
+                    email: vendedor.email,
+                    nome: vendedor.nome_completo || vendedor.email,
+                    numeroVendedor: vendedor.vendedor_id || 'N/A'
+                });
+                console.log(`📧 Notificação de desbloqueio enviada para: ${vendedor.email}`);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar notificação de desbloqueio:', emailError);
+                // Não bloquear a operação se o email falhar
+            }
+        }
         
         res.json({
             success: true,
@@ -1440,6 +1503,13 @@ router.delete('/vendedores/:id', authenticateToken, checkAdminAccess, async (req
             });
         }
         
+        // Salvar informações do vendedor antes de excluir (para notificação)
+        const vendedorInfo = {
+            email: vendedor.email,
+            nome: vendedor.nome_completo || vendedor.email,
+            numeroVendedor: vendedor.vendedor_id || 'N/A'
+        };
+        
         // Excluir produtos do vendedor
         const { Produto } = require('../config/database');
         await Produto.destroy({
@@ -1448,6 +1518,17 @@ router.delete('/vendedores/:id', authenticateToken, checkAdminAccess, async (req
         
         // Excluir vendedor
         await vendedor.destroy();
+        
+        // Enviar notificação de exclusão (se tiver email)
+        if (vendedorInfo.email) {
+            try {
+                await emailManagerService.enviarEmailSistema('notificacao_exclusao_conta', vendedorInfo);
+                console.log(`📧 Notificação de exclusão de conta enviada para: ${vendedorInfo.email}`);
+            } catch (emailError) {
+                console.error('⚠️ Erro ao enviar notificação de exclusão:', emailError);
+                // Não bloquear a operação se o email falhar
+            }
+        }
         
         res.json({
             success: true,

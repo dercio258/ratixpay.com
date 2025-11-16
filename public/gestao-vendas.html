@@ -45,67 +45,35 @@
         }
 
         /* Header específico para Gestão de Vendas */
-        .header-gestaoVendas {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 30px;
-            border-radius: 0 0 15px 15px;
-            min-height: 160px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            flex-wrap: wrap;
-            gap: 20px;
-            overflow: hidden;
-        }
-
-        .header-gestaoVendas::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(246, 76, 0, 0.1) 50%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .header-gestaoVendas h2 {
-            margin: 0;
-            font-size: 2rem;
-            color: #ffffff;
-            flex: 1;
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: 1px;
-        }
 
         /* Main Content */
         .main-content {
             padding-top: 0;
+            margin-left: 250px !important;
+            width: calc(100% - 250px) !important;
         }
 
-        /* Cards de Estatísticas */
+        /* Cards de Estatísticas - Mesmo padrão do dashboard */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
         .stat-card {
             background: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--info-color);
-            transition: var(--transition);
+            border-radius: 12px;
+            padding: 12px 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--info-color);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+            min-height: 75px;
             position: relative;
             overflow: hidden;
         }
@@ -127,8 +95,8 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card.success {
@@ -147,32 +115,109 @@
             border-left-color: var(--info-color);
         }
 
+        /* Aplicar mesmo design unificado para todas as cards */
+        .stat-card .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
 
-        .stat-number {
-            font-size: 2.8rem;
+        .stat-card .stat-number {
+            font-size: 1.4rem;
             font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 8px;
-            line-height: 1;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
         }
 
-        .stat-number.success {
+        .stat-card.info .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.info .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--info-color);
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .stat-card.success .stat-number {
             color: var(--success-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
         }
 
-        .stat-number.warning {
+        .stat-card.success .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.warning .stat-number {
             color: var(--warning-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
         }
 
-        .stat-number.danger {
+        .stat-card.warning .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.danger .stat-number {
             color: var(--danger-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
         }
 
-        .stat-label {
-            font-size: 1rem;
-            color: #6c757d;
-            margin-bottom: 15px;
-            font-weight: 500;
+        .stat-card.danger .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
 
 
@@ -180,75 +225,123 @@
         .filters-row {
             display: flex;
             align-items: end;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 20px;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: #f8f9fa;
             border-radius: 8px;
             border: 1px solid #e9ecef;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            overflow-x: auto;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            min-width: 120px;
-            flex: 1;
+            gap: 4px;
+            min-width: 100px;
+            flex: 0 0 auto;
         }
 
         .filter-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #495057;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
         }
 
         .filter-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: end;
-            margin-left: 10px;
+            margin-left: 8px;
+            flex-shrink: 0;
         }
 
         @media (max-width: 1200px) {
             .filters-row {
-                flex-wrap: wrap;
+                gap: 8px;
+                padding: 12px;
             }
             
             .filter-group {
-                min-width: 100px;
+                min-width: 90px;
             }
         }
 
         @media (max-width: 768px) {
             .filters-row {
-                flex-direction: column;
-                align-items: stretch;
+                gap: 6px;
+                padding: 10px;
+                margin-bottom: 15px;
             }
             
             .filter-group {
-                min-width: auto;
+                min-width: 80px;
+                gap: 3px;
+            }
+            
+            .filter-label {
+                font-size: 0.65rem;
+                margin-bottom: 2px;
             }
             
             .filter-actions {
-                margin-left: 0;
-                margin-top: 10px;
-                justify-content: center;
+                gap: 6px;
+                margin-left: 6px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .filters-row {
+                gap: 4px;
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .filter-group {
+                min-width: 70px;
+                gap: 2px;
+            }
+            
+            .filter-label {
+                font-size: 0.6rem;
+                margin-bottom: 2px;
+            }
+            
+            .filter-actions {
+                gap: 4px;
+                margin-left: 4px;
             }
         }
 
         .filter-select {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
             transition: var(--transition);
             background: white;
             cursor: pointer;
-            height: 40px;
+            height: 36px;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-select {
+                padding: 5px 8px;
+                font-size: 0.75rem;
+                height: 32px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .filter-select {
+                padding: 4px 6px;
+                font-size: 0.7rem;
+                height: 30px;
+            }
         }
 
         .filter-select:focus {
@@ -256,18 +349,96 @@
             border-color: var(--info-color);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
+        
+        .date-range-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-input {
+            padding: 6px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            background: white;
+            height: 36px;
+            flex: 1;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .date-range-separator {
+            font-size: 0.75rem;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .date-range-group {
+                gap: 4px;
+            }
+            
+            .filter-input {
+                padding: 5px 8px;
+                font-size: 0.75rem;
+                height: 32px;
+            }
+            
+            .date-range-separator {
+                font-size: 0.7rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .date-range-group {
+                gap: 3px;
+            }
+            
+            .filter-input {
+                padding: 4px 6px;
+                font-size: 0.7rem;
+                height: 30px;
+            }
+            
+            .date-range-separator {
+                font-size: 0.65rem;
+            }
+        }
 
         .btn-filter {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .btn-filter {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                gap: 4px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .btn-filter {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+                gap: 3px;
+            }
         }
 
         .btn-primary {
@@ -366,33 +537,102 @@
         }
 
         .table-responsive {
-            overflow-x: auto;
+            overflow-x: visible;
             border-radius: 8px;
             border: 1px solid #e9ecef;
+            width: 100%;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            table-layout: auto;
         }
 
         .table th {
             background: #f8f9fa;
-            padding: 15px 12px;
+            padding: 12px 8px;
             text-align: left;
             font-weight: 600;
             color: #495057;
             text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
             border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
         }
 
         .table td {
-            padding: 15px 12px;
+            padding: 12px 8px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
+            font-size: 0.875rem;
+            word-wrap: break-word;
+            max-width: 150px;
+        }
+        
+        /* Responsividade - reduzir tamanho em telas menores */
+        @media (max-width: 1200px) {
+            .table th {
+                padding: 10px 6px;
+                font-size: 0.7rem;
+            }
+            
+            .table td {
+                padding: 10px 6px;
+                font-size: 0.8rem;
+                max-width: 120px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .table th {
+                padding: 8px 4px;
+                font-size: 0.65rem;
+            }
+            
+            .table td {
+                padding: 8px 4px;
+                font-size: 0.75rem;
+                max-width: 100px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .table th {
+                padding: 6px 3px;
+                font-size: 0.6rem;
+                letter-spacing: 0.2px;
+            }
+            
+            .table td {
+                padding: 6px 3px;
+                font-size: 0.7rem;
+                max-width: 80px;
+            }
+            
+            .status-badge {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .table th {
+                padding: 5px 2px;
+                font-size: 0.55rem;
+            }
+            
+            .table td {
+                padding: 5px 2px;
+                font-size: 0.65rem;
+                max-width: 60px;
+            }
+            
+            .status-badge {
+                font-size: 0.6rem;
+                padding: 3px 6px;
+            }
         }
 
         .table tbody tr:hover {
@@ -428,23 +668,81 @@
         .valor-final {
             font-weight: bold;
             color: var(--success-color);
-            font-size: 1.1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         .data-hora {
             display: flex;
             flex-direction: column;
             gap: 2px;
+            font-size: 0.85rem;
         }
 
         .data {
             font-weight: 600;
             color: var(--primary-color);
+            font-size: 0.85rem;
         }
 
         .hora {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #6c757d;
+        }
+        
+        /* Ajustes responsivos para valor e data */
+        @media (max-width: 992px) {
+            .valor-final {
+                font-size: 0.8rem;
+            }
+            
+            .data-hora {
+                font-size: 0.75rem;
+            }
+            
+            .data {
+                font-size: 0.75rem;
+            }
+            
+            .hora {
+                font-size: 0.65rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .valor-final {
+                font-size: 0.7rem;
+            }
+            
+            .data-hora {
+                font-size: 0.7rem;
+            }
+            
+            .data {
+                font-size: 0.7rem;
+            }
+            
+            .hora {
+                font-size: 0.6rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .valor-final {
+                font-size: 0.65rem;
+            }
+            
+            .data-hora {
+                font-size: 0.65rem;
+            }
+            
+            .data {
+                font-size: 0.65rem;
+            }
+            
+            .hora {
+                font-size: 0.55rem;
+            }
         }
 
         /* Paginação */
@@ -545,9 +843,32 @@
             .charts-section {
                 grid-template-columns: 1fr;
             }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 10px 8px;
+                min-height: 70px;
+            }
+
+            .stat-card .stat-number {
+                font-size: 1.2rem;
+            }
+
+            .stat-card .stat-label {
+                font-size: 0.7rem;
+            }
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                margin-left: 80px !important;
+                width: calc(100% - 80px) !important;
+            }
+
             .page-header {
                 padding: 30px 20px;
             }
@@ -556,26 +877,27 @@
                 font-size: 2rem;
             }
 
-            .header-gestaoVendas {
-                padding: 15px 20px;
-                min-height: 70px;
-            }
-
-            .header-gestaoVendas h1 {
-                font-size: 2rem;
-            }
 
             .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 12px;
             }
 
             .stat-card {
-                padding: 25px;
+                padding: 10px 8px;
+                min-height: 70px;
+                border-radius: 10px;
             }
 
-            .stat-number {
-                font-size: 2.2rem;
+            .stat-card .stat-number {
+                font-size: 1.2rem;
+                margin-bottom: 0;
+            }
+
+            .stat-card .stat-label {
+                font-size: 0.7rem;
+                margin-top: 0;
             }
 
             .filters-grid {
@@ -611,6 +933,8 @@
         @media (max-width: 480px) {
             .main-content {
                 padding: 15px;
+                margin-left: 70px !important;
+                width: calc(100% - 70px) !important;
             }
 
             .page-header {
@@ -621,21 +945,32 @@
                 font-size: 1.8rem;
             }
 
-            .header-gestaoVendas {
-                padding: 10px 15px;
-                min-height: 60px;
-            }
 
-            .header-gestaoVendas h1 {
-                font-size: 1.6rem;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+                margin-bottom: 12px;
             }
 
             .stat-card {
-                padding: 20px;
+                padding: 6px 5px;
+                min-height: 60px;
+                border-radius: 8px;
+            }
+
+            .stat-card .stat-number {
+                font-size: 0.95rem;
+                margin-bottom: 0;
+            }
+
+            .stat-card .stat-label {
+                font-size: 0.6rem;
+                margin-top: 0;
+                letter-spacing: 0.3px;
             }
 
             .chart-container {
-                padding: 20px;
+                padding: 12px;
             }
 
             .filters-section {
@@ -681,11 +1016,6 @@
 
         <!-- Conteúdo Principal -->
         <div class="main-content">
-            <!-- Header da Gestão de Vendas -->
-            <div class="header-gestaoVendas">
-                <h2>GESTÃO DE VENDAS</h2>
-            </div>
-
             <!-- Cards de Estatísticas -->
             <div class="stats-grid">
                 <div class="stat-card info">
@@ -722,26 +1052,12 @@
 
             <!-- Tabela de Vendas -->
             <div class="table-section">
-                <!-- Filtros em Linha Única -->
+                <!-- Filtros Minimizados -->
                 <div class="filters-row">
-                    <div class="filter-group">
-                        <label class="filter-label">ID do Produto</label>
-                        <select id="filtroIdProduto" class="filter-select">
-                            <option value="">Todos os IDs</option>
-                        </select>
-                </div>
-                
                     <div class="filter-group">
                         <label class="filter-label">Produto</label>
                         <select id="filtroProduto" class="filter-select">
                             <option value="">Todos os Produtos</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label class="filter-label">Cliente</label>
-                        <select id="filtroCliente" class="filter-select">
-                            <option value="">Todos os Clientes</option>
                         </select>
                     </div>
                     
@@ -763,11 +1079,13 @@
                         </select>
                     </div>
                     
-                    <div class="filter-group">
-                        <label class="filter-label">Data</label>
-                        <select id="filtroData" class="filter-select">
-                            <option value="">Todas as Datas</option>
-                        </select>
+                    <div class="filter-group date-range">
+                        <label class="filter-label">Período</label>
+                        <div class="date-range-group">
+                            <input type="date" id="filtroDataInicio" class="filter-input" placeholder="Data Início">
+                            <span class="date-range-separator">até</span>
+                            <input type="date" id="filtroDataFim" class="filter-input" placeholder="Data Fim">
+                        </div>
                     </div>
                     
                     <div class="filter-actions">
@@ -779,8 +1097,8 @@
                             <i class="fas fa-times"></i>
                             Limpar
                         </button>
+                    </div>
                 </div>
-            </div>
 
                 <div class="table-header">
                     <h3 class="table-title">
@@ -803,12 +1121,10 @@
                     <table class="table" id="vendasTable">
                         <thead>
                             <tr>
-                                <th>ID do Produto</th>
                                 <th>Produto</th>
                                 <th>Cliente</th>
                                 <th>Email</th>
                                 <th>Contato</th>
-                                <th>Afiliado</th>
                                 <th>Status</th>
                                 <th>Valor Final</th>
                                 <th>Data/Hora</th>

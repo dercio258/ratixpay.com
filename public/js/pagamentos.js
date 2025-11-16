@@ -21,6 +21,11 @@ let saqueAtual = null;
 
 // Função para formatar valores monetários
 function formatCurrency(value) {
+    // Verificar se o valor é válido
+    if (value === null || value === undefined || isNaN(value)) {
+        value = 0;
+    }
+    
     // Garantir que sempre use MZN em vez de MTn
     const formatted = new Intl.NumberFormat('pt-MZ', {
         style: 'currency',
@@ -36,10 +41,6 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-MZ', {
         day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     });
 }
 
@@ -63,7 +64,6 @@ function generateUniqueId(vendedorId) {
     // Montar o ID: WDW + vendedorId + dataCriacao + 2 dígitos aleatórios
     const idSaque = `WDW${vendedorId}${dataCriacao}${digitosAleatorios}`;
     
-    console.log(`🔧 ID do saque gerado: ${idSaque} (Vendedor: ${vendedorId}, Data: ${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}, Aleatório: ${digitosAleatorios})`);
     
     return idSaque;
 }
@@ -71,7 +71,6 @@ function generateUniqueId(vendedorId) {
 // Função para atualizar receita em tempo real
 async function atualizarReceitaEmTempoReal() {
     try {
-        console.log('🔄 Atualizando receita em tempo real...');
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -81,11 +80,9 @@ async function atualizarReceitaEmTempoReal() {
         }
         
         // Chamar endpoint para atualizar receita
-        console.log('🌐 Fazendo requisição para:', '/saques/atualizar-receita');
         
         const response = await fetch(`/api/saques/atualizar-receita`, {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -93,15 +90,12 @@ async function atualizarReceitaEmTempoReal() {
             }
         });
         
-        console.log('📥 Status da resposta:', response.status);
-        console.log('📥 Headers da resposta:', Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('✅ Dados da resposta:', data);
         
         if (data.success && data.data) {
             // Atualizar variável global
@@ -112,8 +106,6 @@ async function atualizarReceitaEmTempoReal() {
                 receitaTotalEl.textContent = formatCurrency(receitaTotal);
             }
             
-            console.log('✅ Receita atualizada em tempo real');
-            console.log('💰 Novo saldo:', receitaTotal);
             
             // Atualizar botão de saque
             if (typeof atualizarBotaoSaque === 'function') {
@@ -134,7 +126,6 @@ async function atualizarReceitaEmTempoReal() {
 // Função para carregar receita total (nova lógica sem saques pendentes)
 async function loadReceitaTotal() {
     try {
-        console.log('🔄 Carregando receita total...');
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -144,7 +135,6 @@ async function loadReceitaTotal() {
         }
         
         // Buscar receita total usando endpoint unificado
-        console.log('🌐 Fazendo requisição para:', '/dashboard/vendedor/receita-unificada');
         
         const response = await fetch(`/api/dashboard/vendedor/receita-unificada`, {
             credentials: 'include',
@@ -154,15 +144,12 @@ async function loadReceitaTotal() {
             }
         });
         
-        console.log('📥 Status da resposta:', response.status);
-        console.log('📥 Headers da resposta:', Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('✅ Dados da resposta:', data);
         
         if (data.success && data.data) {
             // LÓGICA CORRETA: Mostrar receita disponível (total - saques processados)
@@ -171,18 +158,6 @@ async function loadReceitaTotal() {
             // Mostrar informações detalhadas
             const receitaVendas = parseFloat(data.data.receitaTotal || 0);
             const saquesProcessados = parseFloat(data.data.valorSaquesProcessados || 0);
-            
-            console.log('📊 Dados recebidos do servidor:', {
-                receitaTotal: data.data.receitaTotal,
-                receitaDisponivel: data.data.receitaDisponivel,
-                valorSaquesProcessados: data.data.valorSaquesProcessados,
-                totalVendas: data.data.totalVendas,
-                totalSaquesProcessados: data.data.totalSaquesProcessados
-            });
-            
-            console.log('📊 Receita total das vendas:', receitaVendas);
-            console.log('💰 Saldo:', receitaTotal);
-            console.log('📤 Saques processados:', saquesProcessados);
             
             // Atualizar elemento com informações detalhadas
             receitaTotalEl.innerHTML = `
@@ -199,7 +174,6 @@ async function loadReceitaTotal() {
         // Habilitar/desabilitar botão de saque
         btnSaqueEl.disabled = receitaTotal < 1;
         
-        console.log('✅ Receita total carregada:', formatCurrency(receitaTotal));
         
     } catch (error) {
         console.error('❌ Erro ao carregar receita total:', error);
@@ -211,7 +185,6 @@ async function loadReceitaTotal() {
 // Função para carregar saque atual (com sistema de status)
 async function loadSaqueAtual() {
     try {
-        console.log('🔄 Carregando saque atual...');
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -235,7 +208,6 @@ async function loadSaqueAtual() {
             if (data.success && data.data) {
                 const saque = data.data;
                 mostrarSaqueAtual(saque);
-                console.log('✅ Saque atual carregado:', saque);
                 
                 // Verificar se houve mudança de status e mostrar notificação
                 if (saqueAtual && saqueAtual.id === saque.id && saqueAtual.status !== saque.status) {
@@ -250,7 +222,6 @@ async function loadSaqueAtual() {
                     saqueAtualEl.style.display = 'none';
                 }
                 saqueAtual = null;
-                console.log('ℹ️ Nenhum saque pendente encontrado');
             }
         } else {
             // Não há saque pendente
@@ -258,7 +229,6 @@ async function loadSaqueAtual() {
                 saqueAtualEl.style.display = 'none';
             }
             saqueAtual = null;
-            console.log('ℹ️ Nenhum saque pendente encontrado');
         }
         
     } catch (error) {
@@ -312,7 +282,6 @@ async function loadSaqueAtual() {
                 case 'pendente': return 'Saque Pendente';
                 case 'pago': return 'Saque Pago';
                 case 'cancelado': return 'Saque Cancelado';
-                default: return 'Saque Pendente';
             }
         }
 
@@ -378,7 +347,6 @@ async function loadSaqueAtual() {
                     },
                     body: JSON.stringify({
                         status: 'cancelado',
-                        cancelado_por: 'vendedor'
                     })
                 });
 
@@ -400,7 +368,6 @@ async function loadSaqueAtual() {
 // Função para carregar histórico de saques
 async function loadHistoricoSaques() {
     try {
-        console.log('🔄 Carregando histórico de saques...');
         
         // Mostrar loading
         historicoSaquesEl.innerHTML = `
@@ -418,7 +385,6 @@ async function loadHistoricoSaques() {
         }
         
         // Buscar saques do vendedor
-        console.log('🌐 Fazendo requisição para:', '/saques/vendedor?limite=100');
         
         const response = await fetch(`/api/saques/vendedor?limite=100`, {
             credentials: 'include',
@@ -428,29 +394,17 @@ async function loadHistoricoSaques() {
             }
         });
         
-        console.log('📥 Status da resposta:', response.status);
-        console.log('📥 Headers da resposta:', Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('✅ Dados da resposta:', data);
-        console.log('📊 Estrutura dos dados:', {
-            success: data.success,
-            hasData: !!data.data,
-            dataType: typeof data.data,
-            isArray: Array.isArray(data.data),
-            dataLength: data.data?.length || 0,
-            firstItem: data.data?.[0] || null
-        });
         const saques = data.data || [];
         
         // Renderizar histórico
         renderHistoricoSaques(saques);
         
-        console.log(`✅ ${saques.length} saques carregados`);
         
     } catch (error) {
         console.error('❌ Erro ao carregar histórico de saques:', error);
@@ -466,10 +420,8 @@ async function loadHistoricoSaques() {
 
 // Função para renderizar histórico de saques
 function renderHistoricoSaques(saques) {
-    console.log('🎨 Renderizando histórico de saques:', saques);
     
     if (!saques || saques.length === 0) {
-        console.log('📭 Nenhum saque encontrado para renderizar');
         historicoSaquesEl.innerHTML = `
             <div class="no-data">
                 <i class="fas fa-inbox"></i>
@@ -479,7 +431,6 @@ function renderHistoricoSaques(saques) {
         return;
     }
     
-    console.log(`📊 Renderizando ${saques.length} saques`);
     
     const historicoHTML = `
         <div class="table-wrapper">
@@ -497,7 +448,6 @@ function renderHistoricoSaques(saques) {
                 </thead>
                 <tbody>
                     ${saques.map((saque, index) => {
-                        console.log(`📋 Processando saque ${index + 1}:`, saque);
                         const status = saque.status || 'pendente';
                         const valor = saque.valor || saque.valorSolicitado || 0;
                         const saqueId = saque.idSaque || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : '-');
@@ -520,7 +470,6 @@ function renderHistoricoSaques(saques) {
     `;
     
     historicoSaquesEl.innerHTML = historicoHTML;
-    console.log('✅ Histórico de saques renderizado com sucesso');
 }
 
 // Funções de confirmação de pagamento removidas - sistema agora processa saques automaticamente
@@ -591,11 +540,8 @@ async function solicitarSaque(event) {
         // Dados do saque simplificado
         const saqueData = {
             carteiraId: carteiraId,
-            valor: valorSaque,
-            codigoAutenticacao: codigoAutenticacao
         };
         
-        console.log('🔄 Enviando solicitação de saque simplificado:', saqueData);
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -607,7 +553,6 @@ async function solicitarSaque(event) {
         // Enviar solicitação para o servidor (endpoint para saques com carteiras)
         const response = await fetch('/api/carteiras/saque/processar', {
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -661,11 +606,9 @@ async function solicitarSaque(event) {
 
 // Função para inicializar a página
 async function initializePage() {
-    console.log('🚀 Inicializando página de pagamentos...');
     
     try {
         // Carregar dados iniciais (nova lógica sem saques pendentes)
-        console.log('📥 Carregando dados iniciais...');
         
         await Promise.all([
             loadReceitaTotal(),
@@ -675,7 +618,6 @@ async function initializePage() {
             // verificarStatusSaque removido - não há mais saques pendentes
         ]);
         
-        console.log('✅ Dados iniciais carregados com sucesso');
     } catch (error) {
         console.error('❌ Erro ao carregar dados iniciais:', error);
     }
@@ -705,7 +647,6 @@ async function initializePage() {
             }
         });
     
-    console.log('✅ Página de pagamentos inicializada');
 }
 
 // Inicializar quando a página carregar
@@ -738,7 +679,6 @@ function atualizarInterfaceStatusSaque(saque) {
                 btnSolicitarSaque.style.display = 'inline-block';
                 btnCancelarSaque.style.display = 'none';
                 break;
-            default:
                 btnSolicitarSaque.style.display = 'inline-block';
                 btnCancelarSaque.style.display = 'none';
         }
@@ -776,22 +716,18 @@ function getStatusClass(status) {
         case 'pendente': return 'status-pendente';
         case 'pago': return 'status-pago';
         case 'cancelado': return 'status-cancelado';
-        default: return 'status-pendente';
     }
 }
 
 // Função para atualizar dados em tempo real
 function startAutoRefresh() {
-    console.log('🔄 Iniciando atualização automática a cada 30 segundos...');
     
     // Atualizar dados a cada 30 segundos
     setInterval(async () => {
-        console.log('⏰ Atualizando dados automaticamente...');
         try {
             await loadReceitaTotal();
             await loadSaqueAtual(); // Verificar mudanças de status
             await loadHistoricoSaques();
-            console.log('✅ Dados atualizados automaticamente');
         } catch (error) {
             console.error('❌ Erro na atualização automática:', error);
         }
@@ -810,13 +746,11 @@ async function atualizarDadosManualmente() {
         btnAtualizar.disabled = true;
         
         try {
-            console.log('🔄 Atualizando dados manualmente...');
             await Promise.all([
                 loadReceitaTotal(),
                 loadSaqueAtual(), // Verificar mudanças de status
                 loadHistoricoSaques()
             ]);
-            console.log('✅ Dados atualizados manualmente com sucesso');
         } catch (error) {
             console.error('❌ Erro na atualização manual:', error);
         } finally {
@@ -854,12 +788,6 @@ function atualizarBotaoSaque() {
         valorSaqueInput.max = receitaTotal;
         valorSaqueInput.placeholder = `Máximo: ${formatCurrency(receitaTotal)}`;
     }
-    
-    console.log('🔧 Botão de saque atualizado:', {
-        receitaDisponivel: receitaTotal,
-        botaoHabilitado: receitaTotal >= 1,
-        textoBotao: receitaTotal < 1 ? 'Receita Insuficiente' : 'Solicitar Saque'
-    });
 }
 
 // ========== FUNÇÕES PARA CONFIGURAÇÕES DE PAGAMENTO ==========
@@ -929,18 +857,14 @@ async function carregarCarteirasConfig() {
             }
         });
 
-        console.log('📥 Status da resposta de carteiras:', response.status);
         
         if (response.ok) {
             const data = await response.json();
-            console.log('✅ Dados das carteiras:', data);
             carteiras = data.carteiras || [];
-            console.log('📊 Carteiras carregadas:', carteiras.length);
             renderizarCarteirasConfig();
             carregarCarteirasSelect();
         } else {
             const errorData = await response.json();
-            console.log('❌ Erro na resposta de carteiras:', errorData);
             throw new Error('Erro ao carregar carteiras');
         }
     } catch (error) {
@@ -1005,16 +929,13 @@ function carregarCarteirasSelect() {
     
     if (!select) return;
 
-    console.log('📊 Número de carteiras:', carteiras.length);
     
     if (carteiras.length === 0) {
-        console.log('⚠️ Nenhuma carteira configurada');
         select.innerHTML = '<option value="">Nenhuma carteira configurada</option>';
         select.disabled = true;
         return;
     }
 
-    console.log('✅ Carteiras disponíveis:', carteiras.map(c => ({ id: c.id, nome: c.nome, metodo: c.metodo_saque })));
     
     select.disabled = false;
     select.innerHTML = '<option value="">Selecione uma carteira...</option>' +
@@ -1074,12 +995,15 @@ async function criarCarteira() {
             return;
         }
 
+        const nomeCarteira = document.getElementById('nomeCarteira')?.value?.trim();
+        
+        if (!nomeCarteira) {
+            mostrarErro('O nome da carteira é obrigatório');
+            return;
+        }
+
         const dados = {
-            nome: document.getElementById('nomeCarteira').value,
-            metodoSaque: document.getElementById('metodoSaque').value,
-            contacto: document.getElementById('contacto').value,
-            nomeTitular: document.getElementById('nomeTitular').value,
-            emailTitular: document.getElementById('emailTitular').value
+            nome: nomeCarteira
         };
 
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
@@ -1236,10 +1160,7 @@ async function solicitarCodigoSaque() {
         btnSolicitarCodigo.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
         
-        console.log('🌐 Fazendo requisição para:', '/api/carteiras/saque/codigo');
-        console.log('📤 Body da requisição:', { carteiraId });
         
         const response = await fetch('/api/carteiras/saque/codigo', {
             method: 'POST',
@@ -1250,19 +1171,14 @@ async function solicitarCodigoSaque() {
             body: JSON.stringify({ carteiraId })
         });
 
-        console.log('📥 Status da resposta:', response.status);
-        console.log('📥 Headers da resposta:', Object.fromEntries(response.headers.entries()));
         
         if (response.ok) {
             const result = await response.json();
-            console.log('✅ Resposta de sucesso:', result);
             mostrarSucesso('Código enviado com sucesso para seu email!');
             
             // Código enviado instantaneamente - sem temporizador
-            console.log('✅ Código enviado instantaneamente');
         } else {
             const error = await response.json();
-            console.log('❌ Resposta de erro:', error);
             throw new Error(error.message || 'Erro ao enviar código');
         }
     } catch (error) {

@@ -702,62 +702,6 @@ function loadIntegratedConfigs(produto) {
         document.getElementById('orderBumpAtivo').checked = true;
         toggleOrderBump();
     }
-    
-    // Carregar configurações de Remarketing
-    if (produto.remarketing_config) {
-        const config = produto.remarketing_config;
-        const enableRemarketing = document.getElementById('enableRemarketing');
-        const tempoEnvio = document.getElementById('remarketingTempoEnvio');
-        
-        if (enableRemarketing) {
-            enableRemarketing.checked = config.enabled || false;
-            if (config.enabled) {
-                // Expandir seção se estiver ativada
-                const remarketingSection = document.getElementById('remarketingSection');
-                if (remarketingSection) {
-                    remarketingSection.style.display = 'block';
-                    const configSection = remarketingSection.closest('.config-section');
-                    if (configSection) {
-                        configSection.classList.add('active');
-                    }
-                }
-            }
-        }
-        
-        if (tempoEnvio) {
-            // Verificar se é tempo personalizado
-            if (config.tempo_minutos !== undefined) {
-                const tempoMinutos = config.tempo_minutos;
-                // Verificar se corresponde a algum valor padrão
-                if (tempoMinutos === 0) {
-                    tempoEnvio.value = '0';
-                } else if (tempoMinutos === 5) {
-                    tempoEnvio.value = '5';
-                } else if (tempoMinutos === 60) {
-                    tempoEnvio.value = '60';
-                } else if (tempoMinutos === 1440) {
-                    tempoEnvio.value = '1440';
-                } else {
-                    // Tempo personalizado
-                    tempoEnvio.value = 'custom';
-                    const customTimeGroup = document.getElementById('customTimeGroup');
-                    const customTime = document.getElementById('remarketingTempoCustom');
-                    const customUnidade = document.getElementById('remarketingTempoUnidade');
-                    
-                    if (customTimeGroup) customTimeGroup.style.display = 'block';
-                    if (customTime && customUnidade) {
-                        if (tempoMinutos >= 60) {
-                            customTime.value = tempoMinutos / 60;
-                            customUnidade.value = 'horas';
-                        } else {
-                            customTime.value = tempoMinutos;
-                            customUnidade.value = 'minutos';
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 async function createProduct(event) {
@@ -835,42 +779,10 @@ async function createProduct(event) {
             message: blackFridayMessage
         };
         
-        // Verificar configurações de Remarketing
-        const enableRemarketing = document.getElementById('enableRemarketing');
-        const remarketingEnabled = enableRemarketing ? enableRemarketing.checked : false;
-        const tempoEnvioSelect = document.getElementById('remarketingTempoEnvio');
-        let tempoMinutos = 0;
-        
-        if (remarketingEnabled && tempoEnvioSelect) {
-            const tempoEnvioValue = tempoEnvioSelect.value;
-            
-            if (tempoEnvioValue === 'custom') {
-                const customTime = document.getElementById('remarketingTempoCustom');
-                const customUnidade = document.getElementById('remarketingTempoUnidade');
-                
-                if (customTime && customUnidade) {
-                    const valor = parseFloat(customTime.value) || 0;
-                    if (customUnidade.value === 'horas') {
-                        tempoMinutos = valor * 60;
-                    } else {
-                        tempoMinutos = valor;
-                    }
-                }
-            } else {
-                tempoMinutos = parseInt(tempoEnvioValue) || 0;
-            }
-        }
-        
-        const remarketingConfig = {
-            enabled: remarketingEnabled,
-            tempo_minutos: tempoMinutos
-        };
-        
         console.log('Configurações coletadas:', {
             discount: discountConfig,
             timer: timerConfig,
-            blackFriday: blackFridayConfig,
-            remarketing: remarketingConfig
+            blackFriday: blackFridayConfig
         });
         
         // Configurações integradas
@@ -878,14 +790,12 @@ async function createProduct(event) {
         console.log('  - discount_config:', JSON.stringify(discountConfig));
         console.log('  - timer_config:', JSON.stringify(timerConfig));
         console.log('  - blackfriday_config:', JSON.stringify(blackFridayConfig));
-        console.log('  - remarketing_config:', JSON.stringify(remarketingConfig));
         
         console.log('🔍 VERIFICANDO SE AS CONFIGURAÇÕES ESTÃO SENDO ADICIONADAS AO FORMDATA');
         
         formData.append('discount_config', JSON.stringify(discountConfig));
         formData.append('timer_config', JSON.stringify(timerConfig));
         formData.append('blackfriday_config', JSON.stringify(blackFridayConfig));
-        formData.append('remarketing_config', JSON.stringify(remarketingConfig));
         formData.append('order_bump_ativo', productData.orderBump.enabled);
         formData.append('order_bump_produtos', JSON.stringify(productData.orderBump.products));
         

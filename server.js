@@ -287,9 +287,9 @@ app.use('/api/admin', require('./routes/admin-produtos'));
 app.use('/api/chatbot', require('./routes/chatbot'));
 app.use('/api/ratixshop', require('./routes/ratixshop'));
 app.use('/api/admin', require('./routes/admin-cancelamentos'));
-app.use('/api/remarketing', require('./routes/remarketing'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/notifications', require('./routes/notification-api'));
+app.use('/api/remarketing', require('./routes/remarketing'));
 app.use('/api/notificacoes', notificationsRoutes);
 app.use('/api/admin/notificacoes', adminNotificationsRoutes);
 app.use('/api/push', pushRoutes);
@@ -756,24 +756,6 @@ async function startServer() {
                 // Serviço de cancelamento será inicializado apenas quando necessário
                 
                 // Push notifications removido do sistema
-                
-                // Inicializar cron job de remarketing
-                try {
-                    const remarketingService = require('./services/remarketingService');
-                    
-                    // Processar fila a cada 5 minutos
-                    setInterval(async () => {
-                        try {
-                            await remarketingService.processarFila();
-                        } catch (error) {
-                            console.error('❌ Erro ao processar fila de remarketing:', error);
-                        }
-                    }, 5 * 60 * 1000); // 5 minutos
-                    
-                    console.log('✅ Cron job de remarketing inicializado (executa a cada 5 minutos)');
-                } catch (error) {
-                    console.error('❌ Erro ao inicializar cron job de remarketing:', error);
-                }
             });
             
         } catch (error) {
@@ -871,6 +853,20 @@ const socketService = require('./services/socketService');
 socketService.initialize(io);
 
 // Push notifications removido do sistema
+
+// Cron job para processar fila de remarketing
+// Executa a cada 5 minutos
+const remarketingService = require('./services/remarketingService');
+setInterval(async () => {
+    try {
+        const stats = await remarketingService.processarFila();
+        if (stats.processados > 0) {
+            console.log(`📧 Remarketing: ${stats.enviados} enviados, ${stats.ignorados} ignorados, ${stats.erros} erros`);
+        }
+    } catch (error) {
+        console.error('❌ Erro no cron job de remarketing:', error.message);
+    }
+}, 5 * 60 * 1000); // 5 minutos
 
 // Iniciar o servidor
 startServer();

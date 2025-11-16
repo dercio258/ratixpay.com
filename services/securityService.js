@@ -51,14 +51,9 @@ class SecurityService {
                 return { sucesso: true };
             }
 
-            // Se login falhou, verificar se deve bloquear
+            // Bloqueios automáticos desabilitados - bloqueios serão feitos manualmente pelo admin
+            // Apenas registrar tentativa falhada, sem bloquear automaticamente
             const tentativasRecentes = await this.contarTentativasRecentes(usuario.id);
-            
-            if (tentativasRecentes >= this.MAX_TENTATIVAS) {
-                console.log(`🔒 Bloqueando conta por excesso de tentativas: ${email}`);
-                await this.bloquearConta(usuario, 'tentativas_excedidas', `Excedeu ${this.MAX_TENTATIVAS} tentativas de login incorretas`);
-                return { sucesso: false, motivo: 'conta_bloqueada', bloqueada: true };
-            }
 
             return { 
                 sucesso: false, 

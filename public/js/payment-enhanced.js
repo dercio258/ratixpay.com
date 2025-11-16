@@ -157,7 +157,6 @@ class PaymentEnhanced {
 
     // Tratar sucesso do pagamento
     handlePaymentSuccess(data) {
-        console.log('✅ Pagamento processado:', data);
         
         // Salvar dados do cliente
         this.saveClientData();

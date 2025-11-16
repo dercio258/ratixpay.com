@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Registro Afiliado - RatixPay</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <style>
+        :root {
+            --primary-color: #F64C00;
+            --secondary-color: #E04500;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --text-dark: #2c3e50;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #FF6B35 50%, var(--primary-color) 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease-in-out infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid var(--primary-color);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #FF6B35 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .form-group small {
+            display: block;
+            color: var(--text-light);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
+        }
+
+        .form-control.error {
+            border-color: var(--error-color);
+            background: #fff5f5;
+        }
+
+        .form-control.valid {
+            border-color: var(--success-color);
+            background: #f0fff4;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .form-control:focus + .input-icon {
+            color: var(--primary-color);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .strength-item {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .strength-item.valid {
+            color: var(--success-color);
+        }
+
+        .strength-item i {
+            margin-right: 6px;
+            font-size: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(246, 76, 0, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+            display: inline-block;
+        }
+
+        .links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .back-home a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .back-home a:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="title">Registro de Afiliado</div>
+            <div class="subtitle">Junte-se ao nosso programa de afiliados</div>
+        </div>
+
+        <div class="form-container">
+            <div id="alert" class="alert"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="nome">Nome Completo *</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="nome" name="nome" class="form-control" 
+                               placeholder="Seu nome completo" required autocomplete="name" minlength="3">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               placeholder="seu@email.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="telefone" name="telefone" class="form-control" 
+                               placeholder="841234567" autocomplete="tel" pattern="[0-9]{9}">
+                    </div>
+                    <small>Formato: 841234567 (9 dígitos, sem espaços)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha *</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="senha" name="senha" class="form-control" 
+                               placeholder="Digite sua senha" required autocomplete="new-password" minlength="8">
+                        <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-item" id="length">
+                            <i class="fas fa-circle"></i> Mínimo 8 caracteres
+                        </div>
+                        <div class="strength-item" id="uppercase">
+                            <i class="fas fa-circle"></i> Uma letra maiúscula
+                        </div>
+                        <div class="strength-item" id="lowercase">
+                            <i class="fas fa-circle"></i> Uma letra minúscula
+                        </div>
+                        <div class="strength-item" id="number">
+                            <i class="fas fa-circle"></i> Um número
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmarSenha">Confirmar Senha *</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirmarSenha" name="confirmarSenha" class="form-control" 
+                               placeholder="Confirme sua senha" required autocomplete="new-password">
+                        <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Criar Conta</span>
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Registrando...</p>
+                </div>
+            </form>
+
+            <div class="links">
+                <a href="afiliado-login.html">
+                    <i class="fas fa-sign-in-alt"></i> Já tenho uma conta
+                </a>
+            </div>
+            
+            <!-- Link para termos e condições -->
+            <div class="terms-link" style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <p style="font-size: 12px; color: #6b7280;">
+                    Ao se registrar, você concorda com nossos 
+                    <a href="/termos-condicoes.html" target="_blank" style="color: #F64C00; text-decoration: underline;">Termos e Condições</a>
+                </p>
+            </div>
+
+            <div class="back-home">
+                <a href="afiliados.html">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONFIGURAÇÕES ==========
+        const CONFIG = {
+            API_BASE: window.location.origin.includes('localhost') 
+                ? 'http://localhost:4000/api' 
+                : `${window.location.origin}/api`,
+            TOKEN_KEY: 'afiliado_token',
+            DATA_KEY: 'afiliado_data',
+            REFRESH_KEY: 'afiliado_refresh_token'
+        };
+
+        // ========== ESTADO ==========
+        const state = {
+            isProcessing: false,
+            showPassword: false,
+            showConfirmPassword: false
+        };
+
+        // ========== ELEMENTOS ==========
+        const elements = {
+            form: document.getElementById('registerForm'),
+            nome: document.getElementById('nome'),
+            email: document.getElementById('email'),
+            telefone: document.getElementById('telefone'),
+            senha: document.getElementById('senha'),
+            confirmarSenha: document.getElementById('confirmarSenha'),
+            submitBtn: document.getElementById('submitBtn'),
+            loading: document.getElementById('loading'),
+            alert: document.getElementById('alert'),
+            togglePassword: document.getElementById('togglePassword'),
+            toggleConfirmPassword: document.getElementById('toggleConfirmPassword')
+        };
+
+        // ========== UTILITÁRIOS ==========
+        const utils = {
+            showAlert(message, type = 'error') {
+                elements.alert.textContent = message;
+                elements.alert.className = `alert alert-${type}`;
+                elements.alert.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.hideAlert();
+                }, 5000);
+            },
+
+            hideAlert() {
+                elements.alert.style.display = 'none';
+            },
+
+            setLoading(isLoading) {
+                state.isProcessing = isLoading;
+                elements.submitBtn.disabled = isLoading;
+                elements.loading.style.display = isLoading ? 'block' : 'none';
+                
+                if (isLoading) {
+                    elements.submitBtn.querySelector('span').textContent = 'Registrando...';
+                } else {
+                    elements.submitBtn.querySelector('span').textContent = 'Criar Conta';
+                }
+            },
+
+            validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            },
+
+            validatePassword(senha) {
+                const checks = {
+                    length: senha.length >= 8,
+                    uppercase: /[A-Z]/.test(senha),
+                    lowercase: /[a-z]/.test(senha),
+                    number: /[0-9]/.test(senha)
+                };
+                return checks;
+            },
+
+            validatePasswordStrength(senha) {
+                const checks = this.validatePassword(senha);
+                
+                Object.keys(checks).forEach(key => {
+                    const item = document.getElementById(key);
+                    if (item) {
+                        if (checks[key]) {
+                            item.classList.add('valid');
+                            item.querySelector('i').className = 'fas fa-check-circle';
+                        } else {
+                            item.classList.remove('valid');
+                            item.querySelector('i').className = 'fas fa-circle';
+                        }
+                    }
+                });
+
+                return Object.values(checks).every(v => v === true);
+            },
+
+            validateForm() {
+                const nome = elements.nome.value.trim();
+                const email = elements.email.value.trim();
+                const senha = elements.senha.value;
+                const confirmarSenha = elements.confirmarSenha.value;
+
+                if (!nome || nome.length < 3) {
+                    this.showAlert('Nome deve ter pelo menos 3 caracteres', 'error');
+                    elements.nome.classList.add('error');
+                    return false;
+                }
+
+                if (!this.validateEmail(email)) {
+                    this.showAlert('Por favor, insira um email válido', 'error');
+                    elements.email.classList.add('error');
+                    return false;
+                }
+
+                if (!this.validatePasswordStrength(senha)) {
+                    this.showAlert('A senha não atende aos requisitos de segurança', 'error');
+                    return false;
+                }
+
+                if (senha !== confirmarSenha) {
+                    this.showAlert('As senhas não coincidem', 'error');
+                    elements.confirmarSenha.classList.add('error');
+                    return false;
+                }
+
+                return true;
+            },
+
+            saveTokens(token, refreshToken, afiliadoData) {
+                localStorage.setItem(CONFIG.TOKEN_KEY, token);
+                localStorage.setItem(CONFIG.DATA_KEY, JSON.stringify(afiliadoData));
+                if (refreshToken) {
+                    localStorage.setItem(CONFIG.REFRESH_KEY, refreshToken);
+                }
+            },
+
+            clearErrors() {
+                [elements.nome, elements.email, elements.senha, elements.confirmarSenha].forEach(el => {
+                    el.classList.remove('error', 'valid');
+                });
+            }
+        };
+
+        // ========== API ==========
+        const api = {
+            async register(nome, email, telefone, senha, confirmarSenha) {
+                const response = await fetch(`${CONFIG.API_BASE}/afiliados/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome: nome.trim(),
+                        email: email.trim(),
+                        telefone: telefone.trim() || null,
+                        senha: senha,
+                        confirmarSenha: confirmarSenha
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao criar conta');
+                }
+
+                return data;
+            }
+        };
+
+        // ========== EVENTOS ==========
+        elements.togglePassword.addEventListener('click', function() {
+            state.showPassword = !state.showPassword;
+            elements.senha.type = state.showPassword ? 'text' : 'password';
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        elements.toggleConfirmPassword.addEventListener('click', function() {
+            state.showConfirmPassword = !state.showConfirmPassword;
+            elements.confirmarSenha.type = state.showConfirmPassword ? 'text' : 'password';
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        elements.senha.addEventListener('input', function() {
+            utils.validatePasswordStrength(this.value);
+            if (this.value) {
+                this.classList.remove('error');
+            }
+        });
+
+        elements.confirmarSenha.addEventListener('input', function() {
+            const senha = elements.senha.value;
+            const confirmar = this.value;
+
+            if (confirmar) {
+                if (senha === confirmar) {
+                    this.classList.remove('error');
+                    this.classList.add('valid');
+                } else {
+                    this.classList.remove('valid');
+                    this.classList.add('error');
+                }
+            }
+        });
+
+        elements.email.addEventListener('blur', function() {
+            if (this.value && !utils.validateEmail(this.value)) {
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
+        });
+
+        elements.form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (state.isProcessing) return;
+
+            utils.clearErrors();
+
+            if (!utils.validateForm()) {
+                return;
+            }
+
+            const nome = elements.nome.value.trim();
+            const email = elements.email.value.trim();
+            const telefone = elements.telefone.value.trim();
+            const senha = elements.senha.value;
+            const confirmarSenha = elements.confirmarSenha.value;
+
+            try {
+                utils.setLoading(true);
+                utils.hideAlert();
+
+                const data = await api.register(nome, email, telefone, senha, confirmarSenha);
+
+                if (data.success) {
+                    utils.saveTokens(
+                        data.token,
+                        data.refreshToken,
+                        data.afiliado
+                    );
+
+                    utils.showAlert('Conta criada com sucesso! Redirecionando...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'afiliado-dashboard.html';
+                    }, 1500);
+                } else {
+                    utils.showAlert(data.message || 'Erro ao criar conta. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro no registro:', error);
+                utils.showAlert(error.message || 'Erro de conexão. Tente novamente.', 'error');
+            } finally {
+                utils.setLoading(false);
+            }
+        });
+
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página de registro inicializada');
+        });
+    </script>
+</body>
+</html>

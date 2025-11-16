@@ -68,7 +68,6 @@ async function verificarAutenticacao() {
             return false;
         }
         
-        console.log('✅ Usuário autenticado com sucesso');
         return true;
     } catch (error) {
         console.error('❌ Erro ao verificar autenticação:', error);
@@ -122,12 +121,9 @@ async function obterUsuarioAtual() {
         
         if (response.ok) {
             const data = await response.json();
-            console.log('📋 Debug - Resposta da API /me:', data);
             
             if (data.success && data.user) {
                 usuarioAtual = data.user;
-                console.log('✅ Usuário atual carregado:', usuarioAtual.id);
-                console.log('✅ Dados completos do usuário:', usuarioAtual);
             } else {
                 console.error('❌ Erro ao obter informações do usuário: dados inválidos');
                 console.error('❌ data.success:', data.success);
@@ -149,8 +145,6 @@ async function carregarProdutos() {
         mostrarLoading(true);
         
         // Verificar se o usuário foi carregado
-        console.log('🔍 Debug - usuarioAtual:', usuarioAtual);
-        console.log('🔍 Debug - usuarioAtual.id:', usuarioAtual?.id);
         
         if (!usuarioAtual || !usuarioAtual.id) {
             console.error('❌ Usuário não carregado');
@@ -171,8 +165,6 @@ async function carregarProdutos() {
         
         // SEMPRE usar a rota que filtra por usuário - NUNCA mostrar produtos de outros usuários
         const endpoint = `${window.API_BASE}/produtos?limite=100`;
-        console.log('🔒 Carregando produtos APENAS do usuário autenticado:', usuarioAtual.id);
-        console.log('🌐 Endpoint:', endpoint);
         
         const response = await fetch(endpoint, {
             headers: {
@@ -213,8 +205,6 @@ async function carregarProdutos() {
             
             produtos = produtosDoUsuario;
             
-            console.log('✅ Produtos carregados com segurança:', produtos.length);
-            console.log('👤 Todos os produtos pertencem ao usuário:', usuarioAtual.id);
             
             renderizarProdutos();
         } else {
@@ -676,10 +666,6 @@ function confirmarExclusao(produtoId, produtoNome) {
     // Definir texto de confirmação
     confirmationText = `DELETE#${customId}`;
     
-    console.log('🗑️ Confirmando exclusão:');
-    console.log('- ID Interno (para exclusão):', produtoId);
-    console.log('- Custom ID (para confirmação):', customId);
-    console.log('- Texto de confirmação:', confirmationText);
     
     // Atualizar elementos do modal
     modalMensagem.textContent = `Tem certeza que deseja excluir o produto "${produtoNome}"? Esta ação não pode ser desfeita.`;
@@ -753,7 +739,6 @@ function fecharModal() {
 // Excluir produto
 async function excluirProduto(produtoId) {
     try {
-        console.log('🗑️ Excluindo produto com ID interno:', produtoId);
         
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
         
@@ -946,7 +931,6 @@ async function salvarUTMfy(produtoId) {
             return;
         }
         
-        console.log(`🎯 Salvando configurações Utmify para produto ${produtoId}:`, { apiKey: apiKey ? apiKey.substring(0, 10) + '...' : 'null', tokenType, events, active });
         
         const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/utmfy`, {
             method: 'PUT',
@@ -995,7 +979,6 @@ async function salvarUTMfy(produtoId) {
             renderizarProdutos();
             
             mostrarSucessoToast('✅ Configurações Utmify salvas com sucesso!', 'success');
-            console.log('✅ Configurações Utmify salvas com sucesso:', { apiKey: apiKey ? apiKey.substring(0, 10) + '...' : 'null', tokenType, events, active });
         } else {
             throw new Error(data.message || 'Erro ao salvar configurações Utmify');
         }
@@ -1191,11 +1174,6 @@ async function salvarPixelConfig(produtoId) {
             return;
         }
         
-        console.log(`🎯 Salvando configuração do Pixel para produto ${produtoId}:`, { 
-            pixelId, 
-            eventos: eventosSelecionados 
-        });
-        
         const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/pixel`, {
             method: 'PUT',
             headers: {
@@ -1243,7 +1221,6 @@ async function salvarPixelConfig(produtoId) {
                 : '✅ Configuração do Pixel removida com sucesso!';
             
             mostrarSucessoToast(mensagem, 'success');
-            console.log('✅ Configuração do Pixel salva com sucesso:', { pixelId, eventos: eventosSelecionados });
         } else {
             throw new Error(data.message || 'Erro ao salvar configuração do Pixel');
         }
@@ -1266,7 +1243,6 @@ async function salvarPixel(produtoId) {
 
 // Mostrar mensagem de sucesso
 function mostrarSucesso(mensagem) {
-    console.log('Sucesso:', mensagem);
     mostrarSucessoToast(mensagem, 'success');
 }
 

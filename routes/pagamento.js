@@ -1769,40 +1769,46 @@ router.post('/pagar', async (req, res) => {
             console.log(`📊 Verificação de erro: ${isError}`);
             console.log(`📊 Verificação de cancelamento: ${isCancelled}`);
 
-            // Tratar erro primeiro
+            // Tratar erro primeiro - mas NÃO forçar cancelamento
+            // Apenas usar status real retornado pela PayMoz
             if (isError) {
-                // API retornou erro - definir status final como Cancelado
-                console.log('❌ API PayMoz retornou erro - definindo status final como Cancelado');
+                // API retornou erro - usar status real, mas não forçar cancelamento
+                console.log('⚠️ API PayMoz retornou erro - usando status real da resposta');
                 
                 const motivo = resultadoPagamento.data?.error_message || resultadoPagamento.data?.message || resultadoPagamento.message || 'Pagamento rejeitado pela API';
                 
-                // Atualizar todas as vendas com status final cancelado
+                // Usar status real da PayMoz - não forçar cancelamento
+                // Se a PayMoz retornou erro explícito, usar esse status
+                const statusReal = resultadoPagamento.status || 'Pendente';
+                
+                // Atualizar vendas com status real da PayMoz
                 for (const vendaItem of vendasCriadas) {
                     await vendaItem.update({
-                        status: 'Cancelada',
-                        pagamento_status: 'Cancelada',
+                        status: statusReal === 'error' || statusReal === 'failed' ? 'Rejeitado' : 'Pendente',
+                        pagamento_status: statusReal === 'error' || statusReal === 'failed' ? 'Rejeitado' : 'Pendente',
                         falhaMotivo: motivo,
                         falhaData: new Date().toISOString(),
                         falhaId: `ERROR-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
                     });
                 }
                 
-                statusPagamento = 'Cancelada';
-                statusVenda = 'Cancelada';
-                mensagemResposta = 'Pagamento rejeitado';
+                // Usar status real da PayMoz
+                statusPagamento = statusReal === 'error' || statusReal === 'failed' ? 'Rejeitado' : 'Pendente';
+                statusVenda = statusReal === 'error' || statusReal === 'failed' ? 'Rejeitado' : 'Pendente';
+                mensagemResposta = 'Status real da transação: ' + (statusReal === 'error' || statusReal === 'failed' ? 'Rejeitado' : 'Pendente');
                 
-                console.log('✅ Status final definido como Cancelado - sem verificação de transação');
+                console.log(`✅ Status definido como ${statusPagamento} - usando status real da PayMoz`);
                 
             } else if (isCancelled) {
-                // API retornou cancelamento - definir status final como Cancelado
-                console.log('❌ API PayMoz retornou cancelamento - definindo status final como Cancelado');
+                // API retornou cancelamento - usar status real
+                console.log('⚠️ API PayMoz retornou cancelamento - usando status real da resposta');
                 
                 const motivo = resultadoPagamento.data?.error_message || resultadoPagamento.message || 'Pagamento cancelado pela API';
                 
-                // Atualizar todas as vendas com status final cancelado
+                // Usar status real da PayMoz
                 for (const vendaItem of vendasCriadas) {
                     await vendaItem.update({
-                        status: 'Cancelada',
+                        status: 'Cancelada', // Status real retornado pela PayMoz
                         pagamento_status: 'Cancelada',
                         falhaMotivo: motivo,
                         falhaData: new Date().toISOString(),
@@ -1814,7 +1820,7 @@ router.post('/pagar', async (req, res) => {
                 statusVenda = 'Cancelada';
                 mensagemResposta = 'Pagamento cancelado';
                 
-                console.log('✅ Status final definido como Cancelado - sem verificação de transação');
+                console.log('✅ Status definido como Cancelada - usando status real da PayMoz');
                 
             } else if (isSuccess && resultadoPagamento.success) {
                 console.log(`📊 Status da API PayMoz: ${resultadoPagamento.status}`);
@@ -2034,56 +2040,37 @@ router.post('/pagar', async (req, res) => {
                 }
             
             // Verificar se há erro no resultado do pagamento
+            // NÃO forçar cancelamento - manter pendente e aguardar status real da PayMoz
             if (resultadoPagamento.error) {
-                // Erro no processamento - SEMPRE cancelar
-                console.log('❌ Erro na API e2Payments detectado - cancelando venda');
+                console.log('⚠️ Erro na API PayMoz detectado - mantendo status pendente para aguardar confirmação real');
                 
                 // Verificar se é timeout ou erro de conexão
                 const isTimeout = resultadoPagamento.errorType === 'timeout';
                 const isConnectionError = resultadoPagamento.errorType === 'connection';
                 
-                let tipoErro = 'api_error';
                 let motivo = resultadoPagamento.error || 'Erro na comunicação com o servidor de pagamento';
                 
-                if (isTimeout) {
-                    tipoErro = 'timeout';
-                    motivo = 'Pagamento cancelado automaticamente - timeout na comunicação com o servidor';
-                } else if (isConnectionError) {
-                    tipoErro = 'connection';
-                    motivo = 'Pagamento cancelado automaticamente - erro de conexão com o servidor';
-                }
-                
-                // Atualizar venda com status final cancelado
+                // NÃO cancelar - manter como pendente e aguardar webhook da PayMoz
+                // Apenas registrar o erro para referência, mas não alterar status
                 await venda.update({
-                    status: 'Cancelada',
-                    pagamento_status: 'Cancelada',
                     falhaMotivo: motivo,
                     falhaData: new Date().toISOString(),
-                    falhaId: `${tipoErro.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
+                    falhaId: `ERROR-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
+                    // NÃO alterar status - manter pendente
                 });
                 
-                // Definir status como cancelado
-                statusPagamento = 'Cancelada';
-                statusVenda = 'Cancelada';
+                // Manter status como pendente - não cancelar
+                statusPagamento = 'Pendente';
+                statusVenda = 'Pendente';
                 mensagemResposta = isTimeout ? 
-                    'Pagamento cancelado - timeout na comunicação' : 
+                    'Aguardando confirmação do status real da transação' : 
                     isConnectionError ? 
-                    'Pagamento cancelado - erro de conexão' :
-                    'Falha no pagamento, transação cancelada';
+                    'Aguardando confirmação do status real da transação' :
+                    'Aguardando confirmação do status real da transação';
                 
-                console.log(`✅ Status final definido como Cancelado por ${tipoErro} - sem verificação de transação`);
-                
-                // Enviar notificação de venda cancelada
-                try {
-                    const notificationService = require('../services/notificationService');
+                console.log('ℹ️ Status mantido como Pendente - aguardando webhook da PayMoz para status real');
                     
-                    // Notificação de venda cancelada removida - usar vendaNotificationService se necessário
-                    console.log('🔔 Venda cancelada - notificação removida para evitar erro');
-                    
-                    console.log('🔔 Notificação de venda cancelada enviada');
-                } catch (notificationError) {
-                    console.error('❌ Erro ao enviar notificação de venda cancelada:', notificationError);
-                }
+                // NÃO enviar notificação de cancelamento - status está pendente, aguardando confirmação real
             }
 
             console.log(`📊 Status final definido: ${statusPagamento}`);
@@ -2249,6 +2236,25 @@ router.post('/pagar', async (req, res) => {
                 console.log('🔔 Notificação de venda cancelada enviada');
             } catch (notificationError) {
                 console.error('❌ Erro ao enviar notificação de venda cancelada:', notificationError);
+            }
+            
+            // Adicionar à fila de remarketing (se configurado)
+            try {
+                const remarketingService = require('../services/remarketingService');
+                
+                if (produto.remarketing_config?.enabled) {
+                    await remarketingService.adicionarVendaCancelada({
+                        cliente_id: venda.cliente_id,
+                        cliente_nome: venda.cliente_nome || 'Cliente',
+                        produto_id: venda.produto_id,
+                        produto_nome: produto.nome,
+                        email: venda.cliente_email,
+                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                    });
+                }
+            } catch (remarketingError) {
+                // Não falhar o cancelamento por erro no remarketing
+                console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
             }
             
             // Retornar resposta de cancelamento

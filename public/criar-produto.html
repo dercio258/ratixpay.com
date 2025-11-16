@@ -1470,6 +1470,7 @@
                     <input type="hidden" id="timerConfig" name="timer_config">
 
                     <input type="hidden" id="blackFridayConfig" name="blackfriday_config">
+                    <input type="hidden" id="remarketingConfig" name="remarketing_config">
 
                     
 
@@ -1969,7 +1970,66 @@
 
                     </div>
 
+                    <!-- Seção de Remarketing Automático -->
+                    <div class="config-section">
+                        <div class="config-section-header" onclick="toggleConfigSection('remarketingSection', event)">
+                            <div class="config-section-title">
+                                <input type="checkbox" id="enableRemarketing" onclick="event.stopPropagation(); toggleRemarketingSettings()">
+                                <label for="enableRemarketing">
+                                    <i class="fas fa-bullhorn"></i> Remarketing Automático
+                                </label>
+                            </div>
+                            <i class="fas fa-chevron-down config-arrow" id="remarketingSectionArrow"></i>
+                        </div>
 
+                        <div class="config-section-content" id="remarketingSection" style="display: none;">
+                            <div class="form-group">
+                                <small class="form-help">Envie notificações automáticas para clientes que cancelaram a compra</small>
+                            </div>
+
+                            <div id="remarketingSettings" style="display: none;">
+                                <div class="form-group">
+                                    <label for="remarketingTempo">Tempo para Envio:</label>
+                                    <select id="remarketingTempo" onchange="updateRemarketingPreview()">
+                                        <option value="0">Imediato (0 min)</option>
+                                        <option value="5">+5 minutos</option>
+                                        <option value="60">+1 hora</option>
+                                        <option value="1440">+24 horas</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+
+                                <div id="remarketingCustomTime" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="remarketingCustomMinutes">Minutos:</label>
+                                            <input type="number" id="remarketingCustomMinutes" min="0" max="1440" placeholder="0-1440" onchange="updateRemarketingPreview()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="remarketingCustomHours">Horas:</label>
+                                            <input type="number" id="remarketingCustomHours" min="0" max="24" placeholder="0-24" onchange="updateRemarketingPreview()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="remarketing-preview" id="remarketingPreview" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                                    <div style="font-weight: 600; color: #495057; margin-bottom: 10px;">
+                                        <i class="fas fa-eye"></i> Preview da Mensagem
+                                    </div>
+                                    <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #E67E22; font-size: 0.9rem; line-height: 1.6; color: #333;" id="remarketingPreviewText">
+                                        Olá [Nome do Cliente],<br><br>
+                                        Vimos que você tentou comprar "[Nome do Produto]", mas não concluiu.<br><br>
+                                        👉 Finalize agora com desconto especial:<br>
+                                        [Link do Checkout]<br><br>
+                                        A oferta é por tempo limitado!
+                                    </div>
+                                    <div style="margin-top: 10px; font-size: 0.85rem; color: #6c757d;">
+                                        <i class="fas fa-clock"></i> Envio: <span id="remarketingPreviewTime">Imediato</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Seção de Configuração de Afiliados -->
 
@@ -2090,58 +2150,6 @@
                     </div>
 
                 </div>
-
-                    <!-- Seção de Remarketing -->
-                    <div class="config-section">
-                        <div class="config-section-header" onclick="toggleConfigSection('remarketingSection', event)">
-                            <div class="config-section-title">
-                                <input type="checkbox" id="enableRemarketing" onclick="event.stopPropagation(); toggleConfigSection('remarketingSection')">
-                                <label for="enableRemarketing">
-                                    <i class="fas fa-bullhorn"></i> Remarketing
-                                </label>
-                            </div>
-                            <i class="fas fa-chevron-down config-arrow" id="remarketingSectionArrow"></i>
-                        </div>
-                        <div class="config-section-content" id="remarketingSection" style="display: none;">
-                            <div class="form-group">
-                                <label for="remarketingTempoEnvio">Tempo para envio da notificação (após cancelamento):</label>
-                                <select id="remarketingTempoEnvio" onchange="toggleCustomTime()">
-                                    <option value="0">Imediato (0 min)</option>
-                                    <option value="5">+5 minutos</option>
-                                    <option value="60">+1 hora</option>
-                                    <option value="1440">+24 horas</option>
-                                    <option value="custom">Personalizado</option>
-                                </select>
-                                <small class="form-help">Tempo de espera após o cancelamento antes de enviar a notificação</small>
-                            </div>
-                            
-                            <div class="form-group" id="customTimeGroup" style="display: none;">
-                                <label for="remarketingTempoCustom">Tempo personalizado:</label>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="number" id="remarketingTempoCustom" min="0" step="1" placeholder="Digite o valor">
-                                    <select id="remarketingTempoUnidade">
-                                        <option value="minutos">Minutos</option>
-                                        <option value="horas">Horas</option>
-                                    </select>
-                                </div>
-                                <small class="form-help">Digite o tempo e selecione a unidade (minutos ou horas)</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Preview da Mensagem:</label>
-                                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-top: 10px;">
-                                    <p id="remarketingPreview" style="margin: 0; color: #495057;">
-                                        Olá <strong>{nome_cliente}</strong>,<br><br>
-                                        Vimos que você tentou comprar <strong>{nome_produto}</strong>, mas não concluiu.<br><br>
-                                        👉 <strong>Finalize agora com desconto especial:</strong><br>
-                                        <a href="#" style="color: #007bff;">ratixpay.com/checkout.html?produto={id_produto}</a><br><br>
-                                        A oferta é por tempo limitado!
-                                    </p>
-                                </div>
-                                <small class="form-help">A mensagem será enviada automaticamente após o tempo configurado</small>
-                            </div>
-                        </div>
-                    </div>
 
                     </div>
 
@@ -2582,20 +2590,6 @@
         }
 
 
-
-        // Função para mostrar/ocultar campo de tempo personalizado no Remarketing
-        function toggleCustomTime() {
-            const tempoEnvio = document.getElementById('remarketingTempoEnvio');
-            const customTimeGroup = document.getElementById('customTimeGroup');
-            
-            if (tempoEnvio && customTimeGroup) {
-                if (tempoEnvio.value === 'custom') {
-                    customTimeGroup.style.display = 'block';
-                } else {
-                    customTimeGroup.style.display = 'none';
-                }
-            }
-        }
 
         // Funções para controle da seção de afiliados
 
@@ -3249,9 +3243,34 @@
 
                         discount: isBlackFridayActive ? blackFridayDiscount : 0
 
+                    },
+                    remarketing: {
+                        enabled: false,
+                        tempo_minutos: 0
                     }
 
                 };
+                
+                // Coletar configuração de remarketing
+                const enableRemarketing = document.getElementById('enableRemarketing');
+                const remarketingTempo = document.getElementById('remarketingTempo');
+                const remarketingCustomMinutes = document.getElementById('remarketingCustomMinutes');
+                const remarketingCustomHours = document.getElementById('remarketingCustomHours');
+                
+                if (enableRemarketing && enableRemarketing.checked) {
+                    let tempoMinutos = 0;
+                    if (remarketingTempo && remarketingTempo.value === 'custom') {
+                        const minutos = parseInt(remarketingCustomMinutes?.value || 0);
+                        const horas = parseInt(remarketingCustomHours?.value || 0);
+                        tempoMinutos = minutos + (horas * 60);
+                    } else if (remarketingTempo) {
+                        tempoMinutos = parseInt(remarketingTempo.value || 0);
+                    }
+                    configs.remarketing = {
+                        enabled: true,
+                        tempo_minutos: tempoMinutos
+                    };
+                }
 
                 
 
@@ -3271,10 +3290,73 @@
 
         
 
-        // Tornar função disponível globalmente
-
+        // Funções de Remarketing
+        function toggleRemarketingSettings() {
+            const checkbox = document.getElementById('enableRemarketing');
+            const settings = document.getElementById('remarketingSettings');
+            const section = document.getElementById('remarketingSection');
+            
+            if (checkbox && settings && section) {
+                if (checkbox.checked) {
+                    settings.style.display = 'block';
+                    section.style.display = 'block';
+                    updateRemarketingPreview();
+                } else {
+                    settings.style.display = 'none';
+                }
+            }
+        }
+        
+        function updateRemarketingPreview() {
+            const tempoSelect = document.getElementById('remarketingTempo');
+            const customTime = document.getElementById('remarketingCustomTime');
+            const previewTime = document.getElementById('remarketingPreviewTime');
+            
+            if (!tempoSelect || !previewTime) return;
+            
+            if (tempoSelect.value === 'custom') {
+                if (customTime) customTime.style.display = 'block';
+                
+                const minutos = parseInt(document.getElementById('remarketingCustomMinutes')?.value || 0);
+                const horas = parseInt(document.getElementById('remarketingCustomHours')?.value || 0);
+                const totalMinutos = minutos + (horas * 60);
+                
+                if (totalMinutos === 0) {
+                    previewTime.textContent = 'Imediato';
+                } else if (totalMinutos < 60) {
+                    previewTime.textContent = `+${totalMinutos} minutos`;
+                } else if (totalMinutos < 1440) {
+                    const horasTotal = Math.floor(totalMinutos / 60);
+                    const minutosResto = totalMinutos % 60;
+                    previewTime.textContent = minutosResto > 0 
+                        ? `+${horasTotal}h ${minutosResto}min`
+                        : `+${horasTotal} horas`;
+                } else {
+                    const dias = Math.floor(totalMinutos / 1440);
+                    previewTime.textContent = `+${dias} dias`;
+                }
+            } else {
+                if (customTime) customTime.style.display = 'none';
+                
+                const tempo = parseInt(tempoSelect.value || 0);
+                if (tempo === 0) {
+                    previewTime.textContent = 'Imediato';
+                } else if (tempo < 60) {
+                    previewTime.textContent = `+${tempo} minutos`;
+                } else if (tempo < 1440) {
+                    const horas = Math.floor(tempo / 60);
+                    previewTime.textContent = `+${horas} horas`;
+                } else {
+                    const dias = Math.floor(tempo / 1440);
+                    previewTime.textContent = `+${dias} dias`;
+                }
+            }
+        }
+        
+        // Tornar funções disponíveis globalmente
+        window.toggleRemarketingSettings = toggleRemarketingSettings;
+        window.updateRemarketingPreview = updateRemarketingPreview;
         window.debugConfigurationsHTML = debugConfigurationsHTML;
-
         window.collectConfigurationsForSubmission = collectConfigurationsForSubmission;
 
 
@@ -3474,6 +3556,11 @@
                     document.getElementById('timerConfig').value = JSON.stringify(configs.timer);
 
                     document.getElementById('blackFridayConfig').value = JSON.stringify(configs.blackFriday);
+                    
+                    const remarketingConfigField = document.getElementById('remarketingConfig');
+                    if (remarketingConfigField) {
+                        remarketingConfigField.value = JSON.stringify(configs.remarketing);
+                    }
 
                     
 

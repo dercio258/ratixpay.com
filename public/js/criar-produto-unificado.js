@@ -363,7 +363,18 @@ class ProductCreator {
                     window.location.href = '/gestao-produtos.html';
                 }, 2000);
             } else {
-                throw new Error(result.message || 'Erro ao criar produto');
+                this.hideProgressModal();
+                // Verificar se é rejeição do Gemini AI
+                if (result.error === 'PRODUTO_REJEITADO' && result.verificacao) {
+                    // Usar a função global se existir, senão criar localmente
+                    if (typeof showRejectionModal === 'function') {
+                        showRejectionModal(result.verificacao, result.message);
+                    } else {
+                        this.showRejectionModal(result.verificacao, result.message);
+                    }
+                } else {
+                    throw new Error(result.message || result.error || 'Erro ao criar produto');
+                }
             }
 
         } catch (error) {
@@ -473,6 +484,17 @@ class ProductCreator {
 
         const result = await response.json();
         return result;
+    }
+
+    showRejectionModal(verificacao, message) {
+        // Usar a mesma função do criar-produto.js se disponível
+        if (typeof showRejectionModal === 'function') {
+            showRejectionModal(verificacao, message);
+        } else {
+            // Fallback: mostrar alerta com o motivo
+            const motivo = verificacao.motivo || 'Não atende aos critérios da plataforma';
+            alert(`Produto não aprovado:\n\n${motivo}\n\nPor favor, revise as informações do produto e tente novamente.`);
+        }
     }
 
     showNotification(message, type = 'info') {

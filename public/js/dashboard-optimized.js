@@ -31,7 +31,6 @@ class DashboardOptimized {
         // Event listeners
         this.events = new EventTarget();
         
-        console.log('🚀 DashboardOptimized criado');
     }
 
     /**
@@ -39,12 +38,10 @@ class DashboardOptimized {
      */
     async initialize() {
         if (this.isInitialized) {
-            console.log('⚠️ Dashboard já inicializado');
             return;
         }
 
         try {
-            console.log('🚀 Inicializando dashboard otimizado...');
             
             // Aguardar sistema estar pronto
             await this.waitForSystemReady();
@@ -61,7 +58,6 @@ class DashboardOptimized {
             this.isInitialized = true;
             
             this.events.dispatchEvent(new CustomEvent('dashboardInitialized'));
-            console.log('✅ Dashboard inicializado com sucesso');
             
         } catch (error) {
             console.error('❌ Erro ao inicializar dashboard:', error);
@@ -441,7 +437,6 @@ class DashboardOptimized {
      * Atualizar dados
      */
     async refreshData() {
-        console.log('🔄 Atualizando dados...');
         
         // Limpar cache
         this.cache.clear();
@@ -449,7 +444,6 @@ class DashboardOptimized {
         // Recarregar dados
         await this.loadInitialData();
         
-        console.log('✅ Dados atualizados');
     }
 
     /**
@@ -497,7 +491,6 @@ class DashboardOptimized {
         this.retryAttempts.clear();
         this.isInitialized = false;
         
-        console.log('🗑️ Dashboard destruído');
     }
 }
 

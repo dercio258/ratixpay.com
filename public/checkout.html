@@ -31,7 +31,6 @@
         const produtoId = urlParams.get('produto');
         
         if (!produtoId) {
-          console.log('ℹ️ Meta Pixel: Nenhum produto identificado');
           return;
         }
         
@@ -47,14 +46,11 @@
         const produto = await response.json();
         
         if (!produto.pixel_id || !/^\d{15,16}$/.test(produto.pixel_id)) {
-          console.log('ℹ️ Meta Pixel: Produto não possui pixel_id válido');
           return;
         }
         
         const pixelId = produto.pixel_id;
         const pixelEvents = produto.pixel_events || ['Purchase', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Lead'];
-        
-        console.log('✅ Meta Pixel: Inicializando com ID:', pixelId);
         
         // Inicializar pixel
         fbq('init', pixelId);
@@ -68,8 +64,7 @@
             value: parseFloat(produto.preco) || 0,
             currency: 'MZN'
           });
-          console.log('✅ Meta Pixel: InitiateCheckout disparado');
-        }
+          }
         
         // Atualizar noscript
         updateNoscriptPixel(pixelId);
@@ -115,10 +110,8 @@
         // Salvar no localStorage para usar no envio do pagamento
         if (Object.values(utmParams).some(v => v !== null)) {
           localStorage.setItem('utm_tracking_params', JSON.stringify(utmParams));
-          console.log('✅ Parâmetros UTM capturados e salvos:', utmParams);
-        } else {
-          console.log('ℹ️ Nenhum parâmetro UTM encontrado na URL');
-        }
+          } else {
+          }
       } catch (error) {
         console.error('❌ Erro ao capturar parâmetros UTM:', error);
       }
@@ -424,6 +417,67 @@
       padding: 6px;
       box-shadow: 0 3px 12px rgba(0,0,0,0.08);
       flex-shrink: 0;
+    }
+
+    /* Proteção de imagem do produto */
+    .product-image {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Proteção de canvas do produto */
+    .product-image-canvas {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+
+    /* Container protegido para imagem */
+    .product-image-container {
+      position: relative;
+      display: inline-block;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Overlay transparente para bloquear interações (sem indicadores visuais) */
+    .product-image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 1;
+      cursor: default;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      pointer-events: auto;
     }
 
     .product-details { 
@@ -2237,7 +2291,7 @@
   <footer class="page-footer">
     <p data-translate-key="footerText">
       <strong>Ao finalizar esta compra, você concorda com nossos </strong>
-      <a href="#" onclick="openModal('termsModal'); return false;" data-translate-key="termsLink"><strong>Termos de Uso</strong></a><strong>, </strong>
+      <a href="/termos-condicoes.html" target="_blank" data-translate-key="termsLink"><strong>Termos de Uso</strong></a><strong>, </strong>
       <a href="#" onclick="openModal('privacyModal'); return false;" data-translate-key="privacyLink"><strong>Política de Privacidade</strong></a><strong> e </strong>
       <a href="#" onclick="openModal('refundModal'); return false;" data-translate-key="refundLink"><strong>Política de Reembolso</strong></a><strong>.</strong>
     </p>
@@ -2249,8 +2303,7 @@
   <script>
     // Definir API_BASE globalmente antes de carregar os outros scripts
     window.API_BASE = window.location.origin + '/api';
-    console.log('API_BASE definido inicialmente:', window.API_BASE);
-  </script>
+    </script>
   
   <!-- Rastreamento de cliques de afiliados -->
   <script>
@@ -2262,8 +2315,6 @@
         const produto = urlParams.get('produto');
         
         if (ref && produto) {
-          console.log('🔗 Rastreando clique de afiliado:', { ref, produto });
-          
           // Fazer requisição para a rota de rastreamento
           fetch(`${window.API_BASE}/afiliados/track/${ref}?produto=${produto}`, {
             method: 'GET',
@@ -2272,10 +2323,8 @@
             }
           })
           .then(response => {
-            if (response.ok) {
-              console.log('✅ Clique de afiliado registrado com sucesso');
-            } else {
-              console.log('⚠️ Erro ao registrar clique de afiliado:', response.status);
+            if (!response.ok) {
+              console.warn('⚠️ Erro ao rastrear clique de afiliado');
             }
           })
           .catch(error => {
@@ -2294,13 +2343,11 @@
   <script src="js/server-check.js"></script>
   <script>
     // Verificar se API_BASE foi definido corretamente pelo server-check.js
-    console.log('API_BASE após server-check.js:', window.API_BASE);
-  </script>
+    </script>
   <script src="js/config.js"></script>
   <script>
     // Verificar se API_BASE foi definido corretamente pelo config.js
-    console.log('API_BASE após config.js:', window.API_BASE);
-  </script>
+    </script>
   <script src="js/checkout-new.js?v=20241225"></script>
   <script>
     // Esconder loader quando as informações do produto forem carregadas
@@ -2332,7 +2379,6 @@
       function observeProductLoad() {
         // Verificar se já está carregado
         if (window.currentProduct && window.currentProduct.nome) {
-          console.log('✅ Produto já carregado, escondendo loader');
           hideLoader();
           return;
         }
@@ -2340,7 +2386,6 @@
         // Observar mudanças em window.currentProduct
         let checkInterval = setInterval(function() {
           if (window.currentProduct && window.currentProduct.nome) {
-            console.log('✅ Produto carregado detectado, escondendo loader');
             clearInterval(checkInterval);
             hideLoader();
           }
@@ -2355,14 +2400,12 @@
       // Escutar evento quando produto for carregado
       window.addEventListener('productLoaded', function(event) {
         if (event.detail && event.detail.nome) {
-          console.log('✅ Evento productLoaded disparado, escondendo loader');
           hideLoader();
         }
       });
       
       // Escutar evento quando produto falhar ao carregar
       window.addEventListener('productLoadFailed', function(event) {
-        console.log('❌ Produto falhou ao carregar, escondendo loader');
         hideLoader();
       });
       
@@ -2376,23 +2419,122 @@
       // Fallback de segurança (máximo 5 segundos para aguardar produto)
       setTimeout(function() {
         if (!loaderHidden) {
-          console.log('⚠️ Timeout: escondendo loader mesmo sem produto carregado');
           hideLoader();
         }
       }, 5000);
     })();
   </script>
-  <script src="js/discount-trigger.js"></script>
   <script>
     // Verificar se checkout-new.js foi carregado corretamente
-    console.log('Checkout script carregado');
-    
-    // Verificar se as funções principais estão disponíveis
-    if (typeof displayProduct === 'function') {
-      console.log('✅ Função displayProduct disponível');
-    } else {
-      console.error('❌ Função displayProduct não encontrada - possível problema de carregamento');
-    }
+    // O checkout-new.js usa funções globais, não uma classe CheckoutManager
+
+    // Proteção global contra download/cópia de imagens
+    (function() {
+      // Prevenir menu de contexto (botão direito) em imagens/canvas do produto
+      document.addEventListener('contextmenu', function(e) {
+        const target = e.target;
+        const isProductImage = target.tagName === 'IMG' && (target.classList.contains('product-image') || target.closest('.product-image-container'));
+        const isProductCanvas = target.tagName === 'CANVAS' && (target.classList.contains('product-image-canvas') || target.closest('.product-image-container'));
+        if (isProductImage || isProductCanvas) {
+          e.preventDefault();
+          return false;
+        }
+      }, false);
+
+      // Prevenir drag de imagens/canvas do produto
+      document.addEventListener('dragstart', function(e) {
+        const target = e.target;
+        const isProductImage = target.tagName === 'IMG' && (target.classList.contains('product-image') || target.closest('.product-image-container'));
+        const isProductCanvas = target.tagName === 'CANVAS' && (target.classList.contains('product-image-canvas') || target.closest('.product-image-container'));
+        if (isProductImage || isProductCanvas) {
+          e.preventDefault();
+          return false;
+        }
+      }, false);
+
+      // Prevenir seleção de imagens/canvas
+      document.addEventListener('selectstart', function(e) {
+        const target = e.target;
+        const isProductImage = target.tagName === 'IMG' && (target.classList.contains('product-image') || target.closest('.product-image-container'));
+        const isProductCanvas = target.tagName === 'CANVAS' && (target.classList.contains('product-image-canvas') || target.closest('.product-image-container'));
+        if (isProductImage || isProductCanvas) {
+          e.preventDefault();
+          return false;
+        }
+      }, false);
+
+      // Prevenir teclas de atalho (Ctrl+S, Ctrl+C, etc.) em imagens/canvas
+      document.addEventListener('keydown', function(e) {
+        const target = document.activeElement;
+        const isProductImage = target && target.tagName === 'IMG' && target.classList.contains('product-image');
+        const isProductCanvas = target && target.tagName === 'CANVAS' && target.classList.contains('product-image-canvas');
+        const isInProductCard = target && target.closest('.product-image-container');
+        
+        // Prevenir Ctrl+S (salvar), Ctrl+C (copiar), Ctrl+A (selecionar tudo) quando focado em imagem/canvas
+        if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'c' || e.key === 'a') && (isProductImage || isProductCanvas || isInProductCard)) {
+          e.preventDefault();
+          return false;
+        }
+      }, false);
+
+      // Prevenir acesso direto ao src da imagem via console
+      // Observar mudanças no DOM para proteger imagens adicionadas dinamicamente
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(function(node) {
+            if (node.nodeType === 1) { // Element node
+              const images = node.querySelectorAll ? node.querySelectorAll('img.product-image') : [];
+              images.forEach(function(img) {
+                // Adicionar proteções a imagens adicionadas dinamicamente
+                img.setAttribute('draggable', 'false');
+                img.style.pointerEvents = 'none';
+                img.style.userSelect = 'none';
+                img.style.webkitUserSelect = 'none';
+                img.style.webkitUserDrag = 'none';
+              });
+              
+              const canvases = node.querySelectorAll ? node.querySelectorAll('canvas.product-image-canvas') : [];
+              canvases.forEach(function(canvas) {
+                // Adicionar proteções a canvas adicionados dinamicamente
+                canvas.setAttribute('draggable', 'false');
+                canvas.style.pointerEvents = 'none';
+                canvas.style.userSelect = 'none';
+                canvas.style.webkitUserSelect = 'none';
+                canvas.style.webkitUserDrag = 'none';
+                
+                // Prevenir extração de dados do canvas
+                const originalToDataURL = canvas.toDataURL;
+                canvas.toDataURL = function() {
+                  return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+                };
+                
+                const originalToBlob = canvas.toBlob;
+                if (canvas.toBlob) {
+                  canvas.toBlob = function() {
+                    return null;
+                  };
+                }
+              });
+            }
+          });
+        });
+      });
+
+      // Iniciar observação quando DOM estiver pronto
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        });
+      } else {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+    })();
   </script>
   
   <script>
@@ -2529,8 +2671,8 @@
         // Verificar validade do formulário após seleção
         checkFormValidity();
         
-        // Carregar Order Bump após seleção de método de pagamento
-        onPaymentMethodSelected();
+        // Order Bump já é carregado automaticamente com o produto principal
+        // Não é mais necessário carregar aqui
       });
     });
 
@@ -2691,8 +2833,7 @@
       // Validação silenciosa - apenas para logs
       if (phoneValue.length > 0) {
         const isValid = validatePhoneNumber(phoneValue);
-        console.log(`📱 Telefone: ${phoneValue} - ${isValid ? 'Válido' : 'Inválido'}`);
-      }
+        }
     }
 
     function checkFormValidity() {
@@ -2707,10 +2848,8 @@
       
       // Log interno apenas
       if (phoneValid && paymentSelected) {
-        console.log('✅ Formulário válido');
-      } else {
-        console.log('❌ Formulário inválido');
-      }
+        } else {
+        }
     }
 
     // Event listeners para validação de telefone
@@ -2802,8 +2941,7 @@
           }
           
           // Se chegou até aqui, formulário está válido
-          console.log('✅ Formulário válido - prosseguindo com pagamento');
-        });
+          });
       }
     });
 
@@ -2882,14 +3020,12 @@ document.addEventListener('click', function(event) {
       }
 
       if (!idParaBusca) {
-        console.log('ℹ️ ID do produto não disponível para Order Bump (aguardando produto)');
+        console.warn('⚠️ ID do produto não encontrado para buscar order bump');
         return;
       }
 
-      console.log('🎯 Carregando produtos complementares para ID:', idParaBusca);
       // Se o produto principal não tiver order bump ativo, não buscar
       if (window.currentProduct && window.currentProduct.order_bump_ativo === false) {
-        console.log('ℹ️ Order Bump desativado para este produto. Pulando carregamento.');
         return;
       }
       
@@ -2935,9 +3071,7 @@ document.addEventListener('click', function(event) {
           }, 2000);
         }, 100);
         
-        console.log('✅ Order Bump carregado com', orderBumpProducts.length, 'produtos');
-      } else {
-        console.log('ℹ️ Nenhum produto complementar encontrado');
+        } else {
         // Ocultar seção se não há produtos
         const orderBumpSection = document.getElementById('orderBumpSection');
         orderBumpSection.style.display = 'none';
@@ -3046,8 +3180,7 @@ document.addEventListener('click', function(event) {
     window.selectedOrderBumpProducts = selectedOrderBumpProducts;
 
     updateTotalPrice();
-    console.log('🎯 Produtos selecionados:', selectedOrderBumpProducts.length);
-  }
+    }
 
   // Função para atualizar preço total
   function updateTotalPrice() {
@@ -3091,17 +3224,13 @@ document.addEventListener('click', function(event) {
       const produto = urlParams.get('produto');
       
       if (!produto) {
-        console.log('❌ Nenhum produto encontrado na URL');
         return false;
       }
-      
-      console.log('🔍 Verificando se produto tem complementares:', produto);
       
       // Fazer uma requisição para verificar se existem produtos complementares
       const response = await fetch(`${window.API_BASE}/pagamento/order-bump/${produto}`);
       
       if (!response.ok) {
-        console.log('❌ Erro ao verificar produtos complementares:', response.status);
         return false;
       }
       
@@ -3114,44 +3243,29 @@ document.addEventListener('click', function(event) {
                               Array.isArray(data.produtos_complementares) && 
                               data.produtos_complementares.length > 0;
       
-      console.log(hasComplementary ? '✅ Produto tem complementares' : '❌ Produto não tem complementares');
       return hasComplementary;
       
     } catch (error) {
-      console.log('❌ Erro ao verificar produtos complementares:', error);
       return false;
     }
   }
   
-  async function onPaymentMethodSelected() {
+  // Função para carregar Order Bump automaticamente quando produto principal for carregado
+  async function loadOrderBumpAutomatically() {
     if (orderBumpLoaded) {
-      console.log('ℹ️ Order Bump já foi carregado anteriormente');
       return;
     }
-    
-    // Verificar se o contato está válido antes de mostrar Order Bump
-    const phoneInput = document.getElementById('phone');
-    const phoneNumber = phoneInput.value.trim();
-    
-    if (!validatePhoneNumber(phoneNumber)) {
-      console.log('❌ Contato não válido - Order Bump não será exibido');
-      return;
-    }
-    
-    console.log('🔄 Verificando se produto tem complementares...');
     
     // Verificar se o produto tem complementares ANTES de mostrar a seção
     const hasComplementary = await checkProductHasComplementaryProducts();
     
     if (!hasComplementary) {
-      console.log('ℹ️ Produto não tem complementares - Order Bump não será exibido');
       return;
     }
     
-    console.log('✅ Produto tem complementares - exibindo Order Bump...');
     orderBumpLoaded = true;
     
-    // Só agora mostrar a seção e carregar os produtos
+    // Mostrar a seção e carregar os produtos
     const orderBumpSection = document.getElementById('orderBumpSection');
     orderBumpSection.style.display = 'block';
     orderBumpSection.innerHTML = `
@@ -3169,6 +3283,15 @@ document.addEventListener('click', function(event) {
     
     // Carregar produtos do Order Bump
     loadOrderBumpProducts();
+  }
+  
+  async function onPaymentMethodSelected() {
+    // Esta função não é mais necessária para carregar o Order Bump
+    // O Order Bump agora carrega automaticamente com o produto principal
+    // Mantida apenas para compatibilidade caso seja chamada em outros lugares
+    if (!orderBumpLoaded) {
+      loadOrderBumpAutomatically();
+    }
   }
 
   // Carregar Order Bump quando a página carregar, aguardando o produto
@@ -3188,8 +3311,8 @@ document.addEventListener('click', function(event) {
         checkAndActivateUrgencyTimer();
         // Verificar configuração do Black Friday
         checkBlackFridayConfig();
-        // NÃO carregar Order Bump automaticamente - aguardar seleção de pagamento
-        console.log('ℹ️ Order Bump será carregado após seleção de método de pagamento');
+        // Carregar Order Bump automaticamente quando produto principal for carregado
+        loadOrderBumpAutomatically();
       }
     }, 200);
   });
@@ -3203,20 +3326,16 @@ document.addEventListener('click', function(event) {
       const auth = urlParams.get('auth');
       
       if (auth === 'auto' && email && nome) {
-        console.log('🔄 Preenchendo dados automaticamente:', { email, nome });
-        
         // Preencher campos
         const fullNameInput = document.getElementById('fullName');
         const emailInput = document.getElementById('email');
         
         if (fullNameInput) {
           fullNameInput.value = decodeURIComponent(nome);
-          console.log('✅ Nome preenchido:', decodeURIComponent(nome));
         }
         
         if (emailInput) {
           emailInput.value = decodeURIComponent(email);
-          console.log('✅ Email preenchido:', decodeURIComponent(email));
         }
       }
     } catch (error) {
@@ -3230,8 +3349,6 @@ document.addEventListener('click', function(event) {
 
   // Função para iniciar o timer de urgência
   function startUrgencyTimer(durationMinutes) {
-    console.log('⏰ Iniciando timer de urgência:', durationMinutes, 'minutos');
-    
     // Calcular tempo de fim
     urgencyEndTime = new Date().getTime() + (durationMinutes * 60 * 1000);
     
@@ -3301,13 +3418,11 @@ document.addEventListener('click', function(event) {
       urgencyTimerInterval = null;
     }
     
-    console.log('⏰ Timer de urgência finalizado');
-  }
+    }
 
   // Função para verificar e ativar timer de urgência baseado no timer_config
   function checkAndActivateUrgencyTimer() {
     if (!window.currentProduct || !window.currentProduct.timer_config) {
-      console.log('ℹ️ Nenhuma configuração de timer encontrada');
       return;
     }
     
@@ -3328,11 +3443,9 @@ document.addEventListener('click', function(event) {
     
     // Verificar se timer está habilitado
     if (timerConfig.enabled && timerConfig.duration > 0) {
-      console.log('✅ Timer de urgência ativado:', timerConfig);
       startUrgencyTimer(timerConfig.duration);
     } else {
-      console.log('ℹ️ Timer de urgência desabilitado ou duração inválida');
-    }
+      }
   }
 
   // Função para controlar visibilidade da Black Friday Tag
@@ -3341,18 +3454,15 @@ document.addEventListener('click', function(event) {
     if (blackFridayTag) {
       if (show) {
         blackFridayTag.classList.remove('hidden');
-        console.log('✅ Black Friday Tag exibida');
-      } else {
+        } else {
         blackFridayTag.classList.add('hidden');
-        console.log('❌ Black Friday Tag oculta');
-      }
+        }
     }
   }
 
   // Função para verificar configuração do Black Friday
   function checkBlackFridayConfig() {
     if (!window.currentProduct || !window.currentProduct.blackfriday_config) {
-      console.log('ℹ️ Nenhuma configuração de Black Friday encontrada');
       toggleBlackFridayTag(false);
       return;
     }
@@ -3375,10 +3485,8 @@ document.addEventListener('click', function(event) {
     
     // Verificar se Black Friday está habilitado
     if (blackFridayConfig.enabled === true) {
-      console.log('✅ Black Friday ativado:', blackFridayConfig);
       toggleBlackFridayTag(true);
     } else {
-      console.log('❌ Black Friday desabilitado:', blackFridayConfig);
       toggleBlackFridayTag(false);
     }
   }

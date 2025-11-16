@@ -40,24 +40,6 @@
             box-sizing: border-box;
         }
         
-        .period-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .period-btn {
-            padding: 8px 16px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            color: #666;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
         .period-btn:hover {
             border-color: #E67E22;
             color: #E67E22;
@@ -72,40 +54,65 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
         
         .stat-card {
             background: white;
-            border-radius: 15px;
-            padding: 20px 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #E67E22;
+            border-radius: 12px;
+            padding: 12px 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #E67E22;
             transition: transform 0.3s ease;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
             text-align: left;
-            min-height: 100px;
+            min-height: 75px;
+        }
+        
+        /* Aplicar mesmo design da stat-card.info para todas as cards */
+        .stat-card .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+        
+        .stat-card .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
         }
         
         .stat-card.info .stat-label {
             margin-bottom: 0;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             color: #666;
             white-space: nowrap;
             text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
         
         .stat-card.info .stat-number {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: #fd7e14;
             margin-bottom: 0;
             white-space: nowrap;
             text-align: left;
+            line-height: 1.2;
         }
         
         .stat-card:hover {
@@ -118,6 +125,23 @@
         
         .stat-card.success .stat-number {
             color: #28a745;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .stat-card.success .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
         
         .stat-card.warning {
@@ -126,6 +150,23 @@
         
         .stat-card.warning .stat-number {
             color: #ffc107;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .stat-card.warning .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
         
         .stat-card.danger {
@@ -134,6 +175,23 @@
         
         .stat-card.danger .stat-number {
             color: #dc3545;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .stat-card.danger .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
         }
         
         /* Spinner de carregamento para métricas */
@@ -178,64 +236,197 @@
         @media (max-width: 1200px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 10px 8px;
+                min-height: 70px;
+            }
+            
+            .stat-card .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .stat-card .stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .chart-title {
+                font-size: 1.1rem;
+            }
+            
+            .chart-title i {
+                font-size: 1rem;
+            }
+            
+            .period-btn {
+                padding: 5px 10px;
+                font-size: 0.8rem;
             }
         }
         
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-                margin-bottom: 15px;
+                gap: 8px;
+                margin-bottom: 12px;
             }
             
             .stat-card {
-                padding: 15px 10px;
-                min-height: 90px;
+                padding: 8px 6px;
+                min-height: 65px;
+                border-radius: 10px;
             }
             
-            .stat-number {
-                font-size: 1.5rem;
+            .stat-card .stat-number {
+                font-size: 1.1rem;
+                margin-bottom: 0;
             }
             
-            .stat-label {
+            .stat-card .stat-label {
+                font-size: 0.65rem;
+                margin-top: 0;
+            }
+            
+            .stat-card.info .stat-number,
+            .stat-card.success .stat-number,
+            .stat-card.warning .stat-number,
+            .stat-card.danger .stat-number {
+                font-size: 1.1rem;
+            }
+            
+            .stat-card.info .stat-label,
+            .stat-card.success .stat-label,
+            .stat-card.warning .stat-label,
+            .stat-card.danger .stat-label {
+                font-size: 0.65rem;
+            }
+            
+            .chart-container {
+                padding: 12px;
+                max-height: 350px;
+                margin-bottom: 15px;
+            }
+            
+            .chart-canvas {
+                height: 250px;
+                max-height: 250px;
+                min-height: 200px;
+            }
+            
+            .chart-title-wrapper {
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                gap: 8px;
+            }
+            
+            .chart-title {
+                font-size: 0.95rem;
+                gap: 6px;
+            }
+            
+            .chart-title i {
                 font-size: 0.9rem;
             }
             
-            .stat-card.info .stat-number {
-                font-size: 1.4rem;
+            .period-filters {
+                gap: 6px;
             }
             
-            .stat-card.info .stat-label {
-                font-size: 0.8rem;
+            .period-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                border-radius: 15px;
             }
         }
         
         @media (max-width: 480px) {
             .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+                margin-bottom: 12px;
             }
             
             .stat-card {
-                padding: 12px 8px;
-                min-height: 80px;
+                padding: 6px 5px;
+                min-height: 60px;
+                border-radius: 8px;
+            }
+            
+            .stat-card .stat-number {
+                font-size: 0.95rem;
+                margin-bottom: 0;
+            }
+            
+            .stat-card .stat-label {
+                font-size: 0.6rem;
+                margin-top: 0;
+                letter-spacing: 0.3px;
+            }
+            
+            .stat-card.info .stat-number,
+            .stat-card.success .stat-number,
+            .stat-card.warning .stat-number,
+            .stat-card.danger .stat-number {
+                font-size: 0.95rem;
+            }
+            
+            .stat-card.info .stat-label,
+            .stat-card.success .stat-label,
+            .stat-card.warning .stat-label,
+            .stat-card.danger .stat-label {
+                font-size: 0.6rem;
             }
             
             .dashboard-header {
-                padding: 10px 15px;
-                min-height: 60px;
-                margin-bottom: 15px;
+                padding: 10px 12px;
+                min-height: 55px;
+                margin-bottom: 12px;
             }
             
             .chart-container {
-                padding: 15px;
-                max-height: 400px;
+                padding: 10px;
+                max-height: 320px;
+                margin-bottom: 12px;
             }
             
             .chart-canvas {
-                height: 280px;
-                max-height: 280px;
+                height: 220px;
+                max-height: 220px;
+                min-height: 180px;
+            }
+            
+            .chart-title-wrapper {
+                margin-bottom: 8px;
+                padding-bottom: 6px;
+                gap: 8px;
+                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .chart-title {
+                font-size: 0.8rem;
+                gap: 5px;
+                width: 100%;
+            }
+            
+            .chart-title i {
+                font-size: 0.75rem;
+            }
+            
+            .period-filters {
+                gap: 4px;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            
+            .period-btn {
+                padding: 4px 6px;
+                font-size: 0.6rem;
+                border-radius: 12px;
             }
         }
         
@@ -248,31 +439,15 @@
             color: #fd7e14;
         }
         
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 10px;
-            text-align: left;
-        }
-        
-        .stat-label {
-            color: #495057;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-            margin-top: 10px;
-            text-align: left;
-        }
+        /* Estilos base removidos - agora usando estilos específicos por tipo de card */
         
         .chart-container {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
-            max-height: 600px;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 18px;
+            max-height: 500px;
             transition: box-shadow 0.3s ease;
         }
         
@@ -280,38 +455,66 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
         
-        .chart-header {
+        .chart-title-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
-            padding-bottom: 15px;
+            gap: 10px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #f0f0f0;
+            min-width: 0;
         }
         
         .chart-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #333333;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         
         .chart-title i {
             color: #f64c00;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .period-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 0;
+            flex-wrap: nowrap;
+            flex-shrink: 1;
+            min-width: 0;
+            justify-content: flex-end;
+        }
+        
+        .period-btn {
+            padding: 6px 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .chart-canvas {
             position: relative;
-            height: 400px;
+            height: 350px;
             width: 100%;
-            max-height: 400px;
-            min-height: 300px;
+            max-height: 350px;
+            min-height: 250px;
         }
         
         #lastUpdate {
@@ -450,60 +653,9 @@
             z-index: 2;
         }
         
-        /* Ajuste para o main-content */
+        /* Ajuste para o main-content - usar CSS global */
         .main-content {
             padding-top: 0;
-            margin-left: 250px;
-            transition: margin-left 0.3s ease;
-        }
-
-        /* Ajustes específicos para o sidebar no dashboard - será aplicado após o sidebar-component */
-        .sidebar {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100vh !important;
-            z-index: 1001 !important;
-        }
-
-        /* Responsividade do sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 80px;
-            }
-            
-            .main-content {
-                margin-left: 80px;
-                width: calc(100% - 80px);
-            }
-            
-            .dashboard-header {
-                width: 100%;
-                margin-left: 0;
-                margin-right: 0;
-                padding: 12px 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-                width: calc(100% - 70px);
-            }
-            
-            .dashboard-header {
-                width: 100%;
-                margin-left: 0;
-                margin-right: 0;
-                padding: 10px 12px;
-                position: relative;
-                left: 0;
-                right: 0;
-            }
         }
         
         .dashboard-welcome-info {
@@ -1212,12 +1364,37 @@
             }
             
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            .chart-header {
+            .chart-title-wrapper {
+                flex-wrap: wrap;
                 flex-direction: column;
                 align-items: flex-start;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                gap: 10px;
+            }
+            
+            .chart-title {
+                font-size: 0.9rem;
+                width: 100%;
+            }
+            
+            .chart-title i {
+                font-size: 0.85rem;
+            }
+            
+            .period-filters {
+                gap: 6px;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            
+            .period-btn {
+                padding: 6px 10px;
+                font-size: 0.7rem;
             }
             
             .dashboard-header {
@@ -1754,7 +1931,7 @@
             
             <!-- Gráfico de Vendas Interativo -->
             <div class="chart-container">
-                <div class="chart-header">
+                <div class="chart-title-wrapper">
                     <h3 class="chart-title">
                         <i class="fas fa-chart-area"></i>
                         Gráfico de Vendas
@@ -1805,16 +1982,14 @@
                 const notification = document.getElementById('update-notification');
                 if (notification) {
                     notification.remove();
-                    console.log('✅ Elemento update-notification removido do dashboard');
-                }
+                    }
             };
             
             const removeNotificationToast = () => {
                 const toast = document.querySelector('.notification-toast');
                 if (toast) {
                     toast.remove();
-                    console.log('✅ Elemento notification-toast removido do dashboard');
-                }
+                    }
             };
             
             const removeElements = () => {
@@ -1873,11 +2048,6 @@
         function testUserPanel() {
             const panel = document.getElementById('userInfoPanel');
             if (panel) {
-                console.log('🔍 Panel found:', panel);
-                console.log('📍 Panel position:', panel.getBoundingClientRect());
-                console.log('🎨 Panel computed styles:', window.getComputedStyle(panel));
-                console.log('📝 Panel HTML:', panel.outerHTML);
-                
                 // Testar visibilidade forçada no centro da tela
                 panel.style.position = 'fixed';
                 panel.style.top = '50%';
@@ -1893,8 +2063,7 @@
                 panel.style.border = '5px solid yellow';
                 panel.style.padding = '20px';
                 
-                console.log('🧪 Panel test styles applied - should be visible in center of screen');
-            } else {
+                } else {
                 console.error('❌ Panel not found in test');
             }
         }
@@ -1903,7 +2072,6 @@
         function toggleUserPanel() {
             const panel = document.getElementById('userInfoPanel');
             if (panel) {
-                console.log('🔄 Toggle user panel clicked');
                 if (panel.classList.contains('show')) {
                     hideUserPanel();
                 } else {
@@ -1917,10 +2085,6 @@
         function showUserPanel() {
             const panel = document.getElementById('userInfoPanel');
             if (panel) {
-                console.log('✅ Showing user panel');
-                console.log('📍 Panel position:', panel.getBoundingClientRect());
-                console.log('🎨 Panel styles:', window.getComputedStyle(panel));
-                
                 // Forçar visibilidade com estilos inline
                 panel.style.position = 'fixed';
                 panel.style.top = '80px';
@@ -1935,22 +2099,10 @@
                 panel.style.zIndex = '99999';
                 
                 panel.classList.add('show');
-                console.log('✅ Panel classes after show:', panel.classList.toString());
-                console.log('🎨 Panel inline styles:', panel.style.cssText);
                 
                 // Verificar posição após aplicar estilos
                 setTimeout(() => {
                     const rect = panel.getBoundingClientRect();
-                    console.log('📍 Panel final position:', {
-                        top: rect.top,
-                        left: rect.left,
-                        width: rect.width,
-                        height: rect.height,
-                        visible: rect.width > 0 && rect.height > 0
-                    });
-                    console.log('🎨 Panel computed styles after:', window.getComputedStyle(panel));
-                    console.log('📝 Panel innerHTML:', panel.innerHTML);
-                    console.log('📝 Panel outerHTML:', panel.outerHTML);
                 }, 100);
                 
                 loadUserPanelData();
@@ -1962,7 +2114,6 @@
         function hideUserPanel() {
             const panel = document.getElementById('userInfoPanel');
             if (panel) {
-                console.log('✅ Hiding user panel');
                 panel.classList.remove('show');
                 
                 // Limpar estilos inline
@@ -1990,12 +2141,7 @@
                 document.getElementById('panelUserName').textContent = userData.nome || userData.name || 'Usuário';
                 document.getElementById('panelUserEmail').textContent = userData.email || 'Não informado';
                 
-                console.log('✅ Dados do painel carregados:', {
-                    nome: userData.nome || userData.name,
-                    email: userData.email
-                });
-                
-            } catch (error) {
+                } catch (error) {
                 console.error('Erro ao carregar dados do painel:', error);
             }
         }
@@ -2076,8 +2222,6 @@
             try {
                 // Simular carregamento de notificações
                 // Em uma implementação real, você faria uma chamada para a API
-                console.log('Carregando notificações...');
-                
                 // Atualizar contador de notificações
                 const countElement = document.getElementById('notificationCount');
                 if (countElement) {
@@ -2093,8 +2237,7 @@
         
         function updateAvatarLevel(level) {
             // Função simplificada - não aplica classes de nível
-            console.log('🎯 Avatar level:', level);
-        }
+            }
         
         // Atualizar avatar quando os dados do usuário forem carregados
         document.addEventListener('DOMContentLoaded', function() {
@@ -2209,8 +2352,7 @@
                     panelAvatarImage.style.background = 'none';
                     panelAvatarImage.style.display = 'block';
                     panelAvatarImage.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">`;
-                    console.log('✅ Avatar do painel atualizado com imagem:', userData.avatar_url);
-                } else {
+                    } else {
                     // Mostrar iniciais - restaurar estilos do container
                     panelAvatarImage.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                     panelAvatarImage.style.display = 'flex';
@@ -2224,8 +2366,7 @@
                     const fullName = userData.nome || userData.name || 'Usuário';
                     const initials = generateInitials(fullName);
                     panelAvatarImage.innerHTML = `<span id="panelAvatarInitials">${initials}</span>`;
-                    console.log('✅ Avatar do painel atualizado com iniciais:', initials);
-                }
+                    }
             } else {
                 console.error('❌ Elemento panelAvatarImage não encontrado');
             }
@@ -2319,7 +2460,6 @@
         // Listener para detectar mudanças no localStorage e atualizar avatar
         window.addEventListener('storage', function(e) {
             if (e.key === 'userData') {
-                console.log('🔄 Dados do usuário atualizados, atualizando avatar...');
                 updateAvatarDisplay();
             }
         });
@@ -2329,26 +2469,22 @@
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
             if (key === 'userData') {
-                console.log('🔄 Dados do usuário atualizados na mesma aba, atualizando avatar...');
                 setTimeout(updateAvatarDisplay, 100);
             }
         };
 
         // Forçar atualização do avatar ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔄 Página carregada, forçando atualização do avatar...');
             setTimeout(updateAvatarDisplay, 500);
         });
 
         // Forçar atualização do avatar quando a página ganha foco
         window.addEventListener('focus', function() {
-            console.log('🔄 Página ganhou foco, atualizando avatar...');
             updateAvatarDisplay();
         });
 
         // Listener para evento customizado de atualização do avatar
         window.addEventListener('avatarUpdated', function(event) {
-            console.log('🔄 Evento de atualização do avatar recebido:', event.detail);
             updateAvatarDisplay();
         });
 
@@ -2363,7 +2499,6 @@
                 
                 // Se tem avatar_url mas não tem imagem, ou não tem avatar_url mas não tem iniciais
                 if ((userData.avatar_url && !hasImage) || (!userData.avatar_url && !hasInitials)) {
-                    console.log('🔧 Avatar inconsistente detectado, corrigindo...');
                     updateAvatarDisplay();
                 }
             }
@@ -2382,8 +2517,6 @@
     <!-- Evento de Carregamento da Página -->
     <script>
         window.onload = function() {
-            console.log('🚀 Dashboard carregada - Processando logo do RatixPay');
-            
             // URL da imagem do logo
             const logoUrl = '/assets/images/icons/loader-icon-120.png';
             
@@ -2397,22 +2530,11 @@
          */
         function processarLogoRatixPay(logoUrl) {
             try {
-                console.log('🖼️ Processando logo:', logoUrl);
-                
                 // Criar elemento de imagem para pré-carregar
                 const img = new Image();
                 
                 // Eventos de carregamento da imagem
                 img.onload = function() {
-                    console.log('✅ Logo carregado com sucesso');
-                    console.log('📊 Dados da imagem:', {
-                        width: img.width,
-                        height: img.height,
-                        naturalWidth: img.naturalWidth,
-                        naturalHeight: img.naturalHeight,
-                        src: img.src
-                    });
-                    
                     // Aplicar filtros e otimizações
                     aplicarOtimizacoesLogo(img);
                     
@@ -2460,8 +2582,6 @@
          */
         function aplicarOtimizacoesLogo(img) {
             try {
-                console.log('🔧 Aplicando otimizações ao logo');
-                
                 // Verificar se a imagem já está no DOM
                 const logoElement = document.querySelector('.logo img');
                 if (logoElement) {
@@ -2472,10 +2592,8 @@
                     // Adicionar classe para animação
                     logoElement.classList.add('logo-processado');
                     
-                    console.log('✅ Otimizações aplicadas ao logo existente');
-                } else {
-                    console.log('⚠️ Logo não encontrado no DOM');
-                }
+                    } else {
+                    }
                 
             } catch (error) {
                 console.error('❌ Erro ao aplicar otimizações:', error);
@@ -2484,8 +2602,6 @@
         
         // Event listeners para eventos customizados
         window.addEventListener('logoProcessado', function(event) {
-            console.log('🎉 Logo processado com sucesso:', event.detail);
-            
             // Adicionar indicador visual de sucesso
             const logoContainer = document.querySelector('.logo');
             if (logoContainer) {

@@ -49,7 +49,6 @@ class PaymentHandler {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(paymentData)
             });
 
             const result = await response.json();
@@ -58,7 +57,6 @@ class PaymentHandler {
                 this.paymentId = result.paymentId;
                 this.startStatusChecking();
                 
-                console.log('✅ Pagamento iniciado:', this.paymentId);
                 return result;
             } else {
                 this.handlePaymentError(result.message || 'Erro ao iniciar pagamento');
@@ -82,14 +80,15 @@ class PaymentHandler {
             this.checkPaymentStatus();
         }, this.statusCheckInterval);
 
-        console.log('🔄 Verificação de status iniciada');
     }
 
     // Verificar status do pagamento
     async checkPaymentStatus() {
         if (!this.paymentId || this.statusCheckCount >= this.maxStatusChecks) {
+            // NÃO cancelar por timeout - apenas parar verificação e aguardar status real da PayMoz
             this.stopStatusChecking();
-            this.handlePaymentTimeout();
+            // Manter status pendente, não chamar handlePaymentTimeout
+            this.updateProcessingMessage('Aguardando confirmação do status real da transação da PayMoz...');
             return;
         }
 
@@ -120,7 +119,6 @@ class PaymentHandler {
     handleStatusUpdate(statusData) {
         const { status, isProcessing, message } = statusData;
 
-        console.log(`📊 Status do pagamento: ${status}`);
 
         // Atualizar UI baseado no status
         switch (status) {
@@ -145,8 +143,6 @@ class PaymentHandler {
                     this.updateProcessingMessage(message || 'Processando pagamento...');
                 }
                 break;
-            default:
-                console.log(`⚠️ Status desconhecido: ${status}`);
         }
     }
 
@@ -158,17 +154,13 @@ class PaymentHandler {
         // Mostrar modal de sucesso
         this.showSuccessModal({
             message: 'Pagamento processado com sucesso!',
-            paymentId: this.paymentId,
-            data: statusData
         });
 
         // Emitir evento de sucesso
         this.emitEvent('paymentSuccess', {
             paymentId: this.paymentId,
-            data: statusData
         });
 
-        console.log('✅ Pagamento processado com sucesso');
     }
 
     // Manipular falha do pagamento
@@ -179,17 +171,13 @@ class PaymentHandler {
         // Mostrar modal de falha
         this.showFailureModal({
             message: statusData.message || 'Pagamento não foi processado.',
-            paymentId: this.paymentId,
-            data: statusData
         });
 
         // Emitir evento de falha
         this.emitEvent('paymentFailure', {
             paymentId: this.paymentId,
-            data: statusData
         });
 
-        console.log('❌ Pagamento falhou');
     }
 
     // Manipular timeout do pagamento
@@ -200,7 +188,6 @@ class PaymentHandler {
         // Mostrar modal de timeout
         this.showTimeoutModal({
             message: 'Pagamento expirado por timeout. Tente novamente.',
-            paymentId: this.paymentId
         });
 
         // Emitir evento de timeout
@@ -208,7 +195,6 @@ class PaymentHandler {
             paymentId: this.paymentId
         });
 
-        console.log('⏰ Pagamento expirado por timeout');
     }
 
     // Manipular erro do pagamento
@@ -219,22 +205,18 @@ class PaymentHandler {
         // Mostrar modal de erro
         this.showErrorModal({
             message: message || 'Erro no processamento do pagamento.',
-            paymentId: this.paymentId
         });
 
         // Emitir evento de erro
         this.emitEvent('paymentError', {
             paymentId: this.paymentId,
-            message: message
         });
 
-        console.log('💥 Erro no pagamento:', message);
     }
 
     // Cancelar pagamento
     async cancelPayment() {
         if (!this.paymentId) {
-            console.log('⚠️ Nenhum pagamento para cancelar');
             return;
         }
 
@@ -252,7 +234,6 @@ class PaymentHandler {
                 // Mostrar modal de cancelamento
                 this.showCancelledModal({
                     message: 'Pagamento cancelado com sucesso.',
-                    paymentId: this.paymentId
                 });
 
                 // Emitir evento de cancelamento
@@ -260,7 +241,6 @@ class PaymentHandler {
                     paymentId: this.paymentId
                 });
 
-                console.log('🚫 Pagamento cancelado');
             } else {
                 console.error('❌ Erro ao cancelar pagamento:', result.message);
             }
@@ -276,7 +256,6 @@ class PaymentHandler {
             clearInterval(this.statusCheckInterval);
             this.statusCheckInterval = null;
         }
-        console.log('⏹️ Verificação de status parada');
     }
 
     // Pausar verificação de status
@@ -285,7 +264,6 @@ class PaymentHandler {
             clearInterval(this.statusCheckInterval);
             this.statusCheckInterval = null;
         }
-        console.log('⏸️ Verificação de status pausada');
     }
 
     // Retomar verificação de status
@@ -293,7 +271,6 @@ class PaymentHandler {
         if (this.paymentId && this.isProcessing && !this.statusCheckInterval) {
             this.startStatusChecking();
         }
-        console.log('▶️ Verificação de status retomada');
     }
 
     // Limpeza
@@ -302,7 +279,6 @@ class PaymentHandler {
         this.paymentId = null;
         this.isProcessing = false;
         this.statusCheckCount = 0;
-        console.log('🧹 PaymentHandler limpo');
     }
 
     // Mostrar modal de processamento
@@ -507,7 +483,6 @@ class PaymentHandler {
             this.statusCheckInterval = options.statusCheckInterval;
         }
 
-        console.log('⚙️ PaymentHandler configurado:', options);
     }
 }
 
@@ -516,32 +491,26 @@ const paymentHandler = new PaymentHandler();
 
 // Event listeners para eventos personalizados
 document.addEventListener('paymentSuccess', (event) => {
-    console.log('🎉 Pagamento processado com sucesso:', event.detail);
     // Aqui você pode adicionar lógica adicional para sucesso
 });
 
 document.addEventListener('paymentFailure', (event) => {
-    console.log('❌ Pagamento falhou:', event.detail);
     // Aqui você pode adicionar lógica adicional para falha
 });
 
 document.addEventListener('paymentTimeout', (event) => {
-    console.log('⏰ Pagamento expirado:', event.detail);
     // Aqui você pode adicionar lógica adicional para timeout
 });
 
 document.addEventListener('paymentError', (event) => {
-    console.log('💥 Erro no pagamento:', event.detail);
     // Aqui você pode adicionar lógica adicional para erro
 });
 
 document.addEventListener('paymentCancelled', (event) => {
-    console.log('🚫 Pagamento cancelado:', event.detail);
     // Aqui você pode adicionar lógica adicional para cancelamento
 });
 
 document.addEventListener('paymentRetry', (event) => {
-    console.log('🔄 Tentando pagamento novamente:', event.detail);
     // Aqui você pode adicionar lógica adicional para retry
 });
 

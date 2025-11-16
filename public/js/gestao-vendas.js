@@ -18,7 +18,6 @@ async function carregarDadosVendas() {
             return;
         }
         
-        console.log('🔄 Carregando dados das vendas...');
         
         // Mostrar indicador de carregamento
         const estatisticasElements = ['totalVendas', 'vendasAprovadas', 'vendasPendentes', 'vendasCanceladas', 'receitaTotal', 'receitaDisponivel'];
@@ -54,25 +53,26 @@ async function carregarDadosVendas() {
         // Converter a resposta para JSON
         const data = await response.json();
         
-        console.log('📊 Dados recebidos da API:', data);
+        console.log('📥 Resposta completa da API:', data);
         
         // Verificar se os dados foram retornados
         if (data.success && data.data) {
-            console.log('📊 Dados de estatísticas recebidos:', data.data);
             
             // Mapear dados do endpoint resumo para o formato esperado
+            // A API retorna: totalVendas, vendasAprovadas, vendasPendentes, vendasCanceladas, receitaTotal, receitaDisponivel
             const dadosMapeados = {
-                totalVendas: data.data.totalVendas || 0, // Total de vendas
-                vendasAprovadas: data.data.vendasAprovadas || 0, // Vendas aprovadas (status Pago)
-                vendasPendentes: data.data.vendasPendentes || 0, // Vendas pendentes
-                vendasCanceladas: data.data.vendasCanceladas || 0, // Vendas canceladas
-                receitaTotal: data.data.receitaTotal || 0, // Receita Total
-                receitaDisponivel: data.data.receitaDisponivel || 0, // Receita Disponível
-                reembolsos: data.data.valorReembolsos || 0 // Valor de reembolsos
+                totalVendas: data.data.totalVendas || 0,
+                vendasAprovadas: data.data.vendasAprovadas || 0,
+                vendasPendentes: data.data.vendasPendentes || 0,
+                vendasCanceladas: data.data.vendasCanceladas || 0,
+                receitaTotal: data.data.receitaTotal || 0,
+                receitaDisponivel: data.data.receitaDisponivel || 0,
+                reembolsos: data.data.valorReembolsos || data.data.reembolsos || 0
             };
             
+            console.log('📊 Dados mapeados das estatísticas:', dadosMapeados);
+            
             atualizarEstatisticas(dadosMapeados);
-            console.log('✅ Dados atualizados com sucesso');
             
             // Carregar também as vendas detalhadas
             carregarVendasDetalhadas();
@@ -106,11 +106,13 @@ function atualizarEstatisticas(data) {
         
         // Formatar valores monetários
         const formatarMoeda = (valor) => {
+            if (valor === null || valor === undefined || isNaN(valor)) {
+                valor = 0;
+            }
             // Garantir que sempre use MZN em vez de MTn
             const formatted = new Intl.NumberFormat('pt-MZ', {
                 style: 'currency',
-                currency: 'MZN',
-                minimumFractionDigits: 2
+                currency: 'MZN'
             }).format(valor);
             
             // Substituir MTn por MZN se necessário
@@ -124,7 +126,11 @@ function atualizarEstatisticas(data) {
             'vendasPendentes': data.vendasPendentes || 0,
             'vendasCanceladas': data.vendasCanceladas || 0,
             'receitaTotal': formatarMoeda(data.receitaTotal || 0),
-            'receitaDisponivel': formatarMoeda(data.receitaDisponivel || 0),
+            'receitaDisponivel': formatarMoeda(data.receitaDisponivel || 0)
+        };
+        
+        // Elementos opcionais (não geram aviso se não existirem)
+        const elementosOpcionais = {
             'reembolsos': formatarMoeda(data.reembolsos || 0)
         };
         
@@ -132,7 +138,6 @@ function atualizarEstatisticas(data) {
         Object.entries(elementos).forEach(([id, valor]) => {
             const elemento = document.getElementById(id);
             if (elemento) {
-                console.log(`📊 Atualizando elemento ${id}: ${valor}`);
                 elemento.textContent = valor;
                 elemento.classList.remove('loading', 'error', 'verde', 'amarelo', 'vermelho');
                 // Adicionar classe de animação para destacar a atualização
@@ -142,6 +147,19 @@ function atualizarEstatisticas(data) {
                 }, 1000);
             } else {
                 console.warn(`⚠️ Elemento com ID '${id}' não encontrado no DOM`);
+            }
+        });
+        
+        // Atualizar elementos opcionais (sem aviso se não existirem)
+        Object.entries(elementosOpcionais).forEach(([id, valor]) => {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.textContent = valor;
+                elemento.classList.remove('loading', 'error');
+                elemento.classList.add('atualizado');
+                setTimeout(() => {
+                    elemento.classList.remove('atualizado');
+                }, 1000);
             }
         });
         
@@ -159,7 +177,6 @@ function atualizarEstatisticas(data) {
         // Atualizar o timestamp da última atualização
         atualizarTimestampUltimaAtualizacao();
         
-        console.log('Estatísticas atualizadas com sucesso:', data);
     } catch (error) {
         console.error('Erro ao atualizar estatísticas:', error);
     }
@@ -170,7 +187,6 @@ function atualizarEstatisticas(data) {
 // Função para carregar vendas detalhadas
 async function carregarVendasDetalhadas() {
     try {
-        console.log('🔄 Carregando vendas detalhadas...');
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -210,46 +226,45 @@ async function carregarVendasDetalhadas() {
         // Verificar se os dados foram retornados com sucesso
         // A rota /vendas/vendedor retorna { success: true, data: { vendas: [...] } }
         if (data.success && data.data && data.data.vendas) {
-            console.log('📊 Vendas detalhadas carregadas:', data.data.vendas.length, 'vendas');
-            
-            // Debug: verificar primeira venda para ver campos de data
-            if (data.data.vendas.length > 0) {
-                const primeiraVenda = data.data.vendas[0];
-                console.log('🔍 Debug primeira venda da API:', {
-                    id: primeiraVenda.id,
-                    created_at: primeiraVenda.created_at,
-                    updated_at: primeiraVenda.updated_at,
-                    todas_chaves: Object.keys(primeiraVenda).filter(k => k.includes('created') || k.includes('date') || k.includes('time') || k.includes('at'))
-                });
-            }
-            
-            // Mapear vendas para o formato esperado
-                    const transacoesValidas = data.data.vendas.map(venda => ({
-                        id: venda.id,
-                        public_id: venda.id,
-                        produto: {
-                            id: venda.produto_id,
-                            nome: venda.produto_nome,
-                            custom_id: venda.produto_custom_id
-                        },
-                        cliente_nome: venda.cliente_nome,
-                        cliente_email: venda.cliente_email,
-                        cliente_telefone: venda.cliente_telefone,
-                        pagamento_status: venda.status,
-                        status: venda.status, // Manter também status direto para compatibilidade
-                        pagamento_valor: venda.valor_total_pago || venda.valor, // Usar valor total pago se disponível
-                        valor_final: venda.valor_total_pago || venda.valor, // Usar valor total pago se disponível
-                        valor_vendedor: venda.valor, // Valor que o vendedor recebe (90%)
-                        data_venda: venda.created_at,
-                        created_at: venda.created_at,
-                        updated_at: venda.updated_at,
-                        // Informações de afiliado
-                        afiliado: venda.afiliado,
-                        afiliado_ref: venda.afiliado_ref,
-                        // Campos adicionais para garantir consistência
-                        numero_pedido: venda.numero_pedido || null,
-                        referencia_pagamento: venda.referencia_pagamento || null
-                    }));
+            // Preservar todos os campos da venda original, especialmente created_at e outros campos de data
+            const transacoesValidas = data.data.vendas.map(venda => {
+                // Preservar todos os campos da venda original
+                const vendaMapeada = {
+                    ...venda, // Preservar todos os campos originais
+                    id: venda.id || venda.public_id,
+                    produto: venda.produto || {
+                        id: venda.produto_id,
+                        nome: venda.produto_nome,
+                        custom_id: venda.produto_custom_id,
+                        public_id: venda.produto_public_id
+                    },
+                    cliente: venda.cliente || {
+                        nome: venda.cliente_nome,
+                        email: venda.cliente_email,
+                        telefone: venda.cliente_telefone,
+                        whatsapp: venda.cliente_whatsapp
+                    },
+                    pagamento: venda.pagamento || {
+                        status: venda.pagamento_status || venda.status,
+                        valor: venda.pagamento_valor || venda.valor_final || venda.valor,
+                        referencia: venda.pagamento_referencia,
+                        data_processamento: venda.pagamento_data || venda.data_pagamento
+                    }
+                };
+                
+                // Garantir que created_at esteja presente (prioridade: created_at > createdAt > data_venda > updated_at)
+                if (!vendaMapeada.created_at) {
+                    vendaMapeada.created_at = venda.createdAt || 
+                                             venda.data_venda || 
+                                             venda.updated_at || 
+                                             venda.updatedAt ||
+                                             venda.data_criacao ||
+                                             venda.data_pagamento ||
+                                             new Date().toISOString();
+                }
+                
+                return vendaMapeada;
+            });
             
             // Validar e limpar dados
             const transacoesValidasFiltradas = transacoesValidas.filter(transacao => {
@@ -268,7 +283,6 @@ async function carregarVendasDetalhadas() {
                 return true;
             });
             
-            console.log('✅ Transações válidas:', transacoesValidasFiltradas.length, 'de', transacoesValidas.length);
             
             // Armazenar vendas originais para filtros
             todasVendasOriginais = [...transacoesValidasFiltradas];
@@ -305,25 +319,21 @@ async function carregarVendasDetalhadas() {
 
 // Função para popular filtros detalhados
 function popularFiltrosDetalhados(vendas) {
-    console.log('🔧 Populando filtros detalhados...');
     
     const selectProduto = document.getElementById('filtroProduto');
-    const selectCliente = document.getElementById('filtroCliente');
     const selectEmail = document.getElementById('filtroEmail');
     
-    if (!selectProduto || !selectCliente || !selectEmail) {
+    if (!selectProduto || !selectEmail) {
         console.warn('Elementos de filtro não encontrados');
         return;
     }
     
     // Limpar opções existentes (manter a primeira opção vazia)
-    selectProduto.innerHTML = '<option value="">Produto</option>';
-    selectCliente.innerHTML = '<option value="">Cliente</option>';
-    selectEmail.innerHTML = '<option value="">Email</option>';
+    selectProduto.innerHTML = '<option value="">Todos os Produtos</option>';
+    selectEmail.innerHTML = '<option value="">Todos os Emails</option>';
     
     // Conjuntos para armazenar valores únicos
     const produtosSet = new Set();
-    const clientesSet = new Set();
     const emailsSet = new Set();
     
     // Coletar valores únicos das vendas
@@ -352,9 +362,6 @@ function popularFiltrosDetalhados(vendas) {
         if (produtoDisplay && produtoDisplay !== '-' && produtoDisplay !== 'Produto não identificado') {
             produtosSet.add(produtoDisplay);
         }
-        if (clienteNome && clienteNome !== '-' && clienteNome !== 'Cliente não identificado') {
-            clientesSet.add(clienteNome);
-        }
         if (clienteEmail && clienteEmail !== '-') {
             emailsSet.add(clienteEmail);
         }
@@ -366,13 +373,6 @@ function popularFiltrosDetalhados(vendas) {
         opt.value = produto;
         opt.textContent = produto;
         selectProduto.appendChild(opt);
-    });
-    
-    Array.from(clientesSet).sort().forEach(cliente => {
-        const opt = document.createElement('option');
-        opt.value = cliente;
-        opt.textContent = cliente;
-        selectCliente.appendChild(opt);
     });
     
     Array.from(emailsSet).sort().forEach(email => {
@@ -388,7 +388,6 @@ function calcularPaginação() {
     totalVendas = todasVendas.length;
     totalPagesVendas = Math.ceil(totalVendas / itemsPerPage);
     
-    console.log(`📊 Paginação calculada: ${totalVendas} vendas, ${totalPagesVendas} páginas, página atual: ${currentPageVendas}`);
     
     // Garantir que a página atual seja válida
     if (currentPageVendas > totalPagesVendas) {
@@ -400,7 +399,6 @@ function calcularPaginação() {
     const fim = inicio + itemsPerPage;
     const vendasPagina = todasVendas.slice(inicio, fim);
     
-    console.log(`📄 Página ${currentPageVendas}: ${vendasPagina.length} vendas (${inicio}-${fim})`);
     
     return vendasPagina;
 }
@@ -442,7 +440,6 @@ function paginaProxima() {
 
 // Função para renderizar vendas detalhadas com paginação
 function renderizarVendasDetalhadas(vendas) {
-    console.log('🎨 Iniciando renderização de vendas detalhadas...');
     
     const tbody = document.getElementById('vendasDetalhadasBody');
     if (!tbody) {
@@ -550,24 +547,12 @@ function renderizarVendasPagina(vendas) {
     const tbody = document.getElementById('vendasDetalhadasBody');
     
     if (!vendas || !vendas.length) {
-        console.log('ℹ️ Nenhuma venda encontrada para renderizar');
-        tbody.innerHTML = '<tr><td colspan="9">Nenhuma venda encontrada</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7">Nenhuma venda encontrada</td></tr>';
         return;
     }
     
-    console.log(`🎨 Renderizando ${vendas.length} vendas da página ${currentPageVendas}...`);
     
     vendas.forEach((venda, index) => {
-        console.log(`📊 Venda ${index + 1}:`, {
-            id: venda.id || venda.public_id,
-            produto: venda.produto,
-            cliente: venda.cliente_nome,
-            valor: venda.pagamento_valor || venda.valor_final,
-            status: venda.pagamento_status,
-            data: venda.data_venda,
-            created_at: venda.created_at,
-            updated_at: venda.updated_at
-        });
         // Verificar se a venda é válida
         if (!venda) return;
         
@@ -576,14 +561,6 @@ function renderizarVendasPagina(vendas) {
         const produtoId = venda.produto?.id || venda.produto_id || '-';
         const produtoPublicId = venda.produto?.public_id || '';
         const produtoCustomId = venda.produto?.custom_id || venda.produto?.customId || '';
-        
-        // Log para debug
-        console.log(`🔍 Produto para venda ${index + 1}:`, {
-            nome: produtoNome,
-            custom_id: produtoCustomId,
-            public_id: produtoPublicId,
-            id: produtoId
-        });
         
         // ID do produto para exibição - priorizar Custom ID
         let produtoIdDisplay = '-';
@@ -654,13 +631,6 @@ function renderizarVendasPagina(vendas) {
             valorFinal = `MZN ${valorNumerico.toFixed(2).replace('.', ',')}`;
         }
         
-        console.log(`💰 Valor Final para venda ${index + 1}:`, {
-            pagamento_valor: venda.pagamento?.valor,
-            pagamento_valor_direct: venda.pagamento_valor,
-            valor_final: venda.valor_final,
-            resultado: valorFinal
-        });
-        
         // Formatar data e hora usando função auxiliar - MELHORADO
         let dataHora = '-';
         let dataParaFormatar = null;
@@ -693,29 +663,17 @@ function renderizarVendasPagina(vendas) {
             // Log de debug para verificar formatação
             if (dataHora !== '-') {
                 console.log(`✅ Data formatada para venda ${index + 1}:`, {
+                    formatada: dataHora,
                     original: dataParaFormatar,
-                    formatada: dataHora.substring(0, 30) // Limitar para não poluir
                 });
             } else {
                 console.warn(`⚠️ Não foi possível formatar data para venda ${index + 1}:`, {
                     created_at: venda.created_at,
-                    createdAt: venda.createdAt,
-                    data_venda: venda.data_venda,
-                    updated_at: venda.updated_at,
-                    updatedAt: venda.updatedAt,
-                    dataParaFormatar: dataParaFormatar,
-                    tipo: typeof dataParaFormatar
                 });
             }
         } else {
             console.warn(`⚠️ Nenhum campo de data encontrado para venda ${index + 1}:`, {
                 id: venda.id,
-                created_at: venda.created_at,
-                createdAt: venda.createdAt,
-                data_venda: venda.data_venda,
-                updated_at: venda.updated_at,
-                updatedAt: venda.updatedAt,
-                todas_chaves: Object.keys(venda).filter(k => k.includes('date') || k.includes('time') || k.includes('created') || k.includes('updated') || k.includes('at'))
             });
             dataHora = '-';
         }
@@ -758,17 +716,6 @@ function renderizarVendasPagina(vendas) {
             idTransacao = venda.public_id;
         }
         
-        console.log(`🆔 ID Transação para venda ${index + 1}:`, {
-            numero_pedido: venda.numero_pedido,
-            pagamento_referencia: venda.pagamento?.referencia,
-            pagamento_referencia_direct: venda.pagamento_referencia,
-            pagamento_transacao_id: venda.pagamento_transacao_id,
-            id_transacao: venda.id_transacao,
-            id: venda.id,
-            public_id: venda.public_id,
-            resultado: idTransacao
-        });
-        
         // Garantir valores padrão consistentes para todas as colunas
         const produtoIdFinal = (produtoIdDisplay && produtoIdDisplay !== '-') ? produtoIdDisplay : '-';
         const produtoFinal = (produtoDisplay && produtoDisplay !== 'Produto não identificado') ? produtoDisplay : '-';
@@ -809,26 +756,19 @@ function renderizarVendasPagina(vendas) {
         if (dataHoraFinal === '-') {
             console.warn(`⚠️ Venda ${index + 1} sem data/hora válida na coluna Data/Hora:`, {
                 id: venda.id,
-                created_at: venda.created_at,
-                createdAt: venda.createdAt,
-                data_venda: venda.data_venda,
-                updated_at: venda.updated_at,
-                dataParaFormatar: dataParaFormatar,
-                dataHora_original: dataHora,
-                tipo_dataHora: typeof dataHora
             });
         } else {
             // Log de sucesso para primeira venda
             if (index === 0) {
-                console.log(`✅ Data/Hora formatada para primeira venda:`, {
+                console.log(`✅ Data formatada com sucesso:`, {
+                    formatada: dataHoraFinal,
                     original: dataParaFormatar,
-                    formatada: dataHoraFinal.substring(0, 80)
                 });
             }
         }
         
-        // Criar linha da tabela com todas as 9 colunas na ordem correta
-        // Ordem: ID Produto, Produto, Cliente, Email, Contato, Afiliado, Status, Valor Final, Data/Hora
+        // Criar linha da tabela com todas as 7 colunas na ordem correta
+        // Ordem: Produto, Cliente, Email, Contato, Status, Valor Final, Data/Hora
         const row = document.createElement('tr');
         
         // Garantir que todos os valores estejam sanitizados para HTML
@@ -838,12 +778,10 @@ function renderizarVendasPagina(vendas) {
         };
         
         row.innerHTML = `
-            <td><strong>${sanitizeHTML(produtoIdFinal)}</strong></td>
             <td>${sanitizeHTML(produtoFinal)}</td>
             <td>${sanitizeHTML(clienteFinal)}</td>
             <td>${sanitizeHTML(emailFinal)}</td>
             <td>${contatoFinal}</td>
-            <td>${afiliadoFinal}</td>
             <td><span class="status-badge status-${statusFinal.toLowerCase().replace(/\s+/g, '-')}">${sanitizeHTML(statusFinal)}</span></td>
             <td>${sanitizeHTML(valorFinalFormatado)}</td>
             <td class="data-hora">${dataHoraFinal}</td>
@@ -857,13 +795,10 @@ function renderizarVendasPagina(vendas) {
                 produto: produtoFinal,
                 cliente: clienteFinal,
                 status: statusFinal,
-                valor: valorFinalFormatado,
-                dataHora: dataHoraFinal.substring(0, 50)
             });
         }
     });
     
-    console.log('✅ Vendas detalhadas renderizadas com sucesso');
 }
 
 // Variável global para armazenar vendas originais
@@ -871,21 +806,14 @@ let todasVendasOriginais = [];
 
 // Função para aplicar filtros
 function aplicarFiltros() {
-    console.log('🔍 Aplicando filtros...');
     
     const filtroProduto = document.getElementById('filtroProduto')?.value || '';
     const filtroCliente = document.getElementById('filtroCliente')?.value || '';
     const filtroEmail = document.getElementById('filtroEmail')?.value || '';
     const filtroStatus = document.getElementById('filtroStatus')?.value || '';
     const filtroDataHora = document.getElementById('filtroDataHora')?.value || '';
-    
-    console.log('🔍 Filtros aplicados:', {
-        produto: filtroProduto,
-        cliente: filtroCliente,
-        email: filtroEmail,
-        status: filtroStatus,
-        data: filtroDataHora
-    });
+    const filtroDataInicio = document.getElementById('filtroDataInicio')?.value || '';
+    const filtroDataFim = document.getElementById('filtroDataFim')?.value || '';
     
     // Usar vendas originais para filtrar
     const vendasParaFiltrar = todasVendasOriginais.length > 0 ? todasVendasOriginais : todasVendas;
@@ -902,14 +830,6 @@ function aplicarFiltros() {
             const produtoDisplay = produtoCustomId || produtoId || produtoNome;
             
             if (!produtoDisplay.toLowerCase().includes(filtroProduto.toLowerCase())) {
-                return false;
-            }
-        }
-        
-        // Filtro por cliente
-        if (filtroCliente) {
-            const clienteNome = venda.cliente_nome || venda.cliente?.nome || '';
-            if (!clienteNome.toLowerCase().includes(filtroCliente.toLowerCase())) {
                 return false;
             }
         }
@@ -940,23 +860,34 @@ function aplicarFiltros() {
             }
         }
         
-        // Filtro por data
-        if (filtroDataHora) {
+        // Filtro por período (data início e fim)
+        if (filtroDataInicio || filtroDataFim) {
             if (!venda.data_venda) return false;
             
             try {
                 const dataVenda = new Date(venda.data_venda);
-                const dataFiltro = new Date(filtroDataHora);
-                
-                // Comparar apenas a data (ignorar hora)
                 const dataVendaStr = dataVenda.toISOString().split('T')[0];
-                const dataFiltroStr = dataFiltro.toISOString().split('T')[0];
                 
-                if (dataVendaStr !== dataFiltroStr) {
-                    return false;
+                // Se apenas data início fornecida
+                if (filtroDataInicio && !filtroDataFim) {
+                    if (dataVendaStr < filtroDataInicio) {
+                        return false;
+                    }
+                }
+                // Se apenas data fim fornecida
+                else if (!filtroDataInicio && filtroDataFim) {
+                    if (dataVendaStr > filtroDataFim) {
+                        return false;
+                    }
+                }
+                // Se ambas as datas fornecidas
+                else if (filtroDataInicio && filtroDataFim) {
+                    if (dataVendaStr < filtroDataInicio || dataVendaStr > filtroDataFim) {
+                        return false;
+                    }
                 }
             } catch (error) {
-                console.warn('Erro ao filtrar por data:', error);
+                console.warn('Erro ao filtrar por período:', error);
                 return false;
             }
         }
@@ -964,7 +895,6 @@ function aplicarFiltros() {
         return true;
     });
     
-    console.log(`🔍 Resultado do filtro: ${vendasFiltradas.length} vendas de ${vendasParaFiltrar.length} total`);
     
     // Atualizar vendas filtradas e renderizar
     todasVendas = vendasFiltradas;
@@ -974,10 +904,9 @@ function aplicarFiltros() {
 
 // Função para limpar filtros
 function limparFiltros() {
-    console.log('🧹 Limpar filtros...');
     
     // Limpar campos de filtro
-    const filtros = ['filtroProduto', 'filtroCliente', 'filtroEmail', 'filtroStatus', 'filtroDataHora'];
+    const filtros = ['filtroProduto', 'filtroEmail', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
     filtros.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
@@ -1014,7 +943,6 @@ function atualizarTimestampUltimaAtualizacao() {
 // Aguardar o DOM estar carregado
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        console.log('🚀 Inicializando página de gestão de vendas...');
         
         // Verificar se a API_BASE está definida
         if (!window.API_BASE) {
@@ -1026,7 +954,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnAtualizar = document.getElementById('btnAtualizar');
         if (btnAtualizar) {
             btnAtualizar.addEventListener('click', async () => {
-                console.log('🔄 Atualizando dados...');
                 btnAtualizar.disabled = true;
                 btnAtualizar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
                 
@@ -1055,22 +982,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnLupaFiltroDetalhado = document.getElementById('btnLupaFiltroDetalhado');
         if (btnLupaFiltroDetalhado) {
             btnLupaFiltroDetalhado.addEventListener('click', aplicarFiltros);
-            console.log('✅ Botão da lupa configurado');
-        } else {
-            console.warn('⚠️ Botão da lupa não encontrado');
         }
+        // Botão da lupa é opcional - não gerar aviso se não existir
         
         // Configurar botão de limpar filtros
         const btnLimparFiltros = document.getElementById('btnLimparFiltros');
         if (btnLimparFiltros) {
             btnLimparFiltros.addEventListener('click', limparFiltros);
-            console.log('✅ Botão de limpar filtros configurado');
         } else {
             console.warn('⚠️ Botão de limpar filtros não encontrado');
         }
         
         // Configurar filtros para funcionar com Enter
-        const filtros = ['filtroProduto', 'filtroCliente', 'filtroEmail', 'filtroStatus', 'filtroDataHora'];
+        const filtros = ['filtroProduto', 'filtroEmail', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
         filtros.forEach(id => {
             const elemento = document.getElementById(id);
             if (elemento) {
@@ -1088,17 +1012,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             filtroStatus.addEventListener('change', aplicarFiltros);
         }
         
-        // Configurar filtro de data para aplicar automaticamente
-        const filtroDataHora = document.getElementById('filtroDataHora');
-        if (filtroDataHora) {
-            filtroDataHora.addEventListener('change', aplicarFiltros);
+        // Configurar filtros de data para aplicar automaticamente
+        const filtroDataInicio = document.getElementById('filtroDataInicio');
+        const filtroDataFim = document.getElementById('filtroDataFim');
+        if (filtroDataInicio) {
+            filtroDataInicio.addEventListener('change', aplicarFiltros);
+        }
+        if (filtroDataFim) {
+            filtroDataFim.addEventListener('change', aplicarFiltros);
         }
         
         // Carregar dados iniciais
-        console.log('📊 Carregando dados iniciais...');
         await carregarDadosVendas(); // Carrega estatísticas e vendas detalhadas
         
-        console.log('✅ Página de gestão de vendas inicializada com sucesso!');
     } catch (error) {
         console.error('❌ Erro durante a inicialização da página:', error);
     }

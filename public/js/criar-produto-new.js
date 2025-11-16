@@ -161,7 +161,6 @@ function validateCurrentStep() {
 // Função para upload de imagem usando o sistema aprimorado
 async function uploadImagem(file) {
     try {
-        console.log('🖼️ Iniciando upload de imagem com sistema aprimorado...');
         
         const formData = new FormData();
         formData.append('image', file);
@@ -186,7 +185,6 @@ async function uploadImagem(file) {
             throw new Error(result.message || 'Erro no upload');
         }
         
-        console.log('✅ Upload bem-sucedido:', result.data);
         
         // Retornar a URL da imagem original
         return result.data.original.url;
@@ -409,7 +407,6 @@ async function iniciarProduto() {
             return null;
         }
         
-        console.log('🔄 Iniciando criação do produto...', { nome, tipo, categoria });
         
         const response = await apiRequest('/produtos/iniciar', {
             method: 'POST',
@@ -421,7 +418,6 @@ async function iniciarProduto() {
             })
         });
         
-        console.log('✅ Produto iniciado:', response.produto);
         return response.produto;
     } catch (error) {
         console.error('❌ Erro ao iniciar produto:', error);
@@ -443,16 +439,13 @@ async function adicionarImagemProduto(produtoId) {
             return false;
         }
         
-        console.log('🔄 Adicionando imagem ao produto:', produtoId);
         
         let imagemUrl = null;
         
         // Se for um arquivo, usar o novo sistema de upload
         if (productData.imagemFile) {
-            console.log('📁 Fazendo upload de arquivo de imagem...');
             imagemUrl = await uploadImagem(productData.imagemFile);
         } else if (productData.imagemUrl) {
-            console.log('🔗 Usando URL de imagem...');
             imagemUrl = productData.imagemUrl;
         }
         
@@ -460,7 +453,6 @@ async function adicionarImagemProduto(produtoId) {
             throw new Error('Não foi possível processar a imagem');
         }
         
-        console.log('🖼️ URL da imagem gerada:', imagemUrl);
         
         // Atualizar o produto com a URL da imagem
         const response = await apiRequest(`/produtos/${produtoId}`, {
@@ -471,7 +463,6 @@ async function adicionarImagemProduto(produtoId) {
             })
         });
         
-        console.log('✅ Imagem adicionada ao produto:', response);
         return true;
     } catch (error) {
         console.error('❌ Erro ao adicionar imagem:', error);
@@ -493,14 +484,12 @@ async function adicionarConteudoProduto(produtoId) {
             return false;
         }
         
-        console.log('🔄 Adicionando conteúdo ao produto:', produtoId);
         
         await apiRequest(`/produtos/${produtoId}/conteudo`, {
             method: 'POST',
             body: JSON.stringify({ linkConteudo: productData.conteudoUrl })
         });
         
-        console.log('✅ Conteúdo adicionado');
         return true;
     } catch (error) {
         console.error('❌ Erro ao adicionar conteúdo:', error);
@@ -517,7 +506,6 @@ async function finalizarProduto(produtoId) {
             return false;
         }
         
-        console.log('🔄 Finalizando produto:', produtoId);
         
         await apiRequest(`/produtos/${produtoId}/finalizar`, {
             method: 'POST',
@@ -528,7 +516,6 @@ async function finalizarProduto(produtoId) {
             })
         });
         
-        console.log('✅ Produto finalizado');
         return true;
     } catch (error) {
         console.error('❌ Erro ao finalizar produto:', error);
@@ -557,7 +544,6 @@ async function finishProduct() {
         try {
             if (editMode && editId) {
                 // Atualizar produto existente (PUT)
-                console.log('🔄 Atualizando produto existente...');
                 
                 // Se houver arquivo de imagem, fazer upload primeiro
                 if (productData.imagemFile) {
@@ -574,7 +560,6 @@ async function finishProduct() {
                 showNotification('Produto atualizado com sucesso!', 'success');
             } else {
                 // Novo fluxo de criação em etapas
-                console.log('🔄 Iniciando criação de produto em etapas...');
                 
                 // ETAPA 1: Iniciar produto - gerar custom_id
                 const produtoIniciado = await iniciarProduto();
@@ -583,7 +568,6 @@ async function finishProduct() {
                 }
                 
                 const produtoId = produtoIniciado.custom_id;
-                console.log('✅ Produto iniciado com ID:', produtoId);
                 
                 // ETAPA 2: Adicionar imagem
                 const imagemAdicionada = await adicionarImagemProduto(produtoId);
@@ -591,7 +575,6 @@ async function finishProduct() {
                     throw new Error('Falha ao adicionar imagem');
                 }
                 
-                console.log('✅ Imagem adicionada');
                 
                 // ETAPA 3: Adicionar conteúdo
                 const conteudoAdicionado = await adicionarConteudoProduto(produtoId);
@@ -599,7 +582,6 @@ async function finishProduct() {
                     throw new Error('Falha ao adicionar conteúdo');
                 }
                 
-                console.log('✅ Conteúdo adicionado');
                 
                 // ETAPA 4: Finalizar produto
                 const produtoFinalizado = await finalizarProduto(produtoId);
@@ -607,7 +589,6 @@ async function finishProduct() {
                     throw new Error('Falha ao finalizar produto');
                 }
                 
-                console.log('✅ Produto finalizado com sucesso');
                 showNotification('Produto criado com sucesso!', 'success');
             }
             
@@ -687,11 +668,9 @@ async function carregarProdutoParaEdicao() {
     const urlParams = new URLSearchParams(window.location.search);
     editId = urlParams.get('edit');
     if (!editId) {
-        console.log('ℹ️ Nenhum ID de edição encontrado');
         return;
     }
     
-    console.log('🔄 Carregando produto para edição, ID:', editId);
     
     // Validar ID do produto
     if (!editId || editId.trim() === '') {
@@ -704,7 +683,6 @@ async function carregarProdutoParaEdicao() {
     }
     
     // Verificar se o produto existe antes de tentar carregar
-    console.log('🔍 Verificando se produto existe...');
     const produtoExiste = await verificarProdutoExiste(editId);
     
     if (!produtoExiste) {
@@ -716,7 +694,6 @@ async function carregarProdutoParaEdicao() {
         return;
     }
     
-    console.log('✅ Produto existe, carregando dados...');
     
     editMode = true;
     try {
@@ -774,7 +751,6 @@ async function carregarProdutoParaEdicao() {
             document.getElementById('ebookContentUrl').value = produto.link_conteudo || '';
         }
         
-        console.log('✅ Produto carregado para edição:', produto);
     } catch (error) {
         console.error('❌ Erro ao carregar produto para edição:', error);
         
@@ -812,7 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     carregarProdutoParaEdicao();
 
-    console.log('Criação de produto inicializada.');
 });
 
  

@@ -14,10 +14,10 @@ const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/dashboard.html',
-    '/login.html',
+    // '/login.html', // REMOVIDO - não deve ser cacheado
     '/gestao-produtos.html',
     '/integracoes.html',
-    '/gestao-vendas.html',
+    // '/gestao-vendas.html', // REMOVIDO - não deve ser cacheado
     '/marketing-avancado.html',
     '/css/style.css',
     '/css/integracoes.css',
@@ -108,6 +108,31 @@ self.addEventListener('activate', (event) => {
                     })
                 );
             }),
+            // Limpar TODOS os caches de arquivos específicos
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        return caches.open(cacheName).then((cache) => {
+                            const filesToDelete = [
+                                '/gestao-vendas.html',
+                                '/js/gestao-vendas.js',
+                                '/js/pagamentos.js',
+                                '/login.html',
+                                '/register.html'
+                            ];
+                            
+                            return Promise.all([
+                                ...filesToDelete.map(file => cache.delete(file)),
+                                ...filesToDelete.map(file => cache.delete(new Request(file)))
+                            ]).then(() => {
+                                console.log(`🗑️ Cache de arquivos específicos removido de ${cacheName}`);
+                            });
+                        });
+                    })
+                );
+            }).catch(() => {
+                // Ignorar erros se os caches não existirem
+            }),
             // Tomar controle de todas as páginas
             self.clients.claim()
         ]).then(() => {
@@ -142,6 +167,39 @@ self.addEventListener('fetch', (event) => {
         return; // Deixar passar direto para a rede
     }
     
+    // PRIORIDADE: arquivos JavaScript específicos SEMPRE da rede (sem cache)
+    const noCacheJsFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    const shouldBypassCache = noCacheJsFiles.some(file => url.pathname.includes(file));
+    
+    if (shouldBypassCache) {
+        console.log('🚫 Bypass de cache para:', request.url);
+        event.respondWith(
+            fetch(request, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
+                }
+            }).then(response => {
+                // Criar nova resposta com headers no-cache
+                const newHeaders = new Headers(response.headers);
+                newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                newHeaders.set('Pragma', 'no-cache');
+                newHeaders.set('Expires', '0');
+                
+                return new Response(response.body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders
+                });
+            }).catch(error => {
+                console.error('❌ Erro ao buscar recurso da rede:', error);
+                return new Response('Erro ao carregar recurso', { status: 503 });
+            })
+        );
+        return;
+    }
+    
     // Páginas que NUNCA devem ser cacheadas (sempre da rede)
     if (isNoCachePage(request)) {
         event.respondWith(networkOnly(request));
@@ -163,6 +221,14 @@ self.addEventListener('fetch', (event) => {
 // Estratégia Cache First
 async function cacheFirst(request, cacheName) {
     try {
+        // NUNCA fazer cache de arquivos específicos
+        const url = new URL(request.url);
+        const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+        if (noCacheFiles.some(file => url.pathname.includes(file))) {
+            console.log('🚫 Bypass de cache no cacheFirst:', request.url);
+            return await fetch(request, { cache: 'no-store' });
+        }
+        
         const cache = await caches.open(cacheName);
         const cachedResponse = await cache.match(request);
         
@@ -224,6 +290,14 @@ async function networkFirst(request, cacheName) {
 
 // Estratégia Stale While Revalidate
 async function staleWhileRevalidate(request, cacheName) {
+    // NUNCA fazer cache de arquivos específicos
+    const url = new URL(request.url);
+    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    if (noCacheFiles.some(file => url.pathname.includes(file))) {
+        console.log('🚫 Bypass de cache no staleWhileRevalidate:', request.url);
+        return await fetch(request, { cache: 'no-store' });
+    }
+    
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
     
@@ -243,6 +317,13 @@ async function staleWhileRevalidate(request, cacheName) {
 // Verificar se é recurso estático
 function isStaticAsset(request) {
     const url = new URL(request.url);
+    
+    // NUNCA considerar arquivos específicos como estáticos
+    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    if (noCacheFiles.some(file => url.pathname.includes(file))) {
+        return false;
+    }
+    
     return STATIC_ASSETS.includes(url.pathname) ||
            url.pathname.endsWith('.css') ||
            url.pathname.endsWith('.js') ||
@@ -269,12 +350,29 @@ function isNoCachePage(request) {
     const url = new URL(request.url);
     const noCachePages = [
         '/checkout.html',
-        '/payment-success.html'
+        '/payment-success.html',
+        '/gestao-vendas.html', // Adicionado - não deve ser cacheado
+        '/login.html', // Adicionado - não deve ser cacheado
+        '/register.html' // Adicionado - não deve ser cacheado
     ];
+    
+    // Páginas que não devem ser cacheadas
+    const noCachePatterns = [
+        'checkout',
+        'payment-success',
+        'gestao-vendas', // Adicionado
+        'login', // Adicionado
+        'register' // Adicionado
+    ];
+    
+    // Arquivos JavaScript que não devem ser cacheados
+    const noCacheJsFiles = ['gestao-vendas.js', 'pagamentos.js', 'login.html', 'register.html'];
     
     return noCachePages.some(page => url.pathname === page) ||
            request.destination === 'document' && 
-           (url.pathname.includes('checkout') || url.pathname.includes('payment-success'));
+           noCachePatterns.some(pattern => url.pathname.includes(pattern)) ||
+           // JavaScript específicos também não devem ser cacheados
+           noCacheJsFiles.some(file => url.pathname.includes(file));
 }
 
 // Estratégia Network Only (sempre da rede, sem cache)
@@ -436,6 +534,35 @@ self.addEventListener('message', (event) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => caches.delete(cacheName))
                 );
+            })
+        );
+    } else if (event.data && event.data.type === 'CLEAR_GESTAO_VENDAS_CACHE') {
+        // Limpar especificamente o cache de arquivos específicos
+        event.waitUntil(
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        return caches.open(cacheName).then((cache) => {
+                            const filesToDelete = [
+                                '/gestao-vendas.html',
+                                '/js/gestao-vendas.js',
+                                '/js/pagamentos.js',
+                                '/login.html',
+                                '/register.html'
+                            ];
+                            
+                            return Promise.all([
+                                ...filesToDelete.map(file => cache.delete(file)),
+                                ...filesToDelete.map(file => cache.delete(new Request(file)))
+                            ]);
+                        });
+                    })
+                ).then(() => {
+                    console.log('🗑️ Cache de arquivos específicos limpo manualmente');
+                    if (event.ports && event.ports[0]) {
+                        event.ports[0].postMessage({ success: true });
+                    }
+                });
             })
         );
     }

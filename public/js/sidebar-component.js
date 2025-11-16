@@ -63,6 +63,9 @@ class SidebarComponent {
 
         return `
             <div class="sidebar">
+                <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
                 <div class="sidebar-logo">
                     <img src="${this.logoUrl}" alt="RATIXPAY Logo" class="sidebar-logo-desktop" style="width: 100%; height: auto; max-width: 113px; display: block; margin: 0 auto;">
                     <img src="${this.logoUrlMobile}" alt="RATIXPAY Logo" class="sidebar-logo-mobile" style="width: 100%; height: auto; max-width: 100%; display: none; margin: 0 auto;">
@@ -82,7 +85,90 @@ class SidebarComponent {
         const sidebarContainer = document.querySelector('.sidebar');
         if (sidebarContainer) {
             sidebarContainer.outerHTML = this.generateHTML(activeSection);
+            this.initToggle();
+            this.restoreSidebarState();
         }
+    }
+    
+    /**
+     * Ajusta o main-content baseado no estado do sidebar
+     */
+    adjustMainContent(isHidden) {
+        const mainContent = document.querySelector('.main-content');
+        if (!mainContent) return;
+        
+        // Usar classe no body para controlar via CSS (mais eficiente e sobrescreve !important)
+        if (isHidden) {
+            document.body.classList.add('sidebar-hidden');
+        } else {
+            document.body.classList.remove('sidebar-hidden');
+            // Restaurar valores padrão quando sidebar está visível
+            const width = window.innerWidth;
+            let sidebarWidth = '250px';
+            if (width <= 480) {
+                sidebarWidth = '70px';
+            } else if (width <= 768) {
+                sidebarWidth = '80px';
+            }
+            mainContent.style.marginLeft = sidebarWidth;
+            mainContent.style.width = `calc(100% - ${sidebarWidth})`;
+        }
+    }
+    
+    /**
+     * Inicializa a funcionalidade de toggle do sidebar
+     */
+    initToggle() {
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (!toggleBtn || !sidebar) return;
+        
+        // Mover o botão para fora do sidebar no DOM
+        sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+        
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            const isHidden = sidebar.classList.contains('hidden');
+            
+            // Salvar estado no localStorage
+            localStorage.setItem('sidebarHidden', isHidden ? 'true' : 'false');
+            
+            // Ajustar main-content (já gerencia a classe sidebar-hidden no body)
+            this.adjustMainContent(isHidden);
+        });
+        
+        // Ajustar quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            const isHidden = sidebar.classList.contains('hidden');
+            this.adjustMainContent(isHidden);
+        });
+    }
+    
+    /**
+     * Restaura o estado do sidebar do localStorage
+     */
+    restoreSidebarState() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const isHidden = localStorage.getItem('sidebarHidden') === 'true';
+        
+        if (!sidebar || !toggleBtn) return;
+        
+        // Mover o botão para fora do sidebar no DOM
+        if (toggleBtn.parentNode === sidebar) {
+            sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+        }
+        
+        if (isHidden) {
+            sidebar.classList.add('hidden');
+            document.body.classList.add('sidebar-hidden');
+        } else {
+            document.body.classList.remove('sidebar-hidden');
+        }
+        
+        // Ajustar main-content
+        this.adjustMainContent(isHidden);
     }
 
     /**
@@ -99,6 +185,8 @@ class SidebarComponent {
                 padding: 20px 0;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 margin-bottom: 20px;
+                order: -1;
+                flex-shrink: 0;
             }
             
             .sidebar-logo img {
@@ -130,8 +218,8 @@ class SidebarComponent {
             
             @media (max-width: 768px) {
                 .sidebar-logo {
-                    padding: 15px 5px;
-                    margin-bottom: 15px;
+                    padding: 10px 5px;
+                    margin: 0;
                     width: 100%;
                     box-sizing: border-box;
                 }
@@ -151,8 +239,8 @@ class SidebarComponent {
             
             @media (max-width: 480px) {
                 .sidebar-logo {
-                    padding: 10px 5px;
-                    margin-bottom: 10px;
+                    padding: 8px 5px;
+                    margin: 0;
                     width: 100%;
                     box-sizing: border-box;
                 }
@@ -173,13 +261,104 @@ class SidebarComponent {
                 flex-direction: column;
                 box-shadow: 2px 0 15px rgba(0,0,0,0.4);
                 border-right: 1px solid rgba(255, 255, 255, 0.1);
-                position: relative;
-                z-index: 1001;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                height: 100vh !important;
+                z-index: 1001 !important;
+                overflow-y: auto;
+                overflow-x: hidden;
+                transition: transform 0.3s ease, width 0.3s ease;
+            }
+            
+            .sidebar.hidden {
+                transform: translateX(-100%);
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar-toggle-btn {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                background: #ffffff;
+                color: #000000;
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 1003;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .sidebar:not(.hidden) .sidebar-toggle-btn {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                left: auto;
+            }
+            
+            .sidebar-toggle-btn:hover {
+                background: #f0f0f0;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+            
+            .sidebar-toggle-btn i {
+                font-size: 14px;
+                transition: transform 0.3s ease;
+            }
+            
+            body.sidebar-hidden .sidebar-toggle-btn i {
+                transform: rotate(180deg);
+            }
+            
+            /* Ajustar main-content quando sidebar colapsa */
+            .main-content {
+                transition: margin-left 0.3s ease, width 0.3s ease;
+            }
+            
+            /* Sobrescrever estilos inline quando sidebar está oculto */
+            body.sidebar-hidden .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            /* Responsividade quando sidebar está oculto */
+            @media (max-width: 768px) {
+                body.sidebar-hidden .main-content {
+                    margin-left: 0 !important;
+                    width: 100% !important;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                body.sidebar-hidden .main-content {
+                    margin-left: 0 !important;
+                    width: 100% !important;
+                }
+            }
+            
+            /* Garantir que logo fique no topo e fixa */
+            .sidebar-logo {
+                order: -1;
+                position: sticky;
+                top: 0;
+                background: #000000;
+                z-index: 10;
+                flex-shrink: 0;
             }
             
             .sidebar ul {
                 list-style: none;
                 padding: 0;
+                margin: 0;
             }
             
             .sidebar ul li {
@@ -242,10 +421,15 @@ class SidebarComponent {
             
             /* Responsividade */
             @media (max-width: 768px) {
-                .sidebar {
+                .sidebar:not(.hidden) {
                     width: 80px;
                     align-items: center;
                     padding: 15px 10px;
+                }
+                
+                .sidebar-logo {
+                    padding: 10px 5px;
+                    margin-bottom: 15px;
                 }
                 
                 .sidebar h2 {
@@ -266,12 +450,28 @@ class SidebarComponent {
                     margin-right: 0;
                     font-size: 20px;
                 }
+                
+                .sidebar-toggle-btn {
+                    width: 28px;
+                    height: 28px;
+                    top: 12px;
+                }
+                
+                .sidebar:not(.hidden) .sidebar-toggle-btn {
+                    top: 12px;
+                    right: 12px;
+                }
             }
             
             @media (max-width: 480px) {
-                .sidebar {
+                .sidebar:not(.hidden) {
                     width: 70px;
                     padding: 10px 5px;
+                }
+                
+                .sidebar-logo {
+                    padding: 8px 5px;
+                    margin-bottom: 10px;
                 }
                 
                 .sidebar ul li a {
@@ -281,6 +481,22 @@ class SidebarComponent {
                 
                 .sidebar ul li a i {
                     font-size: 18px;
+                }
+                
+                .sidebar-toggle-btn {
+                    width: 26px;
+                    height: 26px;
+                    top: 10px;
+                    left: 10px;
+                }
+                
+                .sidebar-toggle-btn i {
+                    font-size: 12px;
+                }
+                
+                .sidebar:not(.hidden) .sidebar-toggle-btn {
+                    top: 10px;
+                    right: 10px;
                 }
             }
         `;
@@ -300,3 +516,4 @@ class SidebarComponent {
 
 // Exportar para uso global
 window.SidebarComponent = SidebarComponent;
+

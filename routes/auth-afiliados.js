@@ -15,8 +15,35 @@ const professionalEmailService = require('../services/professionalEmailService')
 
 // Configurações
 const JWT_SECRET = process.env.JWT_SECRET || 'ratixpay-secret-key-2024';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d'; // 30 dias para afiliados
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'ratixpay-refresh-secret-key-2024';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'; // 7 dias para access token
+const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d'; // 30 dias para refresh token
 const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.com';
+
+// Função para gerar tokens (access + refresh)
+function generateTokens(afiliado) {
+    const accessToken = jwt.sign(
+        { 
+            id: afiliado.id, 
+            email: afiliado.email,
+            tipo: 'afiliado'
+        },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    const refreshToken = jwt.sign(
+        { 
+            id: afiliado.id,
+            tipo: 'afiliado',
+            tokenType: 'refresh'
+        },
+        JWT_REFRESH_SECRET,
+        { expiresIn: JWT_REFRESH_EXPIRES_IN }
+    );
+
+    return { accessToken, refreshToken };
+}
 
 // Rate Limiting
 const loginLimiter = rateLimit({
@@ -77,6 +104,106 @@ function validarSenha(senha) {
         return { valida: false, mensagem: 'A senha deve conter pelo menos um número' };
     }
     return { valida: true };
+}
+
+// Função para gerar código de verificação
+function gerarCodigoVerificacao() {
+    return Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos
+}
+
+// Função para enviar código de verificação/ativação por email
+async function enviarCodigoVerificacao(afiliado, codigo, tipo = 'verificacao') {
+    try {
+        const assunto = tipo === 'ativacao' 
+            ? '🔓 Código de Ativação - Programa de Afiliados RatixPay'
+            : '🔐 Código de Verificação - Programa de Afiliados RatixPay';
+        const conteudo = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+                        color: white;
+                        padding: 30px;
+                        text-align: center;
+                        border-radius: 10px 10px 0 0;
+                    }
+                    .content {
+                        background: #f8f9fa;
+                        padding: 30px;
+                        border-radius: 0 0 10px 10px;
+                    }
+                    .code-box {
+                        background: white;
+                        border: 3px solid #F64C00;
+                        border-radius: 10px;
+                        padding: 20px;
+                        text-align: center;
+                        margin: 20px 0;
+                        font-size: 32px;
+                        font-weight: bold;
+                        color: #F64C00;
+                        letter-spacing: 5px;
+                    }
+                    .warning-box {
+                        background: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px;
+                        margin: 20px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${tipo === 'ativacao' ? '🔓 Ativação de Conta' : '🔐 Verificação de Email'}</h1>
+                </div>
+                <div class="content">
+                    <p>Olá <strong>${afiliado.nome}</strong>,</p>
+                    
+                    <p>${tipo === 'ativacao' 
+                        ? 'Para ativar sua conta no Programa de Afiliados RatixPay, use o código de ativação abaixo:'
+                        : 'Para completar seu cadastro no Programa de Afiliados RatixPay, use o código de verificação abaixo:'}</p>
+                    
+                    <div class="code-box">${codigo}</div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Importante:</strong>
+                        <ul>
+                            <li>Este código expira em <strong>15 minutos</strong></li>
+                            <li>Não compartilhe este código com ninguém</li>
+                            <li>Se você não solicitou este código, ignore este email</li>
+                        </ul>
+                    </div>
+                    
+                    <p>Atenciosamente,<br><strong>Equipe RatixPay</strong></p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        await professionalEmailService.enviarEmailSistema(
+            afiliado.email,
+            assunto,
+            conteudo,
+            'verificacao_email_afiliado'
+        );
+
+        console.log(`✅ Código de verificação enviado para: ${afiliado.email}`);
+    } catch (error) {
+        console.error('❌ Erro ao enviar código de verificação:', error);
+        throw error;
+    }
 }
 
 // Função para enviar email de boas-vindas
@@ -400,6 +527,10 @@ router.post('/register', registerLimiter, async (req, res) => {
         // Criar link de afiliado personalizado
         const linkAfiliado = `${BASE_URL}/?ref=${codigoAfiliado}`;
         
+        // Gerar código de verificação
+        const codigoVerificacao = gerarCodigoVerificacao();
+        const codigoExpira = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+        
         // Criar afiliado
         const afiliado = await Afiliado.create({
             nome: nome.trim(),
@@ -410,32 +541,36 @@ router.post('/register', registerLimiter, async (req, res) => {
             link_afiliado: linkAfiliado,
             comissao_percentual: 15.00, // Comissão padrão
             status: 'ativo',
+            email_verificado: false,
+            codigo_verificacao: codigoVerificacao,
+            codigo_verificacao_expira: codigoExpira,
             data_cadastro: new Date(),
             ultima_atividade: new Date()
         });
         
         console.log('✅ Afiliado registrado:', afiliado.codigo_afiliado);
         
+        // Enviar código de verificação
+        try {
+            await enviarCodigoVerificacao(afiliado, codigoVerificacao);
+        } catch (error) {
+            console.error('⚠️ Erro ao enviar código de verificação (não crítico):', error);
+        }
+        
         // Enviar email de boas-vindas (não bloquear se falhar)
         await enviarEmailBoasVindas(afiliado).catch(err => {
             console.error('⚠️ Erro ao enviar email de boas-vindas (não crítico):', err);
         });
         
-        // Gerar token JWT
-        const token = jwt.sign(
-            { 
-                id: afiliado.id, 
-                email: afiliado.email,
-                tipo: 'afiliado'
-            },
-            JWT_SECRET,
-            { expiresIn: JWT_EXPIRES_IN }
-        );
+        // Gerar tokens (access + refresh)
+        const { accessToken, refreshToken } = generateTokens(afiliado);
         
         res.status(201).json({
             success: true,
-            message: 'Afiliado registrado com sucesso! Verifique seu email para mais informações.',
-            token,
+            message: 'Conta criada com sucesso! Verifique seu email para confirmar sua conta.',
+            token: accessToken,
+            refreshToken: refreshToken,
+            requiresVerification: true,
             afiliado: {
                 id: afiliado.id,
                 nome: afiliado.nome,
@@ -445,7 +580,8 @@ router.post('/register', registerLimiter, async (req, res) => {
                 comissao_percentual: afiliado.comissao_percentual,
                 total_vendas: afiliado.total_vendas,
                 total_comissoes: parseFloat(afiliado.total_comissoes),
-                saldo_disponivel: parseFloat(afiliado.saldo_disponivel)
+                saldo_disponivel: parseFloat(afiliado.saldo_disponivel),
+                email_verificado: afiliado.email_verificado
             }
         });
     } catch (error) {
@@ -496,26 +632,7 @@ router.post('/login', loginLimiter, async (req, res) => {
             });
         }
 
-        // Verificar status da conta
-        if (afiliado.status === 'suspenso') {
-            console.log('❌ Login bloqueado: Conta suspensa');
-            return res.status(403).json({
-                success: false,
-                message: 'Sua conta está suspensa. Entre em contato com o suporte.',
-                status: 'suspenso'
-            });
-        }
-
-        if (afiliado.status === 'inativo') {
-            console.log('❌ Login bloqueado: Conta inativa');
-            return res.status(403).json({
-                success: false,
-                message: 'Sua conta está inativa. Entre em contato com o suporte.',
-                status: 'inativo'
-            });
-        }
-        
-        // Verificar senha
+        // Verificar senha primeiro
         const senhaValida = await bcrypt.compare(senha, afiliado.senha);
         
         if (!senhaValida) {
@@ -526,28 +643,61 @@ router.post('/login', loginLimiter, async (req, res) => {
             });
         }
         
+        // Verificar status da conta
+        if (afiliado.status === 'suspenso') {
+            console.log('❌ Login bloqueado: Conta suspensa');
+            return res.status(403).json({
+                success: false,
+                message: 'Sua conta está suspensa. Entre em contato com o suporte.',
+                status: 'suspenso'
+            });
+        }
+
+        // Se conta inativa, enviar código de ativação
+        if (afiliado.status === 'inativo') {
+            console.log('🔄 Conta inativa detectada, enviando código de ativação...');
+            
+            // Gerar código de ativação
+            const codigoAtivacao = gerarCodigoVerificacao();
+            const codigoExpira = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+            
+            await afiliado.update({
+                codigo_verificacao: codigoAtivacao,
+                codigo_verificacao_expira: codigoExpira
+            });
+            
+            // Enviar código por email
+            try {
+                await enviarCodigoVerificacao(afiliado, codigoAtivacao, 'ativacao');
+                console.log('✅ Código de ativação enviado para:', afiliado.email);
+            } catch (error) {
+                console.error('⚠️ Erro ao enviar código de ativação:', error);
+            }
+            
+            return res.status(403).json({
+                success: false,
+                message: 'Sua conta está inativa. Um código de ativação foi enviado para seu email.',
+                status: 'inativo',
+                code: 'ACCOUNT_INACTIVE',
+                requiresActivation: true
+            });
+        }
+        
         // Atualizar última atividade
         await afiliado.update({
             ultima_atividade: new Date()
         });
         
-        // Gerar token JWT
-        const token = jwt.sign(
-            { 
-                id: afiliado.id, 
-                email: afiliado.email,
-                tipo: 'afiliado'
-            },
-            JWT_SECRET,
-            { expiresIn: JWT_EXPIRES_IN }
-        );
+        // Gerar tokens (access + refresh)
+        const { accessToken, refreshToken } = generateTokens(afiliado);
         
         console.log('✅ Login realizado com sucesso:', afiliado.nome);
         
         res.json({
             success: true,
             message: 'Login realizado com sucesso',
-            token,
+            token: accessToken,
+            refreshToken: refreshToken,
             afiliado: {
                 id: afiliado.id,
                 nome: afiliado.nome,
@@ -740,6 +890,398 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+// POST - Verificar código de email
+router.post('/verify-email', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Token de autenticação necessário'
+            });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.tipo !== 'afiliado') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token inválido para afiliado'
+            });
+        }
+
+        const { codigo } = req.body;
+        
+        if (!codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de verificação é obrigatório'
+            });
+        }
+
+        const afiliado = await Afiliado.findByPk(decoded.id);
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado'
+            });
+        }
+
+        if (afiliado.email_verificado) {
+            return res.json({
+                success: true,
+                message: 'Email já verificado',
+                email_verificado: true
+            });
+        }
+
+        // Verificar código
+        if (!afiliado.codigo_verificacao || afiliado.codigo_verificacao !== codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de verificação inválido'
+            });
+        }
+
+        // Verificar expiração
+        if (!afiliado.codigo_verificacao_expira || afiliado.codigo_verificacao_expira < new Date()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de verificação expirado. Solicite um novo código.',
+                code: 'EXPIRED'
+            });
+        }
+
+        // Marcar email como verificado
+        await afiliado.update({
+            email_verificado: true,
+            codigo_verificacao: null,
+            codigo_verificacao_expira: null
+        });
+
+        console.log('✅ Email verificado para afiliado:', afiliado.email);
+
+        res.json({
+            success: true,
+            message: 'Email verificado com sucesso!',
+            email_verificado: true
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar email:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao verificar email',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// POST - Ativar conta inativa com código
+router.post('/ativar-conta', async (req, res) => {
+    try {
+        const { email, codigo } = req.body;
+        
+        if (!email || !codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email e código são obrigatórios'
+            });
+        }
+        
+        // Buscar afiliado pelo email
+        const afiliado = await Afiliado.findOne({
+            where: { 
+                email: email.toLowerCase().trim()
+            }
+        });
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado'
+            });
+        }
+        
+        // Verificar se a conta está inativa
+        if (afiliado.status !== 'inativo') {
+            return res.status(400).json({
+                success: false,
+                message: 'Esta conta já está ativa'
+            });
+        }
+        
+        // Verificar código
+        if (!afiliado.codigo_verificacao || afiliado.codigo_verificacao !== codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de ativação inválido'
+            });
+        }
+        
+        // Verificar expiração
+        if (!afiliado.codigo_verificacao_expira || afiliado.codigo_verificacao_expira < new Date()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de ativação expirado. Solicite um novo código.',
+                code: 'EXPIRED'
+            });
+        }
+        
+        // Ativar conta
+        await afiliado.update({
+            status: 'ativo',
+            codigo_verificacao: null,
+            codigo_verificacao_expira: null,
+            ultima_atividade: new Date()
+        });
+        
+        console.log('✅ Conta ativada com código:', afiliado.email);
+        
+        // Gerar tokens após ativação
+        const { accessToken, refreshToken } = generateTokens(afiliado);
+        
+        res.json({
+            success: true,
+            message: 'Conta ativada com sucesso!',
+            token: accessToken,
+            refreshToken: refreshToken,
+            afiliado: {
+                id: afiliado.id,
+                nome: afiliado.nome,
+                email: afiliado.email,
+                codigo: afiliado.codigo_afiliado,
+                link_afiliado: afiliado.link_afiliado,
+                comissao_percentual: afiliado.comissao_percentual,
+                total_vendas: afiliado.total_vendas,
+                total_comissoes: parseFloat(afiliado.total_comissoes),
+                saldo_disponivel: parseFloat(afiliado.saldo_disponivel),
+                status: afiliado.status
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao ativar conta:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao ativar conta',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// POST - Reenviar código de verificação
+router.post('/resend-verification', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Token de autenticação necessário'
+            });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.tipo !== 'afiliado') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token inválido para afiliado'
+            });
+        }
+
+        const afiliado = await Afiliado.findByPk(decoded.id);
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado'
+            });
+        }
+
+        if (afiliado.email_verificado) {
+            return res.json({
+                success: true,
+                message: 'Email já verificado',
+                email_verificado: true
+            });
+        }
+
+        // Gerar novo código
+        const codigoVerificacao = gerarCodigoVerificacao();
+        const codigoExpira = new Date(Date.now() + 15 * 60 * 1000);
+
+        await afiliado.update({
+            codigo_verificacao: codigoVerificacao,
+            codigo_verificacao_expira: codigoExpira
+        });
+
+        // Enviar código
+        await enviarCodigoVerificacao(afiliado, codigoVerificacao);
+
+        res.json({
+            success: true,
+            message: 'Código de verificação reenviado com sucesso!'
+        });
+    } catch (error) {
+        console.error('❌ Erro ao reenviar código:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao reenviar código de verificação',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// GET - Obter dados do afiliado autenticado
+router.get('/me', async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Token não fornecido'
+            });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        if (decoded.tipo !== 'afiliado') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token inválido para afiliado'
+            });
+        }
+
+        const afiliado = await Afiliado.findByPk(decoded.id);
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado'
+            });
+        }
+
+        if (afiliado.status !== 'ativo') {
+            return res.status(403).json({
+                success: false,
+                message: `Sua conta está ${afiliado.status}. Entre em contato com o suporte.`,
+                status: afiliado.status
+            });
+        }
+
+        res.json({
+            success: true,
+            afiliado: {
+                id: afiliado.id,
+                nome: afiliado.nome,
+                email: afiliado.email,
+                telefone: afiliado.telefone,
+                codigo: afiliado.codigo_afiliado,
+                link_afiliado: afiliado.link_afiliado,
+                comissao_percentual: afiliado.comissao_percentual,
+                total_vendas: afiliado.total_vendas,
+                total_comissoes: parseFloat(afiliado.total_comissoes),
+                saldo_disponivel: parseFloat(afiliado.saldo_disponivel),
+                email_verificado: afiliado.email_verificado || false,
+                status: afiliado.status,
+                data_cadastro: afiliado.data_cadastro,
+                ultima_atividade: afiliado.ultima_atividade
+            }
+        });
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token expirado. Faça login novamente.'
+            });
+        }
+        
+        console.error('❌ Erro ao obter dados do afiliado:', error);
+        res.status(401).json({
+            success: false,
+            message: 'Token inválido'
+        });
+    }
+});
+
+// POST - Refresh token
+router.post('/refresh', async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        
+        if (!refreshToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Refresh token é obrigatório'
+            });
+        }
+
+        // Verificar refresh token
+        let decoded;
+        try {
+            decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Refresh token expirado. Faça login novamente.',
+                    code: 'REFRESH_EXPIRED'
+                });
+            }
+            return res.status(401).json({
+                success: false,
+                message: 'Refresh token inválido',
+                code: 'INVALID_REFRESH'
+            });
+        }
+
+        if (decoded.tipo !== 'afiliado' || decoded.tokenType !== 'refresh') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token inválido'
+            });
+        }
+
+        // Buscar afiliado
+        const afiliado = await Afiliado.findByPk(decoded.id);
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado'
+            });
+        }
+
+        if (afiliado.status !== 'ativo') {
+            return res.status(403).json({
+                success: false,
+                message: `Sua conta está ${afiliado.status}. Entre em contato com o suporte.`,
+                status: afiliado.status
+            });
+        }
+
+        // Gerar novos tokens
+        const { accessToken, refreshToken: newRefreshToken } = generateTokens(afiliado);
+
+        res.json({
+            success: true,
+            token: accessToken,
+            refreshToken: newRefreshToken
+        });
+    } catch (error) {
+        console.error('❌ Erro ao renovar token:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao renovar token',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
 // GET - Verificar token (para validar se está logado)
 router.get('/verify', async (req, res) => {
     try {
@@ -773,12 +1315,25 @@ router.get('/verify', async (req, res) => {
             });
         }
 
-        if (afiliado.status !== 'ativo') {
+        // Verificar status da conta
+        if (afiliado.status === 'suspenso') {
             return res.status(403).json({
                 success: false,
-                message: `Sua conta está ${afiliado.status}. Entre em contato com o suporte.`,
+                message: `Sua conta está suspensa. Entre em contato com o suporte.`,
                 status: afiliado.status
             });
+        }
+
+        // Se conta inativa, ativar automaticamente
+        if (afiliado.status === 'inativo') {
+            console.log('🔄 [VERIFY] Conta inativa detectada, ativando automaticamente...');
+            await afiliado.update({
+                status: 'ativo',
+                ultima_atividade: new Date()
+            });
+            console.log('✅ [VERIFY] Conta ativada automaticamente:', afiliado.nome);
+            // Recarregar afiliado para ter o status atualizado
+            await afiliado.reload();
         }
         
         res.json({
@@ -800,7 +1355,8 @@ router.get('/verify', async (req, res) => {
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({
                 success: false,
-                message: 'Token expirado. Faça login novamente.'
+                message: 'Token expirado',
+                code: 'TOKEN_EXPIRED'
             });
         }
         

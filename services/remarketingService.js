@@ -1,100 +1,106 @@
 /**
  * Serviço de Remarketing Automático
- * Gerencia fila de notificações para vendas canceladas
+ * Gerencia fila de notificações de remarketing para vendas canceladas
  */
 
-const { sequelize, Produto } = require('../config/database');
-const { QueryTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+const { Produto } = require('../config/database');
 const emailManagerService = require('./emailManagerService');
 const whatsappService = require('./whatsappService');
 
 class RemarketingService {
     constructor() {
         this.tableName = 'remarketing_queue';
+        this.maxItensPorExecucao = 50;
+        this.intervaloProcessamento = 5 * 60 * 1000; // 5 minutos
     }
 
     /**
-     * Adicionar venda cancelada à fila de remarketing
+     * Adiciona venda cancelada à fila de remarketing
      * @param {Object} dados - Dados da venda cancelada
-     * @param {string} dados.cliente_id - ID do cliente
-     * @param {string} dados.cliente_nome - Nome do cliente
-     * @param {string} dados.produto_id - ID do produto
-     * @param {string} dados.produto_nome - Nome do produto
-     * @param {string} dados.email - Email do cliente (opcional)
-     * @param {string} dados.telefone - Telefone do cliente (opcional)
+     * @returns {Promise<Object>} Item adicionado à fila
      */
     async adicionarVendaCancelada(dados) {
-        try {
-            const { cliente_id, cliente_nome, produto_id, produto_nome, email, telefone } = dados;
+        const {
+            cliente_id,
+            cliente_nome,
+            produto_id,
+            produto_nome,
+            email,
+            telefone
+        } = dados;
 
-            // Verificar se o produto tem remarketing ativado
+        try {
+            // Buscar produto para verificar se remarketing está ativo
             const produto = await Produto.findByPk(produto_id);
-            if (!produto || !produto.remarketing_config || !produto.remarketing_config.enabled) {
-                console.log(`⚠️ Remarketing não está ativado para o produto ${produto_id}`);
-                return { success: false, message: 'Remarketing não está ativado para este produto' };
+            
+            if (!produto) {
+                throw new Error('Produto não encontrado');
             }
 
-            // Verificar antispam: não enviar mais de uma notificação por produto/cliente no mesmo dia
+            // Verificar se remarketing está ativado
+            const remarketingConfig = produto.remarketing_config;
+            if (!remarketingConfig || !remarketingConfig.enabled) {
+                return { ignorado: true, motivo: 'Remarketing não ativado para este produto' };
+            }
+
+            // Verificar antispam (máximo 1 notificação por cliente/produto/dia)
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
-            
-            const [notificacoesHoje] = await sequelize.query(`
-                SELECT COUNT(*) as count
-                FROM ${this.tableName}
-                WHERE cliente_id = :cliente_id
-                AND produto_id = :produto_id
-                AND data_cancelamento >= :hoje
-                AND status IN ('pendente', 'enviado')
-            `, {
-                replacements: {
-                    cliente_id,
-                    produto_id,
-                    hoje: hoje.toISOString()
-                },
-                type: QueryTypes.SELECT
-            });
+            const amanha = new Date(hoje);
+            amanha.setDate(amanha.getDate() + 1);
 
-            if (notificacoesHoje && parseInt(notificacoesHoje.count) > 0) {
-                console.log(`⚠️ Cliente ${cliente_id} já recebeu notificação para produto ${produto_id} hoje`);
-                return { success: false, message: 'Notificação já enviada hoje para este cliente/produto' };
+            const antispamCheck = await sequelize.query(
+                `SELECT id FROM ${this.tableName} 
+                 WHERE cliente_id = :cliente_id 
+                   AND produto_id = :produto_id 
+                   AND DATE(data_cancelamento) = DATE(:hoje)
+                   AND status IN ('pendente', 'enviado')
+                 LIMIT 1`,
+                {
+                    replacements: {
+                        cliente_id,
+                        produto_id,
+                        hoje: hoje.toISOString()
+                    },
+                    type: sequelize.QueryTypes.SELECT
+                }
+            );
+
+            if (antispamCheck.length > 0) {
+                return { ignorado: true, motivo: 'Antispam: já existe notificação para este cliente/produto hoje' };
             }
 
-            // Obter tempo de envio da configuração do produto
-            const tempoEnvio = produto.remarketing_config.tempo_minutos || 0;
-
-            // Calcular data_agendada: data_cancelamento + tempo_envio minutos
+            // Calcular data_agendada
+            const tempoMinutos = remarketingConfig.tempo_minutos || 0;
             const dataCancelamento = new Date();
-            const dataAgendada = new Date(dataCancelamento.getTime() + (tempoEnvio * 60 * 1000));
+            const dataAgendada = new Date(dataCancelamento.getTime() + (tempoMinutos * 60 * 1000));
 
             // Inserir na fila
-            const [result] = await sequelize.query(`
-                INSERT INTO ${this.tableName} 
-                (cliente_id, cliente_nome, produto_id, produto_nome, email, telefone, status, data_cancelamento, tempo_envio, data_agendada)
-                VALUES (:cliente_id, :cliente_nome, :produto_id, :produto_nome, :email, :telefone, 'pendente', :data_cancelamento, :tempo_envio, :data_agendada)
-                RETURNING id, data_agendada
-            `, {
-                replacements: {
-                    cliente_id,
-                    cliente_nome,
-                    produto_id,
-                    produto_nome,
-                    email: email || null,
-                    telefone: telefone || null,
-                    data_cancelamento: dataCancelamento.toISOString(),
-                    tempo_envio: tempoEnvio,
-                    data_agendada: dataAgendada.toISOString()
-                },
-                type: QueryTypes.INSERT
-            });
+            const [result] = await sequelize.query(
+                `INSERT INTO ${this.tableName} 
+                 (cliente_id, cliente_nome, produto_id, produto_nome, email, telefone, 
+                  status, data_cancelamento, tempo_envio, data_agendada, created_at, updated_at)
+                 VALUES (:cliente_id, :cliente_nome, :produto_id, :produto_nome, :email, :telefone,
+                         'pendente', :data_cancelamento, :tempo_envio, :data_agendada, NOW(), NOW())
+                 RETURNING *`,
+                {
+                    replacements: {
+                        cliente_id,
+                        cliente_nome,
+                        produto_id,
+                        produto_nome,
+                        email: email || null,
+                        telefone: telefone || null,
+                        data_cancelamento: dataCancelamento.toISOString(),
+                        tempo_envio: tempoMinutos,
+                        data_agendada: dataAgendada.toISOString()
+                    },
+                    type: sequelize.QueryTypes.INSERT
+                }
+            );
 
-            console.log(`✅ Venda cancelada adicionada à fila de remarketing: ID ${result[0].id}, agendado para ${result[0].data_agendada}`);
-
-            return {
-                success: true,
-                queueId: result[0].id,
-                dataAgendada: result[0].data_agendada
-            };
-
+            return { sucesso: true, item: result[0] };
         } catch (error) {
             console.error('❌ Erro ao adicionar venda cancelada à fila:', error);
             throw error;
@@ -102,103 +108,107 @@ class RemarketingService {
     }
 
     /**
-     * Processar fila de remarketing (chamado pelo cron job)
-     * Envia notificações para itens cuja data_agendada já passou
+     * Processa a fila de remarketing
+     * Busca itens pendentes cuja data_agendada já passou
+     * @returns {Promise<Object>} Estatísticas do processamento
      */
     async processarFila() {
+        const agora = new Date();
+        const stats = {
+            processados: 0,
+            enviados: 0,
+            ignorados: 0,
+            erros: 0
+        };
+
         try {
-            console.log('🔄 Processando fila de remarketing...');
-
             // Buscar itens pendentes cuja data_agendada já passou
-            const agora = new Date().toISOString();
-            
-            const [itensPendentes] = await sequelize.query(`
-                SELECT 
-                    id,
-                    cliente_id,
-                    cliente_nome,
-                    produto_id,
-                    produto_nome,
-                    email,
-                    telefone,
-                    data_cancelamento,
-                    data_agendada
-                FROM ${this.tableName}
-                WHERE status = 'pendente'
-                AND data_agendada <= :agora
-                ORDER BY data_agendada ASC
-                LIMIT 50
-            `, {
-                replacements: { agora },
-                type: QueryTypes.SELECT
-            });
+            const itens = await sequelize.query(
+                `SELECT * FROM ${this.tableName}
+                 WHERE status = 'pendente'
+                   AND data_agendada <= :agora
+                 ORDER BY data_agendada ASC
+                 LIMIT :limite`,
+                {
+                    replacements: {
+                        agora: agora.toISOString(),
+                        limite: this.maxItensPorExecucao
+                    },
+                    type: sequelize.QueryTypes.SELECT
+                }
+            );
 
-            if (!itensPendentes || itensPendentes.length === 0) {
-                console.log('✅ Nenhum item pendente na fila de remarketing');
-                return { processados: 0, enviados: 0, erros: 0 };
+            if (itens.length === 0) {
+                return stats;
             }
 
-            console.log(`📋 Encontrados ${itensPendentes.length} itens para processar`);
+            // Processar cada item
+            for (const item of itens) {
+                stats.processados++;
 
-            let enviados = 0;
-            let erros = 0;
-
-            for (const item of itensPendentes) {
                 try {
-                    // Verificar antispam novamente (pode ter mudado desde que foi adicionado)
-                    const hoje = new Date();
+                    // Verificar antispam novamente antes de enviar
+                    const hoje = new Date(item.data_cancelamento);
                     hoje.setHours(0, 0, 0, 0);
-                    
-                    const [notificacoesHoje] = await sequelize.query(`
-                        SELECT COUNT(*) as count
-                        FROM ${this.tableName}
-                        WHERE cliente_id = :cliente_id
-                        AND produto_id = :produto_id
-                        AND data_cancelamento >= :hoje
-                        AND status = 'enviado'
-                    `, {
-                        replacements: {
-                            cliente_id: item.cliente_id,
-                            produto_id: item.produto_id,
-                            hoje: hoje.toISOString()
-                        },
-                        type: QueryTypes.SELECT
-                    });
 
-                    if (notificacoesHoje && parseInt(notificacoesHoje.count) > 0) {
-                        console.log(`⚠️ Ignorando item ${item.id}: notificação já enviada hoje`);
-                        await this.marcarComoIgnorado(item.id, 'Notificação já enviada hoje (antispam)');
+                    const antispamCheck = await sequelize.query(
+                        `SELECT id FROM ${this.tableName}
+                         WHERE cliente_id = :cliente_id
+                           AND produto_id = :produto_id
+                           AND DATE(data_cancelamento) = DATE(:hoje)
+                           AND status = 'enviado'
+                           AND id != :item_id
+                         LIMIT 1`,
+                        {
+                            replacements: {
+                                cliente_id: item.cliente_id,
+                                produto_id: item.produto_id,
+                                hoje: hoje.toISOString(),
+                                item_id: item.id
+                            },
+                            type: sequelize.QueryTypes.SELECT
+                        }
+                    );
+
+                    if (antispamCheck.length > 0) {
+                        await this.marcarComoIgnorado(item.id, 'Antispam: notificação já enviada hoje');
+                        stats.ignorados++;
                         continue;
                     }
 
                     // Enviar notificação
                     const resultado = await this.enviarNotificacao(item);
-
-                    if (resultado.success) {
+                    
+                    if (resultado.sucesso) {
                         await this.marcarComoEnviado(item.id);
-                        enviados++;
-                        console.log(`✅ Notificação enviada para item ${item.id}`);
+                        stats.enviados++;
                     } else {
-                        await this.marcarComoIgnorado(item.id, resultado.message || 'Erro ao enviar');
-                        erros++;
-                        console.log(`❌ Erro ao enviar notificação para item ${item.id}: ${resultado.message}`);
+                        await this.marcarComoIgnorado(item.id, resultado.motivo || 'Erro ao enviar');
+                        stats.ignorados++;
                     }
-
                 } catch (error) {
                     console.error(`❌ Erro ao processar item ${item.id}:`, error);
-                    await this.marcarComoIgnorado(item.id, error.message);
-                    erros++;
+                    stats.erros++;
+                    
+                    // Incrementar tentativas
+                    await sequelize.query(
+                        `UPDATE ${this.tableName}
+                         SET tentativas = tentativas + 1,
+                             updated_at = NOW()
+                         WHERE id = :id`,
+                        {
+                            replacements: { id: item.id }
+                        }
+                    );
+
+                    // Se exceder 3 tentativas, marcar como ignorado
+                    if ((item.tentativas || 0) >= 2) {
+                        await this.marcarComoIgnorado(item.id, 'Máximo de tentativas excedido');
+                    }
                 }
             }
 
-            console.log(`✅ Fila processada: ${enviados} enviados, ${erros} erros`);
-
-            return {
-                processados: itensPendentes.length,
-                enviados,
-                erros
-            };
-
+            return stats;
         } catch (error) {
             console.error('❌ Erro ao processar fila de remarketing:', error);
             throw error;
@@ -206,170 +216,148 @@ class RemarketingService {
     }
 
     /**
-     * Enviar notificação de remarketing
+     * Envia notificação de remarketing
      * @param {Object} item - Item da fila
+     * @returns {Promise<Object>} Resultado do envio
      */
     async enviarNotificacao(item) {
         try {
-            const { cliente_id, cliente_nome, produto_id, produto_nome, email, telefone } = item;
-
-            // Buscar produto para obter configurações
-            const produto = await Produto.findByPk(produto_id);
+            // Buscar dados do produto
+            const produto = await Produto.findByPk(item.produto_id);
             if (!produto) {
-                return { success: false, message: 'Produto não encontrado' };
+                return { sucesso: false, motivo: 'Produto não encontrado' };
             }
 
-            // Gerar link do checkout usando custom_id do produto
-            const baseUrl = process.env.FRONTEND_URL || 'https://ratixpay.com';
-            const produtoId = produto.custom_id || produto.public_id || produto_id;
-            const checkoutLink = `${baseUrl}/checkout.html?produto=${produtoId}`;
+            // Gerar link do checkout
+            const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
+            const linkCheckout = `${baseUrl}/checkout.html?produto=${produto.custom_id}`;
 
             // Preparar mensagem
-            const mensagem = this.prepararMensagem(cliente_nome, produto_nome, checkoutLink);
+            const mensagem = this.prepararMensagem(
+                item.cliente_nome,
+                item.produto_nome,
+                linkCheckout
+            );
 
-            let emailEnviado = false;
-            let whatsappEnviado = false;
-            const metodosUsados = [];
+            let sucessoEmail = false;
+            let sucessoWhatsApp = false;
 
             // Enviar por email (se disponível)
-            if (email) {
+            if (item.email) {
                 try {
                     await emailManagerService.enviarEmailOfertas('campanha_remarketing', {
-                        email,
-                        nome: cliente_nome,
-                        produtoInteresse: produto_nome,
-                        linkProduto: checkoutLink,
-                        ofertaEspecial: 'Finalize agora com desconto especial!'
+                        email: item.email,
+                        nome: item.cliente_nome,
+                        assunto: `Finalize sua compra: ${item.produto_nome}`,
+                        mensagem: mensagem,
+                        linkCheckout: linkCheckout
                     });
-                    emailEnviado = true;
-                    metodosUsados.push('email');
-                    console.log(`✅ Email de remarketing enviado para ${email}`);
+                    sucessoEmail = true;
                 } catch (error) {
-                    console.error(`❌ Erro ao enviar email de remarketing: ${error.message}`);
-                    // Continuar mesmo se email falhar
+                    console.error(`⚠️ Erro ao enviar email para ${item.email}:`, error.message);
                 }
             }
 
             // Enviar por WhatsApp (se disponível)
-            if (telefone) {
+            if (item.telefone) {
                 try {
-                    await whatsappService.enviarMensagem(telefone, mensagem);
-                    whatsappEnviado = true;
-                    metodosUsados.push('whatsapp');
-                    console.log(`✅ WhatsApp de remarketing enviado para ${telefone}`);
+                    await whatsappService.enviarMensagem(item.telefone, mensagem);
+                    sucessoWhatsApp = true;
                 } catch (error) {
-                    console.error(`❌ Erro ao enviar WhatsApp de remarketing: ${error.message}`);
-                    // Continuar mesmo se WhatsApp falhar
+                    console.error(`⚠️ Erro ao enviar WhatsApp para ${item.telefone}:`, error.message);
                 }
             }
 
-            // Verificar se pelo menos um método foi usado
-            if (emailEnviado || whatsappEnviado) {
-                return { 
-                    success: true, 
-                    metodo: metodosUsados.join(' e '),
-                    emailEnviado,
-                    whatsappEnviado
-                };
+            // Retornar sucesso se pelo menos um método funcionou
+            if (sucessoEmail || sucessoWhatsApp) {
+                return { sucesso: true, email: sucessoEmail, whatsapp: sucessoWhatsApp };
+            } else {
+                return { sucesso: false, motivo: 'Nenhum canal de envio disponível ou funcionou' };
             }
-
-            return { 
-                success: false, 
-                message: 'Nenhum método de contato disponível ou todos falharam (email ou telefone)' 
-            };
-
         } catch (error) {
             console.error('❌ Erro ao enviar notificação:', error);
-            return { success: false, message: error.message };
+            return { sucesso: false, motivo: error.message };
         }
     }
 
     /**
-     * Preparar mensagem de remarketing
+     * Prepara mensagem padrão de remarketing
+     * @param {string} nomeCliente - Nome do cliente
+     * @param {string} nomeProduto - Nome do produto
+     * @param {string} linkCheckout - Link do checkout
+     * @returns {string} Mensagem formatada
      */
     prepararMensagem(nomeCliente, nomeProduto, linkCheckout) {
         return `Olá ${nomeCliente},
 
-Vimos que você tentou comprar ${nomeProduto}, mas não concluiu.
+Vimos que você tentou comprar "${nomeProduto}", mas não concluiu.
 
 👉 Finalize agora com desconto especial:
-
 ${linkCheckout}
 
 A oferta é por tempo limitado!`;
     }
 
     /**
-     * Marcar item como enviado
+     * Marca item como enviado
+     * @param {string} queueId - ID do item na fila
      */
     async marcarComoEnviado(queueId) {
-        try {
-            await sequelize.query(`
-                UPDATE ${this.tableName}
-                SET status = 'enviado',
-                    data_envio = :agora,
-                    updated_at = :agora
-                WHERE id = :id
-            `, {
-                replacements: {
-                    id: queueId,
-                    agora: new Date().toISOString()
-                },
-                type: QueryTypes.UPDATE
-            });
-        } catch (error) {
-            console.error(`❌ Erro ao marcar item ${queueId} como enviado:`, error);
-            throw error;
-        }
+        await sequelize.query(
+            `UPDATE ${this.tableName}
+             SET status = 'enviado',
+                 data_envio = NOW(),
+                 updated_at = NOW()
+             WHERE id = :id`,
+            {
+                replacements: { id: queueId }
+            }
+        );
     }
 
     /**
-     * Marcar item como ignorado
+     * Marca item como ignorado
+     * @param {string} queueId - ID do item na fila
+     * @param {string} motivo - Motivo da ignorância
      */
     async marcarComoIgnorado(queueId, motivo) {
-        try {
-            await sequelize.query(`
-                UPDATE ${this.tableName}
-                SET status = 'ignorado',
-                    updated_at = :agora
-                WHERE id = :id
-            `, {
-                replacements: {
-                    id: queueId,
-                    agora: new Date().toISOString()
-                },
-                type: QueryTypes.UPDATE
-            });
-        } catch (error) {
-            console.error(`❌ Erro ao marcar item ${queueId} como ignorado:`, error);
-            throw error;
-        }
+        await sequelize.query(
+            `UPDATE ${this.tableName}
+             SET status = 'ignorado',
+                 motivo_ignorado = :motivo,
+                 updated_at = NOW()
+             WHERE id = :id`,
+            {
+                replacements: { id: queueId, motivo }
+            }
+        );
     }
 
     /**
-     * Obter estatísticas da fila
+     * Obtém estatísticas da fila
+     * @returns {Promise<Object>} Estatísticas
      */
     async obterEstatisticas() {
-        try {
-            const [stats] = await sequelize.query(`
-                SELECT 
-                    COUNT(*) FILTER (WHERE status = 'pendente') as pendentes,
-                    COUNT(*) FILTER (WHERE status = 'enviado') as enviados,
-                    COUNT(*) FILTER (WHERE status = 'ignorado') as ignorados,
-                    COUNT(*) as total
-                FROM ${this.tableName}
-            `, {
-                type: QueryTypes.SELECT
-            });
+        const [result] = await sequelize.query(
+            `SELECT 
+                COUNT(*) FILTER (WHERE status = 'pendente') as pendentes,
+                COUNT(*) FILTER (WHERE status = 'enviado') as enviados,
+                COUNT(*) FILTER (WHERE status = 'ignorado') as ignorados,
+                COUNT(*) as total
+             FROM ${this.tableName}`,
+            {
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
 
-            return stats || { pendentes: 0, enviados: 0, ignorados: 0, total: 0 };
-        } catch (error) {
-            console.error('❌ Erro ao obter estatísticas:', error);
-            throw error;
-        }
+        return {
+            pendentes: parseInt(result.pendentes) || 0,
+            enviados: parseInt(result.enviados) || 0,
+            ignorados: parseInt(result.ignorados) || 0,
+            total: parseInt(result.total) || 0
+        };
     }
 }
 
 module.exports = new RemarketingService();
-
 

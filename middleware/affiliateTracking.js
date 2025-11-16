@@ -87,8 +87,9 @@ async function affiliateTrackingMiddleware(req, res, next) {
             }
         }
         
-        // Não processar clique aqui - será processado apenas quando o botão "Pagar" for clicado
+        // IMPORTANTE: Não processar clique aqui - será processado apenas quando o botão "Pagar Agora" for clicado
         // Apenas garantir que o link tracking existe para uso posterior
+        // O clique será rastreado com validação de fraude apenas no checkout quando o cliente clicar em "Pagar Agora"
         
         // Adicionar informações do afiliado ao request
         req.affiliate = {
@@ -99,9 +100,11 @@ async function affiliateTrackingMiddleware(req, res, next) {
         };
         
         // Armazenar código do afiliado na sessão para uso posterior
-        req.session.affiliate_ref = afiliado.codigo_afiliado;
+        if (req.session) {
+            req.session.affiliate_ref = afiliado.codigo_afiliado;
+        }
         
-        console.log(`✅ Clique rastreado: ${afiliado.nome} (${afiliado.codigo_afiliado}) -> ${urlOriginal}`);
+        console.log(`🔗 Link de afiliado detectado: ${afiliado.nome} (${afiliado.codigo_afiliado}) -> ${urlOriginal} (clique será rastreado apenas no botão "Pagar Agora")`);
         
         next();
         

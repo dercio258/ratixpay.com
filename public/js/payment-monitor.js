@@ -21,14 +21,12 @@ class PaymentMonitor {
             this.socket = io();
             
             this.socket.on('connect', () => {
-                console.log('🔌 Conectado ao servidor de pagamentos');
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
                 this.onConnectionEstablished();
             });
 
             this.socket.on('disconnect', () => {
-                console.log('🔌 Desconectado do servidor de pagamentos');
                 this.isConnected = false;
                 this.onConnectionLost();
             });
@@ -40,13 +38,11 @@ class PaymentMonitor {
 
             // Escutar cancelamentos de pagamento
             this.socket.on('payment_cancelled', (data) => {
-                console.log('🚨 Pagamento cancelado automaticamente:', data);
                 this.handlePaymentCancellation(data);
             });
 
             // Escutar atualizações de status
             this.socket.on('payment_status_update', (data) => {
-                console.log('📊 Status do pagamento atualizado:', data);
                 this.handlePaymentStatusUpdate(data);
             });
 
@@ -62,7 +58,6 @@ class PaymentMonitor {
     joinVendaRoom(vendaId) {
         if (this.socket && this.isConnected) {
             this.socket.emit('join', `venda_${vendaId}`);
-            console.log(`📡 Entrando na sala da venda: ${vendaId}`);
         }
     }
 
@@ -72,7 +67,6 @@ class PaymentMonitor {
     leaveVendaRoom(vendaId) {
         if (this.socket && this.isConnected) {
             this.socket.emit('leave', `venda_${vendaId}`);
-            console.log(`📡 Saindo da sala da venda: ${vendaId}`);
         }
     }
 
@@ -98,7 +92,6 @@ class PaymentMonitor {
         this.updatePaymentInterface('cancelled', motivo);
         
         // Log para debug
-        console.log(`🚨 Venda ${publicId} cancelada:`, {
             motivo,
             tipoErro,
             timestamp
@@ -114,7 +107,6 @@ class PaymentMonitor {
         // Atualizar interface com novo status
         this.updatePaymentInterface(status, null);
         
-        console.log(`📊 Status da venda ${publicId} atualizado para: ${status}`);
     }
 
     /**
@@ -125,20 +117,17 @@ class PaymentMonitor {
         const spinner = document.getElementById('loadingSpinner');
         if (spinner) {
             spinner.style.display = 'none';
-            console.log('✅ Spinner de loading fechado automaticamente');
         }
         
         // Fechar spinner overlay
         const spinnerOverlay = document.querySelector('.spinner-overlay');
         if (spinnerOverlay) {
             spinnerOverlay.remove();
-            console.log('✅ Spinner overlay removido automaticamente');
         }
         
         // Chamar função hideLoadingSpinner se existir
         if (typeof hideLoadingSpinner === 'function') {
             hideLoadingSpinner();
-            console.log('✅ Função hideLoadingSpinner chamada');
         }
     }
 
@@ -150,14 +139,12 @@ class PaymentMonitor {
         if (window.statusCheckInterval) {
             clearInterval(window.statusCheckInterval);
             window.statusCheckInterval = null;
-            console.log('✅ Verificações de status paradas automaticamente');
         }
         
         // Parar timeouts de verificação
         if (window.statusCheckTimeout) {
             clearTimeout(window.statusCheckTimeout);
             window.statusCheckTimeout = null;
-            console.log('✅ Timeout de verificação cancelado automaticamente');
         }
     }
 
@@ -169,21 +156,18 @@ class PaymentMonitor {
         const processingModal = document.querySelector('.processing-modal');
         if (processingModal) {
             processingModal.remove();
-            console.log('✅ Modal de processamento fechado automaticamente');
         }
         
         // Fechar modal de transação
         const transactionModal = document.querySelector('.transaction-modal');
         if (transactionModal) {
             transactionModal.remove();
-            console.log('✅ Modal de transação fechado automaticamente');
         }
         
         // Fechar modal de checkout
         const checkoutModal = document.getElementById('checkoutModal');
         if (checkoutModal) {
             checkoutModal.style.display = 'none';
-            console.log('✅ Modal de checkout fechado automaticamente');
         }
         
         // Restaurar scroll da página
@@ -295,7 +279,6 @@ class PaymentMonitor {
     handleReconnection() {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
-            console.log(`🔄 Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
             
             setTimeout(() => {
                 this.connect();
@@ -310,7 +293,6 @@ class PaymentMonitor {
      * Callback quando conexão é estabelecida
      */
     onConnectionEstablished() {
-        console.log('✅ Conexão com servidor de pagamentos estabelecida');
         // Reentrar nas salas necessárias se houver
         this.rejoinRooms();
     }
@@ -319,7 +301,6 @@ class PaymentMonitor {
      * Callback quando conexão é perdida
      */
     onConnectionLost() {
-        console.log('⚠️ Conexão com servidor de pagamentos perdida');
         // Implementar lógica de fallback se necessário
     }
 

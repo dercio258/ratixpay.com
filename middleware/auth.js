@@ -4,6 +4,16 @@ const { Usuario } = require('../config/database');
 // Middleware para verificar token JWT
 const authenticateToken = async (req, res, next) => {
     try {
+        // PRIMEIRO: Verificar se é rota de afiliados ANTES de processar token
+        // Não processar rotas de afiliados - elas têm seu próprio middleware
+        // Usar originalUrl que contém o caminho completo antes do router processar
+        const fullPath = req.originalUrl || req.url || req.baseUrl + req.path || req.path || '';
+        if (fullPath.includes('/afiliados/') || fullPath.includes('/afiliados/auth/') || fullPath.startsWith('/afiliados') || fullPath.includes('/api/afiliados')) {
+            // Esta é uma rota de afiliado, não deve passar por aqui
+            // Não processar, deixar passar para o próximo middleware
+            return next();
+        }
+        
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -17,10 +27,47 @@ const authenticateToken = async (req, res, next) => {
             });
         }
         
+        // ANTES de decodificar, verificar se é token de afiliado pela estrutura
+        // Se for token de afiliado, deixar passar sem processar
+        try {
+            const jwtSecret = process.env.JWT_SECRET || 'ratixpay-secret-key-2024';
+            // Decodificar SEM verificar expiração primeiro para ver o tipo
+            const decodedUnverified = jwt.decode(token);
+            if (decodedUnverified && decodedUnverified.tipo === 'afiliado') {
+                // É token de afiliado, deixar passar
+                return next();
+            }
+        } catch (e) {
+            // Se não conseguir decodificar, continuar com verificação normal
+        }
+        
         console.log(`🔐 [AUTH] Verificando autenticação para: ${req.method} ${req.url}`);
 
         const jwtSecret = process.env.JWT_SECRET || 'ratixpay-secret-key-2024';
-        const decoded = jwt.verify(token, jwtSecret);
+        let decoded;
+        
+        try {
+            decoded = jwt.verify(token, jwtSecret);
+        } catch (error) {
+            // Se erro ao decodificar, pode ser token inválido ou expirado
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    success: false, 
+                    error: 'Token expirado. Faça login novamente.',
+                    code: 'TOKEN_EXPIRED'
+                });
+            }
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Token inválido' 
+            });
+        }
+        
+        // Se for token de afiliado, não processar aqui - deve usar authenticateAfiliado
+        if (decoded.tipo === 'afiliado') {
+            // Se chegou aqui mesmo sendo token de afiliado, deixar passar
+            return next();
+        }
         
         // Buscar usuário no banco
         const user = await Usuario.findByPk(decoded.id);
