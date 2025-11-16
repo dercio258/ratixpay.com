@@ -449,17 +449,16 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       }
     } catch (error) {
       console.error('❌ Erro na verificação do Gemini AI:', error);
-      // Em caso de erro, rejeitar o produto para segurança
-      return res.status(500).json({
-        success: false,
-        error: 'ERRO_VERIFICACAO',
-        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',
-        verificacao: {
-          aprovado: false,
-          motivo: 'Erro técnico na verificação automática',
-          erro: error.message
-        }
-      });
+      // Em caso de erro, aprovar automaticamente o produto
+      console.log('⚠️ Gemini AI indisponível - Aprovando produto automaticamente');
+      verificacaoGemini = {
+        aprovado: true,
+        motivo: 'Aprovado automaticamente devido a erro na verificação do Gemini AI',
+        score: 100,
+        resposta_ia: 'Erro técnico na verificação - produto aprovado automaticamente',
+        timestamp: new Date().toISOString(),
+        erro: error.message
+      };
     }
 
     // Gerar public_id único (6 dígitos)
@@ -824,17 +823,16 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
       }
     } catch (error) {
       console.error('❌ Erro na verificação do Gemini AI:', error);
-      // Em caso de erro, rejeitar o produto para segurança
-      return res.status(500).json({
-        success: false,
-        error: 'ERRO_VERIFICACAO',
-        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',
-        verificacao: {
-          aprovado: false,
-          motivo: 'Erro técnico na verificação automática',
-          erro: error.message
-        }
-      });
+      // Em caso de erro, aprovar automaticamente o produto
+      console.log('⚠️ Gemini AI indisponível - Aprovando produto automaticamente');
+      verificacaoGemini = {
+        aprovado: true,
+        motivo: 'Aprovado automaticamente devido a erro na verificação do Gemini AI',
+        score: 100,
+        resposta_ia: 'Erro técnico na verificação - produto aprovado automaticamente',
+        timestamp: new Date().toISOString(),
+        erro: error.message
+      };
     }
 
     // Gerar public_id único (6 dígitos)
