@@ -63,7 +63,7 @@
                     let orderValue = valor;
                     if (typeof orderData !== 'undefined' && orderData) {
                         orderValue = parseFloat(orderData.valor || orderData.pagamento?.valor || valor);
-                    }
+            }
                     
                     if (orderValue > 0 && pixelEvents.includes('Purchase')) {
                         fbq('track', 'Purchase', {
@@ -72,8 +72,8 @@
                             content_ids: [produto.id],
                             content_name: produto.nome
                         });
-                    }
-                }
+                        }
+            }
             
                 // Atualizar noscript
             const noscriptElement = document.getElementById('fb-pixel-noscript');

@@ -540,6 +540,8 @@ async function solicitarSaque(event) {
         // Dados do saque simplificado
         const saqueData = {
             carteiraId: carteiraId,
+            valor: valorSaque,
+            codigoAutenticacao: codigoAutenticacao
         };
         
         
