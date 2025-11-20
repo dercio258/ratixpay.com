@@ -519,21 +519,29 @@ async function solicitarSaque(event) {
         // Validações
         if (!carteiraId) {
             mostrarErro('Selecione uma carteira para o saque');
+            btnConfirmarSaqueEl.disabled = false;
+            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
             return;
         }
         
-        if (valorSaque < 1) {
+        if (isNaN(valorSaque) || valorSaque < 1) {
             mostrarErro('Valor mínimo para saque é MZN 1,00');
+            btnConfirmarSaqueEl.disabled = false;
+            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
             return;
         }
         
         if (valorSaque > receitaTotal) {
             mostrarErro('Valor do saque não pode ser maior que a receita disponível');
+            btnConfirmarSaqueEl.disabled = false;
+            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
             return;
         }
         
         if (!codigoAutenticacao || codigoAutenticacao.length !== 6) {
             mostrarErro('Digite o código de autenticação de 6 dígitos');
+            btnConfirmarSaqueEl.disabled = false;
+            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
             return;
         }
         
@@ -544,6 +552,7 @@ async function solicitarSaque(event) {
             codigoAutenticacao: codigoAutenticacao
         };
         
+        console.log('📤 Dados do saque a serem enviados:', saqueData);
         
         // Obter token de autenticação
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
@@ -551,6 +560,8 @@ async function solicitarSaque(event) {
         if (!token) {
             throw new Error('Usuário não autenticado. Faça login novamente.');
         }
+        
+        console.log('🔄 Enviando solicitação de saque...');
         
         // Enviar solicitação para o servidor (endpoint para saques com carteiras)
         const response = await fetch('/api/carteiras/saque/processar', {
@@ -563,11 +574,21 @@ async function solicitarSaque(event) {
             body: JSON.stringify(saqueData)
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Tentar ler a resposta JSON mesmo em caso de erro
+        let result;
+        try {
+            result = await response.json();
+        } catch (parseError) {
+            console.error('❌ Erro ao parsear resposta JSON:', parseError);
+            throw new Error(`Erro ao processar resposta do servidor (status: ${response.status})`);
         }
         
-        const result = await response.json();
+        if (!response.ok) {
+            // Extrair mensagem de erro detalhada da resposta
+            const errorMessage = result.message || result.error || `Erro no servidor (status: ${response.status})`;
+            console.error('❌ Erro na resposta da API:', errorMessage, result);
+            throw new Error(errorMessage);
+        }
         
         if (result.success) {
             // Fechar modal

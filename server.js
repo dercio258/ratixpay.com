@@ -92,9 +92,26 @@ app.use((req, res, next) => {
                           req.hostname === 'localhost' || 
                           req.hostname === '127.0.0.1';
     
+    // Arquivos que NUNCA devem ser cacheados
+    const noCacheFiles = ['pagamentos.html', 'pagamentos.js', 'gestao-vendas.html', 'gestao-vendas.js', 'login.html', 'register.html'];
+    if (noCacheFiles.some(file => req.path.includes(file))) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return next();
+    }
+    
+    // APIs de saque nunca devem ser cacheadas
+    if (req.path.includes('/api/saques') || req.path.includes('/api/carteiras/saque')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return next();
+    }
+    
     if (isDevelopment) {
         // Em desenvolvimento: no-cache para HTML, CSS e JS
-        if (req.path.match(/\.(html|css|js)$/) || req.path === '/sw.js') {
+        if (req.path.match(/\.(html|css|js)$/) || req.path === '/sw.js' || req.path === '/sw-pwa.js') {
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
@@ -114,7 +131,7 @@ app.use((req, res, next) => {
         res.setHeader('Cache-Control', 'public, max-age=31536000');
         res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
         res.setHeader('Vary', 'Accept-Encoding');
-    } else if (req.path === '/sw.js') {
+    } else if (req.path === '/sw.js' || req.path === '/sw-pwa.js') {
         // Service Worker nunca deve ser cacheado
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');

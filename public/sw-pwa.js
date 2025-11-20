@@ -1,13 +1,13 @@
 /**
  * RatixPay PWA Service Worker
- * Versão: 2.0.0
+ * Versão: 2.0.1
  * Funcionalidades: Cache strategies, offline support, push notifications, background sync
  */
 
-const CACHE_NAME = 'ratixpay-pwa-v2.0.0';
-const STATIC_CACHE = 'ratixpay-static-v2.0.0';
-const DYNAMIC_CACHE = 'ratixpay-dynamic-v2.0.0';
-const API_CACHE = 'ratixpay-api-v2.0.0';
+const CACHE_NAME = 'ratixpay-pwa-v2.0.1';
+const STATIC_CACHE = 'ratixpay-static-v2.0.1';
+const DYNAMIC_CACHE = 'ratixpay-dynamic-v2.0.1';
+const API_CACHE = 'ratixpay-api-v2.0.1';
 
 // Recursos estáticos para cache
 const STATIC_ASSETS = [
@@ -117,6 +117,7 @@ self.addEventListener('activate', (event) => {
                                 '/gestao-vendas.html',
                                 '/js/gestao-vendas.js',
                                 '/js/pagamentos.js',
+                                '/pagamentos.html',
                                 '/login.html',
                                 '/register.html'
                             ];
@@ -168,7 +169,7 @@ self.addEventListener('fetch', (event) => {
     }
     
     // PRIORIDADE: arquivos JavaScript específicos SEMPRE da rede (sem cache)
-    const noCacheJsFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    const noCacheJsFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
     const shouldBypassCache = noCacheJsFiles.some(file => url.pathname.includes(file));
     
     if (shouldBypassCache) {
@@ -206,6 +207,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // APIs de saque sempre da rede (sem cache)
+    const noCacheApiPatterns = ['/api/saques', '/api/carteiras/saque'];
+    const isSaqueApi = noCacheApiPatterns.some(pattern => url.pathname.includes(pattern));
+    
+    if (isSaqueApi) {
+        console.log('🚫 API de saque - bypass de cache:', request.url);
+        event.respondWith(networkOnly(request));
+        return;
+    }
+    
     // Estratégia baseada no tipo de recurso
     if (isStaticAsset(request)) {
         event.respondWith(cacheFirst(request, STATIC_CACHE));
@@ -223,7 +234,7 @@ async function cacheFirst(request, cacheName) {
     try {
         // NUNCA fazer cache de arquivos específicos
         const url = new URL(request.url);
-        const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+        const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
         if (noCacheFiles.some(file => url.pathname.includes(file))) {
             console.log('🚫 Bypass de cache no cacheFirst:', request.url);
             return await fetch(request, { cache: 'no-store' });
@@ -252,15 +263,24 @@ async function cacheFirst(request, cacheName) {
 // Estratégia Network First
 async function networkFirst(request, cacheName) {
     try {
+        const url = new URL(request.url);
+        
+        // NUNCA fazer cache de APIs de saque (POST, PUT, DELETE)
+        const noCacheApiPatterns = ['/api/saques', '/api/carteiras/saque'];
+        const isSaqueApi = noCacheApiPatterns.some(pattern => url.pathname.includes(pattern));
+        
+        if (isSaqueApi || request.method !== 'GET') {
+            console.log(`🔄 Requisição ${request.method} não será cacheada:`, request.url);
+            return await fetch(request);
+        }
+        
         const networkResponse = await fetch(request);
         
-        // Só fazer cache de requisições GET
+        // Só fazer cache de requisições GET bem-sucedidas
         if (networkResponse.ok && request.method === 'GET') {
             const cache = await caches.open(cacheName);
             cache.put(request, networkResponse.clone());
             console.log('🌐 Resposta da rede cacheada:', request.url);
-        } else if (request.method !== 'GET') {
-            console.log(`🔄 Requisição ${request.method} não será cacheada:`, request.url);
         }
         
         return networkResponse;
@@ -292,7 +312,7 @@ async function networkFirst(request, cacheName) {
 async function staleWhileRevalidate(request, cacheName) {
     // NUNCA fazer cache de arquivos específicos
     const url = new URL(request.url);
-    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
     if (noCacheFiles.some(file => url.pathname.includes(file))) {
         console.log('🚫 Bypass de cache no staleWhileRevalidate:', request.url);
         return await fetch(request, { cache: 'no-store' });
@@ -319,7 +339,7 @@ function isStaticAsset(request) {
     const url = new URL(request.url);
     
     // NUNCA considerar arquivos específicos como estáticos
-    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'login.html', 'register.html'];
+    const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
     if (noCacheFiles.some(file => url.pathname.includes(file))) {
         return false;
     }
@@ -335,8 +355,18 @@ function isStaticAsset(request) {
 // Verificar se é requisição da API
 function isApiRequest(request) {
     const url = new URL(request.url);
-    return url.pathname.startsWith('/api/') ||
-           url.hostname === 'localhost' && url.pathname.startsWith('/api/');
+    const isApi = url.pathname.startsWith('/api/') ||
+                  (url.hostname === 'localhost' && url.pathname.startsWith('/api/'));
+    
+    // APIs de saque nunca devem ser cacheadas
+    if (isApi) {
+        const noCacheApiPatterns = ['/api/saques', '/api/carteiras/saque'];
+        if (noCacheApiPatterns.some(pattern => url.pathname.includes(pattern))) {
+            return false; // Não tratar como API normal para evitar cache
+        }
+    }
+    
+    return isApi;
 }
 
 // Verificar se é requisição de imagem
@@ -352,6 +382,7 @@ function isNoCachePage(request) {
         '/checkout.html',
         '/payment-success.html',
         '/gestao-vendas.html', // Adicionado - não deve ser cacheado
+        '/pagamentos.html', // Adicionado - não deve ser cacheado
         '/login.html', // Adicionado - não deve ser cacheado
         '/register.html' // Adicionado - não deve ser cacheado
     ];
@@ -361,12 +392,13 @@ function isNoCachePage(request) {
         'checkout',
         'payment-success',
         'gestao-vendas', // Adicionado
+        'pagamentos', // Adicionado
         'login', // Adicionado
         'register' // Adicionado
     ];
     
     // Arquivos JavaScript que não devem ser cacheados
-    const noCacheJsFiles = ['gestao-vendas.js', 'pagamentos.js', 'login.html', 'register.html'];
+    const noCacheJsFiles = ['gestao-vendas.js', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
     
     return noCachePages.some(page => url.pathname === page) ||
            request.destination === 'document' && 
@@ -602,4 +634,4 @@ async function syncContent() {
     }
 }
 
-console.log('🎯 Service Worker carregado - RatixPay v2.0.0');
+console.log('🎯 Service Worker carregado - RatixPay v2.0.1');
