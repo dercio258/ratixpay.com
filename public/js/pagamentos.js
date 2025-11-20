@@ -563,30 +563,65 @@ async function solicitarSaque(event) {
         
         console.log('🔄 Enviando solicitação de saque...');
         
+        // Determinar URL da API (usar window.API_BASE se disponível, senão usar URL relativa)
+        let apiUrl;
+        if (window.API_BASE) {
+            // Garantir que o endpoint comece com / se necessário
+            const endpoint = '/carteiras/saque/processar';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras/saque/processar';
+        }
+        
+        console.log('📋 URL da API:', apiUrl);
+        console.log('📋 API_BASE:', window.API_BASE || 'não definido');
+        
         // Enviar solicitação para o servidor (endpoint para saques com carteiras)
-        const response = await fetch('/api/carteiras/saque/processar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(saqueData)
-        });
+        let response;
+        try {
+            response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(saqueData)
+            });
+        } catch (fetchError) {
+            console.error('❌ Erro na requisição fetch:', fetchError);
+            throw new Error('Erro de conexão com o servidor. Verifique sua internet.');
+        }
+        
+        console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
         
         // Tentar ler a resposta JSON mesmo em caso de erro
         let result;
         try {
-            result = await response.json();
+            const responseText = await response.text();
+            console.log('📄 Resposta do servidor (texto):', responseText);
+            
+            if (responseText) {
+                result = JSON.parse(responseText);
+                console.log('📊 Resposta do servidor (JSON):', result);
+            } else {
+                result = {};
+            }
         } catch (parseError) {
             console.error('❌ Erro ao parsear resposta JSON:', parseError);
+            console.error('❌ Resposta recebida:', response);
             throw new Error(`Erro ao processar resposta do servidor (status: ${response.status})`);
         }
         
         if (!response.ok) {
             // Extrair mensagem de erro detalhada da resposta
             const errorMessage = result.message || result.error || `Erro no servidor (status: ${response.status})`;
-            console.error('❌ Erro na resposta da API:', errorMessage, result);
+            console.error('❌ Erro na resposta da API:');
+            console.error('   - Status:', response.status);
+            console.error('   - Mensagem:', errorMessage);
+            console.error('   - Resposta completa:', result);
             throw new Error(errorMessage);
         }
         
@@ -1018,34 +1053,120 @@ async function criarCarteira() {
             return;
         }
 
+        // Coletar todos os campos obrigatórios
         const nomeCarteira = document.getElementById('nomeCarteira')?.value?.trim();
+        const metodoSaque = document.getElementById('metodoSaque')?.value?.trim();
+        const contacto = document.getElementById('contacto')?.value?.trim();
+        const nomeTitular = document.getElementById('nomeTitular')?.value?.trim();
+        const emailTitular = document.getElementById('emailTitular')?.value?.trim();
         
+        // Validações básicas
         if (!nomeCarteira) {
             mostrarErro('O nome da carteira é obrigatório');
             return;
         }
+        
+        if (!metodoSaque) {
+            mostrarErro('O método de saque é obrigatório');
+            return;
+        }
+        
+        if (!contacto) {
+            mostrarErro('O número de contacto é obrigatório');
+            return;
+        }
+        
+        if (!nomeTitular) {
+            mostrarErro('O nome do titular é obrigatório');
+            return;
+        }
+        
+        if (!emailTitular) {
+            mostrarErro('O email do titular é obrigatório');
+            return;
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailTitular)) {
+            mostrarErro('Por favor, insira um email válido');
+            return;
+        }
 
         const dados = {
-            nome: nomeCarteira
+            nome: nomeCarteira,
+            metodoSaque: metodoSaque,
+            contacto: contacto,
+            nomeTitular: nomeTitular,
+            emailTitular: emailTitular
         };
 
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        const response = await fetch('/api/carteiras', {
+        console.log('📤 Dados da carteira a serem enviados:', { ...dados, emailTitular: emailTitular.substring(0, 10) + '...' });
+
+        // Determinar URL da API
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras';
+        }
+
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado. Faça login novamente.');
+        }
+
+        console.log('🔄 Enviando solicitação para criar carteira...');
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(dados)
         });
 
-        if (response.ok) {
+        console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+
+        // Tentar ler a resposta JSON mesmo em caso de erro
+        let result;
+        try {
+            const responseText = await response.text();
+            console.log('📄 Resposta do servidor (texto):', responseText);
+            
+            if (responseText) {
+                result = JSON.parse(responseText);
+                console.log('📊 Resposta do servidor (JSON):', result);
+            } else {
+                result = {};
+            }
+        } catch (parseError) {
+            console.error('❌ Erro ao parsear resposta JSON:', parseError);
+            throw new Error(`Erro ao processar resposta do servidor (status: ${response.status})`);
+        }
+
+        if (!response.ok) {
+            // Extrair mensagem de erro detalhada da resposta
+            const errorMessage = result.message || result.error || `Erro no servidor (status: ${response.status})`;
+            console.error('❌ Erro na resposta da API:');
+            console.error('   - Status:', response.status);
+            console.error('   - Mensagem:', errorMessage);
+            console.error('   - Resposta completa:', result);
+            throw new Error(errorMessage);
+        }
+
+        if (result.success) {
             fecharModalNovaCarteira();
             mostrarSucesso('Carteira criada com sucesso!');
             carregarCarteirasConfig();
         } else {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao criar carteira');
+            throw new Error(result.message || 'Erro ao criar carteira');
         }
     } catch (error) {
         console.error('❌ Erro:', error);
