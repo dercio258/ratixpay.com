@@ -232,6 +232,12 @@ self.addEventListener('fetch', (event) => {
 // Estratégia Cache First
 async function cacheFirst(request, cacheName) {
     try {
+        // NUNCA fazer cache de requisições que não sejam GET
+        if (request.method !== 'GET') {
+            console.log('🚫 Requisição não-GET não será cacheada:', request.url);
+            return await fetch(request);
+        }
+        
         // NUNCA fazer cache de arquivos específicos
         const url = new URL(request.url);
         const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
@@ -249,7 +255,8 @@ async function cacheFirst(request, cacheName) {
         }
         
         const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
+        // Só fazer cache de requisições GET bem-sucedidas
+        if (networkResponse.ok && request.method === 'GET') {
             cache.put(request, networkResponse.clone());
         }
         
@@ -310,6 +317,12 @@ async function networkFirst(request, cacheName) {
 
 // Estratégia Stale While Revalidate
 async function staleWhileRevalidate(request, cacheName) {
+    // NUNCA fazer cache de requisições que não sejam GET
+    if (request.method !== 'GET') {
+        console.log('🚫 Requisição não-GET não será cacheada:', request.url);
+        return await fetch(request);
+    }
+    
     // NUNCA fazer cache de arquivos específicos
     const url = new URL(request.url);
     const noCacheFiles = ['gestao-vendas.js', 'gestao-vendas.html', 'pagamentos.js', 'pagamentos.html', 'login.html', 'register.html'];
@@ -322,7 +335,8 @@ async function staleWhileRevalidate(request, cacheName) {
     const cachedResponse = await cache.match(request);
     
     const fetchPromise = fetch(request).then((networkResponse) => {
-        if (networkResponse.ok) {
+        // Só fazer cache de requisições GET bem-sucedidas
+        if (networkResponse.ok && request.method === 'GET') {
             cache.put(request, networkResponse.clone());
         }
         return networkResponse;
@@ -620,10 +634,12 @@ async function syncContent() {
         
         for (const endpoint of endpoints) {
             try {
-                const response = await fetch(endpoint);
-                if (response.ok) {
+                // Criar request GET explícito para garantir que só fazemos cache de GET
+                const request = new Request(endpoint, { method: 'GET' });
+                const response = await fetch(request);
+                if (response.ok && request.method === 'GET') {
                     const cache = await caches.open(API_CACHE);
-                    await cache.put(endpoint, response.clone());
+                    await cache.put(request, response.clone());
                 }
             } catch (error) {
                 console.log('❌ Erro ao sincronizar:', endpoint, error);
