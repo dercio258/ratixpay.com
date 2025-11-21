@@ -21,7 +21,14 @@
 
         register: async function() {
             try {
-                this.registration = await navigator.serviceWorker.register('/sw.js', {
+                // Limpar todos os caches antes de registrar
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('🗑️ Todos os caches limpos antes de registrar SW');
+                }
+                
+                this.registration = await navigator.serviceWorker.register('/sw-pwa.js', {
                     updateViaCache: 'none' // Sempre verificar atualizações
                 });
 

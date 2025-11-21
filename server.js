@@ -104,13 +104,28 @@ app.use((req, res, next) => {
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
         res.setHeader('X-Content-Type-Options', 'nosniff');
+        
+        // Headers adicionais para garantir que não há cache
+        res.setHeader('Last-Modified', new Date().toUTCString());
+        res.setHeader('ETag', '');
     }
     
     // Service Workers sempre sem cache
-    if (req.path === '/sw.js' || req.path === '/sw-pwa.js') {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    if (req.path === '/sw.js' || req.path === '/sw-pwa.js' || req.path.includes('service-worker')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
+        res.setHeader('Last-Modified', new Date().toUTCString());
+        res.setHeader('ETag', '');
+    }
+    
+    // APIs sempre sem cache
+    if (req.path.startsWith('/api/')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Last-Modified', new Date().toUTCString());
+        res.setHeader('ETag', '');
     }
     
     next();

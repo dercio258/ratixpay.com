@@ -1,34 +1,48 @@
 /**
  * RatixPay PWA Service Worker
- * Versão: 2.0.3
+ * Versão: 2.0.5
  * Funcionalidades: Apenas Push notifications (CACHE E OFFLINE DESABILITADOS)
  * 
  * IMPORTANTE: Este service worker NÃO intercepta requisições para garantir
  * que todos os dados sejam sempre carregados em tempo real da rede.
+ * 
+ * ATUALIZAÇÃO: Versão 2.0.5 - Força limpeza completa de todos os caches antigos
  */
 
-const CACHE_NAME = 'ratixpay-pwa-v2.0.4';
+const CACHE_NAME = 'ratixpay-pwa-v2.0.5';
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
-    console.log('🔧 Service Worker instalando (modo offline desabilitado)...');
+    console.log('🔧 Service Worker v2.0.5 instalando (modo offline desabilitado)...');
     
     event.waitUntil(
-        Promise.resolve().then(() => {
-            console.log('✅ Service Worker instalado (sem cache, sem offline)');
-            return self.skipWaiting();
+        Promise.all([
+            // Limpar TODOS os caches existentes antes de instalar
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.map((cacheName) => {
+                        console.log('🗑️ Removendo cache antigo durante instalação:', cacheName);
+                        return caches.delete(cacheName);
+                    })
+                );
+            }),
+            // Pular espera e ativar imediatamente
+            self.skipWaiting()
+        ]).then(() => {
+            console.log('✅ Service Worker v2.0.5 instalado (sem cache, sem offline)');
         })
     );
 });
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('🚀 Service Worker ativando (removendo todos os caches)...');
+    console.log('🚀 Service Worker v2.0.5 ativando (removendo TODOS os caches antigos)...');
     
     event.waitUntil(
         Promise.all([
-            // Limpar TODOS os caches
+            // Limpar TODOS os caches (incluindo caches de outros service workers)
             caches.keys().then((cacheNames) => {
+                console.log('🗑️ Encontrados', cacheNames.length, 'caches para remover');
                 return Promise.all(
                     cacheNames.map((cacheName) => {
                         console.log('🗑️ Removendo cache:', cacheName);
@@ -36,18 +50,27 @@ self.addEventListener('activate', (event) => {
                     })
                 );
             }),
-            // Tomar controle de todas as páginas
+            // Tomar controle de todas as páginas imediatamente
             self.clients.claim()
         ]).then(() => {
-            console.log('✅ Service Worker ativado - Cache e modo offline desabilitados');
+            console.log('✅ Service Worker v2.0.5 ativado - TODOS os caches removidos');
             
-            // Notificar clientes sobre atualização
-            self.clients.matchAll().then((clients) => {
+            // Notificar TODOS os clientes sobre atualização e forçar reload
+            self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
                 clients.forEach((client) => {
                     client.postMessage({
                         type: 'SW_ACTIVATED',
-                        message: 'Service Worker atualizado - Modo offline desabilitado'
+                        version: '2.0.5',
+                        message: 'Service Worker atualizado - Cache completamente desabilitado',
+                        forceReload: true
                     });
+                    
+                    // Forçar reload se o cliente não responder
+                    setTimeout(() => {
+                        if (client && 'navigate' in client) {
+                            client.navigate(client.url);
+                        }
+                    }, 1000);
                 });
             });
         })
@@ -60,6 +83,12 @@ self.addEventListener('fetch', (event) => {
     // NÃO fazer nada - deixar todas as requisições passarem direto para a rede
     // Isso garante que não há cache e todos os dados são sempre atualizados
     // Não chamar event.respondWith() faz com que o navegador busque diretamente da rede
+    
+    // Log para debug (pode ser removido em produção)
+    if (event.request.url.includes('/api/')) {
+        console.log('🌐 Requisição API passando direto para rede (sem cache):', event.request.url);
+    }
+    
     return;
 });
 
@@ -175,4 +204,4 @@ self.addEventListener('periodicsync', (event) => {
     }
 });
 
-console.log('🎯 Service Worker carregado - RatixPay v2.0.4 (Cache e Offline Desabilitados)');
+console.log('🎯 Service Worker carregado - RatixPay v2.0.5 (Cache e Offline Completamente Desabilitados)');
