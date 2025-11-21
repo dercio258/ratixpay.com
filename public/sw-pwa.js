@@ -7,7 +7,7 @@
  * que todos os dados sejam sempre carregados em tempo real da rede.
  */
 
-const CACHE_NAME = 'ratixpay-pwa-v2.0.3';
+const CACHE_NAME = 'ratixpay-pwa-v2.0.4';
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
@@ -59,6 +59,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     // NÃO fazer nada - deixar todas as requisições passarem direto para a rede
     // Isso garante que não há cache e todos os dados são sempre atualizados
+    // Não chamar event.respondWith() faz com que o navegador busque diretamente da rede
     return;
 });
 
@@ -174,4 +175,4 @@ self.addEventListener('periodicsync', (event) => {
     }
 });
 
-console.log('🎯 Service Worker carregado - RatixPay v2.0.3 (Cache e Offline Desabilitados)');
+console.log('🎯 Service Worker carregado - RatixPay v2.0.4 (Cache e Offline Desabilitados)');

@@ -1559,7 +1559,18 @@
     <!-- Modais removidos - agora usando campos interativos -->
 
     <!-- Socket.IO para atualizações em tempo real -->
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Fallback para Socket.IO local se CDN falhar
+        if (typeof io === 'undefined') {
+            const script = document.createElement('script');
+            script.src = '/socket.io/socket.io.js';
+            script.onerror = function() {
+                console.error('❌ Não foi possível carregar Socket.IO');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     <script src="js/server-check.js"></script>
     <script src="js/config.js"></script>
     <script src="js/login.js"></script>
@@ -1568,13 +1579,36 @@
     <script src="js/pagamentos.js"></script>
     
     <script>
+        // Garantir que toggleNovaCarteira esteja no escopo global
+        window.toggleNovaCarteira = window.toggleNovaCarteira || function() {
+            const form = document.getElementById('novaCarteiraForm');
+            const btn = document.getElementById('btnToggleNovaCarteira');
+            if (form && btn) {
+                if (form.style.display === 'none' || !form.style.display) {
+                    form.style.display = 'block';
+                    btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+                    btn.style.background = '#dc3545';
+                } else {
+                    form.style.display = 'none';
+                    btn.innerHTML = '<i class="fas fa-plus"></i><span>Nova Carteira</span>';
+                    btn.style.background = '#28a745';
+                    const formElement = document.getElementById('formNovaCarteiraInline');
+                    if (formElement) formElement.reset();
+                }
+            }
+        };
+        
         // Inicializar sidebar com seção ativa
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = new SidebarComponent();
             sidebar.init('pagamentos');
             
             // Inicializar WebSocket para atualizações de saques em tempo real
-            initSaqueWebSocket();
+            if (typeof initSaqueWebSocket === 'function') {
+                initSaqueWebSocket();
+            } else {
+                console.warn('⚠️ initSaqueWebSocket não encontrada');
+            }
             
             // Garantir que a primeira tab esteja ativa por padrão
             if (typeof mostrarTab === 'function') {

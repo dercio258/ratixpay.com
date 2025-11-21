@@ -3,7 +3,7 @@
 
 // Elementos do DOM
 const receitaTotalEl = document.getElementById('receitaTotal');
-const btnSaqueEl = document.getElementById('btnSaque');
+// btnSaqueEl removido - elemento não existe mais (modais removidos)
 const saqueAtualEl = document.getElementById('saqueAtual');
 const saqueDetailsEl = document.getElementById('saqueDetails');
 const historicoSaquesEl = document.getElementById('historicoSaques');
