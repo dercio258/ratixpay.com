@@ -7,9 +7,10 @@ const btnSaqueEl = document.getElementById('btnSaque');
 const saqueAtualEl = document.getElementById('saqueAtual');
 const saqueDetailsEl = document.getElementById('saqueDetails');
 const historicoSaquesEl = document.getElementById('historicoSaques');
-const modalSaqueEl = document.getElementById('modalSaque');
-const formSaqueEl = document.getElementById('formSaque');
-const valorSaqueEl = document.getElementById('valorSaque');
+// Elementos antigos de modal removidos - agora usando campos inline
+// const modalSaqueEl = document.getElementById('modalSaque'); // Removido
+// const formSaqueEl = document.getElementById('formSaque'); // Removido
+// const valorSaqueEl = document.getElementById('valorSaque'); // Removido
 const nomeTitularEl = document.getElementById('nomeTitular');
 const telefoneTitularEl = document.getElementById('telefoneTitular');
 const metodoSaqueEl = document.getElementById('metodoSaque');
@@ -112,9 +113,10 @@ async function atualizarReceitaEmTempoReal() {
                 atualizarBotaoSaque();
             } else {
                 // Implementação inline se a função não existir
-                if (btnSaqueEl) {
-                    btnSaqueEl.disabled = receitaTotal < 1;
-                    btnSaqueEl.textContent = receitaTotal < 1 ? 'Saldo Insuficiente' : 'Solicitar Saque';
+                const btnSaque = document.getElementById('btnSaque');
+                if (btnSaque) {
+                    btnSaque.disabled = receitaTotal < 1;
+                    btnSaque.textContent = receitaTotal < 1 ? 'Saldo Insuficiente' : 'Solicitar Saque';
                 }
             }
         }
@@ -171,14 +173,22 @@ async function loadReceitaTotal() {
             throw new Error('Dados de receita não disponíveis');
         }
         
-        // Habilitar/desabilitar botão de saque
-        btnSaqueEl.disabled = receitaTotal < 1;
+        // Habilitar/desabilitar botão de saque (se existir)
+        const btnSaque = document.getElementById('btnSaque');
+        if (btnSaque) {
+            btnSaque.disabled = receitaTotal < 1;
+        }
         
         
     } catch (error) {
         console.error('❌ Erro ao carregar receita total:', error);
-        receitaTotalEl.textContent = 'MZN 0,00';
-        btnSaqueEl.disabled = true;
+        if (receitaTotalEl) {
+            receitaTotalEl.textContent = 'MZN 0,00';
+        }
+        const btnSaque = document.getElementById('btnSaque');
+        if (btnSaque) {
+            btnSaque.disabled = true;
+        }
     }
 }
 
@@ -474,74 +484,113 @@ function renderHistoricoSaques(saques) {
 
 // Funções de confirmação de pagamento removidas - sistema agora processa saques automaticamente
 
-// Função para abrir modal de saque
+// Função para abrir modal de saque (redireciona para tab)
 function abrirModalSaque() {
+    // Redirecionar para tab de saque
+    mostrarTab('saque');
+    
     // Validar se há receita suficiente
     if (receitaTotal < 1) {
-        alert('Receita insuficiente para solicitar saque. Valor mínimo: MZN 1,00');
+        mostrarErro('Receita insuficiente para solicitar saque. Valor mínimo: MZN 1,00');
         return;
     }
     
-    // Limpar formulário
-    formSaqueEl.reset();
+    // Limpar e configurar formulário inline
+    const formInline = document.getElementById('formSaqueInline');
+    const valorSaqueInline = document.getElementById('valorSaqueInline');
     
-    // Definir valor máximo
-    valorSaqueEl.max = receitaTotal;
-    valorSaqueEl.placeholder = `Máximo: ${formatCurrency(receitaTotal)}`;
+    if (formInline) {
+        formInline.reset();
+    }
     
-    // Mostrar modal
-    modalSaqueEl.style.display = 'block';
-    
-    // Focar no primeiro campo
-    valorSaqueEl.focus();
+    if (valorSaqueInline) {
+        valorSaqueInline.max = receitaTotal;
+        valorSaqueInline.placeholder = `Máximo: ${formatCurrency(receitaTotal)}`;
+        setTimeout(() => valorSaqueInline.focus(), 100);
+    }
 }
 
-// Função para fechar modal de saque
+// Função para fechar modal de saque (mantida para compatibilidade)
 function fecharModalSaque() {
-    modalSaqueEl.style.display = 'none';
-    formSaqueEl.reset();
+    // Limpar formulário inline se existir
+    const formInline = document.getElementById('formSaqueInline');
+    if (formInline) {
+        formInline.reset();
+        const infoDiv = document.getElementById('carteiraInfoInline');
+        if (infoDiv) {
+            infoDiv.style.display = 'none';
+        }
+    }
 }
 
-// Função para solicitar saque
+// Função para solicitar saque (usa campos inline)
 async function solicitarSaque(event) {
     event.preventDefault();
     
+    // Usar função inline se disponível
+    const formInline = document.getElementById('formSaqueInline');
+    if (formInline && event.target === formInline || event.target.closest('#formSaqueInline')) {
+        return solicitarSaqueInline(event);
+    }
+    
+    // Fallback para função antiga (compatibilidade)
     try {
+        // Obter elementos (tentar inline primeiro, depois antigo)
+        const carteiraSelect = document.getElementById('carteiraSaqueInline') || document.getElementById('carteiraSaque');
+        const valorInput = document.getElementById('valorSaqueInline') || document.getElementById('valorSaque');
+        const codigoInput = document.getElementById('codigoAutenticacaoInline') || document.getElementById('codigoAutenticacao');
+        const btnConfirmar = document.getElementById('btnConfirmarSaqueInline') || document.getElementById('btnConfirmarSaque');
+        
+        if (!carteiraSelect || !valorInput || !codigoInput) {
+            // Se não encontrar elementos, usar função inline
+            return solicitarSaqueInline(event);
+        }
+        
         // Desabilitar botão durante processamento
-        btnConfirmarSaqueEl.disabled = true;
-        btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+        if (btnConfirmar) {
+            btnConfirmar.disabled = true;
+            btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+        }
         
         // Obter dados do formulário
-        const carteiraId = document.getElementById('carteiraSaque').value;
-        const valorSaque = parseFloat(valorSaqueEl.value);
-        const codigoAutenticacao = document.getElementById('codigoAutenticacao').value;
+        const carteiraId = carteiraSelect.value;
+        const valorSaque = parseFloat(valorInput.value || 0);
+        const codigoAutenticacao = codigoInput.value || '';
         
         // Validações
         if (!carteiraId) {
             mostrarErro('Selecione uma carteira para o saque');
-            btnConfirmarSaqueEl.disabled = false;
-            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            if (btnConfirmar) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            }
             return;
         }
         
         if (isNaN(valorSaque) || valorSaque < 1) {
             mostrarErro('Valor mínimo para saque é MZN 1,00');
-            btnConfirmarSaqueEl.disabled = false;
-            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            if (btnConfirmar) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            }
             return;
         }
         
         if (valorSaque > receitaTotal) {
             mostrarErro('Valor do saque não pode ser maior que a receita disponível');
-            btnConfirmarSaqueEl.disabled = false;
-            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            if (btnConfirmar) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            }
             return;
         }
         
         if (!codigoAutenticacao || codigoAutenticacao.length !== 6) {
             mostrarErro('Digite o código de autenticação de 6 dígitos');
-            btnConfirmarSaqueEl.disabled = false;
-            btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            if (btnConfirmar) {
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            }
             return;
         }
         
@@ -627,7 +676,12 @@ async function solicitarSaque(event) {
         
         if (result.success) {
             // Fechar modal
-            fecharModalSaque();
+            // Limpar formulário inline
+            const formInline = document.getElementById('formSaqueInline');
+            if (formInline) {
+                formInline.reset();
+                document.getElementById('carteiraInfoInline').style.display = 'none';
+            }
             
             // Mostrar sucesso
             const saque = result.saque;
@@ -655,8 +709,11 @@ async function solicitarSaque(event) {
         
     } finally {
         // Reabilitar botão
-        btnConfirmarSaqueEl.disabled = false;
-        btnConfirmarSaqueEl.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+        const btnConfirmar = document.getElementById('btnConfirmarSaqueInline') || document.getElementById('btnConfirmarSaque');
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+        }
     }
 }
 
@@ -672,7 +729,8 @@ async function initializePage() {
             loadReceitaTotal(),
             loadSaqueAtual(), // Apenas oculta a seção
             loadHistoricoSaques(),
-            carregarCarteirasConfig() // Carregar carteiras para o modal de saque
+            carregarCarteirasInline(), // Carregar carteiras na seção inline
+            carregarCarteirasSelectInline() // Carregar carteiras no select de saque
             // verificarStatusSaque removido - não há mais saques pendentes
         ]);
         
@@ -682,10 +740,6 @@ async function initializePage() {
     
     // Adicionar event listeners
     document.addEventListener('click', function(event) {
-        if (event.target === modalSaqueEl) {
-            fecharModalSaque();
-        }
-        
         // Botão de atualizar dados
         if (event.target.closest('#btnAtualizarDados')) {
             event.preventDefault();
@@ -693,17 +747,31 @@ async function initializePage() {
         }
     });
     
-            // Validar valor do saque em tempo real
-        valorSaqueEl.addEventListener('input', function() {
+    // Validar valor do saque em tempo real (inline)
+    const valorSaqueInlineEl = document.getElementById('valorSaqueInline');
+    if (valorSaqueInlineEl) {
+        // Garantir que o min está correto
+        valorSaqueInlineEl.setAttribute('min', '1');
+        
+        valorSaqueInlineEl.addEventListener('input', function() {
             const valor = parseFloat(this.value);
-            if (valor > receitaTotal) {
+            if (isNaN(valor) || valor < 1) {
+                this.setCustomValidity('O valor mínimo para saque é MZN 1,00');
+            } else if (valor > receitaTotal) {
                 this.setCustomValidity(`Valor máximo permitido: ${formatCurrency(receitaTotal)}`);
-            } else if (valor < 1) {
-                this.setCustomValidity('Valor mínimo: MZN 1,00');
             } else {
                 this.setCustomValidity('');
             }
         });
+        
+        // Validar também no evento invalid
+        valorSaqueInlineEl.addEventListener('invalid', function() {
+            const valor = parseFloat(this.value);
+            if (isNaN(valor) || valor < 1) {
+                this.setCustomValidity('O valor mínimo para saque é MZN 1,00');
+            }
+        });
+    }
     
 }
 
@@ -821,21 +889,22 @@ async function atualizarDadosManualmente() {
 
 // Função para atualizar botão de saque baseado na receita disponível
 function atualizarBotaoSaque() {
-    if (btnSaqueEl) {
+    const btnSaque = document.getElementById('btnSaque');
+    if (btnSaque) {
         // Desabilitar botão se receita for menor que 1
-        btnSaqueEl.disabled = receitaTotal < 1;
+        btnSaque.disabled = receitaTotal < 1;
         
         // Atualizar texto do botão
         if (receitaTotal < 1) {
-            btnSaqueEl.textContent = 'Receita Insuficiente';
-            btnSaqueEl.className = 'btn btn-secondary';
+            btnSaque.textContent = 'Receita Insuficiente';
+            btnSaque.className = 'btn btn-secondary';
         } else {
-            btnSaqueEl.textContent = 'Solicitar Saque';
-            btnSaqueEl.className = 'btn btn-primary';
+            btnSaque.textContent = 'Solicitar Saque';
+            btnSaque.className = 'btn btn-primary';
         }
         
         // Atualizar tooltip
-        btnSaqueEl.title = receitaTotal < 1 
+        btnSaque.title = receitaTotal < 1 
             ? 'Receita insuficiente para solicitar saque' 
             : `Solicitar saque (Receita disponível: ${formatCurrency(receitaTotal)})`;
     }
@@ -856,6 +925,8 @@ let carteiraAtual = null;
 
 // Função para abrir modal de configurações
 function abrirModalConfiguracoes() {
+    // Redirecionar para tab de carteiras
+    mostrarTab('carteiras');
     const modal = document.getElementById('modalConfiguracoes');
     if (modal) {
         modal.style.display = 'block';
@@ -900,49 +971,17 @@ function fecharModalCodigo() {
     }
 }
 
-// Função para carregar carteiras na configuração
+// Função para carregar carteiras na configuração (mantida para compatibilidade)
 async function carregarCarteirasConfig() {
-    try {
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        
-        if (!token) {
-            throw new Error('Token não encontrado');
-        }
-
-        const response = await fetch('/api/carteiras', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        
-        if (response.ok) {
-            const data = await response.json();
-            carteiras = data.carteiras || [];
-            renderizarCarteirasConfig();
-            carregarCarteirasSelect();
-        } else {
-            const errorData = await response.json();
-            throw new Error('Erro ao carregar carteiras');
-        }
-    } catch (error) {
-        console.error('❌ Erro ao carregar carteiras:', error);
-        const container = document.getElementById('lista-carteiras-config');
-        if (container) {
-            container.innerHTML = `
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Erro ao carregar carteiras: ${error.message}
-                </div>
-            `;
-        }
-    }
+    // Redirecionar para funções inline
+    await carregarCarteirasInline();
+    await carregarCarteirasSelectInline();
 }
 
-// Função para renderizar carteiras na configuração
+// Função para renderizar carteiras na configuração (mantida para compatibilidade)
 function renderizarCarteirasConfig() {
-    const container = document.getElementById('lista-carteiras-config');
-    if (!container) return;
+    // Usar função inline
+    carregarCarteirasInline();
 
     if (carteiras.length === 0) {
         container.innerHTML = `
@@ -981,56 +1020,43 @@ function renderizarCarteirasConfig() {
     `).join('');
 }
 
-// Função para carregar carteiras no select do modal de saque
+// Função para carregar carteiras no select (mantida para compatibilidade)
 function carregarCarteirasSelect() {
-    const select = document.getElementById('carteiraSaque');
-    
-    if (!select) return;
-
-    
-    if (carteiras.length === 0) {
-        select.innerHTML = '<option value="">Nenhuma carteira configurada</option>';
-        select.disabled = true;
-        return;
-    }
-
-    
-    select.disabled = false;
-    select.innerHTML = '<option value="">Selecione uma carteira...</option>' +
-        carteiras.map(carteira => 
-            `<option value="${carteira.id}">${carteira.nome} (${carteira.metodo_saque})</option>`
-        ).join('');
-
-    // Adicionar evento de mudança para mostrar detalhes da carteira
-    select.addEventListener('change', function() {
-        mostrarDetalhesCarteira(this.value);
-    });
+    // Usar função inline
+    carregarCarteirasSelectInline();
 }
 
-// Função para mostrar detalhes da carteira selecionada
+// Função para mostrar detalhes da carteira selecionada (compatibilidade)
 function mostrarDetalhesCarteira(carteiraId) {
+    // Tentar usar função inline primeiro
+    const carteirasList = carteiras.length > 0 ? carteiras : [];
+    mostrarDetalhesCarteiraInline(carteiraId, carteirasList);
+    
+    // Fallback para elementos antigos se existirem
     const infoDiv = document.getElementById('carteiraInfo');
     const detalhesDiv = document.getElementById('carteiraDetalhes');
     
-    if (!carteiraId || !infoDiv || !detalhesDiv) {
-        if (infoDiv) infoDiv.style.display = 'none';
-        return;
-    }
+    if (infoDiv && detalhesDiv) {
+        if (!carteiraId) {
+            infoDiv.style.display = 'none';
+            return;
+        }
 
-    const carteira = carteiras.find(c => c.id === carteiraId);
-    if (!carteira) {
-        infoDiv.style.display = 'none';
-        return;
-    }
+        const carteira = carteiras.find(c => c.id == carteiraId);
+        if (!carteira) {
+            infoDiv.style.display = 'none';
+            return;
+        }
 
-    detalhesDiv.innerHTML = `
-        <p><strong>Titular:</strong> ${carteira.nome_titular}</p>
-        <p><strong>Contacto:</strong> ${carteira.contacto}</p>
-        <p><strong>Método:</strong> ${carteira.metodo_saque}</p>
-        <p><strong>Email:</strong> ${carteira.email_titular}</p>
-    `;
-    
-    infoDiv.style.display = 'block';
+        detalhesDiv.innerHTML = `
+            <p><strong>Titular:</strong> ${carteira.nome_titular || carteira.nomeTitular}</p>
+            <p><strong>Contacto:</strong> ${carteira.contacto}</p>
+            <p><strong>Método:</strong> ${carteira.metodo_saque || carteira.metodoSaque}</p>
+            <p><strong>Email:</strong> ${carteira.email_titular || carteira.emailTitular}</p>
+        `;
+        
+        infoDiv.style.display = 'block';
+    }
 }
 
 // Função para obter ícone do método de pagamento
@@ -1164,7 +1190,8 @@ async function criarCarteira() {
         if (result.success) {
             fecharModalNovaCarteira();
             mostrarSucesso('Carteira criada com sucesso!');
-            carregarCarteirasConfig();
+            carregarCarteirasInline();
+            carregarCarteirasSelectInline();
         } else {
             throw new Error(result.message || 'Erro ao criar carteira');
         }
@@ -1188,6 +1215,516 @@ async function criarCarteira() {
     }
 }
 
+// ==================== FUNÇÕES PARA CAMPOS INTERATIVOS ====================
+
+// Função para alternar entre tabs
+function mostrarTab(tabName) {
+    // Esconder todos os conteúdos
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remover active de todos os botões
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Mostrar conteúdo selecionado
+    const content = document.getElementById(`content${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    const btn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    
+    if (content) {
+        content.classList.add('active');
+    }
+    if (btn) {
+        btn.classList.add('active');
+    }
+    
+    // Se for a tab de carteiras, carregar carteiras
+    if (tabName === 'carteiras') {
+        carregarCarteirasInline();
+    }
+    
+    // Se for a tab de saque, carregar carteiras no select
+    if (tabName === 'saque') {
+        carregarCarteirasSelectInline();
+    }
+}
+
+// Função para toggle do formulário de nova carteira
+function toggleNovaCarteira() {
+    const form = document.getElementById('novaCarteiraForm');
+    const btn = document.getElementById('btnToggleNovaCarteira');
+    
+    if (form.style.display === 'none' || !form.style.display) {
+        form.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+        btn.style.background = '#dc3545';
+    } else {
+        form.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-plus"></i><span>Nova Carteira</span>';
+        btn.style.background = '#28a745';
+        // Limpar formulário
+        document.getElementById('formNovaCarteiraInline').reset();
+    }
+}
+
+// Função para carregar carteiras na lista inline
+async function carregarCarteirasInline() {
+    const listaEl = document.getElementById('listaCarteirasInline');
+    
+    if (!listaEl) return;
+    
+    try {
+        listaEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Carregando carteiras...</p></div>';
+        
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado');
+        }
+        
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras';
+        }
+        
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erro ao carregar carteiras');
+        }
+        
+        const result = await response.json();
+        carteiras = result.carteiras || result.data || [];
+        
+        if (carteiras.length === 0) {
+            listaEl.innerHTML = '<div class="info-box"><i class="fas fa-info-circle"></i><div><p>Nenhuma carteira configurada. Clique em "Nova Carteira" para adicionar uma.</p></div></div>';
+            return;
+        }
+        
+        listaEl.innerHTML = carteiras.map(carteira => `
+            <div class="carteira-item">
+                <div class="carteira-info-item">
+                    <h5>${carteira.nome}</h5>
+                    <p><i class="fas fa-mobile-alt"></i> ${carteira.metodo_saque || carteira.metodoSaque}</p>
+                    <p><i class="fas fa-phone"></i> ${carteira.contacto}</p>
+                    <p><i class="fas fa-user"></i> ${carteira.nome_titular || carteira.nomeTitular}</p>
+                    <p><i class="fas fa-envelope"></i> ${carteira.email_titular || carteira.emailTitular}</p>
+                </div>
+                <div class="carteira-actions">
+                    <button class="btn-delete" onclick="desativarCarteira(${carteira.id})" title="Desativar carteira">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar carteiras:', error);
+        listaEl.innerHTML = `<div class="info-box"><i class="fas fa-exclamation-triangle"></i><div><p>Erro ao carregar carteiras: ${error.message}</p></div></div>`;
+    }
+}
+
+// Função para carregar carteiras no select inline
+async function carregarCarteirasSelectInline() {
+    const select = document.getElementById('carteiraSaqueInline');
+    
+    if (!select) return;
+    
+    try {
+        select.innerHTML = '<option value="">Carregando carteiras...</option>';
+        
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado');
+        }
+        
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras';
+        }
+        
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erro ao carregar carteiras');
+        }
+        
+        const result = await response.json();
+        const carteirasList = result.carteiras || result.data || [];
+        
+        if (carteirasList.length === 0) {
+            select.innerHTML = '<option value="">Nenhuma carteira configurada</option>';
+            select.disabled = true;
+            return;
+        }
+        
+        select.disabled = false;
+        select.innerHTML = '<option value="">Selecione uma carteira...</option>' +
+            carteirasList.map(carteira => 
+                `<option value="${carteira.id}">${carteira.nome} (${carteira.metodo_saque || carteira.metodoSaque})</option>`
+            ).join('');
+        
+        // Adicionar evento de mudança
+        select.addEventListener('change', function() {
+            mostrarDetalhesCarteiraInline(this.value, carteirasList);
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar carteiras:', error);
+        select.innerHTML = '<option value="">Erro ao carregar carteiras</option>';
+    }
+}
+
+// Função para mostrar detalhes da carteira inline
+function mostrarDetalhesCarteiraInline(carteiraId, carteirasList) {
+    const infoDiv = document.getElementById('carteiraInfoInline');
+    const detalhesDiv = document.getElementById('carteiraDetalhesInline');
+    
+    if (!carteiraId || !infoDiv || !detalhesDiv) {
+        if (infoDiv) infoDiv.style.display = 'none';
+        return;
+    }
+    
+    const carteira = carteirasList.find(c => c.id == carteiraId);
+    if (!carteira) {
+        infoDiv.style.display = 'none';
+        return;
+    }
+    
+    detalhesDiv.innerHTML = `
+        <p><strong>Titular:</strong> ${carteira.nome_titular || carteira.nomeTitular}</p>
+        <p><strong>Contacto:</strong> ${carteira.contacto}</p>
+        <p><strong>Método:</strong> ${carteira.metodo_saque || carteira.metodoSaque}</p>
+        <p><strong>Email:</strong> ${carteira.email_titular || carteira.emailTitular}</p>
+    `;
+    
+    infoDiv.style.display = 'block';
+}
+
+// Função para criar carteira inline
+async function criarCarteiraInline() {
+    try {
+        const form = document.getElementById('formNovaCarteiraInline');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Coletar todos os campos obrigatórios
+        const nomeCarteira = document.getElementById('nomeCarteiraInline')?.value?.trim();
+        const metodoSaque = document.getElementById('metodoSaqueInline')?.value?.trim();
+        const contacto = document.getElementById('contactoInline')?.value?.trim();
+        const nomeTitular = document.getElementById('nomeTitularInline')?.value?.trim();
+        const emailTitular = document.getElementById('emailTitularInline')?.value?.trim();
+        
+        // Validações básicas
+        if (!nomeCarteira || !metodoSaque || !contacto || !nomeTitular || !emailTitular) {
+            mostrarErro('Todos os campos são obrigatórios');
+            return;
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailTitular)) {
+            mostrarErro('Por favor, insira um email válido');
+            return;
+        }
+
+        const dados = {
+            nome: nomeCarteira,
+            metodoSaque: metodoSaque,
+            contacto: contacto,
+            nomeTitular: nomeTitular,
+            emailTitular: emailTitular
+        };
+
+        console.log('📤 Dados da carteira a serem enviados:', { ...dados, emailTitular: emailTitular.substring(0, 10) + '...' });
+
+        // Determinar URL da API
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras';
+        }
+
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado. Faça login novamente.');
+        }
+
+        console.log('🔄 Enviando solicitação para criar carteira...');
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(dados)
+        });
+
+        console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+
+        // Tentar ler a resposta JSON mesmo em caso de erro
+        let result;
+        try {
+            const responseText = await response.text();
+            console.log('📄 Resposta do servidor (texto):', responseText);
+            
+            if (responseText) {
+                result = JSON.parse(responseText);
+                console.log('📊 Resposta do servidor (JSON):', result);
+            } else {
+                result = {};
+            }
+        } catch (parseError) {
+            console.error('❌ Erro ao parsear resposta JSON:', parseError);
+            throw new Error(`Erro ao processar resposta do servidor (status: ${response.status})`);
+        }
+
+        if (!response.ok) {
+            const errorMessage = result.message || result.error || `Erro no servidor (status: ${response.status})`;
+            console.error('❌ Erro na resposta da API:', errorMessage, result);
+            throw new Error(errorMessage);
+        }
+
+        if (result.success) {
+            mostrarSucesso('Carteira criada com sucesso!');
+            form.reset();
+            toggleNovaCarteira();
+            carregarCarteirasInline();
+            carregarCarteirasSelectInline();
+        } else {
+            throw new Error(result.message || 'Erro ao criar carteira');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        
+        let errorMessage = error.message || 'Erro ao criar carteira';
+        
+        if (errorMessage.includes('transação') || errorMessage.includes('transaction') || 
+            errorMessage.includes('interrompida') || errorMessage.includes('interrupted')) {
+            errorMessage = 'Erro ao processar solicitação. Por favor, aguarde alguns instantes e tente novamente.';
+        } else if (errorMessage.includes('Limite máximo')) {
+            errorMessage = 'Você já possui o número máximo de carteiras (2). Desative uma carteira existente para criar uma nova.';
+        } else if (errorMessage.includes('nome')) {
+            errorMessage = 'Já existe uma carteira com este nome. Escolha outro nome.';
+        }
+        
+        mostrarErro(errorMessage);
+    }
+}
+
+// Função para solicitar código de saque inline
+async function solicitarCodigoSaqueInline() {
+    const carteiraId = document.getElementById('carteiraSaqueInline')?.value;
+    const btn = document.getElementById('btnSolicitarCodigoInline');
+    
+    if (!carteiraId) {
+        mostrarErro('Selecione uma carteira primeiro');
+        return;
+    }
+    
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado');
+        }
+        
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras/saque/codigo';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras/saque/codigo';
+        }
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ carteiraId })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarSucesso('Código enviado para seu email! Verifique sua caixa de entrada.');
+        } else {
+            throw new Error(result.message || 'Erro ao solicitar código');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao solicitar código:', error);
+        mostrarErro(error.message || 'Erro ao solicitar código');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar';
+    }
+}
+
+// Função para solicitar saque inline
+async function solicitarSaqueInline(event) {
+    event.preventDefault();
+    
+    try {
+        const btn = document.getElementById('btnConfirmarSaqueInline');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+        
+        const carteiraId = document.getElementById('carteiraSaqueInline').value;
+        const valorSaque = parseFloat(document.getElementById('valorSaqueInline').value);
+        const codigoAutenticacao = document.getElementById('codigoAutenticacaoInline').value;
+        
+        // Validações
+        if (!carteiraId) {
+            mostrarErro('Selecione uma carteira para o saque');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            return;
+        }
+        
+        if (isNaN(valorSaque) || valorSaque < 1) {
+            mostrarErro('Valor mínimo para saque é MZN 1,00');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            return;
+        }
+        
+        if (valorSaque > receitaTotal) {
+            mostrarErro('Valor do saque não pode ser maior que a receita disponível');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            return;
+        }
+        
+        if (!codigoAutenticacao || codigoAutenticacao.length !== 6) {
+            mostrarErro('Digite o código de autenticação de 6 dígitos');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+            return;
+        }
+        
+        const saqueData = {
+            carteiraId: carteiraId,
+            valor: valorSaque,
+            codigoAutenticacao: codigoAutenticacao
+        };
+        
+        console.log('📤 Dados do saque a serem enviados:', saqueData);
+        
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            throw new Error('Usuário não autenticado. Faça login novamente.');
+        }
+        
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras/saque/processar';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras/saque/processar';
+        }
+        
+        console.log('🔄 Enviando solicitação de saque...');
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(saqueData)
+        });
+        
+        console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+        
+        let result;
+        try {
+            const responseText = await response.text();
+            console.log('📄 Resposta do servidor (texto):', responseText);
+            
+            if (responseText) {
+                result = JSON.parse(responseText);
+                console.log('📊 Resposta do servidor (JSON):', result);
+            } else {
+                result = {};
+            }
+        } catch (parseError) {
+            console.error('❌ Erro ao parsear resposta JSON:', parseError);
+            throw new Error(`Erro ao processar resposta do servidor (status: ${response.status})`);
+        }
+        
+        if (!response.ok) {
+            const errorMessage = result.message || result.error || `Erro no servidor (status: ${response.status})`;
+            console.error('❌ Erro na resposta da API:', errorMessage, result);
+            throw new Error(errorMessage);
+        }
+        
+        if (result.success) {
+            mostrarSucesso('Saque solicitado com sucesso!');
+            document.getElementById('formSaqueInline').reset();
+            document.getElementById('carteiraInfoInline').style.display = 'none';
+            
+            // Atualizar dados
+            await loadReceitaTotal();
+            await loadSaqueAtual();
+            await loadHistoricoSaques();
+        } else {
+            throw new Error(result.message || 'Erro ao criar pedido de saque');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao solicitar saque:', error);
+        mostrarErro('Erro ao solicitar saque: ' + error.message);
+        
+    } finally {
+        const btn = document.getElementById('btnConfirmarSaqueInline');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
+    }
+}
+
 // Função para desativar carteira
 async function desativarCarteira(carteiraId) {
     if (!confirm('Tem certeza que deseja desativar esta carteira?')) {
@@ -1205,7 +1742,8 @@ async function desativarCarteira(carteiraId) {
 
         if (response.ok) {
             mostrarSucesso('Carteira desativada com sucesso!');
-            carregarCarteirasConfig();
+            carregarCarteirasInline();
+            carregarCarteirasSelectInline();
         } else {
             throw new Error('Erro ao desativar carteira');
         }
@@ -1238,7 +1776,8 @@ async function verificarCodigo() {
         if (response.ok) {
             fecharModalCodigo();
             mostrarSucesso('Código verificado com sucesso!');
-            carregarCarteirasConfig();
+            carregarCarteirasInline();
+            carregarCarteirasSelectInline();
         } else {
             const error = await response.json();
             throw new Error(error.message || 'Código inválido');
@@ -1291,11 +1830,19 @@ function mostrarErro(mensagem) {
 
 // Função para solicitar código de autenticação para saque
 async function solicitarCodigoSaque() {
+    // Usar função inline se disponível
+    const carteiraSelect = document.getElementById('carteiraSaqueInline');
+    if (carteiraSelect) {
+        return solicitarCodigoSaqueInline();
+    }
+    
+    // Fallback para função antiga
     try {
-        const carteiraId = document.getElementById('carteiraSaque').value;
+        const carteiraSelectOld = document.getElementById('carteiraSaque');
+        const carteiraId = carteiraSelectOld?.value;
         
         if (!carteiraId) {
-            alert('Selecione uma carteira primeiro');
+            mostrarErro('Selecione uma carteira primeiro');
             return;
         }
 
@@ -1338,13 +1885,4 @@ async function solicitarCodigoSaque() {
 // Função removida - sistema de countdown não é mais necessário
 // O código é enviado instantaneamente sem temporizador
 
-// Fechar modais clicando fora deles
-window.onclick = function(event) {
-    const modals = ['modalConfiguracoes', 'modalNovaCarteira', 'modalCodigo'];
-    modals.forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-}
+// Função window.onclick removida - não há mais modais para fechar

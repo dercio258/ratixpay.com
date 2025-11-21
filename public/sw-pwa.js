@@ -1,20 +1,21 @@
 /**
  * RatixPay PWA Service Worker
- * Versão: 2.0.2
- * Funcionalidades: Push notifications, background sync (CACHE DESABILITADO)
+ * Versão: 2.0.3
+ * Funcionalidades: Apenas Push notifications (CACHE E OFFLINE DESABILITADOS)
+ * 
+ * IMPORTANTE: Este service worker NÃO intercepta requisições para garantir
+ * que todos os dados sejam sempre carregados em tempo real da rede.
  */
 
-const CACHE_NAME = 'ratixpay-pwa-v2.0.2';
-
-// CACHE DESABILITADO - Todas as requisições vão direto para a rede
+const CACHE_NAME = 'ratixpay-pwa-v2.0.3';
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
-    console.log('🔧 Service Worker instalando (sem cache)...');
+    console.log('🔧 Service Worker instalando (modo offline desabilitado)...');
     
     event.waitUntil(
         Promise.resolve().then(() => {
-            console.log('✅ Service Worker instalado com sucesso (cache desabilitado)');
+            console.log('✅ Service Worker instalado (sem cache, sem offline)');
             return self.skipWaiting();
         })
     );
@@ -38,14 +39,14 @@ self.addEventListener('activate', (event) => {
             // Tomar controle de todas as páginas
             self.clients.claim()
         ]).then(() => {
-            console.log('✅ Service Worker ativado - Todos os caches removidos');
+            console.log('✅ Service Worker ativado - Cache e modo offline desabilitados');
             
             // Notificar clientes sobre atualização
             self.clients.matchAll().then((clients) => {
                 clients.forEach((client) => {
                     client.postMessage({
                         type: 'SW_ACTIVATED',
-                        message: 'Service Worker atualizado - Cache desabilitado'
+                        message: 'Service Worker atualizado - Modo offline desabilitado'
                     });
                 });
             });
@@ -53,73 +54,22 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Interceptar requisições - TODAS vão direto para a rede (SEM CACHE)
+// NÃO interceptar requisições - deixar tudo passar direto para a rede
+// Isso garante que todos os dados sejam sempre carregados em tempo real
 self.addEventListener('fetch', (event) => {
-    const { request } = event;
-    
-    // Ignorar requisições não-HTTP
-    if (!request.url.startsWith('http')) {
-        return;
-    }
-    
-    // Ignorar URLs do Google Fonts para evitar erros de CSP
-    const url = new URL(request.url);
-    if (url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com')) {
-        console.log('🔤 URL do Google Fonts - não interceptando:', request.url);
-        return; // Deixar passar direto para a rede
-    }
-    
-    // TODAS as requisições vão direto para a rede (SEM CACHE)
-    event.respondWith(
-        fetch(request, {
-            cache: 'no-store',
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            }
-        }).then(response => {
-            // Criar nova resposta com headers no-cache
-            const newHeaders = new Headers(response.headers);
-            newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-            newHeaders.set('Pragma', 'no-cache');
-            newHeaders.set('Expires', '0');
-            
-            return new Response(response.body, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: newHeaders
-            });
-        }).catch(error => {
-            console.error('❌ Erro ao buscar recurso da rede:', error);
-            return new Response('Erro ao carregar recurso', { status: 503 });
-        })
-    );
+    // NÃO fazer nada - deixar todas as requisições passarem direto para a rede
+    // Isso garante que não há cache e todos os dados são sempre atualizados
+    return;
 });
 
 // Todas as funções de cache foram removidas - cache desabilitado
 
-// Background Sync
+// Background Sync DESABILITADO - Modo offline não permitido
 self.addEventListener('sync', (event) => {
-    console.log('🔄 Background sync:', event.tag);
-    
-    if (event.tag === 'payment-sync') {
-        event.waitUntil(syncPayments());
-    } else if (event.tag === 'notification-sync') {
-        event.waitUntil(syncNotifications());
-    }
+    console.log('🚫 Background sync desabilitado (modo offline não permitido):', event.tag);
+    // Não fazer nada - modo offline desabilitado
+    event.waitUntil(Promise.resolve());
 });
-
-// Sincronizar pagamentos offline (sem cache)
-async function syncPayments() {
-    console.log('🔄 Sync de pagamentos (cache desabilitado)');
-    // Cache desabilitado - função mantida para compatibilidade mas não faz nada
-}
-
-// Sincronizar notificações offline (sem cache)
-async function syncNotifications() {
-    console.log('🔄 Sync de notificações (cache desabilitado)');
-    // Cache desabilitado - função mantida para compatibilidade mas não faz nada
-}
 
 // Push Notifications
 self.addEventListener('push', (event) => {
@@ -208,9 +158,9 @@ self.addEventListener('message', (event) => {
                 );
             }).then(() => {
                 console.log('🗑️ Todos os caches removidos');
-                if (event.ports && event.ports[0]) {
-                    event.ports[0].postMessage({ success: true });
-                }
+                    if (event.ports && event.ports[0]) {
+                        event.ports[0].postMessage({ success: true });
+                    }
             })
         );
     }
@@ -224,4 +174,4 @@ self.addEventListener('periodicsync', (event) => {
     }
 });
 
-console.log('🎯 Service Worker carregado - RatixPay v2.0.2 (Cache Desabilitado)');
+console.log('🎯 Service Worker carregado - RatixPay v2.0.3 (Cache e Offline Desabilitados)');

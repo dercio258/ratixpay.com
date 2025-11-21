@@ -124,6 +124,43 @@ class SocketService {
 
         // Enviar para vendedor específico
         this.sendToUser(saqueData.vendedor_id, 'saque_aprovado', notification);
+        
+        // Também enviar para a sala de saques (para atualização em tempo real)
+        if (this.io) {
+            try {
+                this.io.to('saques').emit('saque_aprovado', {
+                    ...saqueData,
+                    ...notification
+                });
+                console.log('📤 Notificação de saque enviada para sala de saques');
+            } catch (error) {
+                console.error('❌ Erro ao enviar para sala de saques:', error);
+            }
+        }
+    }
+    
+    /**
+     * Enviar atualização de status de saque
+     */
+    sendSaqueStatusAtualizado(saqueData) {
+        if (!this.io) {
+            console.warn('⚠️ SocketService não inicializado');
+            return false;
+        }
+
+        try {
+            // Enviar para vendedor específico
+            this.sendToUser(saqueData.vendedor_id, 'saque_status_atualizado', saqueData);
+            
+            // Enviar para sala de saques
+            this.io.to('saques').emit('saque_status_atualizado', saqueData);
+            
+            console.log('📤 Status de saque atualizado enviado:', saqueData.saque_id);
+            return true;
+        } catch (error) {
+            console.error('❌ Erro ao enviar atualização de status:', error);
+            return false;
+        }
     }
 
     /**

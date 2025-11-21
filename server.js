@@ -81,58 +81,33 @@ app.use(helmetConfig);
 app.use(securityHeaders);
 
 // Middleware para otimização de cache com Cloudflare
+// Middleware para FORÇAR no-cache em TODAS as respostas (dados sempre em tempo real)
 app.use((req, res, next) => {
     // Headers para Cloudflare
-    res.setHeader('CF-Cache-Status', 'HIT');
+    res.setHeader('CF-Cache-Status', 'BYPASS');
     res.setHeader('CF-Ray', req.headers['cf-ray'] || '');
     
-    // Headers de cache baseados no tipo de arquivo
-    // Em desenvolvimento, desabilitar cache para facilitar atualizações
-    const isDevelopment = process.env.NODE_ENV !== 'production' || 
-                          req.hostname === 'localhost' || 
-                          req.hostname === '127.0.0.1';
+    // FORÇAR no-cache em TODAS as requisições para garantir dados sempre atualizados
+    // Apenas imagens e fontes podem ter cache leve (mas ainda com revalidação)
     
-    // Arquivos que NUNCA devem ser cacheados
-    const noCacheFiles = ['pagamentos.html', 'pagamentos.js', 'gestao-vendas.html', 'gestao-vendas.js', 'login.html', 'register.html'];
-    if (noCacheFiles.some(file => req.path.includes(file))) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        return next();
-    }
-    
-    // APIs de saque nunca devem ser cacheadas
-    if (req.path.includes('/api/saques') || req.path.includes('/api/carteiras/saque')) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        return next();
-    }
-    
-    if (isDevelopment) {
-        // Em desenvolvimento: no-cache para HTML, CSS e JS
-        if (req.path.match(/\.(html|css|js)$/) || req.path === '/sw.js' || req.path === '/sw-pwa.js') {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-            res.setHeader('Pragma', 'no-cache');
-            res.setHeader('Expires', '0');
-            return next();
-        }
-    }
-    
-    if (req.path.match(/\.(css|js)$/)) {
-        res.setHeader('Cache-Control', 'public, max-age=2592000');
-        res.setHeader('Expires', new Date(Date.now() + 2592000000).toUTCString());
-        res.setHeader('Vary', 'Accept-Encoding');
-    } else if (req.path.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/)) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000');
-        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
-        res.setHeader('Vary', 'Accept-Encoding');
+    if (req.path.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/)) {
+        // Imagens com cache muito curto e revalidação obrigatória
+        res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+        res.setHeader('Expires', new Date(Date.now() + 300000).toUTCString());
     } else if (req.path.match(/\.(woff|woff2|ttf|eot)$/)) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000');
-        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
-        res.setHeader('Vary', 'Accept-Encoding');
-    } else if (req.path === '/sw.js' || req.path === '/sw-pwa.js') {
-        // Service Worker nunca deve ser cacheado
+        // Fontes com cache curto
+        res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+        res.setHeader('Expires', new Date(Date.now() + 3600000).toUTCString());
+    } else {
+        // TODOS os outros arquivos (HTML, JS, CSS, APIs) SEM CACHE
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+    }
+    
+    // Service Workers sempre sem cache
+    if (req.path === '/sw.js' || req.path === '/sw-pwa.js') {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
