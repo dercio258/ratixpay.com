@@ -67,6 +67,7 @@
                     if (registrations.length > 0) {
                         console.log('🔄 Atualizando', registrations.length, 'service worker(s)...');
                         registrations.forEach((registration) => {
+                            // Forçar atualização
                             registration.update().then(() => {
                                 console.log('✅ Service Worker atualizado:', registration.scope);
                                 
@@ -74,9 +75,28 @@
                                 if (registration.waiting) {
                                     console.log('🔄 Nova versão do SW detectada, ativando...');
                                     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                                    
+                                    // Forçar reload após ativação
+                                    setTimeout(() => {
+                                        window.location.reload(true);
+                                    }, 1000);
+                                }
+                                
+                                // Verificar se há service worker antigo (com código de cache)
+                                // Se sim, desregistrar e registrar novamente
+                                if (registration.active) {
+                                    registration.active.postMessage({ type: 'CHECK_VERSION' });
                                 }
                             }).catch((error) => {
                                 console.error('❌ Erro ao atualizar SW:', error);
+                                
+                                // Se falhar, tentar desregistrar e registrar novamente
+                                registration.unregister().then(() => {
+                                    console.log('🔄 Service Worker desregistrado, registrando novo...');
+                                    navigator.serviceWorker.register('/sw-pwa.js', {
+                                        updateViaCache: 'none'
+                                    });
+                                });
                             });
                         });
                     } else {

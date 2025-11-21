@@ -6,14 +6,15 @@
  * IMPORTANTE: Este service worker NÃO intercepta requisições para garantir
  * que todos os dados sejam sempre carregados em tempo real da rede.
  * 
- * ATUALIZAÇÃO: Versão 2.0.5 - Força limpeza completa de todos os caches antigos
+ * ATUALIZAÇÃO: Versão 2.0.6 - Força limpeza completa de todos os caches antigos
+ * REMOVIDO: Todo código de cache foi removido - fetch event não intercepta nada
  */
 
-const CACHE_NAME = 'ratixpay-pwa-v2.0.5';
+const CACHE_NAME = 'ratixpay-pwa-v2.0.6';
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
-    console.log('🔧 Service Worker v2.0.5 instalando (modo offline desabilitado)...');
+    console.log('🔧 Service Worker v2.0.6 instalando (modo offline desabilitado)...');
     
     event.waitUntil(
         Promise.all([
@@ -29,14 +30,14 @@ self.addEventListener('install', (event) => {
             // Pular espera e ativar imediatamente
             self.skipWaiting()
         ]).then(() => {
-            console.log('✅ Service Worker v2.0.5 instalado (sem cache, sem offline)');
+            console.log('✅ Service Worker v2.0.6 instalado (sem cache, sem offline)');
         })
     );
 });
 
 // Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('🚀 Service Worker v2.0.5 ativando (removendo TODOS os caches antigos)...');
+    console.log('🚀 Service Worker v2.0.6 ativando (removendo TODOS os caches antigos)...');
     
     event.waitUntil(
         Promise.all([
@@ -53,14 +54,14 @@ self.addEventListener('activate', (event) => {
             // Tomar controle de todas as páginas imediatamente
             self.clients.claim()
         ]).then(() => {
-            console.log('✅ Service Worker v2.0.5 ativado - TODOS os caches removidos');
+            console.log('✅ Service Worker v2.0.6 ativado - TODOS os caches removidos');
             
             // Notificar TODOS os clientes sobre atualização e forçar reload
             self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
                 clients.forEach((client) => {
                     client.postMessage({
                         type: 'SW_ACTIVATED',
-                        version: '2.0.5',
+                        version: '2.0.6',
                         message: 'Service Worker atualizado - Cache completamente desabilitado',
                         forceReload: true
                     });
@@ -204,4 +205,4 @@ self.addEventListener('periodicsync', (event) => {
     }
 });
 
-console.log('🎯 Service Worker carregado - RatixPay v2.0.5 (Cache e Offline Completamente Desabilitados)');
+console.log('🎯 Service Worker carregado - RatixPay v2.0.6 (Cache e Offline Completamente Desabilitados)');
