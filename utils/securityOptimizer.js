@@ -19,7 +19,7 @@ class SecurityOptimizer {
                 maxDelayMs: 20000
             },
             securityHeaders: {
-                csp: "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.jsdelivr.net fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' cdnjs.cloudflare.com cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com; connect-src 'self' https://opay.mucamba.site https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com",
+                csp: "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.jsdelivr.net fonts.googleapis.com; img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; font-src 'self' cdnjs.cloudflare.com cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com; connect-src 'self' https://opay.mucamba.site https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com",
                 hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
                 xss: '1; mode=block',
                 frameOptions: 'DENY',

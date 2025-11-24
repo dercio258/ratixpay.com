@@ -614,9 +614,20 @@
                 max-width: 80px;
             }
             
+            .table td:nth-child(5) {
+                max-width: 60px;
+                min-width: 50px;
+            }
+            
             .status-badge {
-                font-size: 0.65rem;
-                padding: 4px 8px;
+                font-size: 0.5rem;
+                padding: 3px 6px;
+                letter-spacing: 0.2px;
+                line-height: 1.2;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
         
@@ -632,9 +643,36 @@
                 max-width: 60px;
             }
             
+            .table td:nth-child(5) {
+                max-width: 50px;
+                min-width: 40px;
+            }
+            
             .status-badge {
-                font-size: 0.6rem;
-                padding: 3px 6px;
+                font-size: 0.45rem;
+                padding: 2px 5px;
+                letter-spacing: 0.1px;
+                border-radius: 12px;
+                line-height: 1.2;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .table td:nth-child(5) {
+                max-width: 45px;
+                min-width: 35px;
+            }
+            
+            .status-badge {
+                font-size: 0.4rem;
+                padding: 2px 4px;
+                letter-spacing: 0;
+                border-radius: 10px;
+                line-height: 1.1;
             }
         }
 
@@ -651,6 +689,66 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: inline-block;
+        }
+        
+        /* Estilo específico para coluna de status - evitar sobreposição */
+        .table td:nth-child(5) {
+            max-width: 80px;
+            min-width: 60px;
+        }
+        
+        /* Reduzir tamanho do status em dispositivos móveis menores (780px para baixo) */
+        @media (max-width: 780px) {
+            .table td:nth-child(5) {
+                max-width: 60px;
+                min-width: 50px;
+            }
+            
+            .status-badge {
+                font-size: 0.5rem;
+                padding: 3px 6px;
+                letter-spacing: 0.2px;
+                line-height: 1.2;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+            }
+        }
+        
+        /* Ajustes adicionais para dispositivos móveis muito pequenos */
+        @media (max-width: 576px) {
+            .table td:nth-child(5) {
+                max-width: 50px;
+                min-width: 40px;
+            }
+            
+            .status-badge {
+                font-size: 0.45rem;
+                padding: 2px 5px;
+                letter-spacing: 0.1px;
+                border-radius: 12px;
+                line-height: 1.2;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .table td:nth-child(5) {
+                max-width: 45px;
+                min-width: 35px;
+            }
+            
+            .status-badge {
+                font-size: 0.4rem;
+                padding: 2px 4px;
+                letter-spacing: 0;
+                border-radius: 10px;
+            }
         }
 
         .status-aprovado {

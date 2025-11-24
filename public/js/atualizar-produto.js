@@ -10,7 +10,7 @@
 
 // Configuração da API
 if (typeof window.API_BASE === 'undefined') {
-    window.API_BASE = 'http://localhost:3000/api';
+    window.API_BASE = 'http://localhost:4000/api';
     console.log('🔧 API_BASE definida como:', window.API_BASE);
 }
 
@@ -33,11 +33,11 @@ function normalizeUrl(url) {
     
     // Se a URL começa com /, adicionar o prefixo do servidor
     if (normalizedUrl.startsWith('/')) {
-        return `http://localhost:3000${normalizedUrl}`;
+        return `http://localhost:4000${normalizedUrl}`;
     }
     
     // Se não tem prefixo, assumir que é um caminho relativo
-    return `http://localhost:3000/${normalizedUrl}`;
+    return `http://localhost:4000/${normalizedUrl}`;
 }
 let contentUrl = null;
 
@@ -484,6 +484,11 @@ async function handleUpdateProduct(event) {
             
             // Atualizar dados locais
             productData = produtoAtualizado;
+            
+            // Redirecionar para gestão de produtos após 1.5 segundos
+            setTimeout(() => {
+                window.location.href = 'gestao-produtos.html';
+            }, 1500);
         } else {
             showError('Erro ao atualizar produto');
         }
@@ -503,10 +508,11 @@ function coletarDadosFormulario() {
         descricao: document.getElementById('productDescription')?.value || '',
         preco: parseFloat(document.getElementById('productPrice')?.value || 0),
         imagem_url: document.getElementById('imageUrl')?.value || '',
-        link_conteudo: document.getElementById('contentUrl')?.value || '',
+        linkConteudo: document.getElementById('contentUrl')?.value || '', // Usar camelCase para corresponder à rota
         disponivelMarketplace: document.getElementById('marketPlace')?.checked || false
     };
     
+    console.log('📋 Dados coletados do formulário:', formData);
     return formData;
 }
 
@@ -535,7 +541,7 @@ async function atualizarProdutoNoBanco(id, dados) {
 async function apiRequest(endpoint, options = {}) {
     try {
         if (!window.API_BASE) {
-            window.API_BASE = 'http://localhost:3000/api';
+            window.API_BASE = 'http://localhost:4000/api';
             console.log('🔧 API_BASE definida na função apiRequest:', window.API_BASE);
         }
         

@@ -219,8 +219,8 @@ class PerformanceOptimizer {
                     'https://ratixpay.com',
                     'https://www.ratixpay.com',
                     'https://ratixpay-backend.onrender.com',
-                    'http://localhost:3000',
-                    'http://127.0.0.1:3000'
+                    'http://localhost:4000',
+                    'http://127.0.0.1:4000'
                 ];
                 
                 if (!origin || allowedOrigins.includes(origin)) {
@@ -271,7 +271,7 @@ class PerformanceOptimizer {
                     defaultSrc: ["'self'"],
                     scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
                     styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com"],
-                    imgSrc: ["'self'", "data:", "https:"],
+                    imgSrc: ["'self'", "data:", "https:", "http://localhost:*", "http://127.0.0.1:*"],
                     fontSrc: ["'self'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com"],
                     connectSrc: ["'self'", "https://opay.mucamba.site", "https://www.ratixpay.com", "https://fonts.googleapis.com"],
                     frameAncestors: ["'none'"]

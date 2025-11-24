@@ -771,6 +771,39 @@ RatixPay`;
                 console.log(`✅ URL do produto enviada via sessão WhatsApp para ${clientPhone}:`, urlResult);
             }
 
+            // 3. Enviar links dos produtos complementares (orderbumps) se existirem
+            try {
+                const ProdutoComplementarVendaService = require('../services/produtoComplementarVendaService');
+                const produtosComplementares = await ProdutoComplementarVendaService.buscarProdutosComplementaresPorVenda(venda.id);
+                
+                if (produtosComplementares && produtosComplementares.length > 0) {
+                    const produtosFormatados = await ProdutoComplementarVendaService.formatarProdutosComplementares(produtosComplementares);
+                    
+                    if (produtosFormatados.length > 0) {
+                        let mensagemOrderBumps = `\n\n🎁 *PRODUTOS BÔNUS INCLUÍDOS:*\n\n`;
+                        
+                        produtosFormatados.forEach((produtoComp, index) => {
+                            mensagemOrderBumps += `${index + 1}. *${produtoComp.nome}* (Bônus)\n`;
+                            
+                            if (produtoComp.link_conteudo && produtoComp.link_conteudo.trim() !== '') {
+                                mensagemOrderBumps += `   🔗 ${produtoComp.link_conteudo}\n\n`;
+                            } else {
+                                mensagemOrderBumps += `   ⚠️ Link não disponível - entre em contato com o vendedor\n\n`;
+                            }
+                        });
+                        
+                        mensagemOrderBumps += `💡 *Total:* ${1 + produtosFormatados.length} produtos (1 principal + ${produtosFormatados.length} bônus)`;
+                        
+                        // Enviar mensagem com links dos orderbumps
+                        await whatsappManager.sendMessage(clientPhone, mensagemOrderBumps, null, sessionId);
+                        console.log(`✅ Links dos produtos bônus enviados via WhatsApp para ${clientPhone}`);
+                    }
+                }
+            } catch (orderBumpError) {
+                console.error('⚠️ Erro ao enviar links dos orderbumps via WhatsApp:', orderBumpError);
+                // Não falhar o processo principal por erro de envio de orderbumps
+            }
+
             return {
                 success: true,
                 message: 'Produto enviado com sucesso via WhatsApp',
@@ -1544,7 +1577,7 @@ router.post('/pagar', async (req, res) => {
         // Log para confirmar que tracking_data será salvo
         console.log('💾 UTM: Salvando tracking_data na venda principal:', JSON.stringify(trackingDataForDB, null, 2));
         
-        // 2. Vendas dos produtos do Order Bump
+        // 2. Vendas dos produtos do Order Bump (em ordem: orderbump1, orderbump2, ...)
         if (produtosOrderBump.length > 0) {
             console.log(`🎯 Criando vendas para ${produtosOrderBump.length} produtos do Order Bump...`);
             
@@ -1568,12 +1601,13 @@ router.post('/pagar', async (req, res) => {
                     status: 'Pendente',
                     referencia_pagamento: referenciaPagamento,
                     afiliado_ref: codigoAfiliadoFinal, // Salvar código de afiliado também nas vendas de Order Bump
-                    observacoes: `Order Bump: ${produtoBump.nome}${observacoes ? ' | ' + observacoes : ''}`,
+                    observacoes: `Order Bump ${index + 1}: ${produtoBump.nome}${observacoes ? ' | ' + observacoes : ''}`,
                     tracking_data: trackingDataForDB, // Salvar parâmetros UTM
-                    tipo_venda: 'order_bump'
+                    tipo_venda: 'order_bump',
+                    orderbump_ordem: index + 1 // Ordem do orderbump (1, 2, 3...)
                 });
                 
-                console.log(`   📦 Venda ${index + 1}: ${produtoBump.nome} - MZN ${valorVendedorBump}`);
+                console.log(`   📦 Venda Order Bump ${index + 1}: ${produtoBump.nome} - MZN ${valorVendedorBump}`);
             });
         }
         
@@ -1664,7 +1698,22 @@ router.post('/pagar', async (req, res) => {
                 const vendaPrincipal = vendasCriadas[0];
                 
                 // Preparar dados dos produtos complementares
-                const produtosComplementaresParaSalvar = orderBumpProducts.map(produto => {
+                const produtosComplementaresParaSalvar = await Promise.all(orderBumpProducts.map(async (produto) => {
+                    // Buscar produto original para garantir que temos o link_conteudo
+                    let linkConteudo = produto.link_conteudo || produto.linkConteudo || '';
+                    
+                    if (!linkConteudo && produto.produto_complementar_id) {
+                        try {
+                            const produtoOriginal = await Produto.findByPk(produto.produto_complementar_id || produto.id);
+                            if (produtoOriginal && produtoOriginal.link_conteudo) {
+                                linkConteudo = produtoOriginal.link_conteudo;
+                                console.log(`✅ Link de conteúdo recuperado do produto original: ${produtoOriginal.nome}`);
+                            }
+                        } catch (error) {
+                            console.error(`❌ Erro ao buscar produto original para link_conteudo:`, error);
+                        }
+                    }
+                    
                     console.log('🔍 Mapeando produto complementar para salvar:', {
                         id: produto.id,
                         produto_complementar_id: produto.produto_complementar_id,
@@ -1673,7 +1722,7 @@ router.post('/pagar', async (req, res) => {
                         preco_com_desconto: produto.preco_com_desconto,
                         desconto: produto.desconto,
                         imagem_url: produto.imagem_url,
-                        link_conteudo: produto.link_conteudo,
+                        link_conteudo: linkConteudo,
                         descricao: produto.descricao,
                         tipo: produto.tipo,
                         vendedor_id: produto.vendedor_id
@@ -1681,17 +1730,17 @@ router.post('/pagar', async (req, res) => {
                     
                     return {
                         id: produto.produto_complementar_id || produto.id,
-                        nome: produto.nome,
+                        nome: produto.nome || 'Produto Complementar',
                         preco: parseFloat(produto.preco_com_desconto || produto.preco) || 0,
                         desconto: parseFloat(produto.desconto || 0),
                         imagem: produto.imagem_url || produto.imagem || '', // Usar imagem_url ou imagem
                         miniatura: '', // A tabela produtos não tem miniatura
-                        link_conteudo: produto.link_conteudo || produto.linkConteudo || '', // Múltiplas possibilidades
+                        link_conteudo: linkConteudo, // Garantir que sempre temos o link
                         descricao: produto.descricao || produto.description || '', // Múltiplas possibilidades
                         tipo: produto.tipo || produto.type || 'digital',
                         vendedor_id: produto.vendedor_id || vendaPrincipal.vendedor_id
                     };
-                });
+                }));
                 
                 // Salvar no banco de dados
                 await ProdutoComplementarVendaService.salvarProdutosComplementares(
@@ -1822,6 +1871,35 @@ router.post('/pagar', async (req, res) => {
                 
                 console.log('✅ Status definido como Cancelada - usando status real da PayMoz');
                 
+                // Adicionar à fila de remarketing se o produto tiver remarketing ativado
+                try {
+                    if (vendasCriadas && vendasCriadas.length > 0) {
+                        const vendaPrincipal = vendasCriadas[0]; // Primeira venda é sempre a principal
+                        const remarketingService = require('../services/remarketingService');
+                        const produto = await Produto.findByPk(vendaPrincipal.produto_id);
+                        
+                        if (produto && produto.remarketing_config?.enabled) {
+                            console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
+                            const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
+                                cliente_id: vendaPrincipal.cliente_id || null,
+                                cliente_nome: vendaPrincipal.cliente_nome || 'Cliente',
+                                produto_id: vendaPrincipal.produto_id,
+                                produto_nome: produto.nome,
+                                email: vendaPrincipal.cliente_email,
+                                telefone: vendaPrincipal.cliente_telefone || vendaPrincipal.cliente_whatsapp
+                            });
+                            
+                            if (resultadoRemarketing.ignorado) {
+                                console.log(`⚠️ Remarketing ignorado: ${resultadoRemarketing.motivo}`);
+                            } else if (resultadoRemarketing.sucesso) {
+                                console.log('✅ Venda cancelada adicionada à fila de remarketing!');
+                            }
+                        }
+                    }
+                } catch (remarketingError) {
+                    console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
+                }
+                
             } else if (isSuccess && resultadoPagamento.success) {
                 console.log(`📊 Status da API PayMoz: ${resultadoPagamento.status}`);
                 console.log(`📊 Message da API PayMoz: ${resultadoPagamento.message}`);
@@ -1859,18 +1937,73 @@ router.post('/pagar', async (req, res) => {
                     );
                     
                     // Atualizar todas as vendas com o número do pedido gerado
-                    // Gerar número de pedido curto (6 caracteres) para compatibilidade com banco
-                    const numeroPedidoCurto = String(Math.floor(Math.random() * 900000) + 100000);
+                    // IMPORTANTE: numero_pedido tem limite de 6 caracteres (VARCHAR(6))
+                    // Extrair apenas os últimos 6 dígitos do transaction_id ou gerar número aleatório de 6 dígitos
+                    const numeroPedidoBase = pedidoInfo.idPedido.replace(/[^0-9]/g, '').slice(-6);
+                    const numeroPedidoPrincipal = numeroPedidoBase && numeroPedidoBase.length === 6 
+                        ? numeroPedidoBase 
+                        : String(Math.floor(Math.random() * 900000) + 100000);
                     
-                    // Atualizar todas as vendas com o número do pedido gerado
-                    for (const vendaItem of vendasCriadas) {
-                        await vendaItem.update({
-                            status: 'Pago',
-                            numero_pedido: numeroPedidoCurto, // Usar número curto para compatibilidade
-                            referencia_pagamento: pedidoInfo.idPedido, // Manter transaction_id na referência
-                            data_pagamento: new Date().toISOString(),
-                            updated_at: new Date().toISOString()
-                        });
+                    // Atualizar todas as vendas com números de pedido únicos (máximo 6 caracteres)
+                    for (let i = 0; i < vendasCriadas.length; i++) {
+                        const vendaItem = vendasCriadas[i];
+                        
+                        // Gerar número único para cada venda (sempre 6 caracteres)
+                        let numeroPedido;
+                        if (i === 0) {
+                            // Venda principal: usar número base
+                            numeroPedido = numeroPedidoPrincipal;
+                        } else {
+                            // Para orderbumps: gerar número único de 6 dígitos
+                            // Usar hash simples baseado no índice para garantir unicidade
+                            const hash = (parseInt(numeroPedidoPrincipal) + i) % 1000000;
+                            numeroPedido = String(hash).padStart(6, '0');
+                        }
+                        
+                        // Garantir que sempre tenha exatamente 6 caracteres
+                        if (numeroPedido.length > 6) {
+                            numeroPedido = numeroPedido.slice(-6);
+                        } else if (numeroPedido.length < 6) {
+                            numeroPedido = numeroPedido.padStart(6, '0');
+                        }
+                        
+                        try {
+                            await vendaItem.update({
+                                status: 'Pago',
+                                numero_pedido: numeroPedido,
+                                referencia_pagamento: pedidoInfo.idPedido, // Manter transaction_id na referência
+                                data_pagamento: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            });
+                        } catch (updateError) {
+                            // Se houver erro de duplicata ou tamanho, gerar número alternativo
+                            if (updateError.name === 'SequelizeUniqueConstraintError' || 
+                                (updateError.name === 'SequelizeDatabaseError' && updateError.message.includes('muito longo'))) {
+                                console.warn(`⚠️ Número de pedido ${numeroPedido} inválido, gerando novo número...`);
+                                // Gerar número aleatório de 6 dígitos garantindo unicidade
+                                let numeroAlternativo;
+                                let tentativas = 0;
+                                do {
+                                    numeroAlternativo = String(Math.floor(Math.random() * 900000) + 100000);
+                                    tentativas++;
+                                    if (tentativas > 10) {
+                                        // Se não conseguir gerar único após 10 tentativas, usar timestamp
+                                        numeroAlternativo = String(Date.now()).slice(-6);
+                                        break;
+                                    }
+                                } while (numeroAlternativo.length !== 6);
+                                
+                                await vendaItem.update({
+                                    status: 'Pago',
+                                    numero_pedido: numeroAlternativo,
+                                    referencia_pagamento: pedidoInfo.idPedido,
+                                    data_pagamento: new Date().toISOString(),
+                                    updated_at: new Date().toISOString()
+                                });
+                            } else {
+                                throw updateError;
+                            }
+                        }
                     }
         
                     console.log('✅ Venda atualizada como APROVADA');
@@ -2022,6 +2155,35 @@ router.post('/pagar', async (req, res) => {
                     // Definir status como cancelado
                     statusPagamento = 'Cancelada';
                     statusVenda = 'Cancelada';
+                    
+                    // Adicionar à fila de remarketing se o produto tiver remarketing ativado
+                    try {
+                        if (vendasCriadas && vendasCriadas.length > 0) {
+                            const vendaPrincipal = vendasCriadas[0]; // Primeira venda é sempre a principal
+                            const remarketingService = require('../services/remarketingService');
+                            const produto = await Produto.findByPk(vendaPrincipal.produto_id);
+                            
+                            if (produto && produto.remarketing_config?.enabled) {
+                                console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
+                                const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
+                                    cliente_id: vendaPrincipal.cliente_id || null,
+                                    cliente_nome: vendaPrincipal.cliente_nome || 'Cliente',
+                                    produto_id: vendaPrincipal.produto_id,
+                                    produto_nome: produto.nome,
+                                    email: vendaPrincipal.cliente_email,
+                                    telefone: vendaPrincipal.cliente_telefone || vendaPrincipal.cliente_whatsapp
+                                });
+                                
+                                if (resultadoRemarketing.ignorado) {
+                                    console.log(`⚠️ Remarketing ignorado: ${resultadoRemarketing.motivo}`);
+                                } else if (resultadoRemarketing.sucesso) {
+                                    console.log('✅ Venda cancelada adicionada à fila de remarketing!');
+                                }
+                            }
+                        }
+                    } catch (remarketingError) {
+                        console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
+                    }
                     mensagemResposta = 'Falha no pagamento, transação cancelada';
                     
                     console.log('✅ Venda cancelada automaticamente por resposta inválida');
@@ -2136,161 +2298,50 @@ router.post('/pagar', async (req, res) => {
 
         } catch (processError) {
             console.error('❌ Erro ao processar pagamento:', processError);
+            console.error('Stack trace:', processError.stack);
             
-            // Verificar se é um erro de timeout ou conexão
-            const isTimeout = processError.code === 'ECONNABORTED' || processError.message.includes('timeout');
-            const isConnectionError = processError.code === 'ECONNREFUSED' || processError.code === 'ENOTFOUND' || processError.code === 'ECONNRESET';
+            // IMPORTANTE: NÃO CANCELAR AUTOMATICAMENTE
+            // O status da venda será determinado APENAS pela resposta do PayMoz via webhook
+            // Erros internos não devem alterar o status da venda
             
-            if (isTimeout || isConnectionError) {
-                console.log(`🚨 CANCELAMENTO AUTOMÁTICO no catch: ${isTimeout ? 'TIMEOUT' : 'ERRO DE CONEXÃO'} detectado`);
-                
-                const tipoErro = isTimeout ? 'timeout' : 'connection';
-                const motivo = isTimeout ? 
-                    'Pagamento cancelado automaticamente - timeout na comunicação com o servidor' :
-                    'Pagamento cancelado automaticamente - erro de conexão com o servidor';
-                
-                // Atualizar venda com status final cancelado
-                await venda.update({
-                    status: 'Cancelada',
-                    pagamento_status: 'Cancelada',
-                    falhaMotivo: motivo,
-                    falhaData: new Date().toISOString(),
-                    falhaId: `${tipoErro.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
-                });
-                
-                // Enviar notificação de venda cancelada
-                try {
-                    const notificationService = require('../services/notificationService');
-                    
-                    // Notificação de venda cancelada removida - usar vendaNotificationService se necessário
-                    console.log('🔔 Venda cancelada - notificação removida para evitar erro');
-                    
-                    console.log('🔔 Notificação de venda cancelada enviada');
-                } catch (notificationError) {
-                    console.error('❌ Erro ao enviar notificação de venda cancelada:', notificationError);
-                }
-                
-                // Retornar resposta de cancelamento
-                return res.json({
-                    success: false,
-                    message: isTimeout ? 'Pagamento cancelado - timeout na comunicação' : 'Pagamento cancelado - erro de conexão',
-                    status: 'cancelled',
-                    data: {
-                        produto: {
-                            nome: produto.nome,
-                            customId: produto.custom_id,
-                            valor: valorFinal,
-                            valorOriginal: valorOriginal,
-                            desconto: desconto,
-                            linkConteudo: linkConteudo || produto.link_conteudo || ''
-                        },
-                        cliente: {
-                            nome: nomeCliente,
-                            email: emailCliente,
-                            telefone: numeroFormatado
-                        },
-                        pagamento: {
-                            metodo: metodo,
-                            status: 'Cancelado',
-                            transactionId: venda.pagamentoTransacaoId,
-                            referencia: venda.pagamentoReferencia,
-                            numeroCelular: numeroFormatado
-                        },
-                        venda: {
-                            id: venda.id,
-                            status: 'Cancelado',
-                            pagamentoStatus: 'Cancelado',
-                            transacaoId: venda.pagamentoTransacaoId
-                        }
-                    }
-                });
-            }
+            // Apenas logar o erro e retornar resposta de erro sem alterar status
+            console.warn('⚠️ Erro interno no processamento - status da venda permanece como determinado pelo PayMoz');
             
-            // Em caso de outros erros no processamento, cancelar a venda
-            console.log('🚨 CANCELAMENTO AUTOMÁTICO: Erro no processamento detectado');
-            
-            // Atualizar venda com status final cancelado
-            const motivo = `Erro no processamento do pagamento: ${processError.message}`;
-            
-            await venda.update({
-                status: 'Cancelada',
-                pagamento_status: 'Cancelada',
-                falhaMotivo: motivo,
-                falhaData: new Date().toISOString(),
-                falhaId: `PROCESSING-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`
-            });
-            
-            // Enviar notificação de venda cancelada
-            try {
-                const notificationService = require('../services/notificationService');
-                
-                await notificationService.enviarNotificacao({
-                    titulo: 'Venda Cancelada',
-                    mensagem: `Venda do produto ${produto.nome} foi cancelada. Motivo: ${motivo}`,
-                    tipo: 'venda_cancelada',
-                    prioridade: 'alta',
-                    vendedores_ids: [venda.vendedor_id],
-                    url_redirecionamento: '/dashboard'
-                });
-                
-                console.log('🔔 Notificação de venda cancelada enviada');
-            } catch (notificationError) {
-                console.error('❌ Erro ao enviar notificação de venda cancelada:', notificationError);
-            }
-            
-            // Adicionar à fila de remarketing (se configurado)
-            try {
-                const remarketingService = require('../services/remarketingService');
-                
-                if (produto.remarketing_config?.enabled) {
-                    await remarketingService.adicionarVendaCancelada({
-                        cliente_id: venda.cliente_id,
-                        cliente_nome: venda.cliente_nome || 'Cliente',
-                        produto_id: venda.produto_id,
-                        produto_nome: produto.nome,
-                        email: venda.cliente_email,
-                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
-                    });
-                }
-            } catch (remarketingError) {
-                // Não falhar o cancelamento por erro no remarketing
-                console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
-            }
-            
-            // Retornar resposta de cancelamento
-            return res.json({
+            // Retornar resposta de erro sem cancelar
+            return res.status(500).json({
                 success: false,
-                message: 'Falha no pagamento, transação cancelada',
-                status: 'cancelled',
-            data: {
-                produto: {
-                    nome: produto.nome,
-                    customId: produto.custom_id,
-                    valor: valorFinal,
-                    valorOriginal: valorOriginal,
-                    desconto: desconto,
-                    linkConteudo: linkConteudo || produto.link_conteudo || ''
-                },
-                cliente: {
-                    nome: nomeCliente,
-                    email: emailCliente,
-                    telefone: numeroFormatado
-                },
-                pagamento: {
-                    metodo: metodo,
-                        status: 'Cancelado',
-                    transactionId: venda.pagamentoTransacaoId,
-                    referencia: venda.pagamentoReferencia,
-                    numeroCelular: numeroFormatado
-                },
-                venda: {
-                    id: venda.id,
-                        status: 'Cancelado',
-                        pagamentoStatus: 'Cancelado',
-                    transacaoId: venda.pagamentoTransacaoId
+                message: 'Erro interno no processamento. O status do pagamento será atualizado pelo servidor PayMoz.',
+                status: 'pending', // Manter como pendente - PayMoz determinará o status final
+                error: processError.message,
+                data: {
+                    produto: {
+                        nome: produto.nome,
+                        customId: produto.custom_id,
+                        valor: valorFinal,
+                        valorOriginal: valorOriginal,
+                        desconto: desconto,
+                        linkConteudo: linkConteudo || produto.link_conteudo || ''
+                    },
+                    cliente: {
+                        nome: nomeCliente,
+                        email: emailCliente,
+                        telefone: numeroFormatado
+                    },
+                    pagamento: {
+                        metodo: metodo,
+                        status: 'Pendente', // Status será atualizado pelo webhook do PayMoz
+                        transactionId: venda?.pagamento_transacao_id || null,
+                        referencia: venda?.referencia_pagamento || null,
+                        numeroCelular: numeroFormatado
+                    },
+                    venda: {
+                        id: venda?.id || null,
+                        status: 'Pendente', // Status será atualizado pelo webhook do PayMoz
+                        pagamentoStatus: 'Pendente',
+                        transacaoId: venda?.pagamento_transacao_id || null
+                    }
                 }
-            }
-        });
+            });
         }
 
     } catch (error) {
@@ -2612,16 +2663,56 @@ router.post('/webhook/paymoz', async (req, res) => {
             });
         }
 
-        // Buscar venda pelo transaction_id
-        const venda = await Venda.findOne({ where: { referencia_pagamento: txId } });
+        // Função auxiliar para extrair ordem do orderbump
+        const extrairOrdemOrderBump = (observacoes) => {
+            if (!observacoes) return null;
+            const match = observacoes.match(/Order Bump (\d+):/);
+            return match ? parseInt(match[1]) : null;
+        };
+
+        // Buscar TODAS as vendas relacionadas (principal + orderbumps) pela referência de pagamento
+        const vendasRelacionadas = await Venda.findAll({ 
+            where: { referencia_pagamento: txId },
+            include: [{
+                model: Produto,
+                as: 'produto'
+            }],
+            order: [['created_at', 'ASC']] // Ordenar por data de criação (principal primeiro, depois orderbumps)
+        });
         
-        if (!venda) {
-            console.log(`❌ Venda não encontrada para transaction_id: ${txId}`);
+        // Ordenar manualmente: principal primeiro (sem "Order Bump" nas observações), depois orderbumps por ordem
+        vendasRelacionadas.sort((a, b) => {
+            const aIsOrderBump = a.observacoes && a.observacoes.includes('Order Bump');
+            const bIsOrderBump = b.observacoes && b.observacoes.includes('Order Bump');
+            
+            // Principal vem primeiro
+            if (!aIsOrderBump && bIsOrderBump) return -1;
+            if (aIsOrderBump && !bIsOrderBump) return 1;
+            
+            // Se ambos são orderbumps, ordenar por ordem extraída das observações
+            if (aIsOrderBump && bIsOrderBump) {
+                const ordemA = extrairOrdemOrderBump(a.observacoes);
+                const ordemB = extrairOrdemOrderBump(b.observacoes);
+                if (ordemA !== null && ordemB !== null) {
+                    return ordemA - ordemB;
+                }
+            }
+            
+            // Fallback: usar created_at
+            return new Date(a.created_at) - new Date(b.created_at);
+        });
+        
+        if (!vendasRelacionadas || vendasRelacionadas.length === 0) {
+            console.log(`❌ Nenhuma venda encontrada para transaction_id: ${txId}`);
             return res.status(404).json({
                 success: false,
                 error: 'Transação não encontrada'
             });
         }
+
+        // Usar a primeira venda como referência principal
+        const venda = vendasRelacionadas[0];
+        const statusAnterior = venda.status;
 
         // Mapear status do gateway para status do sistema
         let novoPagamentoStatus = 'Pendente';
@@ -2639,19 +2730,11 @@ router.post('/webhook/paymoz', async (req, res) => {
             case 'declined':
                 novoPagamentoStatus = 'Rejeitado';
                 novoStatus = 'Cancelado';
-                // Registrar informações da falha
-                venda.falhaMotivo = error_message || 'Pagamento rejeitado pelo gateway';
-                venda.falhaData = new Date().toISOString();
-                venda.falhaId = `FAIL-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
                 break;
             case 'cancelled':
             case 'canceled':
                 novoPagamentoStatus = 'Cancelado';
                 novoStatus = 'Falha';
-                // Registrar informações da falha
-                venda.falhaMotivo = error_message || 'Pagamento cancelado';
-                venda.falhaData = new Date().toISOString();
-                venda.falhaId = `CANCEL-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
                 break;
             case 'pending':
             case 'processing':
@@ -2663,54 +2746,80 @@ router.post('/webhook/paymoz', async (req, res) => {
                 novoStatus = 'Pendente';
         }
 
-        // Atualizar status da venda
-        const statusAnterior = venda.status;
-        venda.pagamentoStatus = novoPagamentoStatus;
-        venda.status = novoStatus;
-        venda.pagamentoDataProcessamento = new Date().toISOString();
-        venda.ultimaAtualizacao = new Date().toISOString();
-        venda.tentativas = (venda.tentativas || 1) + 1;
-        
-        // Usar transaction_id diretamente como ID do pedido (sem gerar número)
-        if (novoPagamentoStatus === 'Aprovada' && statusAnterior !== 'Aprovada' && !venda.referencia_pagamento) {
-            // Usar transaction_id da e2Payments como ID do pedido
-            const transactionId = req.body.transaction_id || req.body.transactionId || req.body.reference;
-            
-            if (transactionId) {
-                await venda.update({
-                    id_pedido: transactionId, // Salvar transaction_id como ID do pedido
-                    referencia_pagamento: transactionId
-                });
-                console.log(`🎯 Transaction ID usado como ID do pedido via webhook: ${transactionId}`);
-            } else {
-                console.log('⚠️ Transaction ID não encontrado no webhook');
+        // Atualizar TODAS as vendas relacionadas (principal + orderbumps) com o mesmo status
+        console.log(`🔄 Atualizando ${vendasRelacionadas.length} vendas relacionadas...`);
+        for (const vendaItem of vendasRelacionadas) {
+            const updateData = {
+                status: novoStatus,
+                pagamento_status: novoPagamentoStatus,
+                referencia_pagamento: reference || vendaItem.referencia_pagamento,
+                updated_at: new Date().toISOString()
+            };
+
+            // Se aprovado, adicionar data de pagamento
+            if (novoPagamentoStatus === 'Aprovado' && novoStatus === 'Pago') {
+                updateData.data_pagamento = new Date().toISOString();
+            }
+
+            // Se rejeitado/cancelado, registrar informações da falha
+            if (novoPagamentoStatus === 'Rejeitado' || novoPagamentoStatus === 'Cancelado') {
+                updateData.falhaMotivo = error_message || `Pagamento ${novoPagamentoStatus.toLowerCase()}`;
+                updateData.falhaData = new Date().toISOString();
+                updateData.falhaId = `${novoPagamentoStatus.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+            }
+
+            // Atualizar valor se fornecido (apenas na venda principal - sem "Order Bump" nas observações)
+            if (amount && (!vendaItem.observacoes || !vendaItem.observacoes.includes('Order Bump'))) {
+                updateData.valor = parseFloat(amount);
+            }
+
+            await vendaItem.update(updateData);
+            const tipoVenda = (vendaItem.observacoes && vendaItem.observacoes.includes('Order Bump')) ? 'order_bump' : 'principal';
+            console.log(`   ✅ Venda ${tipoVenda} atualizada: ${vendaItem.id}`);
+        }
+
+        // Se pagamento foi cancelado/rejeitado, adicionar à fila de remarketing (apenas para venda principal)
+        if ((novoPagamentoStatus === 'Rejeitado' || novoPagamentoStatus === 'Cancelado') && venda) {
+            try {
+                console.log('🔄 Verificando remarketing para venda cancelada...');
+                const remarketingService = require('../services/remarketingService');
+                
+                // Buscar produto para verificar se tem remarketing ativo
+                const produto = await Produto.findByPk(venda.produto_id);
+                
+                if (produto && produto.remarketing_config?.enabled) {
+                    console.log('✅ Remarketing ativado para este produto. Adicionando à fila...');
+                    const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
+                        cliente_id: venda.cliente_id || null,
+                        cliente_nome: venda.cliente_nome || 'Cliente',
+                        produto_id: venda.produto_id,
+                        produto_nome: produto.nome,
+                        email: venda.cliente_email,
+                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                    });
+                    
+                    if (resultadoRemarketing.ignorado) {
+                        console.log(`⚠️ Remarketing ignorado: ${resultadoRemarketing.motivo}`);
+                    } else if (resultadoRemarketing.sucesso) {
+                        console.log('✅ Venda cancelada adicionada à fila de remarketing com sucesso!');
+                    }
+                } else {
+                    console.log('ℹ️ Remarketing não está ativado para este produto ou produto não encontrado');
+                }
+            } catch (remarketingError) {
+                // Não falhar o webhook por erro no remarketing
+                console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
             }
         }
 
-        // Atualizar dados adicionais se fornecidos
-        if (reference) {
-            venda.pagamentoReferencia = reference;
-        }
-        if (amount) {
-            venda.valor = parseFloat(amount);
-        }
-
-        await venda.update({
-            status: novoPagamentoStatus,
-            referencia_pagamento: reference || venda.referencia_pagamento,
-            valor: parseFloat(amount) || venda.valor,
-            data_pagamento: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        });
-
         console.log(`✅ Status atualizado via webhook PayMoz:`);
-        console.log(`   Venda ID: ${venda.id}`);
-        console.log(`   Transaction ID: ${transaction_id}`);
+        console.log(`   Total de vendas: ${vendasRelacionadas.length}`);
+        console.log(`   Transaction ID: ${txId}`);
         console.log(`   Status anterior: ${statusAnterior}`);
         console.log(`   Novo status: ${novoPagamentoStatus}`);
 
-        // Incrementar vendas do produto apenas se mudou para aprovado
-        if (statusAnterior !== 'Aprovada' && novoPagamentoStatus === 'Aprovada') {
+        // Incrementar vendas do produto apenas se mudou para aprovado (apenas uma vez)
+        if (statusAnterior !== 'Aprovada' && novoPagamentoStatus === 'Aprovado') {
             // Enviar notificação para o vendedor via webhook e2Payments
             try {
                 console.log('🔔 Enviando notificação automática para painel do vendedor via webhook e2Payments...');
@@ -2723,6 +2832,7 @@ router.post('/webhook/paymoz', async (req, res) => {
             }
 
             // Enviar email de confirmação de compra para o cliente via webhook e2Payments
+            // Enviar apenas uma vez para a venda principal (que já envia todos os produtos)
             try {
                 console.log('📧 Enviando email de confirmação de compra para cliente via webhook e2Payments...');
                 const vendaNotificationService = require('../services/vendaNotificationService');
@@ -2733,8 +2843,12 @@ router.post('/webhook/paymoz', async (req, res) => {
                 // Não falhar o webhook por erro de email
             }
             
-            await Produto.increment('vendas', { where: { id: venda.produto_id } });
-            console.log(`📈 Vendas do produto incrementadas`);
+            // Incrementar vendas dos produtos (principal + orderbumps)
+            const produtosIds = [...new Set(vendasRelacionadas.map(v => v.produto_id).filter(Boolean))];
+            for (const produtoId of produtosIds) {
+                await Produto.increment('vendas', { where: { id: produtoId } });
+            }
+            console.log(`📈 Vendas dos produtos incrementadas (${produtosIds.length} produtos)`);
             
             // Buscar produto para envio do email
             const produto = await Produto.findByPk(venda.produto_id);
@@ -3009,6 +3123,32 @@ router.post('/atualizar-status-venda/:transactionId', async (req, res) => {
             updateData.falha_motivo = motivo || 'Cancelamento automático por erro do servidor';
             updateData.falha_data = new Date().toISOString();
             updateData.falha_id = `SERVER-ERROR-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+            
+            // Adicionar à fila de remarketing se o produto tiver remarketing ativado
+            try {
+                const remarketingService = require('../services/remarketingService');
+                const produto = await Produto.findByPk(venda.produto_id);
+                
+                if (produto && produto.remarketing_config?.enabled) {
+                    console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
+                    const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
+                        cliente_id: venda.cliente_id || null,
+                        cliente_nome: venda.cliente_nome || 'Cliente',
+                        produto_id: venda.produto_id,
+                        produto_nome: produto.nome,
+                        email: venda.cliente_email,
+                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                    });
+                    
+                    if (resultadoRemarketing.ignorado) {
+                        console.log(`⚠️ Remarketing ignorado: ${resultadoRemarketing.motivo}`);
+                    } else if (resultadoRemarketing.sucesso) {
+                        console.log('✅ Venda cancelada adicionada à fila de remarketing!');
+                    }
+                }
+            } catch (remarketingError) {
+                console.error('⚠️ Erro ao adicionar à fila de remarketing:', remarketingError.message);
+            }
         }
 
         await venda.update(updateData);
@@ -3669,7 +3809,7 @@ router.get('/success/venda/:vendaId', async (req, res) => {
         // Buscar produtos complementares da venda
         const ProdutoComplementarVendaService = require('../services/produtoComplementarVendaService');
         const produtosComplementares = await ProdutoComplementarVendaService.buscarProdutosComplementaresPorVenda(venda.id);
-        const produtosComplementaresFormatados = ProdutoComplementarVendaService.formatarProdutosComplementares(produtosComplementares);
+        const produtosComplementaresFormatados = await ProdutoComplementarVendaService.formatarProdutosComplementares(produtosComplementares);
         
         console.log(`📦 Produtos complementares encontrados: ${produtosComplementaresFormatados.length}`);
         
@@ -3809,7 +3949,7 @@ router.get('/success/:numeroPedido', async (req, res) => {
         // Buscar produtos complementares da venda
         const ProdutoComplementarVendaService = require('../services/produtoComplementarVendaService');
         const produtosComplementares = await ProdutoComplementarVendaService.buscarProdutosComplementaresPorVenda(venda.id);
-        const produtosComplementaresFormatados = ProdutoComplementarVendaService.formatarProdutosComplementares(produtosComplementares);
+        const produtosComplementaresFormatados = await ProdutoComplementarVendaService.formatarProdutosComplementares(produtosComplementares);
         
         console.log(`📦 Produtos complementares encontrados: ${produtosComplementaresFormatados.length}`);
         

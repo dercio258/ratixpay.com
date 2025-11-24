@@ -3,7 +3,7 @@
     'use strict';
 
     // Configuração da API
-    const API_BASE = window.API_BASE || 'http://localhost:3000/api';
+    const API_BASE = window.API_BASE || 'http://localhost:4000/api';
 
     // Páginas que não precisam de autenticação
     const PUBLIC_PAGES = [

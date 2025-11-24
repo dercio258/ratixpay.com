@@ -38,7 +38,8 @@ class ProdutoComplementarVendaService {
                 const produtoComplementar = await ProdutoComplementarVenda.create({
                     venda_id: vendaId,
                     produto_complementar_id: produto.id,
-                    nome: produto.nome,
+                    nome_produto: produto.nome || 'Produto Complementar', // Campo correto do banco
+                    nome: produto.nome || 'Produto Complementar', // Manter para compatibilidade
                     preco: produto.preco,
                     desconto: produto.desconto || 0,
                     imagem: produto.imagem || '',
@@ -119,10 +120,27 @@ class ProdutoComplementarVendaService {
     /**
      * Formata os produtos complementares para exibição na payment-success
      * @param {Array} produtosComplementares - Array de produtos complementares do banco
-     * @returns {Array} - Array formatado para exibição
+     * @returns {Promise<Array>} - Array formatado para exibição
      */
-    static formatarProdutosComplementares(produtosComplementares) {
-        return produtosComplementares.map(produto => {
+    static async formatarProdutosComplementares(produtosComplementares) {
+        const produtosFormatados = [];
+        
+        for (const produto of produtosComplementares) {
+            // Se não tiver link_conteudo salvo, buscar do produto original
+            let linkConteudo = produto.link_conteudo || '';
+            
+            if (!linkConteudo && produto.produto_complementar_id) {
+                try {
+                    const produtoOriginal = await Produto.findByPk(produto.produto_complementar_id);
+                    if (produtoOriginal && produtoOriginal.link_conteudo) {
+                        linkConteudo = produtoOriginal.link_conteudo;
+                        console.log(`✅ Link de conteúdo recuperado do produto original: ${produtoOriginal.nome}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Erro ao buscar produto original para link_conteudo:`, error);
+                }
+            }
+            
             console.log('🔄 Formatando produto complementar:', {
                 id: produto.id,
                 produto_complementar_id: produto.produto_complementar_id,
@@ -131,26 +149,28 @@ class ProdutoComplementarVendaService {
                 desconto: produto.desconto,
                 imagem: produto.imagem,
                 miniatura: produto.miniatura,
-                link_conteudo: produto.link_conteudo,
+                link_conteudo: linkConteudo,
                 descricao: produto.descricao,
                 tipo: produto.tipo,
                 vendedor_id: produto.vendedor_id
             });
             
-            return {
+            produtosFormatados.push({
                 id: produto.produto_complementar_id,
                 produto_complementar_id: produto.produto_complementar_id,
-                nome: produto.nome,
+                nome: produto.nome || 'Produto Complementar',
                 preco: parseFloat(produto.preco),
                 desconto: parseFloat(produto.desconto || 0),
                 imagem: produto.imagem || '',
                 miniatura: produto.miniatura || '',
-                link_conteudo: produto.link_conteudo || '',
+                link_conteudo: linkConteudo,
                 descricao: produto.descricao || '',
                 tipo: produto.tipo || 'digital',
                 vendedor_id: produto.vendedor_id
-            };
-        });
+            });
+        }
+        
+        return produtosFormatados;
     }
     
     /**

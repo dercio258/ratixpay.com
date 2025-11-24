@@ -253,7 +253,7 @@ const securityHeaders = (req, res, next) => {
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.socket.io cdn.jsdelivr.net; " +
         "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com cdn.jsdelivr.net; " +
-        "img-src 'self' data: https:; " +
+        "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
         "font-src 'self' cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com cdn.jsdelivr.net; " +
         "connect-src 'self' https://opay.mucamba.site https://www.ratixpay.com https://ratixpay.com http://www.ratixpay.com http://ratixpay.com *; " +
         "frame-ancestors 'none';"
@@ -269,7 +269,7 @@ const helmetConfig = helmet({
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "cdn.socket.io", "cdn.jsdelivr.net"],
             styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "cdn.jsdelivr.net"],
-            imgSrc: ["'self'", "data:", "https:"],
+            imgSrc: ["'self'", "data:", "https:", "http://localhost:*", "http://127.0.0.1:*"],
             fontSrc: ["'self'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"],
             connectSrc: ["'self'", "https://opay.mucamba.site", "https://www.ratixpay.com", "https://ratixpay.com", "http://www.ratixpay.com", "http://ratixpay.com", "*"],
             frameAncestors: ["'none'"]

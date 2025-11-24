@@ -138,7 +138,7 @@ app.use((req, res, next) => {
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://connect.facebook.net https://static.cloudflareinsights.com; " +
         "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
-        "img-src 'self' data: https:; " +
+        "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
         "media-src 'self' https://www.myinstants.com https://actions.google.com; " +
         "connect-src 'self' https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com; " +
         "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com;"

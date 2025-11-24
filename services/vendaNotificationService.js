@@ -237,7 +237,7 @@ class VendaNotificationService {
                 temOrderBump: vendasRelacionadas.length > 0
             };
 
-            // Enviar notificações para o cliente (apenas uma vez cada)
+            // Enviar notificações para o cliente - PRODUTO PRINCIPAL PRIMEIRO
             console.log('📧 Iniciando envio de notificações para o cliente...');
             console.log('📧 Email do cliente:', venda.cliente_email);
             console.log('📧 Telefone do cliente:', venda.cliente_telefone);
@@ -246,14 +246,17 @@ class VendaNotificationService {
             if (!venda || !venda.cliente_email) {
                 console.warn('⚠️ Cliente não tem email configurado. Pulando envio de email.');
             } else {
-                // Enviar email (apenas uma vez)
-            try {
-                await this.enviarEmailClienteConteudoPronto(dadosNotificacao);
-                    console.log('✅ Email de confirmação enviado para cliente');
-            } catch (emailError) {
-                    console.error('❌ Erro ao enviar email para cliente:', emailError);
+                // 1. Enviar email do PRODUTO PRINCIPAL primeiro
+                try {
+                    await this.enviarEmailClienteProdutoPrincipal(dadosNotificacao);
+                    console.log('✅ Email do produto principal enviado para cliente');
+                } catch (emailError) {
+                    console.error('❌ Erro ao enviar email do produto principal:', emailError);
                     // Continuar sem falhar o processo
                 }
+
+                // 2. Produtos bônus agora são incluídos no email principal (não enviar emails separados)
+                // Os produtos bônus serão incluídos no email de confirmação de compra
             }
             
             // WhatsApp do cliente é enviado via função principal enviarProdutoViaWhatsApp em routes/pagamento.js
@@ -371,11 +374,11 @@ class VendaNotificationService {
     }
 
     /**
-     * Buscar vendas relacionadas (order bump)
+     * Buscar vendas relacionadas (order bump) - ordenadas por ordem de criação
      */
     async buscarVendasRelacionadas(venda) {
         try {
-            // Buscar vendas com a mesma referência de pagamento
+            // Buscar vendas com a mesma referência de pagamento (sem filtrar por tipo_venda que não existe)
             const vendasRelacionadas = await Venda.findAll({
                 where: {
                     referencia_pagamento: venda.referencia_pagamento,
@@ -386,15 +389,45 @@ class VendaNotificationService {
                     model: Produto,
                     as: 'produto'
                 }],
-                order: [['created_at', 'ASC']]
+                order: [
+                    ['created_at', 'ASC'] // Ordem de criação (primeiro orderbump1, depois orderbump2...)
+                ]
             });
 
-            console.log(`🔍 Vendas relacionadas encontradas: ${vendasRelacionadas.length}`);
-            return vendasRelacionadas;
+            // Filtrar apenas as vendas que são order bumps (verificar nas observações)
+            const orderBumps = vendasRelacionadas.filter(v => 
+                v.observacoes && v.observacoes.includes('Order Bump')
+            );
+
+            // Ordenar também por ordem extraída das observações (Order Bump 1, 2, 3...)
+            orderBumps.sort((a, b) => {
+                const ordemA = this.extrairOrdemOrderBump(a.observacoes);
+                const ordemB = this.extrairOrdemOrderBump(b.observacoes);
+                if (ordemA !== null && ordemB !== null) {
+                    return ordemA - ordemB;
+                }
+                // Se não conseguir extrair ordem, usar created_at
+                return new Date(a.created_at) - new Date(b.created_at);
+            });
+
+            console.log(`🔍 Vendas relacionadas encontradas (ordenadas): ${orderBumps.length}`);
+            orderBumps.forEach((v, index) => {
+                console.log(`   📦 Order Bump ${index + 1}: ${v.produto?.nome || 'Produto'} - Link: ${v.produto?.link_conteudo || 'SEM LINK'}`);
+            });
+            return orderBumps;
         } catch (error) {
             console.error('❌ Erro ao buscar vendas relacionadas:', error);
             return [];
         }
+    }
+
+    /**
+     * Extrair ordem do orderbump das observações
+     */
+    extrairOrdemOrderBump(observacoes) {
+        if (!observacoes) return null;
+        const match = observacoes.match(/Order Bump (\d+):/);
+        return match ? parseInt(match[1]) : null;
     }
 
     /**
@@ -413,9 +446,11 @@ class VendaNotificationService {
                 const valorRelacionado = this.obterValorPagoProduto(vendaRelacionada, vendaRelacionada.produto);
                 valorTotal += valorRelacionado.valor;
                 produtosOrderBump.push({
+                    id: vendaRelacionada.produto?.id || vendaRelacionada.produto_id,
                     nome: vendaRelacionada.produto?.nome || 'Produto',
                     valor: valorRelacionado.valor,
-                    valor_formatado: valorRelacionado.valorFormatado
+                    valor_formatado: valorRelacionado.valorFormatado,
+                    link_conteudo: vendaRelacionada.produto?.link_conteudo || ''
                 });
             });
             
@@ -551,8 +586,266 @@ class VendaNotificationService {
     }
 
     /**
+     * Enviar email do PRODUTO PRINCIPAL para o cliente
+     * @param {Object} dadosNotificacao - Dados da notificação
+     */
+    async enviarEmailClienteProdutoPrincipal(dadosNotificacao) {
+        try {
+            console.log('📧 Enviando email do PRODUTO PRINCIPAL...');
+            const { venda, produto } = dadosNotificacao;
+            
+            // Validar dados essenciais
+            if (!venda || !produto) {
+                console.error('❌ Dados incompletos para envio de email do produto principal');
+                return;
+            }
+            
+            if (!venda.cliente_email) {
+                console.log('⚠️ Cliente não tem email configurado');
+                return;
+            }
+
+            // Buscar dados do vendedor
+            let vendedor = null;
+            const vendedorId = produto.vendedor_id || venda.vendedor_id;
+            if (vendedorId) {
+                vendedor = await Usuario.findByPk(vendedorId);
+            }
+
+            // Buscar expert se houver
+            let expert = null;
+            if (produto.expert_id) {
+                const { Expert } = require('../config/database');
+                expert = await Expert.findByPk(produto.expert_id);
+            }
+
+            const pedidoId = venda.numero_pedido || venda.pagamento_transacao_id || venda.pagamento_referencia || venda.id;
+            const valorPago = this.obterValorPagoProduto(venda, produto);
+            
+            // Carregar template
+            const fs = require('fs');
+            const path = require('path');
+            const templatePath = path.join(__dirname, '../templates/email-confirmacao-compra.html');
+            
+            let emailContent = '';
+            if (fs.existsSync(templatePath)) {
+                emailContent = fs.readFileSync(templatePath, 'utf8');
+            } else {
+                emailContent = this.getFallbackClienteEmailTemplate(venda, produto, vendedor, pedidoId);
+            }
+
+            const contatoNome = expert ? expert.nome : (vendedor?.nome_completo || 'Vendedor');
+            const contatoEmail = expert ? expert.email : (vendedor?.email || 'suporte@ratixpay.com');
+            const vendedorNome = vendedor?.nome_completo || 'Vendedor';
+
+            // Buscar produtos bônus (orderbumps) se existirem
+            const vendasRelacionadas = dadosNotificacao.vendasRelacionadas || [];
+            
+            // Botão para produto principal
+            let botoesAcesso = `
+                <div class="access-button-container">
+                    <a href="${produto.link_conteudo || '#'}" class="access-button">
+                        🎯 Clique aqui para acessar o conteúdo
+                    </a>
+                </div>
+            `;
+            
+            // Adicionar seção de produtos bônus se existirem
+            let produtosBonusHtml = '';
+            if (vendasRelacionadas && vendasRelacionadas.length > 0) {
+                produtosBonusHtml = '<div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e0e0e0;"><h3 style="color: #F64C00; margin-bottom: 20px;">🎁 Produtos Bônus Incluídos:</h3>';
+                
+                vendasRelacionadas.forEach((vendaRel, index) => {
+                    const produtoBonus = vendaRel.produto;
+                    if (produtoBonus && produtoBonus.link_conteudo) {
+                        produtosBonusHtml += `
+                            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #f59e0b;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">🎁 Incluindo bônus: ${produtoBonus.nome || 'Produto Bônus'}</h4>
+                                <a href="${produtoBonus.link_conteudo}" style="background-color: #f59e0b; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; font-weight: bold; margin-top: 10px;">
+                                    📥 Acessar Produto Bônus
+                                </a>
+                            </div>
+                        `;
+                    }
+                });
+                
+                produtosBonusHtml += '</div>';
+            }
+
+            // Substituir variáveis no template
+            const emailFinal = emailContent
+                .replace(/{{nome_completo}}/g, venda.cliente_nome || 'Cliente')
+                .replace(/{{nome_produto}}/g, produto.nome || 'Produto')
+                .replace(/{{valor}}/g, valorPago.valorFormatado || '0,00 MZN')
+                .replace(/{{nome_produtor}}/g, contatoNome)
+                .replace(/{{nome_vendedor}}/g, vendedorNome)
+                .replace(/{{email_produtor}}/g, contatoEmail)
+                .replace(/{{url_acesso_produto}}/g, produto.link_conteudo || '#')
+                .replace(/{{botoes_acesso}}/g, botoesAcesso)
+                .replace(/{{produtos_bonus}}/g, produtosBonusHtml)
+                .replace(/{{url_suporte}}/g, 'https://wa.me/258842363948')
+                .replace(/{{url_plataforma}}/g, 'https://ratixpay.com')
+                .replace(/{{url_termos}}/g, 'https://ratixpay.com/termos');
+
+            const idPedidoFormatado = pedidoId ? 
+                (pedidoId.toString().startsWith('TXP_') ? pedidoId : `TXP_${pedidoId}`) : 
+                venda.pagamento_transacao_id;
+            const assunto = `🎉 Confirmação da compra - ${produto.nome} - ID${idPedidoFormatado}`;
+            
+            // Enviar email
+            const professionalEmailService = require('./professionalEmailService');
+            await professionalEmailService.enviarEmailVendas(
+                venda.cliente_email,
+                assunto,
+                emailFinal,
+                'confirmacao_compra'
+            );
+            console.log(`✅ Email do produto principal enviado: ${venda.cliente_email}`);
+
+        } catch (error) {
+            console.error('❌ Erro ao enviar email do produto principal:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Enviar email de PRODUTO COMPLEMENTAR (orderbump) para o cliente
+     * @param {Object} vendaRelacionada - Venda do produto complementar
+     * @param {number} ordem - Ordem do orderbump (1, 2, 3...)
+     * @param {string} clienteEmail - Email do cliente
+     * @param {string} clienteNome - Nome do cliente
+     */
+    async enviarEmailClienteProdutoComplementar(vendaRelacionada, ordem, clienteEmail, clienteNome) {
+        try {
+            console.log(`📧 Enviando email do PRODUTO COMPLEMENTAR ${ordem}...`);
+            
+            if (!vendaRelacionada || !vendaRelacionada.produto) {
+                console.error('❌ Dados incompletos para envio de email do produto complementar');
+                return;
+            }
+
+            const produto = vendaRelacionada.produto;
+            
+            if (!produto.link_conteudo) {
+                console.log(`⚠️ Produto complementar ${ordem} não tem link de conteúdo`);
+                return;
+            }
+
+            // Buscar dados do vendedor
+            let vendedor = null;
+            const vendedorId = produto.vendedor_id || vendaRelacionada.vendedor_id;
+            if (vendedorId) {
+                vendedor = await Usuario.findByPk(vendedorId);
+            }
+
+            // Buscar expert se houver
+            let expert = null;
+            if (produto.expert_id) {
+                const { Expert } = require('../config/database');
+                expert = await Expert.findByPk(produto.expert_id);
+            }
+
+            const valorPago = this.obterValorPagoProduto(vendaRelacionada, produto);
+            const contatoNome = expert ? expert.nome : (vendedor?.nome_completo || 'Vendedor');
+            const contatoEmail = expert ? expert.email : (vendedor?.email || 'suporte@ratixpay.com');
+
+            // Carregar template
+            const fs = require('fs');
+            const path = require('path');
+            const templatePath = path.join(__dirname, '../templates/email-produto-complementar.html');
+            
+            let emailContent = '';
+            if (fs.existsSync(templatePath)) {
+                emailContent = fs.readFileSync(templatePath, 'utf8');
+            } else {
+                // Template fallback para produto complementar
+                emailContent = this.getFallbackProdutoComplementarTemplate(
+                    clienteNome,
+                    produto,
+                    valorPago,
+                    contatoNome,
+                    contatoEmail,
+                    ordem
+                );
+            }
+
+            // Substituir variáveis no template
+            const emailFinal = emailContent
+                .replace(/{{nome_completo}}/g, clienteNome || 'Cliente')
+                .replace(/{{nome_produto}}/g, produto.nome || 'Produto Complementar')
+                .replace(/{{valor}}/g, valorPago.valorFormatado || '0,00 MZN')
+                .replace(/{{nome_produtor}}/g, contatoNome)
+                .replace(/{{email_produtor}}/g, contatoEmail)
+                .replace(/{{url_acesso_produto}}/g, produto.link_conteudo || '#')
+                .replace(/{{ordem}}/g, ordem.toString())
+                .replace(/{{url_suporte}}/g, 'https://wa.me/258842363948')
+                .replace(/{{url_plataforma}}/g, 'https://ratixpay.com')
+                .replace(/{{url_termos}}/g, 'https://ratixpay.com/termos');
+
+            const assunto = `🎁 Produto Complementar ${ordem} - ${produto.nome}`;
+            
+            // Enviar email
+            const professionalEmailService = require('./professionalEmailService');
+            await professionalEmailService.enviarEmailVendas(
+                clienteEmail,
+                assunto,
+                emailFinal,
+                'produto_complementar'
+            );
+            console.log(`✅ Email do produto complementar ${ordem} enviado: ${clienteEmail}`);
+
+        } catch (error) {
+            console.error(`❌ Erro ao enviar email do produto complementar ${ordem}:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Template fallback para produto complementar
+     */
+    getFallbackProdutoComplementarTemplate(clienteNome, produto, valorPago, contatoNome, contatoEmail, ordem) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Produto Complementar - RatixPay</title>
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0;">🎁 Produto Complementar ${ordem}</h1>
+                </div>
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <p>Olá <strong>${clienteNome}</strong>!</p>
+                    <p>Parabéns! Você adquiriu o produto complementar:</p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #F64C00;">
+                        <h2 style="margin-top: 0; color: #F64C00;">${produto.nome}</h2>
+                        <p style="color: #666; margin-bottom: 0;">Valor: <strong>${valorPago.valorFormatado || '0,00 MZN'}</strong></p>
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${produto.link_conteudo || '#'}" style="background-color: #F64C00; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold;">
+                            📥 Acessar Produto Complementar
+                        </a>
+                    </div>
+                    <p style="color: #6c757d; font-size: 14px; margin-top: 30px;">
+                        Este é um produto complementar da sua compra. Guarde este email em local seguro.
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+                    <p style="color: #6c757d; font-size: 12px; text-align: center;">
+                        Dúvidas? Entre em contato: <a href="mailto:${contatoEmail}" style="color: #F64C00;">${contatoEmail}</a><br>
+                        <a href="https://ratixpay.com" style="color: #F64C00;">RatixPay</a> - Sua plataforma de vendas digitais
+                    </p>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    /**
      * Enviar email de confirmação de compra para o cliente usando template profissional
      * @param {Object} dadosNotificacao - Dados da notificação
+     * @deprecated Use enviarEmailClienteProdutoPrincipal e enviarEmailClienteProdutoComplementar
      */
     async enviarEmailClienteConteudoPronto(dadosNotificacao) {
         try {
@@ -807,15 +1100,92 @@ class VendaNotificationService {
                 produto_nome: dadosExtras.produto_nome
             });
 
-            // Preparar lista de produtos para order bump
+            // Buscar vendas relacionadas para obter links de conteúdo dos produtos bônus
+            let vendasRelacionadas = [];
+            if (dadosExtras.venda_id) {
+                try {
+                    const venda = await Venda.findByPk(dadosExtras.venda_id, {
+                        include: [{
+                            model: Produto,
+                            as: 'produto'
+                        }]
+                    });
+                    if (venda) {
+                        vendasRelacionadas = await this.buscarVendasRelacionadas(venda);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar vendas relacionadas para email:', error);
+                }
+            }
+            
+            // Preparar lista de produtos bônus para incluir nos detalhes da transação
             let produtosOrderBumpHtml = '';
+            let produtosBonusTexto = '';
+            let produtosBonusDetalhesCompra = '';
+            let botoesBonusHtml = '';
+            
             if (dadosNotificacao.temOrderBump && dadosNotificacao.produtosOrderBump && dadosNotificacao.produtosOrderBump.length > 0) {
-                produtosOrderBumpHtml = dadosNotificacao.produtosOrderBump.map(produto => 
-                    `<div class="detail-item">
-                        <div class="detail-label">${produto.nome} (Complementar)</div>
-                        <div class="detail-value">${produto.valor_formatado}</div>
+                // Mapear produtos bônus com links de conteúdo das vendas relacionadas
+                const produtosComLinks = await Promise.all(dadosNotificacao.produtosOrderBump.map(async (produto, index) => {
+                    // Tentar encontrar link na venda relacionada correspondente
+                    let linkConteudo = '';
+                    
+                    if (vendasRelacionadas[index] && vendasRelacionadas[index].produto) {
+                        linkConteudo = vendasRelacionadas[index].produto.link_conteudo || '';
+                    }
+                    
+                    // Se não encontrou na venda relacionada, tentar buscar do produto original
+                    if (!linkConteudo && produto.id) {
+                        try {
+                            const produtoOriginal = await Produto.findByPk(produto.id);
+                            if (produtoOriginal && produtoOriginal.link_conteudo) {
+                                linkConteudo = produtoOriginal.link_conteudo;
+                            }
+                        } catch (error) {
+                            console.error(`❌ Erro ao buscar produto original para link_conteudo:`, error);
+                        }
+                    }
+                    
+                    // Se ainda não encontrou, usar o que veio no produto
+                    if (!linkConteudo) {
+                        linkConteudo = produto.link_conteudo || '';
+                    }
+                    
+                    return {
+                        nome: produto.nome,
+                        valor_formatado: produto.valor_formatado,
+                        link_conteudo: linkConteudo
+                    };
+                }));
+                
+                // HTML para detalhes da transação
+                produtosOrderBumpHtml = produtosComLinks.map(produto => 
+                    `<div class="detail-row">
+                        <span class="detail-label">Bonus:</span>
+                        <span class="detail-value">${produto.nome}</span>
                     </div>`
                 ).join('');
+                
+                // Texto para detalhes de compra (+bonus {nome})
+                produtosBonusDetalhesCompra = produtosComLinks.map(p => `+bonus ${p.nome}`).join(', ');
+                
+                // Botões de download para cada produto bônus
+                botoesBonusHtml = produtosComLinks.map((produto, index) => {
+                    if (produto.link_conteudo && produto.link_conteudo.trim() !== '') {
+                        return `
+                            <div class="button-container" style="margin-bottom: 15px;">
+                                <a href="${produto.link_conteudo}" class="cta-button" style="background: #f59e0b;">
+                                    📥 Baixar Produto Bônus: ${produto.nome}
+                                </a>
+                            </div>
+                        `;
+                    }
+                    return '';
+                }).filter(html => html !== '').join('');
+                
+                // Texto para incluir na descrição da transação
+                const nomesBonus = produtosComLinks.map(p => p.nome).join(', ');
+                produtosBonusTexto = ` Incluindo produto bônus: ${nomesBonus}`;
             }
 
             // Substituir variáveis no template
@@ -833,9 +1203,12 @@ class VendaNotificationService {
                 .replace(/{{data_inicio}}/g, new Date(dadosExtras.data_venda).toLocaleDateString('pt-BR') || new Date().toLocaleDateString('pt-BR'))
                 .replace(/{{data_liberacao}}/g, new Date().toLocaleDateString('pt-BR'))
                 .replace(/{{data_liberacao_completa}}/g, new Date().toLocaleString('pt-BR'))
-                .replace(/{{produto_descricao}}/g, dadosExtras.produto_nome || 'Produto vendido com sucesso')
+                .replace(/{{produto_descricao}}/g, (dadosExtras.produto_nome || 'Produto vendido com sucesso') + produtosBonusTexto)
                 .replace(/{{produtos_order_bump}}/g, produtosOrderBumpHtml)
-                .replace(/{{tem_order_bump}}/g, dadosNotificacao.temOrderBump ? 'block' : 'none');
+                .replace(/{{tem_order_bump}}/g, dadosNotificacao.temOrderBump ? 'block' : 'none')
+                .replace(/{{produtos_bonus_texto}}/g, produtosBonusTexto)
+                .replace(/{{produtos_bonus_detalhes_compra}}/g, produtosBonusDetalhesCompra)
+                .replace(/{{botoes_bonus}}/g, botoesBonusHtml);
 
             // Validar se emailFinal foi gerado corretamente
             if (!emailFinal || emailFinal.trim().length === 0) {
@@ -920,14 +1293,56 @@ class VendaNotificationService {
     /**
      * Formatar mensagem para WhatsApp
      */
+    /**
+     * Censurar nome do produto (mostrar apenas 3 primeiras letras)
+     * @param {string} nomeProduto - Nome completo do produto
+     * @returns {string} - Nome censurado
+     */
+    censurarNomeProduto(nomeProduto) {
+        if (!nomeProduto || nomeProduto.length <= 3) {
+            return nomeProduto || 'Produto';
+        }
+        
+        // Pegar as 3 primeiras letras
+        const primeiras3Letras = nomeProduto.substring(0, 3);
+        // Resto do nome substituído por asteriscos
+        const restoCensurado = '*'.repeat(Math.min(nomeProduto.length - 3, 10)); // Máximo 10 asteriscos
+        
+        return `${primeiras3Letras}${restoCensurado}`;
+    }
+
     formatarMensagemWhatsApp(dadosNotificacao) {
         const { dadosExtras } = dadosNotificacao;
         
-        return `🎉 *Nova Venda*
+        // Valor que o vendedor recebeu (90% do total)
+        // Se valor_recebido já está formatado, usar diretamente, senão formatar
+        let valorRecebido = dadosExtras.valor_recebido;
+        if (!valorRecebido || (typeof valorRecebido === 'number')) {
+            // Se for número ou não estiver formatado, formatar
+            const valorNumerico = typeof valorRecebido === 'number' ? valorRecebido : 
+                                 (dadosExtras.valor || dadosExtras.valor_vendedor || 0);
+            valorRecebido = this.formatarValorMonetario(valorNumerico);
+        }
+        
+        // Censurar nome do produto (mostrar apenas 3 primeiras letras)
+        const nomeProdutoCensurado = this.censurarNomeProduto(dadosExtras.produto_nome);
+        
+        // Preparar texto de produtos bônus se houver
+        let produtosBonusTexto = '';
+        if (dadosNotificacao.temOrderBump && dadosNotificacao.produtosOrderBump && dadosNotificacao.produtosOrderBump.length > 0) {
+            const nomesBonus = dadosNotificacao.produtosOrderBump.map(p => p.nome).join(', ');
+            produtosBonusTexto = `\nIncluindo produto bônus: ${nomesBonus}`;
+        }
+        
+        return `🎉 *Nova Venda realizada*
 
-📦 ${dadosExtras.produto_nome}
-💰 ${dadosExtras.valor_formatado}
-👤 ${dadosExtras.cliente_nome}
+Parabéns você recebeu ${valorRecebido} confira no seu painel de vendas.
+
+👤 anônimo
+
+💰 +${valorRecebido}
+
+📦 ${nomeProdutoCensurado}${produtosBonusTexto}
 
 RatixPay`;
     }
@@ -1766,12 +2181,34 @@ RatixPay`;
             const pushNotificationService = require('../services/pushNotificationService');
             const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
             // Calcular valor do vendedor (90% do total ou usar valor já calculado)
-            const valorVendedor = dadosNotificacao.dadosExtras?.valor_vendedor || venda.valor;
-            const valorFormatado = valorVendedor.toFixed ? valorVendedor.toFixed(2) : parseFloat(valorVendedor).toFixed(2);
+            const valorVendedor = dadosNotificacao.dadosExtras?.valor_recebido || dadosNotificacao.dadosExtras?.valor_vendedor || venda.valor;
+            const valorFormatado = this.formatarValorMonetario(valorVendedor);
+            
+            // Censurar nome do produto
+            const nomeProduto = dadosNotificacao.dadosExtras?.produto_nome || 'Produto';
+            const nomeProdutoCensurado = this.censurarNomeProduto(nomeProduto);
+            
+            // Preparar texto de produtos bônus se houver
+            let produtosBonusTexto = '';
+            if (dadosNotificacao.temOrderBump && dadosNotificacao.produtosOrderBump && dadosNotificacao.produtosOrderBump.length > 0) {
+                const nomesBonus = dadosNotificacao.produtosOrderBump.map(p => p.nome).join(', ');
+                produtosBonusTexto = `\nIncluindo produto bônus: ${nomesBonus}`;
+            }
+            
+            // Formatar corpo da notificação seguindo a estrutura solicitada
+            const body = `Parabéns você recebeu ${valorFormatado} confira no seu painel de vendas.
+
+👤 anônimo
+
+💰 +${valorFormatado}
+
+📦 ${nomeProdutoCensurado}${produtosBonusTexto}
+
+RatixPay`;
 
             const notification = {
-                title: 'Venda realizada!',
-                body: `Recebeste uma comissão de ${valorFormatado} MZN na tua conta.`,
+                title: '🎉 Nova Venda realizada',
+                body: body,
                 icon: '/assets/images/icons/icon-192x192.png',
                 badge: '/assets/images/icons/icon-48x48.png',
                 tag: `venda-${venda.id}`,
@@ -1785,7 +2222,7 @@ RatixPay`;
                     venda_id: venda.id,
                     produto_id: dadosNotificacao.dadosExtras?.produto_id,
                     produto_nome: dadosNotificacao.dadosExtras?.produto_nome,
-                    valor: dadosNotificacao.dadosExtras?.valor_vendedor || venda.valor,
+                    valor: dadosNotificacao.dadosExtras?.valor_recebido || dadosNotificacao.dadosExtras?.valor_vendedor || venda.valor,
                     valor_formatado: valorFormatado,
                     timestamp: new Date().toISOString()
                 }
@@ -2271,6 +2708,49 @@ RatixPay`;
         const valorCreditado = dadosExtras.valor_recebido || dadosExtras.valor_formatado || '0,00 MZN';
         const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
         
+        // Preparar produtos bônus se existirem
+        let produtosBonusDetalhesCompra = '';
+        let produtosBonusDetalhesTransacao = '';
+        let botoesBonusHtml = '';
+        
+        if (dadosNotificacao.temOrderBump && dadosNotificacao.produtosOrderBump && dadosNotificacao.produtosOrderBump.length > 0) {
+            // Texto para detalhes de compra (+bonus {nome})
+            produtosBonusDetalhesCompra = ' ' + dadosNotificacao.produtosOrderBump.map(p => `+bonus ${p.nome}`).join(', ');
+            
+            // HTML para detalhes da transação (Bonus: {nome})
+            produtosBonusDetalhesTransacao = dadosNotificacao.produtosOrderBump.map(produto => 
+                `<div class="detail-row">
+                    <span class="detail-label">Bonus:</span>
+                    <span class="detail-value">${produto.nome}</span>
+                </div>`
+            ).join('');
+            
+            // Botões de download para cada produto bônus (se tiver link)
+            // Buscar links de conteúdo das vendas relacionadas se disponível
+            botoesBonusHtml = dadosNotificacao.produtosOrderBump.map((produto, index) => {
+                // Tentar obter link do produto
+                let linkConteudo = produto.link_conteudo || '';
+                
+                // Se não tiver link, tentar buscar do produto original pelo ID
+                if (!linkConteudo && produto.id) {
+                    // O link será buscado na função enviarEmailVendedor antes de chamar este template
+                    // Por enquanto, usar o que veio no produto
+                    linkConteudo = produto.link_conteudo || '';
+                }
+                
+                if (linkConteudo && linkConteudo.trim() !== '') {
+                    return `
+                        <div class="button-container" style="margin-bottom: 15px;">
+                            <a href="${linkConteudo}" class="cta-button" style="background: #f59e0b; border: none;">
+                                📥 Baixar Produto Bônus: ${produto.nome}
+                            </a>
+                        </div>
+                    `;
+                }
+                return '';
+            }).filter(html => html !== '').join('');
+        }
+        
         return `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -2583,20 +3063,23 @@ RatixPay`;
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Nome do Produto:</span>
-                        <span class="detail-value">${dadosExtras.produto_nome || 'Produto'}</span>
+                        <span class="detail-value">${dadosExtras.produto_nome || 'Produto'}${produtosBonusDetalhesCompra}</span>
                     </div>
+                    ${produtosBonusDetalhesTransacao}
                     <div class="detail-row">
                         <span class="detail-label">Data de Aprovação:</span>
                         <span class="detail-value">${dataHoraCompleta}</span>
                     </div>
                 </div>
                 
-                <!-- Botão CTA -->
+                <!-- Botão CTA Principal -->
                 <div class="button-container">
                     <a href="${baseUrl}/gestao-vendas.html" class="cta-button">
                         Ver no Painel da RatixPay
                     </a>
                 </div>
+                
+                ${botoesBonusHtml}
             </div>
             
             <!-- Footer -->
