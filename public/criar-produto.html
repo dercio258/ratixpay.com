@@ -1974,7 +1974,7 @@
                     <div class="config-section">
                         <div class="config-section-header" onclick="toggleConfigSection('remarketingSection', event)">
                             <div class="config-section-title">
-                                <input type="checkbox" id="enableRemarketing" onclick="event.stopPropagation(); toggleRemarketingSettings()">
+                                <input type="checkbox" id="enableRemarketing" checked onclick="event.stopPropagation(); toggleRemarketingSettings()">
                                 <label for="enableRemarketing">
                                     <i class="fas fa-bullhorn"></i> Remarketing Automático
                                 </label>
@@ -2406,6 +2406,22 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             initializeSync();
+            
+            // Inicializar remarketing como ativado por padrão
+            setTimeout(function() {
+                const enableRemarketing = document.getElementById('enableRemarketing');
+                const settings = document.getElementById('remarketingSettings');
+                const section = document.getElementById('remarketingSection');
+                
+                if (enableRemarketing) {
+                    enableRemarketing.checked = true;
+                    if (settings) settings.style.display = 'block';
+                    if (section) section.style.display = 'block';
+                    if (typeof updateRemarketingPreview === 'function') {
+                        updateRemarketingPreview();
+                    }
+                }
+            }, 100);
 
         });
 
@@ -3245,7 +3261,7 @@
 
                     },
                     remarketing: {
-                        enabled: false,
+                        enabled: true, // Ativado por padrão
                         tempo_minutos: 0
                     }
 
@@ -3257,7 +3273,8 @@
                 const remarketingCustomMinutes = document.getElementById('remarketingCustomMinutes');
                 const remarketingCustomHours = document.getElementById('remarketingCustomHours');
                 
-                if (enableRemarketing && enableRemarketing.checked) {
+                // Remarketing ativado por padrão (checkbox marcado por padrão)
+                if (!enableRemarketing || enableRemarketing.checked) {
                     let tempoMinutos = 0;
                     if (remarketingTempo && remarketingTempo.value === 'custom') {
                         const minutos = parseInt(remarketingCustomMinutes?.value || 0);
@@ -3269,6 +3286,12 @@
                     configs.remarketing = {
                         enabled: true,
                         tempo_minutos: tempoMinutos
+                    };
+                } else {
+                    // Se o usuário desmarcar explicitamente, desativar
+                    configs.remarketing = {
+                        enabled: false,
+                        tempo_minutos: 0
                     };
                 }
 
@@ -3305,6 +3328,39 @@
                     settings.style.display = 'none';
                 }
             }
+        }
+        
+        // Inicializar remarketing como ativado por padrão ao carregar a página
+        function inicializarRemarketingPadrao() {
+            const enableRemarketing = document.getElementById('enableRemarketing');
+            const settings = document.getElementById('remarketingSettings');
+            const section = document.getElementById('remarketingSection');
+            
+            if (enableRemarketing && !enableRemarketing.hasAttribute('data-initialized')) {
+                // Marcar checkbox como checked por padrão
+                enableRemarketing.checked = true;
+                enableRemarketing.setAttribute('data-initialized', 'true');
+                
+                // Mostrar configurações
+                if (settings) {
+                    settings.style.display = 'block';
+                }
+                if (section) {
+                    section.style.display = 'block';
+                }
+                
+                // Atualizar preview
+                if (typeof updateRemarketingPreview === 'function') {
+                    updateRemarketingPreview();
+                }
+            }
+        }
+        
+        // Chamar inicialização quando o DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', inicializarRemarketingPadrao);
+        } else {
+            inicializarRemarketingPadrao();
         }
         
         function updateRemarketingPreview() {
