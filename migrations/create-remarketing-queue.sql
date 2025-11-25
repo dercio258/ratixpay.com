@@ -1,39 +1,43 @@
--- Migration: Criar tabela de fila de remarketing
--- Data: 2024-12-25
--- Descrição: Tabela para gerenciar fila de notificações de remarketing automático
+-- Migração: Criar tabela remarketing_queue
+-- Execute este script como superusuário do PostgreSQL ou com permissões adequadas
 
-CREATE TABLE IF NOT EXISTS remarketing_queue (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cliente_id UUID NOT NULL,
-    cliente_nome VARCHAR(255) NOT NULL,
-    produto_id UUID NOT NULL,
-    produto_nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255),
-    telefone VARCHAR(50),
-    status VARCHAR(20) NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'enviado', 'ignorado')),
-    data_cancelamento TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    tempo_envio INTEGER NOT NULL DEFAULT 0 COMMENT 'Minutos após cancelamento',
-    data_agendada TIMESTAMP NOT NULL,
-    data_envio TIMESTAMP,
-    motivo_ignorado TEXT,
-    tentativas INTEGER DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Índices para performance
-CREATE INDEX IF NOT EXISTS idx_remarketing_status ON remarketing_queue(status);
-CREATE INDEX IF NOT EXISTS idx_remarketing_data_agendada ON remarketing_queue(data_agendada) WHERE status = 'pendente';
-CREATE INDEX IF NOT EXISTS idx_remarketing_cliente_produto ON remarketing_queue(cliente_id, produto_id);
-CREATE INDEX IF NOT EXISTS idx_remarketing_antispam ON remarketing_queue(cliente_id, produto_id, DATE(data_cancelamento));
-
--- Índice composto para queries do cron job
-CREATE INDEX IF NOT EXISTS idx_remarketing_processamento ON remarketing_queue(status, data_agendada) WHERE status = 'pendente';
-
--- Comentários nas colunas
-COMMENT ON TABLE remarketing_queue IS 'Fila de notificações de remarketing automático';
-COMMENT ON COLUMN remarketing_queue.status IS 'Status: pendente, enviado, ignorado';
-COMMENT ON COLUMN remarketing_queue.tempo_envio IS 'Minutos após cancelamento para enviar';
-COMMENT ON COLUMN remarketing_queue.data_agendada IS 'Data/hora calculada para envio (data_cancelamento + tempo_envio)';
-COMMENT ON COLUMN remarketing_queue.tentativas IS 'Número de tentativas de envio';
-
+-- Criar tabela remarketing_queue se não existir
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'remarketing_queue'
+    ) THEN
+        CREATE TABLE remarketing_queue (
+            id SERIAL PRIMARY KEY,
+            cliente_id UUID NOT NULL,
+            cliente_nome VARCHAR(255) NOT NULL,
+            produto_id UUID NOT NULL,
+            produto_nome VARCHAR(255) NOT NULL,
+            email VARCHAR(255),
+            telefone VARCHAR(50),
+            status VARCHAR(20) DEFAULT 'pendente' NOT NULL,
+            data_cancelamento TIMESTAMP NOT NULL,
+            tempo_envio INTEGER DEFAULT 0,
+            data_agendada TIMESTAMP NOT NULL,
+            tentativas INTEGER DEFAULT 0,
+            motivo_ignorado TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        -- Criar índices para melhor performance
+        CREATE INDEX idx_remarketing_queue_status ON remarketing_queue(status);
+        CREATE INDEX idx_remarketing_queue_data_agendada ON remarketing_queue(data_agendada);
+        CREATE INDEX idx_remarketing_queue_cliente_produto ON remarketing_queue(cliente_id, produto_id);
+        CREATE INDEX idx_remarketing_queue_email ON remarketing_queue(email) WHERE email IS NOT NULL;
+        
+        COMMENT ON TABLE remarketing_queue IS 'Fila de remarketing para vendas canceladas';
+        COMMENT ON COLUMN remarketing_queue.status IS 'Status: pendente, enviado, ignorado';
+        COMMENT ON COLUMN remarketing_queue.tempo_envio IS 'Tempo em minutos até o envio';
+        
+        RAISE NOTICE 'Tabela remarketing_queue criada com sucesso';
+    ELSE
+        RAISE NOTICE 'Tabela remarketing_queue já existe';
+    END IF;
+END $$;

@@ -37,6 +37,12 @@ class SidebarComponent {
                 icon: 'fas fa-tools',
                 text: 'Ferramentas',
                 section: 'ferramentas'
+            },
+            {
+                href: 'integracoes.html',
+                icon: 'fas fa-plug',
+                text: 'Integrações',
+                section: 'integracoes'
             }
         ];
     }
