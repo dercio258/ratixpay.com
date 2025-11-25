@@ -10,6 +10,28 @@ async function ativarRemarketingProdutos() {
     try {
         console.log('🔄 Iniciando ativação de remarketing para todos os produtos...\n');
 
+        // Verificar se a coluna remarketing_config existe, se não, criar
+        try {
+            await sequelize.query(`
+                DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'produtos' 
+                        AND column_name = 'remarketing_config'
+                    ) THEN
+                        ALTER TABLE produtos ADD COLUMN remarketing_config JSON;
+                        COMMENT ON COLUMN produtos.remarketing_config IS 'Configuração de remarketing automático: {enabled: true/false, tempo_minutos: 0-1440}';
+                        RAISE NOTICE 'Coluna remarketing_config criada';
+                    END IF;
+                END $$;
+            `);
+            console.log('✅ Coluna remarketing_config verificada/criada\n');
+        } catch (colError) {
+            console.error('⚠️ Erro ao verificar/criar coluna remarketing_config:', colError.message);
+            // Continuar mesmo se houver erro (pode ser que já exista)
+        }
+
         // Buscar todos os produtos
         const produtos = await Produto.findAll({
             attributes: ['id', 'nome', 'custom_id', 'remarketing_config']

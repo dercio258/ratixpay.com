@@ -197,6 +197,26 @@ const migrations = [
                 END IF;
             END $$;
         `
+    },
+    {
+        name: 'add_remarketing_config_to_produtos',
+        sql: `
+            -- Adicionar coluna remarketing_config (JSON) na tabela produtos se não existir
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'produtos' 
+                    AND column_name = 'remarketing_config'
+                ) THEN
+                    ALTER TABLE produtos ADD COLUMN remarketing_config JSON;
+                    COMMENT ON COLUMN produtos.remarketing_config IS 'Configuração de remarketing automático: {enabled: true/false, tempo_minutos: 0-1440}';
+                    RAISE NOTICE 'Coluna remarketing_config adicionada à tabela produtos';
+                ELSE
+                    RAISE NOTICE 'Coluna remarketing_config já existe na tabela produtos';
+                END IF;
+            END $$;
+        `
     }
 ];
 
