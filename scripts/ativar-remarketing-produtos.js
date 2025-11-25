@@ -10,26 +10,34 @@ async function ativarRemarketingProdutos() {
     try {
         console.log('🔄 Iniciando ativação de remarketing para todos os produtos...\n');
 
-        // Verificar se a coluna remarketing_config existe, se não, criar
+        // Verificar se a coluna remarketing_config existe
         try {
-            await sequelize.query(`
-                DO $$ 
-                BEGIN
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns 
-                        WHERE table_name = 'produtos' 
-                        AND column_name = 'remarketing_config'
-                    ) THEN
-                        ALTER TABLE produtos ADD COLUMN remarketing_config JSON;
-                        COMMENT ON COLUMN produtos.remarketing_config IS 'Configuração de remarketing automático: {enabled: true/false, tempo_minutos: 0-1440}';
-                        RAISE NOTICE 'Coluna remarketing_config criada';
-                    END IF;
-                END $$;
+            const [results] = await sequelize.query(`
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'produtos' 
+                AND column_name = 'remarketing_config'
             `);
-            console.log('✅ Coluna remarketing_config verificada/criada\n');
+            
+            if (results.length === 0) {
+                console.error('❌ Coluna remarketing_config não existe na tabela produtos!');
+                console.error('\n📋 Para criar a coluna, execute um dos seguintes comandos:\n');
+                console.error('Opção 1 - Como superusuário PostgreSQL:');
+                console.error('   sudo -u postgres psql -d ratixpay -f migrations/add-remarketing-config.sql\n');
+                console.error('Opção 2 - Executar SQL diretamente:');
+                console.error('   sudo -u postgres psql -d ratixpay -c "ALTER TABLE produtos ADD COLUMN IF NOT EXISTS remarketing_config JSON;"\n');
+                console.error('Opção 3 - Executar migração completa (requer permissões):');
+                console.error('   node scripts/migrate-database-columns.js\n');
+                throw new Error('Coluna remarketing_config não existe. Execute a migração primeiro.');
+            } else {
+                console.log('✅ Coluna remarketing_config encontrada\n');
+            }
         } catch (colError) {
-            console.error('⚠️ Erro ao verificar/criar coluna remarketing_config:', colError.message);
-            // Continuar mesmo se houver erro (pode ser que já exista)
+            if (colError.message.includes('Coluna remarketing_config não existe')) {
+                throw colError;
+            }
+            console.error('⚠️ Erro ao verificar coluna remarketing_config:', colError.message);
+            console.error('⚠️ Continuando... (assumindo que a coluna existe)\n');
         }
 
         // Buscar todos os produtos
