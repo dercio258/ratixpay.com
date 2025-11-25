@@ -808,7 +808,7 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
                 // Mostrar mensagem de erro na tabela
                 document.getElementById('transacoesBody').innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center text-danger py-4">
+                        <td colspan="10" class="text-center text-danger py-4">
                             <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
                             <br>Erro ao carregar transa��es: ${error.message}
                         </td>
@@ -822,7 +822,7 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
             const tbody = document.getElementById('transacoesBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center py-4">
+                    <td colspan="10" class="text-center py-4">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Carregando...</span>
                         </div>
@@ -839,7 +839,7 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
             if (!transacoes || transacoes.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center text-muted py-4">
+                        <td colspan="10" class="text-center text-muted py-4">
                             <i class="fas fa-inbox fa-2x mb-2"></i>
                             <br>Nenhuma transa��o encontrada
                         </td>
@@ -914,6 +914,14 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
                         </td>
                         <td>${metodoBadge}</td>
                         <td>${status}</td>
+                        <td>
+                            ${transacao.status === 'Error' || transacao.status === 'Cancelada' || transacao.status === 'cancelada' 
+                                ? `<button class="btn btn-sm btn-success" onclick="abrirModalAprovacao('${transacao.id}', '${transacaoId.replace(/'/g, "\\'")}', '${clienteNome.replace(/'/g, "\\'")}', '${produtoNome.replace(/'/g, "\\'")}', ${transacao.amount})" title="Aprovar transação">
+                                    <i class="fas fa-check-circle"></i> Aprovar
+                                </button>`
+                                : '<span class="text-muted">-</span>'
+                            }
+                        </td>
                     </tr>
                 `;
             }).join('');
@@ -931,8 +939,8 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
             
             const statusLower = status.toLowerCase();
             
-            // Status de sucesso
-            if (statusLower === 'success' || statusLower === 'aprovada' || statusLower === 'pago' || statusLower === 'completed') {
+            // Status de sucesso (incluindo APROVADO)
+            if (statusLower === 'success' || statusLower === 'aprovada' || statusLower === 'aprovado' || statusLower === 'pago' || statusLower === 'completed' || statusLower === 'approved' || statusLower === 'paid') {
                 return '<span class="badge bg-success">Sucesso</span>';
             }
             
@@ -1041,6 +1049,148 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
         function carregarTransacoes() {
             carregarTransacoesPayMoz();
         }
+
+        // ===== FUNES DE APROVAO MANUAL =====
+        
+        let vendaIdAprovacao = null;
+
+        // Abrir modal de aprovao
+        function abrirModalAprovacao(vendaId, transactionId, clienteNome, produtoNome, valor) {
+            vendaIdAprovacao = vendaId;
+            
+            // Preencher dados no modal
+            document.getElementById('modalTransactionId').textContent = transactionId;
+            document.getElementById('modalClienteNome').textContent = clienteNome;
+            document.getElementById('modalProdutoNome').textContent = produtoNome;
+            document.getElementById('modalValor').textContent = formatCurrency(valor);
+            
+            // Resetar modal
+            document.getElementById('aprovacaoStep1').style.display = 'block';
+            document.getElementById('aprovacaoStep2').style.display = 'none';
+            document.getElementById('otpCode').value = '';
+            
+            // Abrir modal
+            const modal = new bootstrap.Modal(document.getElementById('modalAprovacao'));
+            modal.show();
+        }
+
+        // Solicitar OTP para aprovao
+        async function solicitarOTPAprovacao() {
+            if (!vendaIdAprovacao) {
+                mostrarNotificacao('Erro: ID da venda no encontrado', 'error');
+                return;
+            }
+
+            try {
+                mostrarNotificacao('Solicitando cdigo de aprovao...', 'info');
+                
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                
+                const response = await fetch(`/api/admin/transacoes/${vendaIdAprovacao}/solicitar-aprovacao`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Mostrar step 2
+                    document.getElementById('aprovacaoStep1').style.display = 'none';
+                    document.getElementById('aprovacaoStep2').style.display = 'block';
+                    
+                    // Focar no campo OTP
+                    setTimeout(() => {
+                        document.getElementById('otpCode').focus();
+                    }, 100);
+                    
+                    mostrarNotificacao('Cdigo OTP enviado para seu email!', 'success');
+                } else {
+                    mostrarNotificacao(data.message || 'Erro ao solicitar aprovao', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao solicitar OTP:', error);
+                mostrarNotificacao('Erro ao solicitar cdigo: ' + error.message, 'error');
+            }
+        }
+
+        // Voltar para step 1
+        function voltarStep1() {
+            document.getElementById('aprovacaoStep1').style.display = 'block';
+            document.getElementById('aprovacaoStep2').style.display = 'none';
+            document.getElementById('otpCode').value = '';
+        }
+
+        // Confirmar aprovao com OTP
+        async function confirmarAprovacao() {
+            if (!vendaIdAprovacao) {
+                mostrarNotificacao('Erro: ID da venda no encontrado', 'error');
+                return;
+            }
+
+            const otp = document.getElementById('otpCode').value.trim();
+
+            if (!otp || otp.length !== 6) {
+                mostrarNotificacao('Por favor, digite o cdigo OTP de 6 dgitos', 'error');
+                document.getElementById('otpCode').focus();
+                return;
+            }
+
+            // Validar que s so nmeros
+            if (!/^\d{6}$/.test(otp)) {
+                mostrarNotificacao('O cdigo OTP deve conter apenas nmeros', 'error');
+                document.getElementById('otpCode').focus();
+                return;
+            }
+
+            try {
+                // Desabilitar boto durante o processamento
+                const btnConfirmar = event.target;
+                btnConfirmar.disabled = true;
+                btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+                mostrarNotificacao('Confirmando aprovao...', 'info');
+                
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                
+                const response = await fetch(`/api/admin/transacoes/${vendaIdAprovacao}/confirmar-aprovacao`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({ otp })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacao('Transao aprovada com sucesso!', 'success');
+                    
+                    // Fechar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAprovacao'));
+                    modal.hide();
+                    
+                    // Recarregar transaes
+                    setTimeout(() => {
+                        carregarTransacoesPayMoz();
+                    }, 1000);
+                } else {
+                    mostrarNotificacao(data.message || 'Erro ao confirmar aprovao', 'error');
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Aprovao';
+                }
+            } catch (error) {
+                console.error('Erro ao confirmar aprovao:', error);
+                mostrarNotificacao('Erro ao confirmar aprovao: ' + error.message, 'error');
+                
+                const btnConfirmar = event.target;
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Aprovao';
+            }
+        }
         
     </script>
     
@@ -1061,6 +1211,68 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
             </nav>
             <div class="sidebar-footer">
                 <p>&copy; 2024 RatixPay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aprovao de Transao -->
+    <div class="modal fade" id="modalAprovacao" tabindex="-1" aria-labelledby="modalAprovacaoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalAprovacaoLabel">
+                        <i class="fas fa-check-circle"></i> Aprovar Transao
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="aprovacaoStep1">
+                        <p>Deseja aprovar esta transao cancelada?</p>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <strong>ID da Transao:</strong> <span id="modalTransactionId">-</span><br>
+                                <strong>Cliente:</strong> <span id="modalClienteNome">-</span><br>
+                                <strong>Produto:</strong> <span id="modalProdutoNome">-</span><br>
+                                <strong>Valor:</strong> <span id="modalValor">-</span>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Ateno:</strong> Ao aprovar, o sistema ir:
+                            <ul class="mb-0 mt-2">
+                                <li>Alterar o status para "Aprovada"</li>
+                                <li>Creditar o valor na receita do vendedor</li>
+                                <li>Enviar notificaes para cliente e vendedor</li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="solicitarOTPAprovacao()">
+                            <i class="fas fa-key"></i> Solicitar Cdigo de Aprovao
+                        </button>
+                    </div>
+                    <div id="aprovacaoStep2" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-envelope"></i>
+                            <strong>Cdigo OTP enviado!</strong><br>
+                            Verifique seu email e digite o cdigo de 6 dgitos abaixo.
+                        </div>
+                        <div class="mb-3">
+                            <label for="otpCode" class="form-label">Cdigo OTP:</label>
+                            <input type="text" class="form-control form-control-lg text-center" id="otpCode" 
+                                   placeholder="000000" maxlength="6" pattern="[0-9]{6}" 
+                                   style="font-size: 24px; letter-spacing: 10px; font-weight: bold;"
+                                   onkeypress="return /[0-9]/i.test(event.key)">
+                            <small class="form-text text-muted">O cdigo expira em 1 minuto</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary flex-fill" onclick="voltarStep1()">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </button>
+                            <button type="button" class="btn btn-success flex-fill" onclick="confirmarAprovacao()">
+                                <i class="fas fa-check"></i> Confirmar Aprovao
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

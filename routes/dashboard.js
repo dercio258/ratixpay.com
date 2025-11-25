@@ -14,10 +14,15 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     const { Op } = require('sequelize');
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Receita total do vendedor
     const vendasAprovadas = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id
       },
       attributes: ['valor']
@@ -41,7 +46,9 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     // Clientes únicos do vendedor
     const clientesUnicos = await Venda.count({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id
       },
       distinct: true,
@@ -51,7 +58,9 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     // Vendas do mês do vendedor
     const vendasMes = await Venda.count({ 
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id,
         created_at: {
           [Op.gte]: inicioMes
@@ -62,7 +71,9 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     // Receita do mês do vendedor
     const vendasMesPagas = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id,
         created_at: {
           [Op.gte]: inicioMes
@@ -81,7 +92,9 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     
     const vendasMesAnterior = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id,
         created_at: {
           [Op.between]: [mesAnterior, fimMesAnterior]
@@ -100,7 +113,9 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
     // Métodos de pagamento mais usados pelo vendedor
     const metodosPagamento = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id
       },
       attributes: [
@@ -122,7 +137,7 @@ router.get('/vendedor/estatisticas', authenticateToken, isVendedorOrAdmin, async
          p.custom_id as produto_custom_id
        FROM vendas v
        LEFT JOIN produtos p ON v.produto_id = p.id
-       WHERE v.status = 'Pago' AND v.vendedor_id = :vendedor_id
+       WHERE v.status IN ('Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid') AND v.vendedor_id = :vendedor_id
        GROUP BY v.produto_id, p.nome, p.custom_id
        ORDER BY COUNT(v.id) DESC
        LIMIT 5
@@ -172,9 +187,16 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     const { Op } = require('sequelize');
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Receita total
     const vendasAprovadas = await Venda.findAll({
-      where: { status: 'Aprovado' },
+      where: { 
+        status: {
+          [Op.in]: statusAprovados
+        }
+      },
       attributes: ['valor']
     });
     
@@ -190,7 +212,11 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     
     // Clientes únicos
     const clientesUnicos = await Venda.count({
-      where: { status: 'Aprovado' },
+      where: { 
+        status: {
+          [Op.in]: statusAprovados
+        }
+      },
       distinct: true,
       col: 'cliente_email'
     });
@@ -198,7 +224,9 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     // Vendas do mês
     const vendasMes = await Venda.count({ 
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         created_at: {
           [Op.gte]: inicioMes
         }
@@ -208,7 +236,9 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     // Receita do mês
     const vendasMesPagas = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         created_at: {
           [Op.gte]: inicioMes
         }
@@ -226,7 +256,9 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     
     const vendasMesAnterior = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         created_at: {
           [Op.between]: [mesAnterior, fimMesAnterior]
         }
@@ -263,7 +295,7 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
         p.custom_id as produto_custom_id
       FROM vendas v
       LEFT JOIN produtos p ON v.produto_id = p.id
-      WHERE v.status = 'Pago'
+      WHERE v.status IN ('Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid')
       GROUP BY v.produto_id, p.nome, p.custom_id
       ORDER BY COUNT(v.id) DESC
       LIMIT 10
@@ -903,16 +935,19 @@ router.get('/vendedor/resumo', authenticateToken, async (req, res) => {
     
     console.log(`📊 Total de vendas: ${todasVendas.length}, Vendas no período: ${vendasPeriodo.length}`);
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Calcular estatísticas TOTAIS (todas as vendas)
     const totalVendas = todasVendas.length;
-    const totalVendasAprovadas = todasVendas.filter(v => v.status === 'Pago').length;
+    const totalVendasAprovadas = todasVendas.filter(v => statusAprovados.includes(v.status)).length;
     const totalVendasPendentes = todasVendas.filter(v => v.status === 'Pendente').length;
     const totalVendasCanceladas = todasVendas.filter(v => v.status === 'Cancelada').length;
     
     console.log(`📊 Estatísticas totais: Total=${totalVendas}, Aprovadas=${totalVendasAprovadas}, Pendentes=${totalVendasPendentes}, Canceladas=${totalVendasCanceladas}`);
     
     const receitaTotal = todasVendas
-      .filter(v => v.status === 'Pago')
+      .filter(v => statusAprovados.includes(v.status))
       .reduce((total, v) => total + parseFloat(v.valor || 0), 0);
     
     const valorReembolsos = todasVendas
@@ -920,12 +955,13 @@ router.get('/vendedor/resumo', authenticateToken, async (req, res) => {
       .reduce((total, v) => total + parseFloat(v.valor || 0), 0);
     
     // Calcular estatísticas do PERÍODO específico
-    const vendasAprovadasPeriodo = vendasPeriodo.filter(v => v.status === 'Pago').length;
+    const vendasAprovadasPeriodo = vendasPeriodo.filter(v => statusAprovados.includes(v.status)).length;
     const vendasPendentesPeriodo = vendasPeriodo.filter(v => v.status === 'Pendente').length;
     const vendasCanceladasPeriodo = vendasPeriodo.filter(v => v.status === 'Cancelada').length;
     
+    // statusAprovados já declarado acima
     const receitaPeriodo = vendasPeriodo
-      .filter(v => v.status === 'Pago')
+      .filter(v => statusAprovados.includes(v.status))
       .reduce((total, v) => total + parseFloat(v.valor || 0), 0);
     
     console.log(`📊 Estatísticas do período ${periodo}: Aprovadas=${vendasAprovadasPeriodo}, Pendentes=${vendasPendentesPeriodo}, Canceladas=${vendasCanceladasPeriodo}, Receita=${receitaPeriodo}`);
@@ -1012,11 +1048,11 @@ router.get('/resumo-periodo', async (req, res) => {
     const resumoResult = await pool.query(`
       SELECT 
         COUNT(id) as total_vendas,
-        SUM(CASE WHEN status = 'Pago' THEN 1 ELSE 0 END) as vendas_aprovadas,
+        SUM(CASE WHEN status IN ('Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid') THEN 1 ELSE 0 END) as vendas_aprovadas,
         SUM(CASE WHEN status = 'Pendente' THEN 1 ELSE 0 END) as vendas_pendentes,
         SUM(CASE WHEN status = 'Cancelada' THEN 1 ELSE 0 END) as vendas_rejeitadas,
-        SUM(CASE WHEN status = 'Pago' THEN valor ELSE 0 END) as receita_total,
-        AVG(CASE WHEN status = 'Pago' THEN valor ELSE NULL END) as ticket_medio
+        SUM(CASE WHEN status IN ('Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid') THEN valor ELSE 0 END) as receita_total,
+        AVG(CASE WHEN status IN ('Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid') THEN valor ELSE NULL END) as ticket_medio
       FROM vendas
       WHERE created_at >= $1
     `, [dataInicio.toISOString()]);
@@ -1050,11 +1086,17 @@ router.get('/vendedor/grafico-vendas-semanais', authenticateToken, isVendedorOrA
     
     console.log(`📊 Buscando vendas da semana: ${inicioSemana.toISOString()} até ${fimSemana.toISOString()}`);
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    // Op já foi declarado acima
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Buscar vendas aprovadas da semana atual
     const vendasSemana = await Venda.findAll({
       where: {
         vendedor_id: req.user.id,
-        status: 'Pago', // Apenas vendas aprovadas
+        status: {
+          [Op.in]: statusAprovados
+        },
         created_at: {
           [Op.between]: [inicioSemana, fimSemana]
         }
@@ -1143,11 +1185,17 @@ router.get('/vendedor/grafico-vendas', authenticateToken, isVendedorOrAdmin, asy
     
     console.log(`📊 Buscando receita disponível para período: ${periodo} (${inicioPeriodo.toISOString()} até ${fimPeriodo.toISOString()})`);
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    // Op já foi declarado acima
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Buscar vendas aprovadas no período
     const vendasPeriodo = await Venda.findAll({
       where: {
         vendedor_id: req.user.id,
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         created_at: {
           [Op.between]: [inicioPeriodo, fimPeriodo]
         }
@@ -1314,10 +1362,15 @@ router.get('/vendedor/receita-unificada', authenticateToken, isVendedorOrAdmin, 
   try {
     const { Op } = require('sequelize');
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Buscar vendas aprovadas do vendedor
     const vendasAprovadas = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id
       },
       attributes: ['valor']
@@ -1742,12 +1795,17 @@ router.get('/receita-diaria', authenticateToken, async (req, res) => {
     
     let vendasPorPeriodo;
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     if (agrupamento === 'hora') {
       // Para hoje/ontem: agrupar por hora
       vendasPorPeriodo = await Venda.findAll({
         where: {
           vendedor_id: vendedorId,
-          status: 'Pago',
+          status: {
+            [Op.in]: statusAprovados
+          },
           created_at: {
             [Op.gte]: dataInicio,
             [Op.lte]: dataFim
@@ -1842,10 +1900,13 @@ router.get('/receita-diaria', authenticateToken, async (req, res) => {
       
     } else {
       // Para dias: agrupar por dia
+      // statusAprovados já declarado acima
       vendasPorPeriodo = await Venda.findAll({
         where: {
           vendedor_id: vendedorId,
-          status: 'Pago',
+          status: {
+            [Op.in]: statusAprovados
+          },
           created_at: {
             [Op.gte]: dataInicio,
             [Op.lte]: dataFim
@@ -2288,10 +2349,16 @@ router.get('/vendedor/vendas-grafico', authenticateToken, isVendedorOrAdmin, asy
     
     console.log(`📅 Período: ${dataInicio.toLocaleDateString('pt-BR')} - ${dataFim.toLocaleDateString('pt-BR')}`);
     
+    // Status que indicam aprovação (incluindo APROVADO)
+    // Op já foi declarado acima
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
     // Buscar dados de vendas
     const vendasData = await Venda.findAll({
       where: { 
-        status: 'Pago',
+        status: {
+          [Op.in]: statusAprovados
+        },
         vendedor_id: req.user.id,
         created_at: {
           [Op.between]: [dataInicio, dataFim]

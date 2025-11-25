@@ -4,9 +4,11 @@
  */
 
 const { sequelize } = require('../config/database');
-const { Produto } = require('../config/database');
+const { Produto, Usuario } = require('../config/database');
 const emailManagerService = require('./emailManagerService');
 const whatsappService = require('./whatsappService');
+const whatsappBaileysManager = require('./whatsappBaileysManager');
+const professionalEmailService = require('./professionalEmailService');
 
 class RemarketingService {
     constructor() {
@@ -31,6 +33,21 @@ class RemarketingService {
         } = dados;
 
         try {
+            // Se cliente_id for null ou undefined, usar um UUID genérico (a tabela não aceita NULL)
+            const { randomUUID } = require('crypto');
+            // Garantir que sempre temos um UUID válido (não null e não undefined)
+            // Tratar explicitamente null, undefined, string 'null', string 'undefined', e strings vazias
+            const clienteIdFinal = (cliente_id && 
+                                   cliente_id !== null && 
+                                   cliente_id !== undefined && 
+                                   cliente_id !== 'null' && 
+                                   cliente_id !== 'undefined' && 
+                                   cliente_id !== '') 
+                ? cliente_id 
+                : randomUUID();
+            
+            console.log(`🔄 Remarketing - cliente_id original: ${cliente_id} (${typeof cliente_id}), cliente_id final: ${clienteIdFinal}`);
+            
             // Buscar produto para verificar se remarketing está ativo
             const produto = await Produto.findByPk(produto_id);
             
@@ -45,27 +62,52 @@ class RemarketingService {
             }
 
             // Verificar antispam (máximo 1 notificação por cliente/produto/dia)
+            // Se cliente_id for null, usar email ou telefone para verificação
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
             const amanha = new Date(hoje);
             amanha.setDate(amanha.getDate() + 1);
 
-            const antispamCheck = await sequelize.query(
-                `SELECT id FROM ${this.tableName} 
-                 WHERE cliente_id = :cliente_id 
-                   AND produto_id = :produto_id 
-                   AND DATE(data_cancelamento) = DATE(:hoje)
-                   AND status IN ('pendente', 'enviado')
-                 LIMIT 1`,
-                {
-                    replacements: {
-                        cliente_id,
-                        produto_id,
-                        hoje: hoje.toISOString()
-                    },
-                    type: sequelize.QueryTypes.SELECT
-                }
-            );
+            // Verificar antispam (máximo 1 notificação por cliente/produto/dia)
+            // Se cliente_id original for null, verificar por email ou telefone
+            let antispamCheck = [];
+            if (cliente_id) {
+                // Verificar por cliente_id original
+                antispamCheck = await sequelize.query(
+                    `SELECT id FROM ${this.tableName} 
+                     WHERE cliente_id = :cliente_id 
+                       AND produto_id = :produto_id 
+                       AND DATE(data_cancelamento) = DATE(:hoje)
+                       AND status IN ('pendente', 'enviado')
+                     LIMIT 1`,
+                    {
+                        replacements: {
+                            cliente_id: clienteIdFinal,
+                            produto_id,
+                            hoje: hoje.toISOString()
+                        },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+            } else if (email) {
+                // Se não tiver cliente_id original, verificar por email
+                antispamCheck = await sequelize.query(
+                    `SELECT id FROM ${this.tableName} 
+                     WHERE email = :email 
+                       AND produto_id = :produto_id 
+                       AND DATE(data_cancelamento) = DATE(:hoje)
+                       AND status IN ('pendente', 'enviado')
+                     LIMIT 1`,
+                    {
+                        replacements: {
+                            email,
+                            produto_id,
+                            hoje: hoje.toISOString()
+                        },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
+            }
 
             if (antispamCheck.length > 0) {
                 return { ignorado: true, motivo: 'Antispam: já existe notificação para este cliente/produto hoje' };
@@ -75,6 +117,23 @@ class RemarketingService {
             const tempoMinutos = remarketingConfig.tempo_minutos || 0;
             const dataCancelamento = new Date();
             const dataAgendada = new Date(dataCancelamento.getTime() + (tempoMinutos * 60 * 1000));
+
+            // Validar e formatar telefone
+            let telefoneFinal = null;
+            if (telefone) {
+                // Remover espaços e caracteres especiais, mas manter o formato básico
+                telefoneFinal = telefone.toString().trim();
+                if (telefoneFinal === '' || telefoneFinal === 'null' || telefoneFinal === 'undefined') {
+                    telefoneFinal = null;
+                }
+            }
+
+            console.log(`📝 Adicionando à fila de remarketing:`);
+            console.log(`   - Cliente: ${cliente_nome}`);
+            console.log(`   - Produto: ${produto_nome}`);
+            console.log(`   - Email: ${email || 'não informado'}`);
+            console.log(`   - Telefone: ${telefoneFinal || 'não informado'}`);
+            console.log(`   - Tempo agendado: ${tempoMinutos} minutos`);
 
             // Inserir na fila
             const [result] = await sequelize.query(
@@ -86,12 +145,12 @@ class RemarketingService {
                  RETURNING *`,
                 {
                     replacements: {
-                        cliente_id,
+                        cliente_id: clienteIdFinal,
                         cliente_nome,
                         produto_id,
                         produto_nome,
                         email: email || null,
-                        telefone: telefone || null,
+                        telefone: telefoneFinal,
                         data_cancelamento: dataCancelamento.toISOString(),
                         tempo_envio: tempoMinutos,
                         data_agendada: dataAgendada.toISOString()
@@ -242,37 +301,80 @@ class RemarketingService {
             let sucessoEmail = false;
             let sucessoWhatsApp = false;
 
-            // Enviar por email (se disponível)
+            // ========== ENVIO PARA CLIENTE ==========
+            // Enviar por email (sempre que disponível)
             if (item.email) {
                 try {
+                    console.log(`📧 Enviando email de remarketing para cliente: ${item.email}`);
                     await emailManagerService.enviarEmailOfertas('campanha_remarketing', {
                         email: item.email,
                         nome: item.cliente_nome,
-                        assunto: `Finalize sua compra: ${item.produto_nome}`,
-                        mensagem: mensagem,
-                        linkCheckout: linkCheckout
+                        produtoInteresse: item.produto_nome,
+                        linkProduto: linkCheckout,
+                        ofertaEspecial: 'Finalize sua compra agora e aproveite!',
+                        motivoAbandono: 'Pagamento não foi concluído'
                     });
                     sucessoEmail = true;
+                    console.log(`✅ Email de remarketing enviado com sucesso para cliente: ${item.email}`);
                 } catch (error) {
-                    console.error(`⚠️ Erro ao enviar email para ${item.email}:`, error.message);
+                    console.error(`⚠️ Erro ao enviar email de remarketing para ${item.email}:`, error.message);
                 }
+            } else {
+                console.log(`ℹ️ Email não disponível para cliente (item ID: ${item.id})`);
             }
 
-            // Enviar por WhatsApp (se disponível)
+            // Enviar por WhatsApp usando sessão "default" (sempre que disponível)
             if (item.telefone) {
                 try {
-                    await whatsappService.enviarMensagem(item.telefone, mensagem);
-                    sucessoWhatsApp = true;
+                    console.log(`📱 Enviando WhatsApp de remarketing para cliente: ${item.telefone}`);
+                    
+                    // Formatar número de telefone para WhatsApp
+                    const telefoneFormatado = this.formatarTelefoneWhatsApp(item.telefone);
+                    console.log(`📱 Telefone formatado: ${telefoneFormatado}`);
+                    
+                    // Usar whatsappBaileysManager com sessão "default"
+                    const resultadoWhatsApp = await whatsappBaileysManager.sendMessage(
+                        telefoneFormatado, 
+                        mensagem, 
+                        null, 
+                        'default' // Sessão WhatsApp: default
+                    );
+                    
+                    if (resultadoWhatsApp && resultadoWhatsApp.success !== false) {
+                        sucessoWhatsApp = true;
+                        console.log(`✅ WhatsApp de remarketing enviado com sucesso para cliente: ${telefoneFormatado}`);
+                    } else {
+                        console.log(`⚠️ Falha ao enviar WhatsApp de remarketing para cliente: ${telefoneFormatado}`);
+                        if (resultadoWhatsApp && resultadoWhatsApp.error) {
+                            console.log(`   Motivo: ${resultadoWhatsApp.error}`);
+                        }
+                    }
                 } catch (error) {
-                    console.error(`⚠️ Erro ao enviar WhatsApp para ${item.telefone}:`, error.message);
+                    console.error(`❌ Erro ao enviar WhatsApp de remarketing para cliente ${item.telefone}:`, error.message);
+                    console.error(`❌ Stack trace:`, error.stack);
                 }
+            } else {
+                console.log(`ℹ️ Telefone não disponível para envio de WhatsApp de remarketing (item ID: ${item.id})`);
+            }
+
+            // Notificar vendedor sobre o remarketing enviado
+            try {
+                await this.notificarVendedorRemarketing(produto, item);
+            } catch (error) {
+                console.error(`⚠️ Erro ao notificar vendedor sobre remarketing:`, error.message);
+                // Não falhar o processo principal por erro na notificação do vendedor
             }
 
             // Retornar sucesso se pelo menos um método funcionou
             if (sucessoEmail || sucessoWhatsApp) {
+                console.log(`✅ Notificação de remarketing enviada - Email: ${sucessoEmail ? 'Sim' : 'Não'}, WhatsApp: ${sucessoWhatsApp ? 'Sim' : 'Não'}`);
                 return { sucesso: true, email: sucessoEmail, whatsapp: sucessoWhatsApp };
             } else {
-                return { sucesso: false, motivo: 'Nenhum canal de envio disponível ou funcionou' };
+                const motivo = !item.email && !item.telefone 
+                    ? 'Nenhum canal de envio disponível (sem email e sem telefone)' 
+                    : 'Nenhum canal de envio funcionou';
+                console.log(`⚠️ ${motivo} para item ID: ${item.id}`);
+                return { sucesso: false, motivo };
             }
         } catch (error) {
             console.error('❌ Erro ao enviar notificação:', error);
@@ -281,21 +383,172 @@ class RemarketingService {
     }
 
     /**
-     * Prepara mensagem padrão de remarketing
+     * Formata número de telefone para WhatsApp
+     * @param {string} telefone - Número de telefone
+     * @returns {string} Telefone formatado
+     */
+    formatarTelefoneWhatsApp(telefone) {
+        if (!telefone) return null;
+        
+        let telefoneFormatado = telefone.toString().trim();
+        
+        // Remover caracteres especiais, mas manter o + se existir
+        if (telefoneFormatado.startsWith('+')) {
+            telefoneFormatado = '+' + telefoneFormatado.substring(1).replace(/[^\d]/g, '');
+        } else {
+            telefoneFormatado = telefoneFormatado.replace(/[^\d]/g, '');
+        }
+        
+        return telefoneFormatado;
+    }
+
+    /**
+     * Notifica o vendedor sobre remarketing enviado
+     * Envia tanto WhatsApp quanto Email (ambos quando disponíveis)
+     * @param {Object} produto - Dados do produto
+     * @param {Object} item - Item da fila de remarketing
+     */
+    async notificarVendedorRemarketing(produto, item) {
+        try {
+            // Buscar dados do vendedor
+            if (!produto.vendedor_id) {
+                console.log(`ℹ️ Produto ${produto.id} não tem vendedor_id, pulando notificação ao vendedor`);
+                return;
+            }
+
+            const vendedor = await Usuario.findByPk(produto.vendedor_id, {
+                attributes: ['id', 'nome_completo', 'nome', 'email', 'telefone']
+            });
+
+            if (!vendedor) {
+                console.log(`⚠️ Vendedor não encontrado com ID: ${produto.vendedor_id}`);
+                return;
+            }
+
+            const nomeVendedor = vendedor.nome_completo || vendedor.nome || 'Parceiro';
+            
+            // Preparar informações do contato do cliente
+            const contatoCliente = item.telefone 
+                ? `WhatsApp: ${item.telefone}` 
+                : (item.email ? `Email: ${item.email}` : 'Contato não disponível');
+
+            // Preparar mensagem para o vendedor
+            const mensagemVendedor = `🔄 *Remarketing Realizado - RatixPay*
+
+Olá ${nomeVendedor}! 👋
+
+Realizamos remarketing da venda do produto *"${item.produto_nome}"* no nosso sistema de ofertas para aumentar as conversões.
+
+📋 *Detalhes:*
+• Cliente: ${item.cliente_nome}
+• Contato: ${contatoCliente}
+• Produto: ${item.produto_nome}
+
+💡 O sistema enviou automaticamente uma mensagem de remarketing para o cliente, incentivando-o a finalizar a compra.
+
+*RatixPay* 🚀`;
+
+            let sucessoWhatsAppVendedor = false;
+            let sucessoEmailVendedor = false;
+
+            // ========== ENVIO WHATSAPP PARA VENDEDOR ==========
+            if (vendedor.telefone) {
+                try {
+                    console.log(`📱 Enviando WhatsApp de notificação para vendedor: ${vendedor.telefone}`);
+                    const telefoneFormatado = this.formatarTelefoneWhatsApp(vendedor.telefone);
+                    
+                    // Usar whatsappBaileysManager com sessão "default"
+                    const resultadoWhatsApp = await whatsappBaileysManager.sendMessage(
+                        telefoneFormatado, 
+                        mensagemVendedor, 
+                        null, 
+                        'default' // Sessão WhatsApp: default
+                    );
+                    
+                    if (resultadoWhatsApp && resultadoWhatsApp.success !== false) {
+                        sucessoWhatsAppVendedor = true;
+                        console.log(`✅ Vendedor notificado via WhatsApp com sucesso: ${telefoneFormatado}`);
+                    } else {
+                        console.log(`⚠️ Falha ao enviar WhatsApp para vendedor: ${telefoneFormatado}`);
+                        if (resultadoWhatsApp && resultadoWhatsApp.error) {
+                            console.log(`   Motivo: ${resultadoWhatsApp.error}`);
+                        }
+                    }
+                } catch (error) {
+                    console.error(`⚠️ Erro ao enviar WhatsApp para vendedor:`, error.message);
+                }
+            } else {
+                console.log(`ℹ️ Vendedor não tem telefone para notificação WhatsApp`);
+            }
+
+            // ========== ENVIO EMAIL PARA VENDEDOR ==========
+            if (vendedor.email) {
+                try {
+                    console.log(`📧 Enviando email de notificação para vendedor: ${vendedor.email}`);
+                    await professionalEmailService.enviarEmailSistema(
+                        vendedor.email,
+                        `🔄 Remarketing Realizado - ${item.produto_nome}`,
+                        `
+                            <h2>Remarketing Realizado</h2>
+                            <p>Olá ${nomeVendedor},</p>
+                            <p>Realizamos remarketing da venda do produto <strong>"${item.produto_nome}"</strong> no nosso sistema de ofertas para aumentar as conversões.</p>
+                            
+                            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <h3>Detalhes:</h3>
+                                <ul>
+                                    <li><strong>Cliente:</strong> ${item.cliente_nome}</li>
+                                    <li><strong>Contato:</strong> ${contatoCliente}</li>
+                                    <li><strong>Produto:</strong> ${item.produto_nome}</li>
+                                </ul>
+                            </div>
+                            
+                            <p>O sistema enviou automaticamente uma mensagem de remarketing para o cliente, incentivando-o a finalizar a compra.</p>
+                            
+                            <p>Obrigado por usar RatixPay!</p>
+                        `,
+                        'sistema'
+                    );
+                    sucessoEmailVendedor = true;
+                    console.log(`✅ Vendedor notificado via email com sucesso: ${vendedor.email}`);
+                } catch (error) {
+                    console.error(`⚠️ Erro ao enviar email para vendedor:`, error.message);
+                }
+            } else {
+                console.log(`ℹ️ Vendedor não tem email para notificação`);
+            }
+
+            // Log resumo
+            if (sucessoWhatsAppVendedor || sucessoEmailVendedor) {
+                console.log(`✅ Notificação de remarketing enviada ao vendedor - WhatsApp: ${sucessoWhatsAppVendedor ? 'Sim' : 'Não'}, Email: ${sucessoEmailVendedor ? 'Sim' : 'Não'}`);
+            } else {
+                console.log(`⚠️ Nenhuma notificação foi enviada ao vendedor (sem telefone e sem email)`);
+            }
+
+        } catch (error) {
+            console.error(`❌ Erro ao notificar vendedor sobre remarketing:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Prepara mensagem padrão de remarketing para WhatsApp
      * @param {string} nomeCliente - Nome do cliente
      * @param {string} nomeProduto - Nome do produto
      * @param {string} linkCheckout - Link do checkout
      * @returns {string} Mensagem formatada
      */
     prepararMensagem(nomeCliente, nomeProduto, linkCheckout) {
-        return `Olá ${nomeCliente},
+        // Número de suporte (apenas número, sem link)
+        const numeroSuporte = '862177274';
+        
+        // Mensagem conforme estrutura solicitada
+        // O link do produto será automaticamente clicável no WhatsApp (URL completa)
+        return `Olá ${nomeCliente}! Notamos que você demonstrou interesse em *${nomeProduto}* mas não finalizou a compra. Finalize a sua compra e aproveite, pois esta oferta pode não estar mais disponível, aproveite!
 
-Vimos que você tentou comprar "${nomeProduto}", mas não concluiu.
-
-👉 Finalize agora com desconto especial:
+Acesse o link abaixo:
 ${linkCheckout}
 
-A oferta é por tempo limitado!`;
+Caso tenha algum problema ou dúvida fale com o suporte: ${numeroSuporte}`;
     }
 
     /**

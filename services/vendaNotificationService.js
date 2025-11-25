@@ -247,10 +247,10 @@ class VendaNotificationService {
                 console.warn('⚠️ Cliente não tem email configurado. Pulando envio de email.');
             } else {
                 // 1. Enviar email do PRODUTO PRINCIPAL primeiro
-                try {
+            try {
                     await this.enviarEmailClienteProdutoPrincipal(dadosNotificacao);
                     console.log('✅ Email do produto principal enviado para cliente');
-                } catch (emailError) {
+            } catch (emailError) {
                     console.error('❌ Erro ao enviar email do produto principal:', emailError);
                     // Continuar sem falhar o processo
                 }
@@ -303,7 +303,8 @@ class VendaNotificationService {
             });
 
             // Não enviar emails para vendas com status Pendente - apenas Aprovada ou Pago
-            const statusValidos = ['Aprovada', 'Pago', 'Aprovado'];
+            // Incluir todas as variações de status aprovado (incluindo APROVADO em maiúsculas)
+            const statusValidos = ['Aprovada', 'Aprovado', 'APROVADO', 'APROVADA', 'aprovada', 'aprovado', 'Pago', 'pago', 'PAGO', 'approved', 'paid'];
             if (venda.status === 'Pendente' || !statusValidos.includes(venda.status)) {
                 console.log(`⚠️ Venda ${vendaId} tem status inválido para notificação: ${venda.status}`);
                 console.log(`ℹ️ Emails serão enviados apenas quando o status for: ${statusValidos.join(', ')}`);

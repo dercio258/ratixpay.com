@@ -167,7 +167,7 @@ class ProdutoComplementarVendaService {
                 descricao: produto.descricao || '',
                 tipo: produto.tipo || 'digital',
                 vendedor_id: produto.vendedor_id
-            });
+        });
         }
         
         return produtosFormatados;

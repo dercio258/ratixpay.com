@@ -1881,12 +1881,12 @@ router.post('/pagar', async (req, res) => {
                         if (produto && produto.remarketing_config?.enabled) {
                             console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
                             const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
-                                cliente_id: vendaPrincipal.cliente_id || null,
+                                cliente_id: vendaPrincipal.cliente_id || undefined, // undefined será tratado pelo serviço
                                 cliente_nome: vendaPrincipal.cliente_nome || 'Cliente',
                                 produto_id: vendaPrincipal.produto_id,
                                 produto_nome: produto.nome,
                                 email: vendaPrincipal.cliente_email,
-                                telefone: vendaPrincipal.cliente_telefone || vendaPrincipal.cliente_whatsapp
+                                telefone: vendaPrincipal.cliente_whatsapp || vendaPrincipal.cliente_telefone // Priorizar WhatsApp do checkout
                             });
                             
                             if (resultadoRemarketing.ignorado) {
@@ -2166,12 +2166,12 @@ router.post('/pagar', async (req, res) => {
                             if (produto && produto.remarketing_config?.enabled) {
                                 console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
                                 const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
-                                    cliente_id: vendaPrincipal.cliente_id || null,
+                                    cliente_id: vendaPrincipal.cliente_id || undefined, // undefined será tratado pelo serviço
                                     cliente_nome: vendaPrincipal.cliente_nome || 'Cliente',
                                     produto_id: vendaPrincipal.produto_id,
                                     produto_nome: produto.nome,
                                     email: vendaPrincipal.cliente_email,
-                                    telefone: vendaPrincipal.cliente_telefone || vendaPrincipal.cliente_whatsapp
+                                    telefone: vendaPrincipal.cliente_whatsapp || vendaPrincipal.cliente_telefone // Priorizar WhatsApp do checkout
                                 });
                                 
                                 if (resultadoRemarketing.ignorado) {
@@ -2790,12 +2790,12 @@ router.post('/webhook/paymoz', async (req, res) => {
                 if (produto && produto.remarketing_config?.enabled) {
                     console.log('✅ Remarketing ativado para este produto. Adicionando à fila...');
                     const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
-                        cliente_id: venda.cliente_id || null,
+                        cliente_id: venda.cliente_id || undefined, // undefined será tratado pelo serviço
                         cliente_nome: venda.cliente_nome || 'Cliente',
                         produto_id: venda.produto_id,
                         produto_nome: produto.nome,
                         email: venda.cliente_email,
-                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                        telefone: venda.cliente_whatsapp || venda.cliente_telefone // Priorizar WhatsApp do checkout
                     });
                     
                     if (resultadoRemarketing.ignorado) {
@@ -3132,12 +3132,12 @@ router.post('/atualizar-status-venda/:transactionId', async (req, res) => {
                 if (produto && produto.remarketing_config?.enabled) {
                     console.log('🔄 Adicionando venda cancelada à fila de remarketing...');
                     const resultadoRemarketing = await remarketingService.adicionarVendaCancelada({
-                        cliente_id: venda.cliente_id || null,
+                        cliente_id: venda.cliente_id || undefined, // undefined será tratado pelo serviço
                         cliente_nome: venda.cliente_nome || 'Cliente',
                         produto_id: venda.produto_id,
                         produto_nome: produto.nome,
                         email: venda.cliente_email,
-                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                        telefone: venda.cliente_whatsapp || venda.cliente_telefone // Priorizar WhatsApp do checkout
                     });
                     
                     if (resultadoRemarketing.ignorado) {
@@ -4495,4 +4495,5 @@ router.post('/pagamento/venda/:vendaId/utmify', async (req, res) => {
 
 // Exportar funções de notificação para uso em outras rotas
 module.exports.enviarNotificacaoSaqueAfiliado = enviarNotificacaoSaqueAfiliado;
+module.exports.processarPagamentoAprovado = processarPagamentoAprovado;
 module.exports = router;

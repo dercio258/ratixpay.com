@@ -1,4 +1,5 @@
 const { Venda, Pagamento, HistoricoSaques, Usuario } = require('../config/database');
+const { Op } = require('sequelize');
 
 class DashboardService {
     constructor() {
@@ -139,20 +140,38 @@ class DashboardService {
                 };
             }
 
+            // Status que indicam aprovação (incluindo APROVADO)
+            const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+            const statusPendentes = ['Pendente', 'pendente', 'PENDENTE', 'Aguardando Pagamento'];
+            const statusCancelados = ['Cancelada', 'cancelada', 'CANCELADA', 'Cancelado', 'cancelado', 'CANCELADO', 'Rejeitado', 'rejeitado', 'REJEITADO'];
+            
             const [vendasAprovadas, vendasPendentes, vendasCanceladas] = await Promise.all([
                 Venda.count({
-                    where: { ...whereClause, pagamento_status: 'Aprovado' }
+                    where: { 
+                        ...whereClause, 
+                        status: { [Op.in]: statusAprovados }
+                    }
                 }),
                 Venda.count({
-                    where: { ...whereClause, pagamento_status: 'Pendente' }
+                    where: { 
+                        ...whereClause, 
+                        status: { [Op.in]: statusPendentes }
+                    }
                 }),
                 Venda.count({
-                    where: { ...whereClause, pagamento_status: 'Cancelado' }
+                    where: { 
+                        ...whereClause, 
+                        status: { [Op.in]: statusCancelados }
+                    }
                 })
             ]);
 
-            const receitaTotal = await Venda.sum('pagamento_valor', {
-                where: { ...whereClause, pagamento_status: 'Aprovado' }
+            // Usar 'valor' em vez de 'pagamento_valor' pois é o campo correto no modelo
+            const receitaTotal = await Venda.sum('valor', {
+                where: { 
+                    ...whereClause, 
+                    status: { [Op.in]: statusAprovados }
+                }
             }) || 0;
 
             return {

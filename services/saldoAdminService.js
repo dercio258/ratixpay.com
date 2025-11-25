@@ -372,9 +372,18 @@ class SaldoAdminService {
             console.log('🔄 Recalculando saldo do admin baseado em todas as vendas...');
             
             // Buscar todas as vendas aprovadas
+            // Status que indicam aprovação (incluindo APROVADO)
+            const { Op } = require('sequelize');
+            const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+            
             const vendasAprovadas = await Venda.findAll({
-                where: { pagamento_status: 'Aprovado' },
-                attributes: ['pagamento_valor'],
+                where: { 
+                    [Op.or]: [
+                        { status: { [Op.in]: statusAprovados } },
+                        { pagamento_status: { [Op.in]: statusAprovados } }
+                    ]
+                },
+                attributes: ['pagamento_valor', 'valor'],
                 transaction
             });
             
@@ -396,7 +405,8 @@ class SaldoAdminService {
             // Calcular totais
             const totalVendas = vendasAprovadas.length;
             const valorTotalVendas = vendasAprovadas.reduce((total, venda) => {
-                return total + parseFloat(venda.pagamento_valor || 0);
+                // Usar 'valor' (campo principal) ou 'pagamento_valor' como fallback
+                return total + parseFloat(venda.valor || venda.pagamento_valor || 0);
             }, 0);
             
             // IMPORTANTE: Agora a receita COMPLETA vai para o admin, não apenas a comissão

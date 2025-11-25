@@ -17,9 +17,11 @@ class EstatisticasService {
             });
             
             // Calcular estatísticas de vendas
-            const vendasAprovadas = vendas.filter(v => v.status === 'Pago');
-            const vendasPendentes = vendas.filter(v => v.status === 'Pendente');
-            const vendasCanceladas = vendas.filter(v => v.status === 'Cancelada');
+            // Incluir todos os status que indicam aprovação: 'Pago', 'APROVADO', 'Aprovado', etc.
+            const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+            const vendasAprovadas = vendas.filter(v => statusAprovados.includes(v.status));
+            const vendasPendentes = vendas.filter(v => v.status === 'Pendente' || v.status === 'pendente' || v.status === 'PENDENTE');
+            const vendasCanceladas = vendas.filter(v => v.status === 'Cancelada' || v.status === 'cancelada' || v.status === 'CANCELADA');
             
             // Calcular receita total do vendedor (90% das vendas aprovadas)
             // O valor já é 90% do valor original, então usamos diretamente
@@ -57,11 +59,14 @@ class EstatisticasService {
                 }
             });
             
-            // Contar clientes únicos
+            // Contar clientes únicos (apenas vendas aprovadas)
+            // statusAprovados já foi declarado acima, reutilizar
             const clientesUnicos = await Venda.count({
                 where: { 
                     vendedor_id: vendedorId,
-                    status: 'Pago'
+                    status: {
+                        [Op.in]: statusAprovados
+                    }
                 },
                 distinct: true,
                 col: 'cliente_email'

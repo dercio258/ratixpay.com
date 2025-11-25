@@ -1,8 +1,49 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { databaseManager, Venda, Usuario, Produto, Pagamento, EstatisticasVendedor } = require('../config/database');
 const { authenticateToken, isAdmin } = require('../middleware/auth');
 const { Op } = require('sequelize');
+
+// Rate limiting específico para aprovação de transações
+const aprovacaoRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10, // Máximo 10 solicitações de OTP por admin em 15 minutos
+    message: {
+        success: false,
+        error: 'Muitas solicitações de aprovação. Tente novamente em 15 minutos.',
+        retryAfter: 15 * 60
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        // Usar admin ID + IP para identificar unicamente
+        return `aprovacao_${req.user?.id || req.ip}_${req.ip}`;
+    },
+    skip: (req) => {
+        // Não aplicar rate limit em desenvolvimento
+        return process.env.NODE_ENV === 'development';
+    }
+});
+
+// Rate limiting para confirmação de OTP (proteção contra brute force)
+const confirmacaoOTPRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 10, // Máximo 10 tentativas de confirmação por admin em 15 minutos
+    message: {
+        success: false,
+        error: 'Muitas tentativas de confirmação. Tente novamente em 15 minutos.',
+        retryAfter: 15 * 60
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        return `confirmacao_otp_${req.user?.id || req.ip}_${req.ip}`;
+    },
+    skip: (req) => {
+        return process.env.NODE_ENV === 'development';
+    }
+});
 
 // Rota principal de gestão de negócio
 router.get('/gestao-negocio', authenticateToken, isAdmin, async (req, res) => {
@@ -187,15 +228,26 @@ async function getEstatisticasGerais() {
         const totalVendas = await Venda.count();
         console.log('📊 Total de vendas:', totalVendas);
         
+        // Status que indicam aprovação (incluindo APROVADO)
+        const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+        
         // Vendas aprovadas
         const vendasAprovadas = await Venda.count({
-            where: { status: 'Aprovada' }
+            where: { 
+                status: {
+                    [Op.in]: statusAprovados
+                }
+            }
         });
         console.log('✅ Vendas aprovadas:', vendasAprovadas);
         
         // Receita total (soma de todas as vendas aprovadas)
         const receitaTotal = await Venda.sum('valor', {
-            where: { status: 'Aprovada' }
+            where: { 
+                status: {
+                    [Op.in]: statusAprovados
+                }
+            }
         });
         console.log('💰 Receita total:', receitaTotal);
         
@@ -343,9 +395,9 @@ router.post('/paymoz/transacoes', authenticateToken, isAdmin, async (req, res) =
                 cliente_nome: venda.cliente_nome || 'N/A',
                 created_at: venda.created_at,
                 data_pagamento: venda.data_pagamento || null,
-                status: venda.status === 'Aprovada' || venda.status === 'Pago' ? 'Success' : 
-                       venda.status === 'Cancelada' ? 'Error' : 
-                       venda.status === 'Pendente' ? 'Pending' : venda.status,
+                status: (venda.status === 'Aprovada' || venda.status === 'Aprovado' || venda.status === 'APROVADO' || venda.status === 'aprovado' || venda.status === 'aprovada' || venda.status === 'APROVADA' || venda.status === 'Pago' || venda.status === 'pago' || venda.status === 'PAGO' || venda.status === 'approved' || venda.status === 'paid') ? 'Success' : 
+                       (venda.status === 'Cancelada' || venda.status === 'cancelada' || venda.status === 'CANCELADA') ? 'Error' : 
+                       (venda.status === 'Pendente' || venda.status === 'pendente' || venda.status === 'PENDENTE') ? 'Pending' : venda.status,
                 metodo_pagamento: venda.metodo_pagamento || 'N/A',
                 vendedor_nome: venda.vendedorVenda?.nome_completo || 'N/A'
             };
@@ -368,6 +420,114 @@ router.post('/paymoz/transacoes', authenticateToken, isAdmin, async (req, res) =
             success: false,
             error: error.message || 'Erro ao buscar transações PayMoz',
             details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// ========== ROTAS DE APROVAÇÃO MANUAL DE TRANSAÇÕES ==========
+
+const aprovacaoTransacaoService = require('../services/aprovacaoTransacaoService');
+
+/**
+ * POST /api/admin/transacoes/:id/solicitar-aprovacao
+ * Solicita aprovação de transação cancelada (gera OTP e envia email)
+ */
+router.post('/transacoes/:id/solicitar-aprovacao', authenticateToken, isAdmin, aprovacaoRateLimiter, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const adminId = req.user.id;
+
+        console.log(`🔐 Solicitação de aprovação para transação ${id} pelo admin ${adminId}`);
+
+        const resultado = await aprovacaoTransacaoService.solicitarAprovacao(id, adminId);
+
+        res.json({
+            success: true,
+            ...resultado
+        });
+    } catch (error) {
+        console.error('❌ Erro ao solicitar aprovação:', error);
+        res.status(400).json({
+            success: false,
+            message: error.message || 'Erro ao solicitar aprovação',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/admin/transacoes/:id/confirmar-aprovacao
+ * Confirma aprovação de transação com OTP
+ */
+router.post('/transacoes/:id/confirmar-aprovacao', authenticateToken, isAdmin, confirmacaoOTPRateLimiter, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { otp } = req.body;
+        const adminId = req.user.id;
+        const ip = req.ip || req.connection.remoteAddress;
+
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código OTP é obrigatório'
+            });
+        }
+
+        // Validação básica do formato do OTP
+        if (!/^\d{6}$/.test(otp)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código OTP inválido. Deve conter exatamente 6 dígitos numéricos.'
+            });
+        }
+
+        console.log(`✅ Confirmação de aprovação para transação ${id} pelo admin ${adminId} (IP: ${ip})`);
+
+        const resultado = await aprovacaoTransacaoService.confirmarAprovacao(id, otp, adminId, ip);
+
+        res.json({
+            success: true,
+            ...resultado
+        });
+    } catch (error) {
+        console.error('❌ Erro ao confirmar aprovação:', error);
+        res.status(400).json({
+            success: false,
+            message: error.message || 'Erro ao confirmar aprovação',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/admin/transacoes/canceladas
+ * Busca transações canceladas que podem ser aprovadas
+ */
+router.get('/transacoes/canceladas', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { dataInicio, dataFim, clienteNome, transactionId, limit } = req.query;
+
+        const filtros = {
+            dataInicio,
+            dataFim,
+            clienteNome,
+            transactionId,
+            limit: limit ? parseInt(limit) : 50
+        };
+
+        const transacoes = await aprovacaoTransacaoService.buscarTransacoesCanceladas(filtros);
+
+        res.json({
+            success: true,
+            data: transacoes,
+            total: transacoes.length
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar transações canceladas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar transações canceladas',
+            error: error.message
         });
     }
 });

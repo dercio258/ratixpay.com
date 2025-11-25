@@ -85,11 +85,17 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
     };
     
     try {
+      // Status que indicam aprovação (incluindo APROVADO)
+      const { Op } = require('sequelize');
+      const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+      
       // Total de vendas aprovadas
       console.log('🔍 Buscando total de vendas...');
       const totalVendas = await Venda.count({
         where: { 
-          status: 'Pago'
+          status: {
+            [Op.in]: statusAprovados
+          }
         }
       });
       console.log(`✅ Total de vendas encontradas: ${totalVendas}`);
@@ -98,7 +104,9 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
       // Receita total do sistema
       const vendasAprovadas = await Venda.findAll({
         where: { 
-          status: 'Pago'
+          status: {
+            [Op.in]: statusAprovados
+          }
         },
         attributes: ['valor']
       });
