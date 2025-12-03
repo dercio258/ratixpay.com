@@ -161,8 +161,19 @@ class SidebarComponent {
         
         if (!toggleBtn || !sidebar) return;
         
-        // Mover o botão para fora do sidebar no DOM
-        sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+        // Mover o botão para fora do sidebar no DOM (se parentNode existir)
+        if (sidebar.parentNode) {
+            try {
+                sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+            } catch (e) {
+                // Se falhar, adicionar ao body
+                console.warn('⚠️ Não foi possível mover toggle button, adicionando ao body');
+                document.body.appendChild(toggleBtn);
+            }
+        } else {
+            // Se não tiver parentNode, adicionar ao body
+            document.body.appendChild(toggleBtn);
+        }
         
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('hidden');
@@ -192,9 +203,17 @@ class SidebarComponent {
         
         if (!sidebar || !toggleBtn) return;
         
-        // Mover o botão para fora do sidebar no DOM
-        if (toggleBtn.parentNode === sidebar) {
-            sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+        // Mover o botão para fora do sidebar no DOM (com verificação segura)
+        if (toggleBtn && sidebar && toggleBtn.parentNode === sidebar && sidebar.parentNode) {
+            try {
+                sidebar.parentNode.insertBefore(toggleBtn, sidebar.nextSibling);
+            } catch (e) {
+                // Se falhar, adicionar ao body
+                document.body.appendChild(toggleBtn);
+            }
+        } else if (toggleBtn && !toggleBtn.parentNode) {
+            // Se o botão não tiver parent, adicionar ao body
+            document.body.appendChild(toggleBtn);
         }
         
         if (isHidden) {
