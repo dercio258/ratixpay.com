@@ -2103,6 +2103,10 @@ router.put('/:id', authenticateToken, isVendedorOrAdmin, upload.single('imagem')
       imagemBase64 = req.body.imagemBase64;
     }
     
+    // IMPORTANTE: Produtos já aprovados e ativos NÃO devem voltar para pendente ao atualizar
+    // Apenas produtos novos devem iniciar como pendente
+    const produtoJaAprovadoEAtivo = produto.status_aprovacao === 'aprovado' && produto.ativo === true;
+    
     // Atualizar dados do produto (apenas campos que existem no modelo)
     if (nome !== undefined) produto.nome = nome;
     if (tipo !== undefined) produto.tipo = tipo;
@@ -2110,7 +2114,23 @@ router.put('/:id', authenticateToken, isVendedorOrAdmin, upload.single('imagem')
     if (desconto !== undefined) produto.desconto = parseFloat(desconto);
     if (descricao !== undefined) produto.descricao = descricao;
     if (linkConteudo !== undefined) produto.link_conteudo = linkConteudo;
-    if (ativo !== undefined) produto.ativo = ativo === 'true' || ativo === true;
+    if (ativo !== undefined) {
+      const novoStatusAtivo = ativo === 'true' || ativo === true;
+      produto.ativo = novoStatusAtivo;
+      
+      // Se está ativando um produto já aprovado, garantir que permaneça aprovado
+      if (novoStatusAtivo && produto.status_aprovacao === 'aprovado') {
+        // Produto já aprovado sendo ativado - manter aprovado
+        produto.status_aprovacao = 'aprovado';
+        produto.motivo_rejeicao = null;
+      } else if (novoStatusAtivo && produto.status_aprovacao !== 'aprovado') {
+        // Produto sendo ativado mas não está aprovado - manter status atual (não auto-aprovar)
+        // Não alterar status_aprovacao aqui
+      } else if (!novoStatusAtivo) {
+        // Desativando produto - não alterar status de aprovação
+        // Produto pode estar inativo mas ainda aprovado (para histórico)
+      }
+    }
     if (categoria !== undefined) produto.categoria = categoria;
     if (imagem_url !== undefined) produto.imagem_url = imagem_url;
     // Atualizar configuração Order Bump
@@ -2168,6 +2188,14 @@ router.put('/:id', authenticateToken, isVendedorOrAdmin, upload.single('imagem')
       }
     }
     
+    // Garantir integridade: produtos ativos devem estar aprovados
+    if (produto.ativo === true && produto.status_aprovacao !== 'aprovado' && produtoJaAprovadoEAtivo) {
+      // Se estava ativo e aprovado antes, manter aprovado
+      produto.status_aprovacao = 'aprovado';
+      produto.motivo_rejeicao = null;
+      console.log(`✅ Produto ${produto.custom_id} mantido como aprovado (já estava aprovado e ativo)`);
+    }
+    
     await produto.save();
     
     res.json({
@@ -2178,6 +2206,7 @@ router.put('/:id', authenticateToken, isVendedorOrAdmin, upload.single('imagem')
         nome: produto.nome,
         preco: produto.preco,
         ativo: produto.ativo,
+        status_aprovacao: produto.status_aprovacao, // Incluir status na resposta
         order_bump_ativo: produto.order_bump_ativo,
         order_bump_produtos: produto.order_bump_produtos
       }
