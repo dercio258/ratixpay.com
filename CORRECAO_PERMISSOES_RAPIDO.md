@@ -17,7 +17,7 @@ Execute **um** dos comandos abaixo:
 sudo -u postgres psql -d ratixpay -f scripts/fix-schema-permissions.sql
 ```
 
-**Importante:** Se o nome do usuário não for `ratixpay`, edite o arquivo `scripts/fix-schema-permissions.sql` e substitua `ratixpay` pelo nome do seu usuário.
+**Importante:** O script já está configurado para usar `ratixuser` por padrão. Se o nome do seu usuário for diferente, edite o arquivo `scripts/fix-schema-permissions.sql` e substitua `ratixuser` pelo nome do seu usuário.
 
 ### Opção 2: Comandos SQL Manuais
 
@@ -26,15 +26,15 @@ sudo -u postgres psql -d ratixpay -f scripts/fix-schema-permissions.sql
 sudo -u postgres psql -d ratixpay
 ```
 
-Depois, dentro do psql, execute (substitua `ratixpay` pelo seu usuário se diferente):
+Depois, dentro do psql, execute (substitua `ratixuser` pelo seu usuário se diferente):
 
 ```sql
-GRANT USAGE ON SCHEMA public TO ratixpay;
-GRANT CREATE ON SCHEMA public TO ratixpay;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ratixpay;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ratixpay;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO ratixpay;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO ratixpay;
+GRANT USAGE ON SCHEMA public TO ratixuser;
+GRANT CREATE ON SCHEMA public TO ratixuser;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ratixuser;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ratixuser;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO ratixuser;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO ratixuser;
 \q
 ```
 
@@ -62,14 +62,14 @@ Para descobrir qual usuário está configurado no seu `.env`:
 grep DB_USER .env
 ```
 
-Use esse usuário no lugar de `ratixpay` nos comandos acima.
+Use esse usuário no lugar de `ratixuser` nos comandos acima.
 
 ## ⚠️ Se Ainda Não Funcionar (PostgreSQL 15+)
 
 Se você está usando PostgreSQL 15 ou superior, pode ser necessário também executar:
 
 ```sql
-ALTER SCHEMA public OWNER TO ratixpay;
+ALTER SCHEMA public OWNER TO ratixuser;
 ```
 
 Ou permitir criação pública (menos seguro, mas funcional):

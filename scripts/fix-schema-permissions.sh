@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Script para corrigir permissões do schema public para o usuário ratixpay
+# Script para corrigir permissões do schema public
+# Lê o usuário do banco de dados do arquivo .env
 # Deve ser executado como superusuário PostgreSQL (postgres)
 
-echo "🔧 Corrigindo permissões do schema public para o usuário ratixpay..."
+echo "🔧 Corrigindo permissões do schema public..."
 echo ""
 
 # Verificar se está rodando como usuário postgres ou com sudo
@@ -16,25 +17,30 @@ fi
 
 # Ler variáveis do .env se existir
 if [ -f .env ]; then
-    # Carregar variáveis do .env de forma segura
-    set -a
-    source .env 2>/dev/null || true
-    set +a
+    # Carregar variáveis do .env de forma segura (ignorando comentários)
+    while IFS='=' read -r key value; do
+        # Remover espaços e ignorar linhas vazias ou comentários
+        key=$(echo "$key" | xargs)
+        value=$(echo "$value" | xargs)
+        if [[ ! -z "$key" && ! "$key" =~ ^# ]]; then
+            export "$key=$value"
+        fi
+    done < <(grep -v '^#' .env | grep -v '^$' | grep '=')
 fi
 
 # Definir valores padrão
 DB_NAME=${DB_NAME:-ratixpay}
-DB_USER=${DB_USER:-ratixpay}
+DB_USER=${DB_USER:-ratixuser}
 
-# Se DB_USER não estiver definido, tentar usar o usuário da conexão atual
+# Se DB_USER ainda não estiver definido, tentar ler manualmente do .env
 if [ -z "$DB_USER" ] || [ "$DB_USER" = "postgres" ]; then
-    # Tentar ler do .env manualmente
     if [ -f .env ]; then
-        DB_USER=$(grep "^DB_USER=" .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" | xargs)
+        # Ler DB_USER ignorando comentários
+        DB_USER=$(grep -E "^[[:space:]]*DB_USER[[:space:]]*=" .env | grep -v '^#' | head -1 | cut -d '=' -f2 | tr -d '"' | tr -d "'" | xargs)
     fi
-    # Se ainda estiver vazio ou for postgres, usar ratixpay como padrão para o usuário que precisa de permissões
+    # Se ainda estiver vazio ou for postgres, usar ratixuser como padrão
     if [ -z "$DB_USER" ] || [ "$DB_USER" = "postgres" ]; then
-        DB_USER="ratixpay"
+        DB_USER="ratixuser"
     fi
 fi
 

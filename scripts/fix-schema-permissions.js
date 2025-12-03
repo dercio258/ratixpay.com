@@ -42,7 +42,7 @@ async function fixPermissions() {
         console.log('✅ Conexão estabelecida!\n');
 
         // Obter o usuário do banco de dados (do .env)
-        const dbUser = process.env.DB_USER || 'ratixpay';
+        const dbUser = process.env.DB_USER || 'ratixuser';
         
         console.log(`🔐 Concedendo permissões ao usuário: ${dbUser}\n`);
 
