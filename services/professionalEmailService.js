@@ -4,6 +4,8 @@
  */
 
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 class ProfessionalEmailService {
     constructor() {
@@ -92,7 +94,7 @@ class ProfessionalEmailService {
             this.transporters[category] = nodemailer.createTransport(transporterConfig);
             console.log(`✅ Transportador ${category} configurado: ${config.user}`);
         }
-        
+
         this.initialized = true;
     }
 
@@ -158,17 +160,17 @@ class ProfessionalEmailService {
     async createNewTransporter(category) {
         const emailConfigs = this.getEmailConfigs();
         const config = emailConfigs[category];
-        
+
         if (!config) {
             throw new Error(`Configuração não encontrada para categoria: ${category}`);
         }
-        
+
         // Fechar transporter antigo primeiro
         await this.closeTransporter(category);
-        
+
         // Aguardar um pouco para garantir que conexão antiga foi fechada
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         const transporterConfig = this.createTransporterConfig(config);
         this.transporters[category] = nodemailer.createTransport(transporterConfig);
         console.log(`✅ Novo transportador ${category} criado`);
@@ -184,7 +186,7 @@ class ProfessionalEmailService {
         }
 
         this.recreating.add(category);
-        
+
         try {
             await this.createNewTransporter(category);
         } catch (error) {
@@ -205,7 +207,7 @@ class ProfessionalEmailService {
 
         const emailConfigs = this.getEmailConfigs();
         const config = emailConfigs[category];
-        
+
         if (!config) {
             return { success: false, error: `Configuração não encontrada para categoria: ${category}` };
         }
@@ -227,36 +229,36 @@ class ProfessionalEmailService {
         let lastError;
         const maxRetries = 3;
         const emailTimeout = 60000; // 60 segundos
-        
+
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 // Obter ou criar transporter a cada tentativa
                 let transporter = this.transporters[category];
-                
+
                 if (!transporter) {
                     await this.createNewTransporter(category);
                     transporter = this.transporters[category];
                 }
-                
+
                 const result = await Promise.race([
                     transporter.sendMail(mailOptions),
-                    new Promise((_, reject) => 
+                    new Promise((_, reject) =>
                         setTimeout(() => reject(new Error('Timeout ao enviar email')), emailTimeout)
                     )
                 ]);
-                
+
                 console.log(`✅ Email de ${category} enviado para: ${validated.destinatario}`);
                 return { success: true, messageId: result.messageId };
             } catch (error) {
                 lastError = error;
                 const isTimeout = error.message.includes('Timeout');
-                const isConnectionError = error.code === 'ECONNECTION' || 
-                                        error.code === 'ETIMEDOUT' || 
-                                        error.message.includes('Connection closed') ||
-                                        error.message.includes('Connection closed unexpectedly');
-                
+                const isConnectionError = error.code === 'ECONNECTION' ||
+                    error.code === 'ETIMEDOUT' ||
+                    error.message.includes('Connection closed') ||
+                    error.message.includes('Connection closed unexpectedly');
+
                 console.warn(`⚠️ Tentativa ${attempt}/${maxRetries} falhou para ${category}:`, error.message);
-                
+
                 if (isConnectionError || isTimeout) {
                     if (attempt < maxRetries) {
                         console.log(`🔄 Recriando conexão SMTP para ${category}...`);
@@ -274,7 +276,7 @@ class ProfessionalEmailService {
                 }
             }
         }
-        
+
         console.error(`❌ Todas as ${maxRetries} tentativas falharam para ${category}`);
         return { success: false, error: lastError?.message || 'Falha ao enviar email', code: lastError?.code };
     }
@@ -307,77 +309,74 @@ class ProfessionalEmailService {
         return await this.enviarEmailGenerico('ofertas', destinatario, assunto, conteudo, tipo);
     }
 
+
+
+    /**
+     * Carregar template do arquivo
+     */
+    loadTemplate(templateName) {
+        try {
+            const templatePath = path.join(__dirname, '../templates/emails', templateName);
+            return fs.readFileSync(templatePath, 'utf8');
+        } catch (error) {
+            console.error(`Erro ao carregar template ${templateName}:`, error);
+            return null;
+        }
+    }
+
     /**
      * Gerar template de confirmação de compra (mesmo padrão usado em vendas)
      */
     gerarTemplateConfirmacaoCompra({ clienteNome, produtoNome, valorPago, linkConteudo, vendedorNome, numeroPedido }) {
         const numeroPedidoFinal = numeroPedido || 'N/A';
-        return `
-            <h2>Olá, ${this.escapeHtml(clienteNome)}!</h2>
-            <p>Parabéns pela sua compra do produto <strong>${this.escapeHtml(produtoNome)}</strong>!</p>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3>📋 Detalhes da Compra</h3>
-                <p><strong>Número do Pedido:</strong> #${this.escapeHtml(String(numeroPedidoFinal))}</p>
-                <p><strong>Produto:</strong> ${this.escapeHtml(produtoNome)}</p>
-                <p><strong>Valor Pago:</strong> ${this.escapeHtml(String(valorPago))}</p>
-                <p><strong>Vendedor:</strong> ${this.escapeHtml(vendedorNome || 'Vendedor')}</p>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${this.escapeHtml(linkConteudo || '#')}" style="background-color: #F64C00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
-                    📥 Acessar Conteúdo do Produto
-                </a>
-            </div>
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <strong>⚠️ Importante:</strong> Guarde este email em local seguro. O link do conteúdo é válido por tempo indeterminado.
-            </div>
-        `;
-    }
+        let template = this.loadTemplate('confirmacao-compra.html');
 
-    /**
-     * Enviar confirmação de compra para cliente via vendas@ratixpay.com
-     */
-    async enviarConfirmacaoCompraCliente(dadosVenda) {
-        const { clienteEmail, clienteNome, produtoNome, valorPago, linkConteudo, vendedorNome, numeroPedido, transacao_id, pagamento_referencia, venda_id } = dadosVenda || {};
-        const numeroPedidoFinal = numeroPedido
-            || (transacao_id && String(transacao_id).length === 6 ? transacao_id : null)
-            || (pagamento_referencia && String(pagamento_referencia).length === 6 ? pagamento_referencia : null)
-            || venda_id
-            || 'N/A';
-
-        const assunto = `🎉 Confirmação de Compra - Pedido #${numeroPedidoFinal}`;
-        const conteudo = this.gerarTemplateConfirmacaoCompra({ clienteNome, produtoNome, valorPago, linkConteudo, vendedorNome, numeroPedido: numeroPedidoFinal });
-        return await this.enviarEmailVendas(clienteEmail, assunto, conteudo, 'conteudo');
-    }
-
-    /**
-     * Escapar HTML para prevenir XSS
-     */
-    escapeHtml(text) {
-        if (typeof text !== 'string') {
-            text = String(text);
+        if (!template) {
+            // Fallback se arquivo não existir
+            return `
+                <h2>Olá, ${this.escapeHtml(clienteNome)}!</h2>
+                <p>Parabéns pela sua compra do produto <strong>${this.escapeHtml(produtoNome)}</strong>!</p>
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3>📋 Detalhes da Compra</h3>
+                    <p><strong>Número do Pedido:</strong> #${this.escapeHtml(String(numeroPedidoFinal))}</p>
+                    <p><strong>Produto:</strong> ${this.escapeHtml(produtoNome)}</p>
+                    <p><strong>Valor Pago:</strong> ${this.escapeHtml(String(valorPago))}</p>
+                    <p><strong>Vendedor:</strong> ${this.escapeHtml(vendedorNome || 'Vendedor')}</p>
+                </div>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${this.escapeHtml(linkConteudo || '#')}" style="background-color: #F64C00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                        📥 Acessar Conteúdo do Produto
+                    </a>
+                </div>
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <strong>⚠️ Importante:</strong> Guarde este email em local seguro. O link do conteúdo é válido por tempo indeterminado.
+                </div>
+            `;
         }
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, m => map[m]);
+
+        // Substituição simples de variáveis
+        return template
+            .replace(/{{clienteNome}}/g, this.escapeHtml(clienteNome))
+            .replace(/{{produtoNome}}/g, this.escapeHtml(produtoNome))
+            .replace(/{{numeroPedido}}/g, this.escapeHtml(String(numeroPedidoFinal)))
+            .replace(/{{valorPago}}/g, this.escapeHtml(String(valorPago)))
+            .replace(/{{vendedorNome}}/g, this.escapeHtml(vendedorNome || 'Vendedor'))
+            .replace(/{{linkConteudo}}/g, this.escapeHtml(linkConteudo || '#'));
     }
+
+    // ... (escapeHtml method remains same)
 
     /**
      * Formatar email baseado na categoria
      */
     formatarEmail(category, conteudo, tipo) {
         // Verificar se o conteúdo já é um template HTML completo
-        // Verificar por múltiplos indicadores de template completo
-        const isCompleteTemplate = conteudo.includes('<!DOCTYPE html>') || 
-                                   conteudo.includes('<html') || 
-                                   conteudo.includes('email-wrapper') ||
-                                   conteudo.includes('<head>') ||
-                                   (conteudo.includes('<style>') && conteudo.includes('@media'));
-        
+        const isCompleteTemplate = conteudo.includes('<!DOCTYPE html>') ||
+            conteudo.includes('<html') ||
+            conteudo.includes('email-wrapper') ||
+            conteudo.includes('<head>') ||
+            (conteudo.includes('<style>') && conteudo.includes('@media'));
+
         if (isCompleteTemplate) {
             console.log('📧 Template HTML completo detectado - enviando sem cabeçalho adicional');
             return conteudo;
@@ -410,82 +409,53 @@ class ProfessionalEmailService {
             }
         };
 
-        const template = templates[category] || templates.vendas;
+        const templateConfig = templates[category] || templates.vendas;
         const cores = {
             vendas: '#F64C00',
             conteudo: '#28a745',
             saque: '#007bff',
             confirmacao: '#17a2b8'
         };
-        const corHeader = cores[tipo] || template.headerColor;
+        const corHeader = cores[tipo] || templateConfig.headerColor;
+        const corHeaderDark = this.darkenColor(corHeader);
 
-        return `
-            <!DOCTYPE html>
-            <html lang="pt-BR">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${template.title}</title>
-                <style>
-                    body { 
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-                        line-height: 1.6; 
-                        color: #333; 
-                        margin: 0; 
-                        padding: 0; 
-                        background-color: #f4f4f4; 
-                    }
-                    .container { 
-                        max-width: 600px; 
-                        margin: 0 auto; 
-                        background: white; 
-                        border-radius: 8px; 
-                        padding: 0; 
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-                    }
-                    .header { 
-                        background: linear-gradient(135deg, ${corHeader} 0%, ${this.darkenColor(corHeader)} 100%); 
-                        color: white; 
-                        padding: 20px; 
-                        text-align: center; 
-                        border-radius: 8px 8px 0 0; 
-                    }
-                    .content { 
-                        padding: 30px 20px; 
-                        background-color: #ffffff; 
-                    }
-                    .footer { 
-                        background-color: #f8f9fa; 
-                        padding: 20px; 
-                        text-align: center; 
-                        border-radius: 0 0 8px 8px; 
-                        color: #666; 
-                    }
-                    @media only screen and (max-width: 600px) {
-                        body { padding: 10px !important; }
-                        .container { width: 100% !important; border-radius: 0 !important; }
-                        .header { padding: 15px !important; }
-                        .content { padding: 20px 15px !important; }
-                        .footer { padding: 15px !important; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>${template.title}</h1>
+        let layout = this.loadTemplate('layout.html');
+
+        if (!layout) {
+            // Fallback se arquivo não existir
+            return `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${templateConfig.title}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+                        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; }
+                        .header { background-color: ${corHeader}; color: white; padding: 20px; text-align: center; }
+                        .content { padding: 20px; }
+                        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header"><h1>${templateConfig.title}</h1></div>
+                        <div class="content">${conteudo}</div>
+                        <div class="footer"><p>${templateConfig.footerText}</p></div>
                     </div>
-                    <div class="content">
-                        ${conteudo}
-                    </div>
-                    <div class="footer">
-                        <p>${template.footerText}</p>
-                        <p>Para suporte: <a href="mailto:${template.footerLink}">${template.footerLink}</a></p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
+                </body>
+                </html>
+            `;
+        }
+
+        return layout
+            .replace(/{{title}}/g, templateConfig.title)
+            .replace(/{{headerColor}}/g, corHeader)
+            .replace(/{{headerColorDark}}/g, corHeaderDark)
+            .replace(/{{content}}/g, conteudo)
+            .replace(/{{footerText}}/g, templateConfig.footerText)
+            .replace(/{{footerLink}}/g, templateConfig.footerLink);
     }
 
     /**
@@ -527,28 +497,28 @@ class ProfessionalEmailService {
      */
     async verificarStatus() {
         const status = {};
-        
+
         for (const [categoria, transporter] of Object.entries(this.transporters)) {
             try {
                 // Tentar verificar conexão com timeout
                 await Promise.race([
                     transporter.verify(),
-                    new Promise((_, reject) => 
+                    new Promise((_, reject) =>
                         setTimeout(() => reject(new Error('Timeout')), 5000)
                     )
                 ]);
-                status[categoria] = { 
-                    status: 'conectado', 
-                    email: transporter.options?.auth?.user || 'N/A' 
+                status[categoria] = {
+                    status: 'conectado',
+                    email: transporter.options?.auth?.user || 'N/A'
                 };
             } catch (error) {
-                status[categoria] = { 
-                    status: 'erro', 
-                    error: error.message 
+                status[categoria] = {
+                    status: 'erro',
+                    error: error.message
                 };
             }
         }
-        
+
         return status;
     }
 

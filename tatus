@@ -1,0 +1,61 @@
+warning: in the working copy of 'routes/produtos.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/routes/produtos.js b/routes/produtos.js[m
+[1mindex d6c9186..bb2b1e5 100644[m
+[1m--- a/routes/produtos.js[m
+[1m+++ b/routes/produtos.js[m
+[36m@@ -449,17 +449,16 @@[m [mrouter.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,[m
+       }[m
+     } catch (error) {[m
+       console.error('❌ Erro na verificação do Gemini AI:', error);[m
+[31m-      // Em caso de erro, rejeitar o produto para segurança[m
+[31m-      return res.status(500).json({[m
+[31m-        success: false,[m
+[31m-        error: 'ERRO_VERIFICACAO',[m
+[31m-        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',[m
+[31m-        verificacao: {[m
+[31m-          aprovado: false,[m
+[31m-          motivo: 'Erro técnico na verificação automática',[m
+[31m-          erro: error.message[m
+[31m-        }[m
+[31m-      });[m
+[32m+[m[32m      // Em caso de erro, aprovar automaticamente o produto[m
+[32m+[m[32m      console.log('⚠️ Gemini AI indisponível - Aprovando produto automaticamente');[m
+[32m+[m[32m      verificacaoGemini = {[m
+[32m+[m[32m        aprovado: true,[m
+[32m+[m[32m        motivo: 'Aprovado automaticamente devido a erro na verificação do Gemini AI',[m
+[32m+[m[32m        score: 100,[m
+[32m+[m[32m        resposta_ia: 'Erro técnico na verificação - produto aprovado automaticamente',[m
+[32m+[m[32m        timestamp: new Date().toISOString(),[m
+[32m+[m[32m        erro: error.message[m
+[32m+[m[32m      };[m
+     }[m
+ [m
+     // Gerar public_id único (6 dígitos)[m
+[36m@@ -824,17 +823,16 @@[m [mrouter.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService[m
+       }[m
+     } catch (error) {[m
+       console.error('❌ Erro na verificação do Gemini AI:', error);[m
+[31m-      // Em caso de erro, rejeitar o produto para segurança[m
+[31m-      return res.status(500).json({[m
+[31m-        success: false,[m
+[31m-        error: 'ERRO_VERIFICACAO',[m
+[31m-        message: 'Erro ao verificar produto. Tente novamente ou entre em contato com o suporte.',[m
+[31m-        verificacao: {[m
+[31m-          aprovado: false,[m
+[31m-          motivo: 'Erro técnico na verificação automática',[m
+[31m-          erro: error.message[m
+[31m-        }[m
+[31m-      });[m
+[32m+[m[32m      // Em caso de erro, aprovar automaticamente o produto[m
+[32m+[m[32m      console.log('⚠️ Gemini AI indisponível - Aprovando produto automaticamente');[m
+[32m+[m[32m      verificacaoGemini = {[m
+[32m+[m[32m        aprovado: true,[m
+[32m+[m[32m        motivo: 'Aprovado automaticamente devido a erro na verificação do Gemini AI',[m
+[32m+[m[32m        score: 100,[m
+[32m+[m[32m        resposta_ia: 'Erro técnico na verificação - produto aprovado automaticamente',[m
+[32m+[m[32m        timestamp: new Date().toISOString(),[m
+[32m+[m[32m        erro: error.message[m
+[32m+[m[32m      };[m
+     }[m
+ [m
+     // Gerar public_id único (6 dígitos)[m

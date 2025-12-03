@@ -235,12 +235,12 @@ class SaqueSimplificadoService {
     /**
      * Gerar código de autenticação para saque
      */
-    static async gerarCodigoSaque(vendedorId, carteiraId) {
+    static async gerarCodigoSaque(vendedorId, carteiraId, emailCarteira) {
         try {
             console.log(`🔄 Gerando código de saque para vendedor ${vendedorId}, carteira ${carteiraId}`);
             
             // Verificar carteira (usar vendedorId em camelCase)
-            // IMPORTANTE: Buscar todos os campos necessários, incluindo nomeTitular e emailTitular
+            // IMPORTANTE: Buscar todos os campos necessários, incluindo nomeTitular e email
             const carteira = await Carteira.findOne({
                 where: {
                     id: carteiraId,
@@ -249,7 +249,9 @@ class SaqueSimplificadoService {
                 },
                 attributes: [
                     'id', 'nome', 'metodoSaque', 'contacto', 
-                    'nomeTitular', 'emailTitular', 'ativa'
+                    'nomeTitular', 'email', 'ativa',
+                    'contactoMpesa', 'nomeTitularMpesa',
+                    'contactoEmola', 'nomeTitularEmola'
                 ]
             });
             
@@ -262,11 +264,11 @@ class SaqueSimplificadoService {
             // Garantir que os campos estejam disponíveis (reload se necessário)
             await carteira.reload();
             
-            // Acessar campos em camelCase (modelo Sequelize) ou snake_case (fallback)
-            const emailTitular = carteira.emailTitular || carteira.get('email_titular') || carteira.email_titular;
-            const nomeTitular = carteira.nomeTitular || carteira.get('nome_titular') || carteira.nome_titular;
+            // Usar email passado como parâmetro ou buscar da carteira
+            const emailTitular = emailCarteira || carteira.email || carteira.get('email') || carteira.emailTitular || carteira.get('email_titular');
+            const nomeTitular = carteira.nomeTitular || carteira.get('nome_titular') || carteira.nomeTitularMpesa || carteira.get('nome_titular_mpesa');
             const metodoSaque = carteira.metodoSaque || carteira.metodo_saque;
-            const contacto = carteira.contacto;
+            const contacto = carteira.contactoMpesa || carteira.contactoEmola || carteira.contacto || carteira.get('contacto');
             
             console.log('📧 Email do titular:', emailTitular);
             console.log('📧 Email válido:', emailTitular && emailTitular.includes('@'));

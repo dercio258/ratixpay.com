@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITULO_PAGINA}}</title>
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Fontes: Inter e Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #F8F8F8;
+            color: #1F2937;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Container principal */
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Badge do cabeçalho */
+        .badge-header {
+            display: inline-block;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+        
+        /* Título principal */
+        .title-main {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #1F2937;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .title-highlight {
+            color: #F97316;
+        }
+        
+        /* Subtítulo */
+        .subtitle-main {
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: #4B5563;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Container de vídeo responsivo */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 40px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #E5E7EB;
+            border: 4px solid #10B981;
+            box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.7);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-container:hover {
+            transform: scale(1.005);
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Placeholder de vídeo */
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #E5E7EB;
+        }
+        
+        .play-icon {
+            font-size: 80px;
+            color: #10B981;
+            opacity: 0.8;
+            margin-bottom: 16px;
+        }
+        
+        .play-text {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 700;
+            color: #374151;
+        }
+        
+        /* Seção de CTA inicial */
+        .cta-initial {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .price-initial {
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 20px;
+        }
+        
+        .price-strike {
+            text-decoration: line-through;
+            color: #6B7280;
+        }
+        
+        .price-highlight {
+            color: #F97316;
+            font-weight: 900;
+            font-size: clamp(32px, 5vw, 48px);
+        }
+        
+        /* Botão CTA */
+        .cta-button {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #F97316;
+            color: #ffffff;
+            font-size: clamp(18px, 2.5vw, 24px);
+            font-weight: 900;
+            padding: 20px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+            border-bottom: 4px solid #EA580C;
+        }
+        
+        .cta-button:hover {
+            background: #EA580C;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(249, 115, 22, 0.5);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0);
+            border-bottom-width: 2px;
+        }
+        
+        .cta-button i {
+            font-size: 28px;
+        }
+        
+        /* Seção de resultados */
+        .results-section {
+            margin-bottom: 50px;
+        }
+        
+        .results-title {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 900;
+            text-align: center;
+            color: #10B981;
+            margin-bottom: 30px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+        }
+        
+        .result-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #E5E7EB;
+            object-fit: cover;
+            min-height: 300px;
+            background: #F3F4F6;
+        }
+        
+        .result-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+        
+        .result-testimonial {
+            font-size: 14px;
+            color: #6B7280;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
+        /* Carrossel de depoimentos */
+        .testimonials-section {
+            margin-bottom: 60px;
+        }
+        
+        .testimonials-title {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            text-align: center;
+            color: #10B981;
+            margin-bottom: 40px;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+        }
+        
+        .testimonial-carousel {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+            padding: 40px 20px;
+            border-radius: 20px;
+            border: 2px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .testimonial-carousel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10B981, #34D399, #10B981);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .testimonial-track {
+            display: flex;
+            width: 200%;
+            animation: slide 30s linear infinite;
+        }
+        
+        .testimonial-carousel:hover .testimonial-track {
+            animation-play-state: paused;
+        }
+        
+        .testimonial-item {
+            flex-shrink: 0;
+            width: 320px;
+            margin-right: 24px;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid rgba(16, 185, 129, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+            border-color: #10B981;
+        }
+        
+        .testimonial-stars {
+            display: flex;
+            gap: 4px;
+            color: #FBBF24;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .testimonial-stars i {
+            filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.3));
+        }
+        
+        .testimonial-text {
+            font-size: 15px;
+            font-style: italic;
+            color: #374151;
+            margin-bottom: 16px;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .testimonial-text::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: -5px;
+            font-size: 40px;
+            color: #10B981;
+            opacity: 0.3;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .testimonial-author {
+            font-size: 15px;
+            font-weight: 700;
+            color: #10B981;
+            text-align: right;
+        }
+        
+        @keyframes slide {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* Seção de Depoimentos Sociais com Imagens */
+        .social-testimonials-section {
+            margin-bottom: 60px;
+        }
+        
+        .social-testimonials-title {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            text-align: center;
+            color: #10B981;
+            margin-bottom: 40px;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+        }
+        
+        .social-testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .social-testimonial-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(16, 185, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .social-testimonial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10B981, #34D399);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .social-testimonial-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.25);
+            border-color: #10B981;
+        }
+        
+        .social-testimonial-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .social-testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .social-testimonial-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #10B981;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .social-testimonial-card:hover .social-testimonial-avatar {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .social-testimonial-info {
+            flex: 1;
+        }
+        
+        .social-testimonial-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+        
+        .social-testimonial-location {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        .social-testimonial-stars {
+            display: flex;
+            gap: 4px;
+            color: #FBBF24;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .social-testimonial-stars i {
+            filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.3));
+        }
+        
+        .social-testimonial-text {
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.8;
+            font-style: italic;
+            margin-bottom: 16px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .social-testimonial-text::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: -5px;
+            font-size: 36px;
+            color: #10B981;
+            opacity: 0.3;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .social-testimonial-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            font-weight: 700;
+            font-size: 13px;
+            color: #10B981;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            color: #10B981;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* Seção de escassez e CTA final */
+        .scarcity-section {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: 4px solid rgba(249, 115, 22, 0.5);
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.2);
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .countdown-title {
+            font-size: clamp(18px, 2.5vw, 22px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #F97316;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            font-size: clamp(40px, 8vw, 64px);
+            font-weight: 900;
+            color: #F97316;
+            margin-bottom: 30px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .countdown-label {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        
+        .countdown-separator {
+            color: #D1D5DB;
+            font-size: 64px;
+            font-weight: 300;
+        }
+        
+        .scarcity-price {
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 30px;
+        }
+        
+        .scarcity-price-highlight {
+            color: #10B981;
+            font-weight: 900;
+            font-size: clamp(36px, 6vw, 48px);
+        }
+        
+        /* Footer */
+        .footer-section {
+            text-align: center;
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid #D1D5DB;
+        }
+        
+        .footer-links {
+            margin-top: 8px;
+        }
+        
+        .footer-links a {
+            color: #1F2937;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #10B981;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #10B981;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        .modal-success {
+            width: 48px;
+            height: 48px;
+            background: #10B981;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container-main {
+                padding: 15px;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .countdown-container {
+                gap: 12px;
+                font-size: 32px;
+            }
+            
+            .countdown-separator {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-main">
+        
+        <!-- Cabeçalho -->
+        <header class="text-center mb-12" style="padding: 40px 20px;">
+            <div class="badge-header" data-editable="text" data-field="badge_texto" contenteditable="false">
+                MÉTODO CIENTIFICAMENTE COMPROVADO
+            </div>
+            
+            <h1 class="title-main" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                O Segredo que Desbloqueia <span class="title-highlight">20Kg de Perda</span> em Apenas 60 Dias
+            </h1>
+            
+            <p class="subtitle-main" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Assista a carta de vendas e descubra o sistema de reprogramação metabólica que a indústria não quer que você conheça.
+            </p>
+        </header>
+
+        <!-- Container de Vídeo VSL -->
+        <div class="video-container" data-editable="media" data-field="video" data-media-type="video" contenteditable="false">
+            <div class="video-wrapper">
+                {{VIDEO_CONTENT}}
+                
+                <!-- Placeholder quando não há vídeo -->
+                <div id="video-placeholder" class="video-placeholder">
+                    <i class="ph-fill ph-play-circle play-icon"></i>
+                    <span class="play-text">CLIQUE PARA ASSISTIR AO VSL</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Inicial -->
+        <div class="cta-initial">
+            <p class="price-initial" data-editable="text" data-field="texto_preco_inicial" contenteditable="false">
+                Oferta Limitada: De <span class="price-strike">MZN 997,00</span> por apenas <span class="price-highlight">12x MZN 29,90</span>
+            </p>
+            
+            <button onclick="triggerPurchase()" id="ctaButton" class="cta-button" data-editable="button-text" data-field="texto_botao_inicial" contenteditable="false">
+                <i class="ph-fill ph-sparkle"></i>
+                <span>QUERO TRANSFORMAR MEU CORPO AGORA!</span>
+            </button>
+        </div>
+
+        <!-- Seção de Resultados (Antes/Depois) -->
+        <section class="results-section">
+            <h2 class="results-title" data-editable="text" data-field="titulo_resultados" contenteditable="false">
+                PROVAS REAIS: DEZENAS DE PESSOAS JÁ CONSEGUIRAM
+            </h2>
+            
+            <div class="results-grid">
+                <!-- Resultado 1 -->
+                <div class="result-card" data-editable="media" data-field="resultado_1" data-media-type="image" contenteditable="false">
+                    <img src="https://placehold.co/400x400/10B981/FFFFFF?text=ANTES+%26+DEPOIS+1" alt="Resultado de Emagrecimento 1" class="result-image">
+                    <p class="result-name" data-editable="text" data-field="resultado_1_nome" contenteditable="false">Maria C. (-18Kg)</p>
+                    <p class="result-testimonial" data-editable="text" data-field="resultado_1_depoimento" contenteditable="false">"Minha energia voltou, nunca me senti tão leve! O método é simples e funciona."</p>
+                </div>
+                
+                <!-- Resultado 2 -->
+                <div class="result-card" data-editable="media" data-field="resultado_2" data-media-type="image" contenteditable="false">
+                    <img src="https://placehold.co/400x400/10B981/FFFFFF?text=ANTES+%26+DEPOIS+2" alt="Resultado de Emagrecimento 2" class="result-image">
+                    <p class="result-name" data-editable="text" data-field="resultado_2_nome" contenteditable="false">João S. (-25Kg)</p>
+                    <p class="result-testimonial" data-editable="text" data-field="resultado_2_depoimento" contenteditable="false">"Perdi o peso que me incomodava há anos. Fim do efeito sanfona, estou em forma."</p>
+                </div>
+                
+                <!-- Resultado 3 -->
+                <div class="result-card" data-editable="media" data-field="resultado_3" data-media-type="image" contenteditable="false">
+                    <img src="https://placehold.co/400x400/10B981/FFFFFF?text=ANTES+%26+DEPOIS+3" alt="Resultado de Emagrecimento 3" class="result-image">
+                    <p class="result-name" data-editable="text" data-field="resultado_3_nome" contenteditable="false">Ana F. (-12Kg)</p>
+                    <p class="result-testimonial" data-editable="text" data-field="resultado_3_depoimento" contenteditable="false">"Cumpri a meta sem sofrimento. A consultoria faz toda a diferença para manter o foco!"</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Depoimentos (Carrossel) -->
+        <section class="testimonials-section">
+            <h2 class="testimonials-title" data-editable="text" data-field="titulo_depoimentos" contenteditable="false">
+                O Que Dizem Nossos Alunos...
+            </h2>
+            
+            <div class="testimonial-carousel">
+                <div class="testimonial-track">
+                    <!-- Depoimento 1 -->
+                    <div class="testimonial-item" data-editable="text" data-field="depoimento_carrosel_1" contenteditable="false">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text" data-editable="text" data-field="depoimento_carrosel_1_texto" contenteditable="false">"Funciona de verdade! Em 4 semanas vi resultados que dietas anteriores não me deram em meses. Incrível!"</p>
+                        <p class="testimonial-author" data-editable="text" data-field="depoimento_carrosel_1_autor" contenteditable="false">- Roberta N. (42 anos)</p>
+                    </div>
+                    <!-- Depoimento 2 -->
+                    <div class="testimonial-item" data-editable="text" data-field="depoimento_carrosel_2" contenteditable="false">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text" data-editable="text" data-field="depoimento_carrosel_2_texto" contenteditable="false">"Eu estava cético, mas o suporte é impecável. Perdi 10kg e o melhor: sem passar fome. Recomendo 100%."</p>
+                        <p class="testimonial-author" data-editable="text" data-field="depoimento_carrosel_2_autor" contenteditable="false">- Paulo G. (35 anos)</p>
+                    </div>
+                    <!-- Depoimento 3 -->
+                    <div class="testimonial-item" data-editable="text" data-field="depoimento_carrosel_3" contenteditable="false">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text" data-editable="text" data-field="depoimento_carrosel_3_texto" contenteditable="false">"Finalmente encontrei algo que não é só 'mais uma dieta'. É uma mudança de vida. Estou com o corpo que sempre quis!"</p>
+                        <p class="testimonial-author" data-editable="text" data-field="depoimento_carrosel_3_autor" contenteditable="false">- Carla M. (28 anos)</p>
+                    </div>
+                    <!-- Depoimento 4 -->
+                    <div class="testimonial-item" data-editable="text" data-field="depoimento_carrosel_4" contenteditable="false">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text" data-editable="text" data-field="depoimento_carrosel_4_texto" contenteditable="false">"Minha saúde melhorou muito, não é só estética. Os módulos de nutrição são ouro puro. Vale cada centavo investido."</p>
+                        <p class="testimonial-author" data-editable="text" data-field="depoimento_carrosel_4_autor" contenteditable="false">- Fernando A. (50 anos)</p>
+                    </div>
+                    
+                    <!-- DUPLICAÇÃO DOS ITENS PARA CRIAÇÃO DO LOOP INFINITO -->
+                    <!-- Depoimento 1 (Duplicado) -->
+                    <div class="testimonial-item">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Funciona de verdade! Em 4 semanas vi resultados que dietas anteriores não me deram em meses. Incrível!"</p>
+                        <p class="testimonial-author">- Roberta N. (42 anos)</p>
+                    </div>
+                    <!-- Depoimento 2 (Duplicado) -->
+                    <div class="testimonial-item">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Eu estava cético, mas o suporte é impecável. Perdi 10kg e o melhor: sem passar fome. Recomendo 100%."</p>
+                        <p class="testimonial-author">- Paulo G. (35 anos)</p>
+                    </div>
+                    <!-- Depoimento 3 (Duplicado) -->
+                    <div class="testimonial-item">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Finalmente encontrei algo que não é só 'mais uma dieta'. É uma mudança de vida. Estou com o corpo que sempre quis!"</p>
+                        <p class="testimonial-author">- Carla M. (28 anos)</p>
+                    </div>
+                    <!-- Depoimento 4 (Duplicado) -->
+                    <div class="testimonial-item">
+                        <div class="testimonial-stars">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Minha saúde melhorou muito, não é só estética. Os módulos de nutrição são ouro puro. Vale cada centavo investido."</p>
+                        <p class="testimonial-author">- Fernando A. (50 anos)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Depoimentos Sociais com Imagens -->
+        <section class="social-testimonials-section">
+            <h2 class="social-testimonials-title" data-editable="text" data-field="titulo_depoimentos_sociais" contenteditable="false">
+                Transformações Reais de Pessoas Reais
+            </h2>
+            
+            <div class="social-testimonials-grid">
+                <!-- Depoimento Social 1 -->
+                <div class="social-testimonial-card" data-editable="media" data-field="depoimento_social_1" data-media-type="image" contenteditable="false">
+                    <div class="social-testimonial-header">
+                        <img src="https://placehold.co/70x70/10B981/FFFFFF?text=MS" alt="Avatar Cliente" class="social-testimonial-avatar" data-editable="media" data-field="depoimento_social_1_avatar" data-media-type="image" contenteditable="false">
+                        <div class="social-testimonial-info">
+                            <p class="social-testimonial-name" data-editable="text" data-field="depoimento_social_1_nome" contenteditable="false">Mariana S.</p>
+                            <p class="social-testimonial-location" data-editable="text" data-field="depoimento_social_1_local" contenteditable="false">São Paulo, SP</p>
+                        </div>
+                    </div>
+                    <div class="social-testimonial-stars">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                    </div>
+                    <p class="social-testimonial-text" data-editable="text" data-field="depoimento_social_1_texto" contenteditable="false">"Incrível! Perdi 15kg em 2 meses e me sinto mais disposta do que nunca. O método é fácil de seguir e os resultados são visíveis!"</p>
+                    <span class="social-testimonial-result" data-editable="text" data-field="depoimento_social_1_resultado" contenteditable="false">-15kg em 60 dias</span>
+                </div>
+                
+                <!-- Depoimento Social 2 -->
+                <div class="social-testimonial-card" data-editable="media" data-field="depoimento_social_2" data-media-type="image" contenteditable="false">
+                    <div class="social-testimonial-header">
+                        <img src="https://placehold.co/70x70/10B981/FFFFFF?text=CR" alt="Avatar Cliente" class="social-testimonial-avatar" data-editable="media" data-field="depoimento_social_2_avatar" data-media-type="image" contenteditable="false">
+                        <div class="social-testimonial-info">
+                            <p class="social-testimonial-name" data-editable="text" data-field="depoimento_social_2_nome" contenteditable="false">Carlos R.</p>
+                            <p class="social-testimonial-location" data-editable="text" data-field="depoimento_social_2_local" contenteditable="false">Rio de Janeiro, RJ</p>
+                        </div>
+                    </div>
+                    <div class="social-testimonial-stars">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                    </div>
+                    <p class="social-testimonial-text" data-editable="text" data-field="depoimento_social_2_texto" contenteditable="false">"Eu duvidava, mas o programa superou minhas expectativas. Menos 10kg e uma nova rotina de exercícios que realmente funciona. Recomendo!"</p>
+                    <span class="social-testimonial-result" data-editable="text" data-field="depoimento_social_2_resultado" contenteditable="false">-10kg em 45 dias</span>
+                </div>
+                
+                <!-- Depoimento Social 3 -->
+                <div class="social-testimonial-card" data-editable="media" data-field="depoimento_social_3" data-media-type="image" contenteditable="false">
+                    <div class="social-testimonial-header">
+                        <img src="https://placehold.co/70x70/10B981/FFFFFF?text=FL" alt="Avatar Cliente" class="social-testimonial-avatar" data-editable="media" data-field="depoimento_social_3_avatar" data-media-type="image" contenteditable="false">
+                        <div class="social-testimonial-info">
+                            <p class="social-testimonial-name" data-editable="text" data-field="depoimento_social_3_nome" contenteditable="false">Fernanda L.</p>
+                            <p class="social-testimonial-location" data-editable="text" data-field="depoimento_social_3_local" contenteditable="false">Belo Horizonte, MG</p>
+                        </div>
+                    </div>
+                    <div class="social-testimonial-stars">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                    </div>
+                    <p class="social-testimonial-text" data-editable="text" data-field="depoimento_social_3_texto" contenteditable="false">"Minha vida mudou! Não é só sobre peso, é sobre saúde e bem-estar. As receitas são deliciosas e o acompanhamento é top. Gratidão!"</p>
+                    <span class="social-testimonial-result" data-editable="text" data-field="depoimento_social_3_resultado" contenteditable="false">-8kg em 30 dias</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Escassez e CTA Final -->
+        <div class="scarcity-section">
+            <p class="countdown-title" data-editable="text" data-field="texto_escassez" contenteditable="false">
+                Termina em:
+            </p>
+            
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <span id="hours">00</span>
+                    <span class="countdown-label">HORAS</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-item">
+                    <span id="minutes">00</span>
+                    <span class="countdown-label">MINUTOS</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-item">
+                    <span id="seconds">00</span>
+                    <span class="countdown-label">SEGUNDOS</span>
+                </div>
+            </div>
+            
+            <p class="scarcity-price" data-editable="text" data-field="texto_preco_final" contenteditable="false">
+                De <span class="price-strike">MZN 997,00</span> por <span class="scarcity-price-highlight">12x MZN 29,90</span>
+            </p>
+            
+            <button onclick="triggerPurchase()" id="ctaButtonFinal" class="cta-button" style="max-width: 100%; font-size: clamp(20px, 3vw, 28px); padding: 24px 40px;" data-editable="button-text" data-field="texto_botao_final" contenteditable="false">
+                <i class="ph-fill ph-heartbeat"></i>
+                <span>SIM! EU QUERO MEU NOVO CORPO JÁ</span>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer-section">
+            <p data-editable="text" data-field="texto_footer" contenteditable="false">© 2025 Emagrecimento Definitivo. Produto desenvolvido para resultados reais.</p>
+            <div class="footer-links" data-editable="text" data-field="links_footer" contenteditable="false">
+                <a href="#" style="color: #1F2937; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Garantia de 30 Dias</a> | <a href="#" style="color: #1F2937; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Política de Privacidade</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-spinner" id="spinner"></div>
+            <div class="modal-success" id="successIcon">
+                <i class="ph-bold ph-check" style="color: #ffffff; font-size: 24px;"></i>
+            </div>
+            <h3 class="modal-title" id="modalTitle">Processando Inscrição...</h3>
+            <p class="modal-text">Validando o seu acesso ao método de transformação.</p>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Contador regressivo
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        
+        // Define a data de expiração: 2 horas a partir de agora
+        let expiryTime = new Date().getTime() + (2 * 60 * 60 * 1000);
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = expiryTime - now;
+            
+            if (distance > 0) {
+                let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                
+                hoursEl.textContent = hours;
+                minutesEl.textContent = minutes;
+                secondsEl.textContent = seconds;
+            } else {
+                hoursEl.textContent = '00';
+                minutesEl.textContent = '00';
+                secondsEl.textContent = '00';
+            }
+        }
+        
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000);
+
+        // Função de compra
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const modal = document.getElementById('feedbackModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const spinner = document.getElementById('spinner');
+                const successIcon = document.getElementById('successIcon');
+                const title = document.getElementById('modalTitle');
+
+                spinner.style.display = 'block';
+                successIcon.style.display = 'none';
+                title.textContent = "Processando Inscrição...";
+                title.style.color = '#1F2937';
+
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                }, 10);
+
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    successIcon.style.display = 'flex';
+                    title.textContent = "Parabéns! Redirecionando...";
+                    title.style.color = '#10B981';
+                    
+                    setTimeout(() => {
+                        const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                        window.location.href = `/payment-success.html?${params}`;
+                    }, 1500);
+                }, 2000);
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+        
+        // Ocultar placeholder quando houver vídeo
+        window.addEventListener('load', () => {
+            const videoWrapper = document.querySelector('.video-wrapper');
+            const placeholder = document.getElementById('video-placeholder');
+            if (videoWrapper && placeholder) {
+                const hasVideo = videoWrapper.querySelector('iframe, video');
+                if (hasVideo) {
+                    placeholder.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

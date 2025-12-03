@@ -177,45 +177,6 @@
         }
     }
 
-    // Verificar se usuário tem marketing avançado ativo
-    async function checkMarketingAvancado() {
-        try {
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-            // NUNCA fazer chamada sem token
-            if (!token || token.trim() === '') {
-                console.warn('⚠️ Tentativa de verificar marketing avançado sem token - bloqueada');
-                return false;
-            }
-
-            const response = await fetch(`${API_BASE}/auth/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.user) {
-                    return data.user.marketing_avancado === true;
-                }
-            }
-            return false;
-        } catch (error) {
-            console.error('Erro ao verificar marketing avançado:', error);
-            return false;
-        }
-    }
-
-    // Verificar se é página de configuração de marketing
-    function isMarketingConfigPage() {
-        const currentPage = window.location.pathname.split('/').pop();
-        const marketingPages = [
-            // Páginas de configuração removidas - agora integradas na criação de produtos
-        ];
-        return marketingPages.includes(currentPage);
-    }
-
     // Sistema principal de autenticação
     async function initAuthentication() {
         // Se a página não precisa de autenticação, sair IMEDIATAMENTE sem fazer nenhuma chamada
@@ -260,19 +221,6 @@
             return;
         }
 
-        // Verificar marketing avançado para páginas de configuração (já verifica token antes de chamar)
-        if (isMarketingConfigPage()) {
-            console.log('🎯 Página de configuração de marketing detectada');
-            const hasMarketingAvancado = await checkMarketingAvancado();
-            if (!hasMarketingAvancado) {
-                console.log('❌ Marketing avançado não ativo');
-                alert('Marketing avançado não está ativo. Ative o plano premium para acessar estas funcionalidades.');
-                window.location.href = 'marketing-avancado.html';
-                return;
-            }
-            console.log('✅ Marketing avançado ativo - acesso autorizado');
-        }
-
         console.log('✅ Acesso autorizado');
     }
 
@@ -290,7 +238,6 @@
         verifyTokenServer,
         checkSuspension,
         checkActive,
-        checkMarketingAvancado,
         redirectToLogin
     };
 

@@ -105,6 +105,47 @@ const migrations = [
         `
     },
     {
+        name: 'add_nome_to_carteiras',
+        sql: `
+            -- Adicionar coluna "nome" à tabela carteiras se não existir
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'carteiras') THEN
+                    -- Verificar e adicionar coluna "nome" se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' 
+                        AND column_name = 'nome'
+                    ) THEN
+                        ALTER TABLE carteiras 
+                        ADD COLUMN nome VARCHAR(255) NOT NULL DEFAULT 'Carteira Principal';
+                        
+                        COMMENT ON COLUMN carteiras.nome IS 'Nome da carteira';
+                        
+                        RAISE NOTICE 'Coluna nome adicionada com sucesso à tabela carteiras';
+                    ELSE
+                        -- Se a coluna já existe, garantir que registros sem nome tenham um valor padrão
+                        UPDATE carteiras 
+                        SET nome = 'Carteira Principal' 
+                        WHERE nome IS NULL OR nome = '';
+                        
+                        -- Garantir que a coluna não aceite NULL
+                        ALTER TABLE carteiras 
+                        ALTER COLUMN nome SET NOT NULL;
+                        
+                        -- Garantir que tenha valor padrão
+                        ALTER TABLE carteiras 
+                        ALTER COLUMN nome SET DEFAULT 'Carteira Principal';
+                        
+                        RAISE NOTICE 'Coluna nome já existe, valores padrão atualizados';
+                    END IF;
+                ELSE
+                    RAISE NOTICE 'Tabela carteiras não existe, pulando migração';
+                END IF;
+            END $$;
+        `
+    },
+    {
         name: 'add_tracking_data_to_vendas',
         sql: `
             -- Adicionar coluna tracking_data (JSONB) se não existir
@@ -199,6 +240,40 @@ const migrations = [
         `
     },
     {
+        name: 'add_vendedor_id_to_afiliados',
+        sql: `
+            -- Adicionar coluna vendedor_id na tabela afiliados se não existir
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'afiliados') THEN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'vendedor_id'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN vendedor_id UUID NULL;
+                        COMMENT ON COLUMN afiliados.vendedor_id IS 'ID do vendedor associado (se o afiliado for um vendedor)';
+                        
+                        -- Adicionar foreign key se a tabela usuarios existir
+                        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'usuarios') THEN
+                            ALTER TABLE afiliados
+                            ADD CONSTRAINT fk_afiliados_vendedor 
+                            FOREIGN KEY (vendedor_id) 
+                            REFERENCES usuarios(id) 
+                            ON DELETE SET NULL;
+                        END IF;
+                        
+                        RAISE NOTICE 'Coluna vendedor_id adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna vendedor_id já existe na tabela afiliados';
+                    END IF;
+                ELSE
+                    RAISE NOTICE 'Tabela afiliados não existe, pulando migração';
+                END IF;
+            END $$;
+        `
+    },
+    {
         name: 'add_remarketing_config_to_produtos',
         sql: `
             -- Adicionar coluna remarketing_config (JSON) na tabela produtos se não existir
@@ -259,6 +334,426 @@ const migrations = [
                     RAISE NOTICE 'Tabela remarketing_queue criada com sucesso';
                 ELSE
                     RAISE NOTICE 'Tabela remarketing_queue já existe';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'create_webhooks_table',
+        sql: `
+            -- Criar tabela webhooks se não existir
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'webhooks'
+                ) THEN
+                    CREATE TABLE webhooks (
+                        id VARCHAR(255) PRIMARY KEY,
+                        user_id UUID NOT NULL,
+                        produto_id UUID,
+                        url TEXT NOT NULL,
+                        eventos JSON NOT NULL DEFAULT '[]',
+                        secret TEXT,
+                        ativo BOOLEAN NOT NULL DEFAULT true,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_webhook_user FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_webhook_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+                    );
+                    
+                    -- Criar índices para melhor performance
+                    CREATE INDEX idx_webhooks_user_id ON webhooks(user_id);
+                    CREATE INDEX idx_webhooks_produto_id ON webhooks(produto_id);
+                    CREATE INDEX idx_webhooks_ativo ON webhooks(ativo);
+                    CREATE INDEX idx_webhooks_created_at ON webhooks(created_at);
+                    
+                    COMMENT ON TABLE webhooks IS 'Webhooks configurados pelos usuários para receber notificações de eventos';
+                    COMMENT ON COLUMN webhooks.id IS 'ID único do webhook (gerado automaticamente)';
+                    COMMENT ON COLUMN webhooks.user_id IS 'ID do usuário que criou o webhook';
+                    COMMENT ON COLUMN webhooks.produto_id IS 'ID do produto (opcional, NULL para webhooks globais)';
+                    COMMENT ON COLUMN webhooks.url IS 'URL onde o webhook será enviado';
+                    COMMENT ON COLUMN webhooks.eventos IS 'Array de eventos que o webhook deve receber';
+                    COMMENT ON COLUMN webhooks.secret IS 'Secret opcional para validação de segurança';
+                    COMMENT ON COLUMN webhooks.ativo IS 'Se o webhook está ativo';
+                    
+                    RAISE NOTICE 'Tabela webhooks criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Tabela webhooks já existe';
+                    
+                    -- Adicionar coluna produto_id se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'webhooks' AND column_name = 'produto_id'
+                    ) THEN
+                        ALTER TABLE webhooks 
+                        ADD COLUMN produto_id UUID,
+                        ADD CONSTRAINT fk_webhook_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE;
+                        
+                        CREATE INDEX IF NOT EXISTS idx_webhooks_produto_id ON webhooks(produto_id);
+                        
+                        COMMENT ON COLUMN webhooks.produto_id IS 'ID do produto (opcional, NULL para webhooks globais)';
+                        
+                        RAISE NOTICE 'Coluna produto_id adicionada à tabela webhooks';
+                    ELSE
+                        RAISE NOTICE 'Coluna produto_id já existe na tabela webhooks';
+                    END IF;
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_whatsapp_notification_types_to_usuarios',
+        sql: `
+            -- Adicionar coluna whatsapp_notification_types se não existir
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'usuarios' 
+                    AND column_name = 'whatsapp_notification_types'
+                ) THEN
+                    ALTER TABLE usuarios ADD COLUMN whatsapp_notification_types JSON DEFAULT '[]';
+                    COMMENT ON COLUMN usuarios.whatsapp_notification_types IS 'Array de tipos de notificações WhatsApp que o usuário deseja receber: codigo_verificacao, codigo_saque, nova_venda, saque_pago, remarketing, upsell, venda_afiliado';
+                    RAISE NOTICE 'Coluna whatsapp_notification_types criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Coluna whatsapp_notification_types já existe';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_venda_cancelada_id_to_remarketing_queue',
+        sql: `
+            -- Adicionar campo venda_cancelada_id à tabela remarketing_queue
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'remarketing_queue' 
+                    AND column_name = 'venda_cancelada_id'
+                ) THEN
+                    ALTER TABLE remarketing_queue ADD COLUMN venda_cancelada_id UUID;
+                    ALTER TABLE remarketing_queue ADD CONSTRAINT fk_remarketing_venda_cancelada 
+                        FOREIGN KEY (venda_cancelada_id) REFERENCES vendas(id) ON DELETE SET NULL;
+                    CREATE INDEX idx_remarketing_queue_venda_cancelada ON remarketing_queue(venda_cancelada_id);
+                    COMMENT ON COLUMN remarketing_queue.venda_cancelada_id IS 'ID da venda cancelada que originou este item de remarketing';
+                    RAISE NOTICE 'Coluna venda_cancelada_id adicionada à tabela remarketing_queue com sucesso';
+                ELSE
+                    RAISE NOTICE 'Coluna venda_cancelada_id já existe na tabela remarketing_queue';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'create_remarketing_conversoes_table',
+        sql: `
+            -- Criar tabela remarketing_conversoes
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'remarketing_conversoes'
+                ) THEN
+                    CREATE TABLE remarketing_conversoes (
+                        id SERIAL PRIMARY KEY,
+                        remarketing_queue_id INTEGER NOT NULL,
+                        venda_cancelada_id UUID NOT NULL,
+                        venda_aprovada_id UUID NOT NULL,
+                        cliente_id UUID,
+                        cliente_nome VARCHAR(255) NOT NULL,
+                        produto_id UUID NOT NULL,
+                        produto_nome VARCHAR(255) NOT NULL,
+                        email VARCHAR(255),
+                        telefone VARCHAR(50),
+                        data_cancelamento TIMESTAMP NOT NULL,
+                        data_remarketing_enviado TIMESTAMP,
+                        data_conversao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        valor_venda_cancelada DECIMAL(10, 2),
+                        valor_venda_aprovada DECIMAL(10, 2),
+                        tempo_ate_conversao_minutos INTEGER,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_remarketing_queue FOREIGN KEY (remarketing_queue_id) REFERENCES remarketing_queue(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_venda_cancelada FOREIGN KEY (venda_cancelada_id) REFERENCES vendas(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_venda_aprovada FOREIGN KEY (venda_aprovada_id) REFERENCES vendas(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+                    );
+                    
+                    CREATE INDEX idx_remarketing_conversoes_queue ON remarketing_conversoes(remarketing_queue_id);
+                    CREATE INDEX idx_remarketing_conversoes_venda_cancelada ON remarketing_conversoes(venda_cancelada_id);
+                    CREATE INDEX idx_remarketing_conversoes_venda_aprovada ON remarketing_conversoes(venda_aprovada_id);
+                    CREATE INDEX idx_remarketing_conversoes_cliente ON remarketing_conversoes(cliente_id) WHERE cliente_id IS NOT NULL;
+                    CREATE INDEX idx_remarketing_conversoes_produto ON remarketing_conversoes(produto_id);
+                    CREATE INDEX idx_remarketing_conversoes_data_conversao ON remarketing_conversoes(data_conversao);
+                    CREATE INDEX idx_remarketing_conversoes_email ON remarketing_conversoes(email) WHERE email IS NOT NULL;
+                    CREATE INDEX idx_remarketing_conversoes_telefone ON remarketing_conversoes(telefone) WHERE telefone IS NOT NULL;
+                    
+                    COMMENT ON TABLE remarketing_conversoes IS 'Rastreia conversões de remarketing: quando uma venda cancelada que recebeu remarketing é convertida em venda aprovada';
+                    
+                    RAISE NOTICE 'Tabela remarketing_conversoes criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Tabela remarketing_conversoes já existe';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'create_upsell_tables',
+        sql: `
+            -- Criar tabelas para sistema de Upsell
+            DO $$ 
+            BEGIN
+                -- Criar tabela upsell_pages
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'upsell_pages'
+                ) THEN
+                    CREATE TABLE upsell_pages (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        vendedor_id UUID NOT NULL,
+                        titulo VARCHAR(255) NOT NULL,
+                        nome_produto VARCHAR(255) NOT NULL,
+                        video_url TEXT,
+                        video_public_id VARCHAR(255),
+                        link_checkout TEXT,
+                        produto_id UUID,
+                        ativo BOOLEAN DEFAULT true,
+                        ordem INTEGER DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_upsell_vendedor FOREIGN KEY (vendedor_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_upsell_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE SET NULL
+                    );
+                    
+                    CREATE INDEX idx_upsell_pages_vendedor ON upsell_pages(vendedor_id);
+                    CREATE INDEX idx_upsell_pages_produto ON upsell_pages(produto_id);
+                    CREATE INDEX idx_upsell_pages_ativo ON upsell_pages(ativo);
+                    
+                    COMMENT ON TABLE upsell_pages IS 'Páginas de upsell criadas pelos vendedores';
+                    
+                    RAISE NOTICE 'Tabela upsell_pages criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Tabela upsell_pages já existe';
+                END IF;
+
+                -- Criar tabela produto_upsell
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'produto_upsell'
+                ) THEN
+                    CREATE TABLE produto_upsell (
+                        id SERIAL PRIMARY KEY,
+                        produto_id UUID NOT NULL,
+                        upsell_page_id UUID NOT NULL,
+                        ordem INTEGER DEFAULT 0,
+                        ativo BOOLEAN DEFAULT true,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_produto_upsell_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_produto_upsell_page FOREIGN KEY (upsell_page_id) REFERENCES upsell_pages(id) ON DELETE CASCADE,
+                        CONSTRAINT uk_produto_upsell UNIQUE (produto_id, upsell_page_id)
+                    );
+                    
+                    CREATE INDEX idx_produto_upsell_produto ON produto_upsell(produto_id);
+                    CREATE INDEX idx_produto_upsell_page ON produto_upsell(upsell_page_id);
+                    CREATE INDEX idx_produto_upsell_ativo ON produto_upsell(ativo);
+                    
+                    COMMENT ON TABLE produto_upsell IS 'Relacionamento entre produtos e páginas de upsell';
+                    
+                    RAISE NOTICE 'Tabela produto_upsell criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Tabela produto_upsell já existe';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_video_embed_to_upsell_pages',
+        sql: `
+            -- Adicionar coluna video_embed na tabela upsell_pages
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'video_embed'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN video_embed TEXT;
+                    COMMENT ON COLUMN upsell_pages.video_embed IS 'Código HTML de incorporação de vídeo (iframe, embed, etc.)';
+                    RAISE NOTICE 'Coluna video_embed adicionada à tabela upsell_pages';
+                ELSE
+                    RAISE NOTICE 'Coluna video_embed já existe na tabela upsell_pages';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'create_produto_upsell_page_table',
+        sql: `
+            -- Criar tabela para relacionar produto comprado → página de upsell
+            DO $$ 
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables 
+                    WHERE table_name = 'produto_upsell_page'
+                ) THEN
+                    CREATE TABLE produto_upsell_page (
+                        id SERIAL PRIMARY KEY,
+                        produto_id UUID NOT NULL,
+                        upsell_page_id UUID NOT NULL,
+                        ativo BOOLEAN DEFAULT true,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_produto_upsell_page_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_produto_upsell_page_page FOREIGN KEY (upsell_page_id) REFERENCES upsell_pages(id) ON DELETE CASCADE,
+                        CONSTRAINT uk_produto_upsell_page UNIQUE (produto_id, upsell_page_id)
+                    );
+                    
+                    CREATE INDEX idx_produto_upsell_page_produto ON produto_upsell_page(produto_id);
+                    CREATE INDEX idx_produto_upsell_page_page ON produto_upsell_page(upsell_page_id);
+                    CREATE INDEX idx_produto_upsell_page_ativo ON produto_upsell_page(ativo);
+                    
+                    COMMENT ON TABLE produto_upsell_page IS 'Relaciona produto comprado com página de upsell que será exibida após o pagamento';
+                    
+                    RAISE NOTICE 'Tabela produto_upsell_page criada com sucesso';
+                ELSE
+                    RAISE NOTICE 'Tabela produto_upsell_page já existe';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_upsell_configurable_fields',
+        sql: `
+            -- Adicionar campos configuráveis para estrutura fixa da página de upsell
+            DO $$ 
+            BEGIN
+                -- Subheadline
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'subheadline'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN subheadline TEXT;
+                    COMMENT ON COLUMN upsell_pages.subheadline IS 'Subtítulo configurável da página de upsell';
+                    RAISE NOTICE 'Coluna subheadline adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Benefícios (JSON array)
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'beneficios'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN beneficios JSONB;
+                    COMMENT ON COLUMN upsell_pages.beneficios IS 'Lista de benefícios em formato JSON array';
+                    RAISE NOTICE 'Coluna beneficios adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Urgência
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'texto_urgencia'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN texto_urgencia TEXT;
+                    COMMENT ON COLUMN upsell_pages.texto_urgencia IS 'Texto de urgência configurável';
+                    RAISE NOTICE 'Coluna texto_urgencia adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Prova Social (JSON array de depoimentos)
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'prova_social'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN prova_social JSONB;
+                    COMMENT ON COLUMN upsell_pages.prova_social IS 'Depoimentos e provas sociais em formato JSON array';
+                    RAISE NOTICE 'Coluna prova_social adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Reforço Final
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'reforco_final'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN reforco_final TEXT;
+                    COMMENT ON COLUMN upsell_pages.reforco_final IS 'Texto de reforço final configurável';
+                    RAISE NOTICE 'Coluna reforco_final adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Texto do Botão Aceitar
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'texto_botao_aceitar'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN texto_botao_aceitar VARCHAR(255) DEFAULT 'Aceitar Oferta';
+                    COMMENT ON COLUMN upsell_pages.texto_botao_aceitar IS 'Texto configurável do botão principal';
+                    RAISE NOTICE 'Coluna texto_botao_aceitar adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Texto do Botão Recusar
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'texto_botao_recusar'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN texto_botao_recusar VARCHAR(255) DEFAULT 'Não, obrigado. Quero continuar sem esta oferta.';
+                    COMMENT ON COLUMN upsell_pages.texto_botao_recusar IS 'Texto configurável do botão secundário';
+                    RAISE NOTICE 'Coluna texto_botao_recusar adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Imagem (alternativa ao vídeo)
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'imagem_url'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN imagem_url TEXT;
+                    COMMENT ON COLUMN upsell_pages.imagem_url IS 'URL da imagem (alternativa ao vídeo)';
+                    RAISE NOTICE 'Coluna imagem_url adicionada à tabela upsell_pages';
+                END IF;
+
+                -- Preço Original (para mostrar desconto)
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'upsell_pages' AND column_name = 'preco_original'
+                ) THEN
+                    ALTER TABLE upsell_pages ADD COLUMN preco_original DECIMAL(10, 2);
+                    COMMENT ON COLUMN upsell_pages.preco_original IS 'Preço original para cálculo de desconto';
+                    RAISE NOTICE 'Coluna preco_original adicionada à tabela upsell_pages';
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_integracao_campos_to_afiliados',
+        sql: `
+            -- Adicionar campos de integração (Meta Pixel e UTMify) na tabela afiliados
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'afiliados') THEN
+                    -- Adicionar coluna meta_pixel_id se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'meta_pixel_id'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN meta_pixel_id VARCHAR(50) NULL;
+                        COMMENT ON COLUMN afiliados.meta_pixel_id IS 'ID do Meta Pixel (Facebook Pixel) para rastreamento de conversões';
+                        RAISE NOTICE 'Coluna meta_pixel_id adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna meta_pixel_id já existe na tabela afiliados';
+                    END IF;
+
+                    -- Adicionar coluna utmify_api_token se não existir
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'utmify_api_token'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN utmify_api_token VARCHAR(255) NULL;
+                        COMMENT ON COLUMN afiliados.utmify_api_token IS 'API Token do UTMify para rastreamento de conversões';
+                        RAISE NOTICE 'Coluna utmify_api_token adicionada à tabela afiliados';
+                    ELSE
+                        RAISE NOTICE 'Coluna utmify_api_token já existe na tabela afiliados';
+                    END IF;
+                ELSE
+                    RAISE NOTICE 'Tabela afiliados não existe, pulando migração';
                 END IF;
             END $$;
         `

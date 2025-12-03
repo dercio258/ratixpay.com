@@ -112,7 +112,7 @@
             color: white;
         }
 
-        /* Estilos para botões de verificação */
+        /* Estilos para botï¿½es de verificaï¿½ï¿½o */
         .btn-danger {
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             border: none;
@@ -170,7 +170,7 @@
             color: white;
         }
 
-        /* Estilos para botões de ação */
+        /* Estilos para botï¿½es de aï¿½ï¿½o */
         .btn-verificar {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             border: none;
@@ -223,7 +223,7 @@
             color: white;
         }
 
-        /* Estilos para botões de verificação simplificados */
+        /* Estilos para botï¿½es de verificaï¿½ï¿½o simplificados */
         .btn-verificar {
             padding: 8px 16px;
             border: none;
@@ -309,7 +309,7 @@
             pointer-events: auto;
         }
         
-        /* Foco visível para acessibilidade */
+        /* Foco visï¿½vel para acessibilidade */
         .form-control:focus,
         .btn:focus {
             outline: 2px solid #0d6efd;
@@ -388,7 +388,7 @@
         }
     </style>
 
-    <!-- Sistema de Autenticação Global -->
+    <!-- Sistema de Autenticaï¿½ï¿½o Global -->
     <script src="/js/server-check.js"></script>
     <script src="/js/global-auth.js"></script>
 
@@ -398,18 +398,18 @@
         <!-- Header -->
         <div class="admin-header">
             <h1><i class="fas fa-coins"></i> Saques Processados</h1>
-            <p class="mb-0">Histórico de saques processados pelos vendedores</p>
+            <p class="mb-0">Histï¿½rico de saques processados pelos vendedores</p>
             <div class="mt-3">
                 <a href="admin-dashboard.html" class="btn btn-secondary btn-lg me-2">
                     <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
                 </a>
                 <button class="btn btn-light btn-lg" onclick="irParaTransferenciasB2C()">
-                    <i class="fas fa-exchange-alt"></i> Transferência B2C
+                    <i class="fas fa-exchange-alt"></i> Transferï¿½ncia B2C
                 </button>
             </div>
         </div>
 
-        <!-- Estatísticas -->
+        <!-- Estatï¿½sticas -->
         <div class="row">
             <div class="col-md-12">
                 <div class="stats-card">
@@ -419,7 +419,7 @@
             </div>
             <div class="col-md-12">
                 <div class="stats-card">
-                    <h5><i class="fas fa-list text-warning"></i> Total Transações</h5>
+                    <h5><i class="fas fa-list text-warning"></i> Total Transaï¿½ï¿½es</h5>
                     <h3 id="totalTransacoes" class="text-warning">0</h3>
                 </div>
             </div>
@@ -440,18 +440,18 @@
                 <table class="table table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID Saque</th>
-                            <th>Vendedor</th>
-                            <th>Nome Titular</th>
-                            <th>Telefone</th>
+                            <th>ID do Saque</th>
                             <th>Valor</th>
-                            <th>Método</th>
-                            <th>Data</th>
-                            <th>Ações</th>
+                            <th>Dados de Emola</th>
+                            <th>Dados de Mpesa</th>
+                            <th>Status</th>
+                            <th>Solicitado em</th>
+                            <th>Processado em</th>
+                            <th>AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody id="saquesPendentesTableBody">
-                        <!-- Saques pendentes serão carregados aqui -->
+                        <!-- Saques pendentes serï¿½o carregados aqui -->
                     </tbody>
                 </table>
             </div>
@@ -460,7 +460,7 @@
         <!-- Tabela de Saques -->
         <div class="saques-table">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4><i class="fas fa-history"></i> Histórico de Saques</h4>
+                <h4><i class="fas fa-history"></i> Histï¿½rico de Saques</h4>
                 <div class="btn-group">
                     <button class="btn refresh-btn" onclick="carregarSaques()">
                         <i class="fas fa-sync-alt"></i> Atualizar
@@ -490,12 +490,12 @@
                         <thead>
                             <tr>
                                 <th>ID do Saque</th>
-                                <th>Nome do Titular</th>
-                                <th>Telefone</th>
                                 <th>Valor</th>
-                                <th>Método</th>
-                                <th>Data</th>
+                                <th>Dados de Emola</th>
+                                <th>Dados de Mpesa</th>
                                 <th>Status</th>
+                                <th>Solicitado em</th>
+                                <th>Processado em</th>
                                 <th>Comprovativo</th>
                             </tr>
                         </thead>
@@ -513,24 +513,24 @@
     <script src="js/config.js"></script>
     <script src="js/admin-utils.js"></script>
     <script>
-        // Configuração da API (definida em config.js)
+        // Configuraï¿½ï¿½o da API (definida em config.js)
 
-        // Verificar autenticação
+        // Verificar autenticaï¿½ï¿½o
         function verificarAutenticacao() {
             const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
             if (!token) {
-                alert('Usuário não autenticado. Redirecionando para login...');
+                alert('Usuï¿½rio nï¿½o autenticado. Redirecionando para login...');
                 window.location.href = '/login.html';
                 return false;
             }
             
-            // Verificar se o token é válido (não está vazio ou malformado)
+            // Verificar se o token ï¿½ vï¿½lido (nï¿½o estï¿½ vazio ou malformado)
             if (token === 'null' || token === 'undefined' || token.trim() === '') {
-                console.error('? Token inválido encontrado:', token);
+                console.error('? Token invï¿½lido encontrado:', token);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('token');
                 localStorage.removeItem('adminToken');
-                alert('Token inválido. Redirecionando para login...');
+                alert('Token invï¿½lido. Redirecionando para login...');
                 window.location.href = '/login.html';
                 return false;
             }
@@ -568,7 +568,7 @@
                     }
                 } else {
                     // Usar dados mockados se a API falhar
-                    console.warn('API de saldo não disponível, usando dados mockados');
+                    console.warn('API de saldo nï¿½o disponï¿½vel, usando dados mockados');
                     document.getElementById('totalSaques').textContent = 'MZN 0,00';
                 }
             } catch (error) {
@@ -578,7 +578,7 @@
             }
         }
 
-        // Funções para Transferência B2C
+        // Funï¿½ï¿½es para Transferï¿½ncia B2C
         function irParaTransferenciasB2C() {
             window.location.href = '/admin-transferencias-b2c.html';
         }
@@ -589,13 +589,13 @@
             try {
                 const token = verificarAutenticacao();
                 if (!token) {
-                    console.error('? Token não encontrado, não é possível carregar saques');
+                    console.error('? Token nï¿½o encontrado, nï¿½o ï¿½ possï¿½vel carregar saques');
                     return;
                 }
 
                 const apiUrl = `${window.API_BASE || '/api'}/admin/saques/pendentes`;
-                console.log(`?? Fazendo requisição para: ${apiUrl}`);
-                console.log(`?? Token presente: ${token ? 'Sim' : 'Não'}`);
+                console.log(`?? Fazendo requisiï¿½ï¿½o para: ${apiUrl}`);
+                console.log(`?? Token presente: ${token ? 'Sim' : 'Nï¿½o'}`);
 
                 const response = await fetch(apiUrl, {
                     credentials: 'include',
@@ -627,16 +627,16 @@
                         if (saques.length > 0) {
                             console.log('?? Primeiro saque completo:', JSON.stringify(saques[0], null, 2));
                         } else {
-                            console.warn('?? Array de saques está vazio!');
+                            console.warn('?? Array de saques estï¿½ vazio!');
                         }
                         
-                        // SEMPRE mostrar a seção para debug (pode ser removido depois)
+                        // SEMPRE mostrar a seï¿½ï¿½o para debug (pode ser removido depois)
                         const saquesPendentesSection = document.getElementById('saquesPendentesSection');
                         if (saquesPendentesSection) {
                             saquesPendentesSection.style.display = 'block'; // Sempre mostrar para debug
-                            console.log(`??? Seção de saques pendentes: VISÍVEL (forçado para debug)`);
+                            console.log(`??? Seï¿½ï¿½o de saques pendentes: VISï¿½VEL (forï¿½ado para debug)`);
                         } else {
-                            console.error('? Elemento saquesPendentesSection não encontrado!');
+                            console.error('? Elemento saquesPendentesSection nï¿½o encontrado!');
                         }
                         
                         // Atualizar contador de saques pendentes
@@ -645,24 +645,24 @@
                             contadorPendentes.textContent = saques.length;
                             console.log(`?? Contador atualizado: ${saques.length}`);
                         } else {
-                            console.error('? Elemento contadorPendentes não encontrado!');
+                            console.error('? Elemento contadorPendentes nï¿½o encontrado!');
                         }
                         
                         // Preencher tabela de saques pendentes
                         console.log('?? Chamando preencherTabelaSaquesPendentes...');
                         preencherTabelaSaquesPendentes(saques);
                         
-                        // Mostrar alerta se há saques pendentes
+                        // Mostrar alerta se hï¿½ saques pendentes
                         if (saques.length > 0) {
                             mostrarAlertaPendentes(saques.length);
                         }
                     } else {
-                        console.error('? API retornou success=false ou data não existe:', {
+                        console.error('? API retornou success=false ou data nï¿½o existe:', {
                             success: data.success,
                             hasData: !!data.data,
                             data: data
                         });
-                        // Mostrar seção mesmo com erro para debug
+                        // Mostrar seï¿½ï¿½o mesmo com erro para debug
                         const saquesPendentesSection = document.getElementById('saquesPendentesSection');
                         if (saquesPendentesSection) {
                             saquesPendentesSection.style.display = 'block';
@@ -675,7 +675,7 @@
                         statusText: response.statusText,
                         body: errorText
                     });
-                    // Mostrar seção mesmo com erro para debug
+                    // Mostrar seï¿½ï¿½o mesmo com erro para debug
                     const saquesPendentesSection = document.getElementById('saquesPendentesSection');
                     if (saquesPendentesSection) {
                         saquesPendentesSection.style.display = 'block';
@@ -694,19 +694,19 @@
 
         // Preencher tabela de saques pendentes
         function preencherTabelaSaquesPendentes(saques) {
-            console.log('?? Função preencherTabelaSaquesPendentes chamada com:', saques);
+            console.log('?? Funï¿½ï¿½o preencherTabelaSaquesPendentes chamada com:', saques);
             
             const tbody = document.getElementById('saquesPendentesTableBody');
             if (!tbody) {
-                console.error('? Elemento saquesPendentesTableBody não encontrado!');
+                console.error('? Elemento saquesPendentesTableBody nï¿½o encontrado!');
                 return;
             }
             
             console.log(`?? Preenchendo tabela com ${saques ? saques.length : 0} saques...`);
             
             if (!saques || !Array.isArray(saques)) {
-                console.error('? Saques não é um array válido:', saques);
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Erro: dados inválidos recebidos</td></tr>';
+                console.error('? Saques nï¿½o ï¿½ um array vï¿½lido:', saques);
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Erro: dados invï¿½lidos recebidos</td></tr>';
                 return;
             }
             
@@ -721,17 +721,17 @@
             saques.forEach((saque, index) => {
                 console.log(`?? Processando saque ${index + 1}/${saques.length}:`, saque);
                 
-                // Gerar ID amigável no mesmo formato da página pagamentos.html (últimos 6 caracteres)
+                // Gerar ID amigï¿½vel no mesmo formato da pï¿½gina pagamentos.html (ï¿½ltimos 6 caracteres)
                 let idSaque = saque.idSaque || '-';
                 if (!idSaque || idSaque === '-') {
                     if (saque.id) {
-                        // Usar o mesmo formato da página pagamentos.html: últimos 6 caracteres
+                        // Usar o mesmo formato da pï¿½gina pagamentos.html: ï¿½ltimos 6 caracteres
                         idSaque = saque.id.substring(saque.id.length - 6).toUpperCase();
                     }
                 }
                 
                 console.log(`   ? ID Original: ${saque.id}`);
-                console.log(`   ? ID Amigável: ${idSaque}`);
+                console.log(`   ? ID Amigï¿½vel: ${idSaque}`);
                 const vendedorNome = saque.vendedor ? (saque.vendedor.nome || 'N/A') : 'N/A';
                 const vendedorTelefone = saque.vendedor ? (saque.vendedor.telefone || 'N/A') : 'N/A';
                 const valor = parseFloat(saque.valor || 0);
@@ -740,19 +740,43 @@
                 console.log(`   ? ID: ${idSaque}, Vendedor: ${vendedorNome}, Valor: MZN ${valor.toFixed(2)}`);
                 
                 const row = document.createElement('tr');
+                // Dados de Emola
+                const dadosEmola = saque.dadosEmola || {};
+                const emolaInfo = dadosEmola.nomeTitular && dadosEmola.contacto 
+                    ? `${dadosEmola.nomeTitular}<br><small class="text-muted">${dadosEmola.contacto}</small>`
+                    : 'N/A';
+                
+                // Dados de Mpesa
+                const dadosMpesa = saque.dadosMpesa || {};
+                const mpesaInfo = dadosMpesa.nomeTitular && dadosMpesa.contacto 
+                    ? `${dadosMpesa.nomeTitular}<br><small class="text-muted">${dadosMpesa.contacto}</small>`
+                    : 'N/A';
+                
+                // Status
+                const status = saque.status || 'pendente';
+                let statusClass = 'status-pendente';
+                if (status === 'aprovado') statusClass = 'status-aprovado';
+                else if (status === 'cancelado') statusClass = 'status-cancelado';
+                else if (status === 'pago') statusClass = 'status-pago';
+                
+                // Formatar datas com hora completa
+                const dataSolicitacao = saque.dataSolicitacao ? new Date(saque.dataSolicitacao).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }) : 'N/A';
+                const dataProcessamento = (saque.dataProcessamento || saque.dataPagamento) ? new Date(saque.dataProcessamento || saque.dataPagamento).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }) : '-';
+                
                 row.innerHTML = `
                     <td><strong>${idSaque}</strong></td>
-                    <td>
-                        <div>
-                            <strong>${vendedorNome}</strong><br>
-                            <small class="text-muted">${vendedorTelefone}</small>
-                        </div>
-                    </td>
-                    <td>${saque.nomeTitular || 'N/A'}</td>
-                    <td>${saque.telefoneTitular || 'N/A'}</td>
                     <td><strong>MZN ${valor.toFixed(2)}</strong></td>
-                    <td>${saque.metodoPagamento || 'N/A'}</td>
-                    <td>${dataFormatada}</td>
+                    <td>${emolaInfo}</td>
+                    <td>${mpesaInfo}</td>
+                    <td><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+                    <td>${dataSolicitacao}</td>
+                    <td>${dataProcessamento}</td>
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-success btn-sm" onclick="aprovarSaque('${saque.id}')">
@@ -776,7 +800,7 @@
             alerta.className = 'alert alert-warning alert-dismissible fade show';
             alerta.innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i>
-                <strong>${quantidade} saque(s) pendente(s)</strong> aguardando sua aprovação.
+                <strong>${quantidade} saque(s) pendente(s)</strong> aguardando sua aprovaï¿½ï¿½o.
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             
@@ -820,7 +844,7 @@
                         }
                     }
                 } else {
-                    console.warn('API de saques processados não disponível, usando dados mockados');
+                    console.warn('API de saques processados nï¿½o disponï¿½vel, usando dados mockados');
                     // Usar dados mockados se a API falhar
                     const saquesMockados = [];
                     document.getElementById('totalTransacoes').textContent = '0';
@@ -834,6 +858,24 @@
                 document.getElementById('totalTransacoes').textContent = '0';
                 document.getElementById('loadingSaques').style.display = 'none';
                 document.getElementById('noSaques').style.display = 'block';
+            }
+        }
+
+        // FunÃ§Ã£o para formatar data e hora completa
+        function formatDateTime(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            } catch (error) {
+                return '-';
             }
         }
 
@@ -853,7 +895,7 @@
                 else if (status === 'cancelado') statusClass = 'status-cancelado';
                 else if (status === 'pago') statusClass = 'status-pago';
                 
-                // Gerar botão de ações com dropdown - sempre visível exceto para cancelados
+                // Gerar botï¿½o de aï¿½ï¿½es com dropdown - sempre visï¿½vel exceto para cancelados
                 let acoesHTML = '';
                 if (status === 'cancelado') {
                     acoesHTML = `
@@ -863,7 +905,7 @@
                     acoesHTML = `
                         <div class="dropdown">
                             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                ?? Ações
+                                ?? Aï¿½ï¿½es
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="aprovarSaque('${saque.id}')">
@@ -889,7 +931,7 @@
                     comprovativoHTML = '<span class="text-muted">-</span>';
                 }
                 
-                // Gerar ID amigável (últimos 8 caracteres do UUID)
+                // Gerar ID amigï¿½vel (ï¿½ltimos 8 caracteres do UUID)
                 const idAmigavel = saque.id ? saque.id.substring(saque.id.length - 8).toUpperCase() : '-';
                 
                 // Formatar data corretamente
@@ -899,18 +941,43 @@
                         dataFormatada = new Date(saque.dataSolicitacao).toLocaleDateString('pt-BR');
                     } catch (error) {
                         console.error('Erro ao formatar data:', error);
-                        dataFormatada = 'Data inválida';
+                        dataFormatada = 'Data invï¿½lida';
                     }
                 }
                 
+                // Usar public_id (ID de 6 dÃ­gitos) se disponÃ­vel
+                const idSaque = saque.idSaque || saque.publicId || idAmigavel || '-';
+                
+                // Dados de Emola
+                const dadosEmola = saque.dadosEmola || {};
+                const emolaInfo = dadosEmola.nomeTitular && dadosEmola.contacto 
+                    ? `${dadosEmola.nomeTitular}<br><small class="text-muted">${dadosEmola.contacto}</small>`
+                    : 'N/A';
+                
+                // Dados de Mpesa
+                const dadosMpesa = saque.dadosMpesa || {};
+                const mpesaInfo = dadosMpesa.nomeTitular && dadosMpesa.contacto 
+                    ? `${dadosMpesa.nomeTitular}<br><small class="text-muted">${dadosMpesa.contacto}</small>`
+                    : 'N/A';
+                
+                // Formatar datas com hora completa
+                const dataSolicitacao = saque.dataSolicitacao ? new Date(saque.dataSolicitacao).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }) : 'N/A';
+                const dataProcessamento = (saque.dataProcessamento || saque.dataPagamento) ? new Date(saque.dataProcessamento || saque.dataPagamento).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }) : '-';
+                
                 row.innerHTML = `
-                    <td>${saque.idSaque || idAmigavel || '-'}</td>
-                    <td>${saque.nomeTitular || 'N/A'}</td>
-                    <td>${saque.telefoneTitular || 'N/A'}</td>
-                    <td>MZN ${parseFloat(saque.valor || 0).toFixed(2)}</td>
-                    <td>${saque.metodoPagamento || 'N/A'}</td>
-                    <td>${dataFormatada}</td>
+                    <td><strong>${idSaque}</strong></td>
+                    <td><strong>MZN ${parseFloat(saque.valor || 0).toFixed(2)}</strong></td>
+                    <td>${emolaInfo}</td>
+                    <td>${mpesaInfo}</td>
                     <td><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+                    <td>${dataSolicitacao}</td>
+                    <td>${dataProcessamento}</td>
                     <td>${comprovativoHTML}</td>
                 `;
                 tbody.appendChild(row);
@@ -920,21 +987,21 @@
         // Marcar saque como verificado (simplificado)
         async function marcarComoVerificado(saqueId) {
             try {
-                // Encontrar o botão clicado
+                // Encontrar o botï¿½o clicado
                 const button = event.target.closest('.btn-verificar');
                 if (!button) return;
                 
-                // Verificar se já está verificado
+                // Verificar se jï¿½ estï¿½ verificado
                 if (button.classList.contains('verified')) {
                     return;
                 }
                 
-                // Confirmar ação
+                // Confirmar aï¿½ï¿½o
                 if (!confirm('Tem certeza que deseja marcar este saque como verificado?')) {
                     return;
                 }
                 
-                // Fazer requisição para marcar como verificado
+                // Fazer requisiï¿½ï¿½o para marcar como verificado
                 const token = verificarAutenticacao();
                 if (!token) return;
                 
@@ -953,13 +1020,13 @@
                 });
                 
                 if (response.ok) {
-                    // Atualizar o botão visualmente
+                    // Atualizar o botï¿½o visualmente
                     button.classList.remove('not-verified');
                     button.classList.add('verified');
                     button.innerHTML = '<i class="fas fa-check-circle"></i> Verificado';
                     button.disabled = true;
                     
-                    // Adicionar botão PDF
+                    // Adicionar botï¿½o PDF
                     const pdfButton = document.createElement('button');
                     pdfButton.className = 'btn-pdf';
                     pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
@@ -978,7 +1045,7 @@
             }
         }
 
-        // Mostrar formulário de verificação
+        // Mostrar formulï¿½rio de verificaï¿½ï¿½o
         function mostrarFormularioVerificacao(saqueId) {
             const modalContent = `
                 <div class="modal fade" id="modalVerificacao" tabindex="-1" aria-labelledby="modalVerificacaoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -986,39 +1053,39 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalVerificacaoLabel">Verificar Saque</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar modal de verificação"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar modal de verificaï¿½ï¿½o"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="formVerificacao" role="form" aria-label="Formulário de verificação de saque">
+                                <form id="formVerificacao" role="form" aria-label="Formulï¿½rio de verificaï¿½ï¿½o de saque">
                                     <div class="mb-3">
-                                        <label for="idTransacao" class="form-label">ID da Transação do Pagamento *</label>
+                                        <label for="idTransacao" class="form-label">ID da Transaï¿½ï¿½o do Pagamento *</label>
                                         <input type="text" class="form-control" id="idTransacao" required 
-                                               placeholder="Digite o ID da transação" aria-describedby="idTransacaoHelp"
+                                               placeholder="Digite o ID da transaï¿½ï¿½o" aria-describedby="idTransacaoHelp"
                                                aria-required="true" autocomplete="off">
-                                        <div id="idTransacaoHelp" class="form-text">Digite o ID da transação do pagamento para verificação</div>
+                                        <div id="idTransacaoHelp" class="form-text">Digite o ID da transaï¿½ï¿½o do pagamento para verificaï¿½ï¿½o</div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="dataVerificacao" class="form-label">Data da Verificação *</label>
+                                        <label for="dataVerificacao" class="form-label">Data da Verificaï¿½ï¿½o *</label>
                                         <input type="datetime-local" class="form-control" id="dataVerificacao" required
                                                aria-describedby="dataVerificacaoHelp" aria-required="true">
-                                        <div id="dataVerificacaoHelp" class="form-text">Data e hora da verificação do saque</div>
+                                        <div id="dataVerificacaoHelp" class="form-text">Data e hora da verificaï¿½ï¿½o do saque</div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="observacoes" class="form-label">Observações</label>
+                                        <label for="observacoes" class="form-label">Observaï¿½ï¿½es</label>
                                         <textarea class="form-control" id="observacoes" rows="3" 
-                                                  placeholder="Observações adicionais (opcional)"
+                                                  placeholder="Observaï¿½ï¿½es adicionais (opcional)"
                                                   aria-describedby="observacoesHelp" aria-required="false"></textarea>
-                                        <div id="observacoesHelp" class="form-text">Observações opcionais sobre a verificação</div>
+                                        <div id="observacoesHelp" class="form-text">Observaï¿½ï¿½es opcionais sobre a verificaï¿½ï¿½o</div>
                                     </div>
                                     <div class="alert alert-info" role="alert" aria-live="polite">
                                         <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                        <strong>Atenção:</strong> Esta ação marcará o saque como verificado permanentemente e gerará um documento de comprovante.
+                                        <strong>Atenï¿½ï¿½o:</strong> Esta aï¿½ï¿½o marcarï¿½ o saque como verificado permanentemente e gerarï¿½ um documento de comprovante.
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Cancelar verificação e fechar modal">Cancelar</button>
-                                <button type="button" class="btn btn-success" onclick="confirmarVerificacao('${saqueId}')" aria-label="Confirmar verificação do saque">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Cancelar verificaï¿½ï¿½o e fechar modal">Cancelar</button>
+                                <button type="button" class="btn btn-success" onclick="confirmarVerificacao('${saqueId}')" aria-label="Confirmar verificaï¿½ï¿½o do saque">
                                     <i class="fas fa-check" aria-hidden="true"></i> Verificar Saque
                                 </button>
                             </div>
@@ -1036,11 +1103,11 @@
             // Adicionar novo modal
             document.body.insertAdjacentHTML('beforeend', modalContent);
             
-            // Obter referência do modal
+            // Obter referï¿½ncia do modal
             const modalElement = document.getElementById('modalVerificacao');
             const modal = new bootstrap.Modal(modalElement);
             
-            // Definir data atual como padrão
+            // Definir data atual como padrï¿½o
             const now = new Date();
             const dataAtual = now.toISOString().slice(0, 16);
             document.getElementById('dataVerificacao').value = dataAtual;
@@ -1052,14 +1119,14 @@
                 if (firstInput) {
                     firstInput.focus();
                 }
-                // Remover aria-hidden quando modal estiver visível
+                // Remover aria-hidden quando modal estiver visï¿½vel
                 modalElement.setAttribute('aria-hidden', 'false');
             });
             
             modalElement.addEventListener('hidden.bs.modal', function () {
                 // Restaurar aria-hidden quando modal fechar
                 modalElement.setAttribute('aria-hidden', 'true');
-                // Remover o modal do DOM após fechar
+                // Remover o modal do DOM apï¿½s fechar
                 setTimeout(() => {
                     if (modalElement && modalElement.parentNode) {
                         modalElement.remove();
@@ -1071,16 +1138,16 @@
             modal.show();
         }
 
-        // Confirmar verificação do saque
+        // Confirmar verificaï¿½ï¿½o do saque
         async function confirmarVerificacao(saqueId) {
             try {
-                console.log('?? Iniciando verificação do saque:', saqueId);
+                console.log('?? Iniciando verificaï¿½ï¿½o do saque:', saqueId);
                 
                 const idTransacao = document.getElementById('idTransacao').value.trim();
                 const dataVerificacao = document.getElementById('dataVerificacao').value;
                 const observacoes = document.getElementById('observacoes').value.trim();
 
-                console.log('?? Dados do formulário:', {
+                console.log('?? Dados do formulï¿½rio:', {
                     saqueId,
                     idTransacao,
                     dataVerificacao,
@@ -1088,25 +1155,25 @@
                 });
 
                 if (!idTransacao) {
-                    alert('Por favor, insira o ID da transação do pagamento.');
+                    alert('Por favor, insira o ID da transaï¿½ï¿½o do pagamento.');
                     return;
                 }
 
                 if (!dataVerificacao) {
-                    alert('Por favor, insira a data da verificação.');
+                    alert('Por favor, insira a data da verificaï¿½ï¿½o.');
                     return;
                 }
 
-                const confirmacao = confirm('Tem certeza que deseja marcar este saque como verificado? Esta ação não pode ser desfeita.');
+                const confirmacao = confirm('Tem certeza que deseja marcar este saque como verificado? Esta aï¿½ï¿½o nï¿½o pode ser desfeita.');
                 if (!confirmacao) return;
 
                 const token = verificarAutenticacao();
                 if (!token) {
-                    console.error('? Token de autenticação não encontrado');
+                    console.error('? Token de autenticaï¿½ï¿½o nï¿½o encontrado');
                     return;
                 }
 
-                console.log('?? Token encontrado, fazendo requisição...');
+                console.log('?? Token encontrado, fazendo requisiï¿½ï¿½o...');
                 console.log('?? URL:', `${API_BASE}/admin/saques/${saqueId}/verificar`);
 
                 const requestBody = {
@@ -1115,7 +1182,7 @@
                     observacoes: observacoes
                 };
 
-                console.log('?? Corpo da requisição:', requestBody);
+                console.log('?? Corpo da requisiï¿½ï¿½o:', requestBody);
 
                 const response = await fetch(`${API_BASE}/admin/saques/${saqueId}/verificar`, {
                     method: 'PUT',
@@ -1146,13 +1213,13 @@
                         if (modal) {
                     modal.hide();
                         } else {
-                            // Se não há instância, criar uma nova e fechar
+                            // Se nï¿½o hï¿½ instï¿½ncia, criar uma nova e fechar
                             const newModal = new bootstrap.Modal(modalElement);
                             newModal.hide();
                         }
                     }
                     
-                    // Atualizar a linha específica na tabela em tempo real
+                    // Atualizar a linha especï¿½fica na tabela em tempo real
                     if (data.data && data.data.saque) {
                         atualizarLinhaTabela(data.data.saque);
                     } else {
@@ -1207,7 +1274,7 @@
                 'Nome do Titular',
                 'Telefone',
                 'Valor',
-                'Método',
+                'Mï¿½todo',
                 'Data',
                 'Status',
                 'Verificado'
@@ -1221,18 +1288,18 @@
                 saque.metodo_pagamento || '',
                 new Date(saque.data_solicitacao || '').toLocaleDateString('pt-PT'),
                 saque.status || '',
-                saque.checked ? 'Sim' : 'Não'
+                saque.checked ? 'Sim' : 'Nï¿½o'
             ]);
             
             return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
         }
 
-        // Função para testar verificação
+        // Funï¿½ï¿½o para testar verificaï¿½ï¿½o
         async function testarVerificacao() {
             try {
-                console.log('?? Testando funcionalidade de verificação...');
+                console.log('?? Testando funcionalidade de verificaï¿½ï¿½o...');
                 
-                // Buscar o primeiro saque não verificado
+                // Buscar o primeiro saque nï¿½o verificado
                 const tbody = document.getElementById('saquesTableBody');
                 const rows = tbody.querySelectorAll('tr');
                 
@@ -1249,16 +1316,16 @@
                 });
                 
                 if (saqueParaTestar) {
-                    console.log('?? Testando verificação do saque:', saqueParaTestar);
+                    console.log('?? Testando verificaï¿½ï¿½o do saque:', saqueParaTestar);
                     
                     // Simular dados de teste
                     const dadosTeste = {
                         idTransacao: 'TEST' + Date.now(),
                         dataVerificacao: new Date().toISOString().slice(0, 16),
-                        observacoes: 'Teste automático de verificação'
+                        observacoes: 'Teste automï¿½tico de verificaï¿½ï¿½o'
                     };
                     
-                    // Simular preenchimento do formulário
+                    // Simular preenchimento do formulï¿½rio
                     mostrarFormularioVerificacao(saqueParaTestar);
                     
                     // Aguardar o modal abrir e preencher os campos
@@ -1272,10 +1339,10 @@
                             dataVerificacaoInput.value = dadosTeste.dataVerificacao;
                             observacoesInput.value = dadosTeste.observacoes;
                             
-                            console.log('? Formulário preenchido automaticamente');
+                            console.log('? Formulï¿½rio preenchido automaticamente');
                             console.log('?? Dados de teste:', dadosTeste);
                             
-                            // Confirmar automaticamente após 2 segundos
+                            // Confirmar automaticamente apï¿½s 2 segundos
                             setTimeout(() => {
                                 confirmarVerificacao(saqueParaTestar);
                             }, 2000);
@@ -1283,17 +1350,17 @@
                     }, 500);
                     
                 } else {
-                    console.log('?? Nenhum saque não verificado encontrado para teste');
-                    alert('Nenhum saque não verificado encontrado para teste');
+                    console.log('?? Nenhum saque nï¿½o verificado encontrado para teste');
+                    alert('Nenhum saque nï¿½o verificado encontrado para teste');
                 }
                 
             } catch (error) {
-                console.error('? Erro no teste de verificação:', error);
+                console.error('? Erro no teste de verificaï¿½ï¿½o:', error);
                 alert('Erro no teste: ' + error.message);
             }
         }
 
-        // Função para limpar modal de forma segura
+        // Funï¿½ï¿½o para limpar modal de forma segura
         function limparModalVerificacao() {
             try {
                 const modalElement = document.getElementById('modalVerificacao');
@@ -1304,7 +1371,7 @@
                         modal.hide();
                     }
                     
-                    // Remover do DOM após um delay
+                    // Remover do DOM apï¿½s um delay
                     setTimeout(() => {
                         if (modalElement && modalElement.parentNode) {
                             modalElement.remove();
@@ -1316,7 +1383,7 @@
             }
         }
 
-        // Atualizar linha específica da tabela em tempo real
+        // Atualizar linha especï¿½fica da tabela em tempo real
         function atualizarLinhaTabela(saqueAtualizado) {
             try {
                 console.log('?? Atualizando linha da tabela em tempo real:', saqueAtualizado);
@@ -1333,24 +1400,24 @@
                         console.log(`?? Verificando linha ${index}:`, onclickStr);
                         if (onclickStr.includes(saqueAtualizado.id)) {
                             linhaEncontrada = row;
-                            console.log(`? Linha encontrada no índice ${index}`);
+                            console.log(`? Linha encontrada no ï¿½ndice ${index}`);
                         }
                     }
                 });
                 
                 if (linhaEncontrada) {
-                    // Formatar dados de verificação
+                    // Formatar dados de verificaï¿½ï¿½o
                     const verificado = saqueAtualizado.verificado || false;
                     const dataVerificacao = saqueAtualizado.data_verificacao ? 
                         new Date(saqueAtualizado.data_verificacao).toLocaleString('pt-BR') : '-';
                     const idPagamento = saqueAtualizado.id_transacao_verificacao || '-';
                     
-                    // Atualizar apenas as colunas de verificação
+                    // Atualizar apenas as colunas de verificaï¿½ï¿½o
                     const cells = linhaEncontrada.querySelectorAll('td');
-                    console.log(`?? Número de células encontradas: ${cells.length}`);
+                    console.log(`?? Nï¿½mero de cï¿½lulas encontradas: ${cells.length}`);
                     
                     if (cells.length >= 11) {
-                        // Coluna "Saque Verificado" (índice 7)
+                        // Coluna "Saque Verificado" (ï¿½ndice 7)
                         console.log('?? Atualizando coluna "Saque Verificado"');
                         cells[7].innerHTML = `
                             <span class="badge ${verificado ? 'bg-success' : 'bg-warning'}">
@@ -1359,16 +1426,16 @@
                             </span>
                         `;
                         
-                        // Coluna "Data Verificação" (índice 8)
-                        console.log('?? Atualizando coluna "Data Verificação"');
+                        // Coluna "Data Verificaï¿½ï¿½o" (ï¿½ndice 8)
+                        console.log('?? Atualizando coluna "Data Verificaï¿½ï¿½o"');
                         cells[8].textContent = dataVerificacao;
                         
-                        // Coluna "ID Pagamento" (índice 9)
+                        // Coluna "ID Pagamento" (ï¿½ndice 9)
                         console.log('?? Atualizando coluna "ID Pagamento"');
                         cells[9].textContent = idPagamento;
                         
-                        // Coluna "Ações" (índice 10)
-                        console.log('?? Atualizando coluna "Ações"');
+                        // Coluna "Aï¿½ï¿½es" (ï¿½ndice 10)
+                        console.log('?? Atualizando coluna "Aï¿½ï¿½es"');
                         cells[10].innerHTML = `
                             <div class="btn-group" role="group">
                                 <button class="btn-verificar ${verificado ? 'verified' : ''}" 
@@ -1389,19 +1456,19 @@
                         
                         console.log('? Linha da tabela atualizada com sucesso');
                         
-                        // Adicionar efeito visual de atualização
+                        // Adicionar efeito visual de atualizaï¿½ï¿½o
                         linhaEncontrada.style.backgroundColor = '#d4edda';
                         setTimeout(() => {
                             linhaEncontrada.style.backgroundColor = '';
                         }, 2000);
                         
                     } else {
-                        console.warn('?? Número de colunas insuficiente na linha');
+                        console.warn('?? Nï¿½mero de colunas insuficiente na linha');
                         // Fallback: recarregar toda a tabela
                         carregarSaques();
                     }
                 } else {
-                    console.warn('?? Linha não encontrada na tabela');
+                    console.warn('?? Linha nï¿½o encontrada na tabela');
                     // Fallback: recarregar toda a tabela
                     carregarSaques();
                 }
@@ -1435,14 +1502,14 @@
                 const data = await response.json();
                 const saque = data.data;
 
-                // Mostrar modal de resumo da transação
+                // Mostrar modal de resumo da transaï¿½ï¿½o
                 const modalContent = `
                     <div class="modal fade" id="modalAprovarSaque" tabindex="-1" aria-labelledby="modalAprovarSaqueLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header bg-success text-white">
                                     <h5 class="modal-title" id="modalAprovarSaqueLabel">
-                                        <i class="fas fa-check-circle"></i> Resumo da Transação
+                                        <i class="fas fa-check-circle"></i> Resumo da Transaï¿½ï¿½o
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                                 </div>
@@ -1457,10 +1524,10 @@
                                                 <strong>Valor Solicitado:</strong> MZN ${parseFloat(saque.valor_solicitado || 0).toFixed(2)}
                                             </div>
                                             <div class="mb-2">
-                                                <strong>Valor Líquido:</strong> MZN ${parseFloat(saque.valor_liquido || 0).toFixed(2)}
+                                                <strong>Valor Lï¿½quido:</strong> MZN ${parseFloat(saque.valor_liquido || 0).toFixed(2)}
                                             </div>
                                             <div class="mb-2">
-                                                <strong>Método:</strong> ${saque.metodo_pagamento || 'N/A'}
+                                                <strong>Mï¿½todo:</strong> ${saque.metodo_pagamento || 'N/A'}
                                             </div>
                                             <div class="mb-2">
                                                 <strong>Data:</strong> ${new Date(saque.data_solicitacao).toLocaleDateString('pt-BR')}
@@ -1483,7 +1550,7 @@
                                     
                                     <div class="alert alert-info mt-3">
                                         <i class="fas fa-info-circle"></i>
-                                        <strong>Confirmação:</strong> Ao aprovar este saque, o status será alterado para "PAGO" e o vendedor será notificado automaticamente.
+                                        <strong>Confirmaï¿½ï¿½o:</strong> Ao aprovar este saque, o status serï¿½ alterado para "PAGO" e o vendedor serï¿½ notificado automaticamente.
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -1491,7 +1558,7 @@
                                         <i class="fas fa-times"></i> Cancelar
                                     </button>
                                     <button type="button" class="btn btn-success" onclick="confirmarAprovacao('${saqueId}')">
-                                        <i class="fas fa-check"></i> Confirmar Aprovação
+                                        <i class="fas fa-check"></i> Confirmar Aprovaï¿½ï¿½o
                                     </button>
                                 </div>
                             </div>
@@ -1514,22 +1581,22 @@
                 modal.show();
 
             } catch (error) {
-                console.error('Erro ao mostrar modal de aprovação:', error);
-                alert('Erro ao abrir resumo da transação: ' + error.message);
+                console.error('Erro ao mostrar modal de aprovaï¿½ï¿½o:', error);
+                alert('Erro ao abrir resumo da transaï¿½ï¿½o: ' + error.message);
             }
         }
 
-        // Confirmar aprovação do saque
+        // Confirmar aprovaï¿½ï¿½o do saque
         async function confirmarAprovacao(saqueId) {
             try {
-                if (!confirm('Tem certeza que deseja aprovar este saque? Esta ação não pode ser desfeita.')) {
+                if (!confirm('Tem certeza que deseja aprovar este saque? Esta aï¿½ï¿½o nï¿½o pode ser desfeita.')) {
                     return;
                 }
 
                 const token = verificarAutenticacao();
                 if (!token) return;
 
-                // Gerar ID de transação automático baseado no timestamp
+                // Gerar ID de transaï¿½ï¿½o automï¿½tico baseado no timestamp
                 const idTransacao = `APR${Date.now()}`;
 
                 const response = await fetch(`${API_BASE}/admin/saques/${saqueId}/aprovar`, {
@@ -1574,7 +1641,7 @@
         // Cancelar saque
         async function cancelarSaque(saqueId) {
             try {
-                // Mostrar modal de confirmação com campos
+                // Mostrar modal de confirmaï¿½ï¿½o com campos
                 const modalContent = `
                     <div class="modal fade" id="modalCancelarSaque" tabindex="-1" aria-labelledby="modalCancelarSaqueLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -1592,7 +1659,7 @@
                                         </div>
                                         <div class="alert alert-danger">
                                             <i class="fas fa-exclamation-triangle"></i>
-                                            <strong>Atenção:</strong> Esta ação cancelará o saque permanentemente e não poderá ser desfeita.
+                                            <strong>Atenï¿½ï¿½o:</strong> Esta aï¿½ï¿½o cancelarï¿½ o saque permanentemente e nï¿½o poderï¿½ ser desfeita.
                                         </div>
                                     </form>
                                 </div>
@@ -1623,7 +1690,7 @@
 
             } catch (error) {
                 console.error('Erro ao mostrar modal de cancelamento:', error);
-                alert('Erro ao abrir formulário de cancelamento: ' + error.message);
+                alert('Erro ao abrir formulï¿½rio de cancelamento: ' + error.message);
             }
         }
 
@@ -1682,7 +1749,7 @@
 
         // Gerar comprovante do saque em PDF simples
         async function gerarPDF(saqueId) {
-            // Declarar variáveis no escopo da função para acessar no catch
+            // Declarar variï¿½veis no escopo da funï¿½ï¿½o para acessar no catch
             let btn = null;
             let originalText = '';
             
@@ -1713,12 +1780,12 @@
 
                 const data = await response.json();
                 if (!data.success || !data.data) {
-                    throw new Error('Dados do saque não encontrados');
+                    throw new Error('Dados do saque nï¿½o encontrados');
                 }
 
                 const saque = data.data;
                 
-                // Gerar ID amigável (últimos 6 caracteres)
+                // Gerar ID amigï¿½vel (ï¿½ltimos 6 caracteres)
                 const idSaque = saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id;
                 
                 // Formatar datas
@@ -1750,25 +1817,25 @@
                     format: 'a4'
                 });
 
-                // Configurações
+                // Configuraï¿½ï¿½es
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 20;
                 const contentWidth = pageWidth - (margin * 2);
                 let yPos = margin;
 
-                // Título
+                // Tï¿½tulo
                 doc.setFontSize(18);
                 doc.setFont(undefined, 'bold');
                 doc.text('COMPROVANTE DE SAQUE', pageWidth / 2, yPos, { align: 'center' });
                 yPos += 10;
 
-                // Linha divisória
+                // Linha divisï¿½ria
                 doc.setLineWidth(0.5);
                 doc.line(margin, yPos, pageWidth - margin, yPos);
                 yPos += 15;
 
-                // Informações do saque
+                // Informaï¿½ï¿½es do saque
                 doc.setFontSize(11);
                 doc.setFont(undefined, 'normal');
                 
@@ -1776,7 +1843,7 @@
                 const labelWidth = 60;
                 const valueStartX = margin + labelWidth;
 
-                // Função auxiliar para adicionar linha
+                // Funï¿½ï¿½o auxiliar para adicionar linha
                 const addLine = (label, value) => {
                     doc.setFont(undefined, 'bold');
                     doc.text(label + ':', margin, yPos);
@@ -1784,7 +1851,7 @@
                     doc.text(value, valueStartX, yPos);
                     yPos += lineHeight;
                     
-                    // Verificar se precisa de nova página
+                    // Verificar se precisa de nova pï¿½gina
                     if (yPos > pageHeight - margin - 20) {
                         doc.addPage();
                         yPos = margin;
@@ -1793,23 +1860,23 @@
 
                 addLine('ID do Saque', idSaque);
                 addLine('Data do Pedido', dataSolicitacao);
-                addLine('Data e Hora da Aprovação', dataAprovacao);
+                addLine('Data e Hora da Aprovaï¿½ï¿½o', dataAprovacao);
                 addLine('Valor do Pedido', `MZN ${parseFloat(saque.valor || 0).toFixed(2)}`);
-                // conta_destino agora contém o nome do titular (corrigido no backend)
+                // conta_destino agora contï¿½m o nome do titular (corrigido no backend)
                 addLine('Nome do Titular', saque.conta_destino || saque.nome_titular || 'N/A');
                 addLine('Contacto', saque.telefone_titular || 'N/A');
-                addLine('Método', saque.metodo || 'N/A');
+                addLine('Mï¿½todo', saque.metodo || 'N/A');
                 addLine('Status', 'PAGO');
 
-                // Espaço antes do rodapé
+                // Espaï¿½o antes do rodapï¿½
                 yPos += 10;
                 
-                // Linha divisória antes do rodapé
+                // Linha divisï¿½ria antes do rodapï¿½
                 doc.setLineWidth(0.3);
                 doc.line(margin, yPos, pageWidth - margin, yPos);
                 yPos += 15;
 
-                // Rodapé centralizado
+                // Rodapï¿½ centralizado
                 doc.setFontSize(12);
                 doc.setFont(undefined, 'bold');
                 doc.text('Processado pela RATIXPAY', pageWidth / 2, yPos, { align: 'center' });
@@ -1818,7 +1885,7 @@
                 const fileName = `comprovante-saque-${idSaque}.pdf`;
                 doc.save(fileName);
                     
-                    // Restaurar botão
+                    // Restaurar botï¿½o
                     if (btn) {
                         btn.innerHTML = originalText;
                         btn.disabled = false;
@@ -1830,7 +1897,7 @@
                     console.error('Erro ao gerar comprovante:', error);
                     alert('Erro ao gerar comprovante do saque: ' + error.message);
                     
-                    // Restaurar botão
+                    // Restaurar botï¿½o
                     if (btn) {
                     btn.innerHTML = originalText || '<i class="fas fa-file-pdf"></i> PDF';
                         btn.disabled = false;
@@ -1844,31 +1911,31 @@
         // Inicializar Socket.IO
         const socket = io();
         
-        // Conectar à sala de administradores
+        // Conectar ï¿½ sala de administradores
         socket.emit('join_room', 'admins');
         
-        // Escutar notificações de saques
+        // Escutar notificaï¿½ï¿½es de saques
         socket.on('saque_pendente', (data) => {
-            console.log('?? Nova notificação de saque pendente:', data);
-            // Recarregar a página para mostrar novos saques
+            console.log('?? Nova notificaï¿½ï¿½o de saque pendente:', data);
+            // Recarregar a pï¿½gina para mostrar novos saques
             location.reload();
         });
         
-        // Escutar notificações de sistema
+        // Escutar notificaï¿½ï¿½es de sistema
         socket.on('sistema_notification', (data) => {
-            console.log('?? Notificação do sistema:', data);
-            // Mostrar notificação visual
+            console.log('?? Notificaï¿½ï¿½o do sistema:', data);
+            // Mostrar notificaï¿½ï¿½o visual
             if (data.title && data.message) {
                 alert(`${data.title}: ${data.message}`);
             }
         });
         
-        // Escutar conexão
+        // Escutar conexï¿½o
         socket.on('connect', () => {
             console.log('?? Conectado ao Socket.IO');
         });
         
-        // Escutar desconexão
+        // Escutar desconexï¿½o
         socket.on('disconnect', () => {
             console.log('?? Desconectado do Socket.IO');
         });

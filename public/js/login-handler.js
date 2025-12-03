@@ -205,7 +205,7 @@ class LoginHandler {
                     <input type="text" maxlength="1" class="code-input" data-index="5">
                 </div>
 
-                <button type="button" class="btn btn-primary" id="verifyBtn">
+                <button type="button" class="btn-login" id="verifyBtn">
                     <i class="fas fa-check"></i> Verificar
                 </button>
 
@@ -216,7 +216,7 @@ class LoginHandler {
         `;
         
         this.hideLoginForm();
-        const formContainer = document.querySelector('.form-container');
+        const formContainer = document.querySelector('.login-card') || document.querySelector('.form-container');
         formContainer.insertAdjacentHTML('beforeend', verificationHTML);
         
         this.setupCodeInputs('#verificationSection');
@@ -242,7 +242,7 @@ class LoginHandler {
                     <input type="text" maxlength="1" class="code-input" data-index="5">
                 </div>
 
-                <button type="button" class="btn btn-primary" id="unlockBtn">
+                <button type="button" class="btn-login" id="unlockBtn">
                     <i class="fas fa-unlock"></i> Desbloquear
                 </button>
 
@@ -257,7 +257,7 @@ class LoginHandler {
         `;
         
         this.hideLoginForm();
-        const formContainer = document.querySelector('.form-container');
+        const formContainer = document.querySelector('.login-card') || document.querySelector('.form-container');
         formContainer.insertAdjacentHTML('beforeend', unlockHTML);
         
         this.setupCodeInputs('#unlockSection');
@@ -266,16 +266,24 @@ class LoginHandler {
     
     hideLoginForm() {
         this.elements.loginForm.style.display = 'none';
-        document.querySelector('.links').style.display = 'none';
-        document.querySelector('.divider').style.display = 'none';
-        document.querySelector('.register-link').style.display = 'none';
+        const links = document.querySelector('.links');
+        const divider = document.querySelector('.divider');
+        const registerLink = document.querySelector('.register-link') || document.querySelector('.register-footer');
+        
+        if (links) links.style.display = 'none';
+        if (divider) divider.style.display = 'none';
+        if (registerLink) registerLink.style.display = 'none';
     }
     
     showLoginForm() {
         this.elements.loginForm.style.display = 'block';
-        document.querySelector('.links').style.display = 'block';
-        document.querySelector('.divider').style.display = 'block';
-        document.querySelector('.register-link').style.display = 'block';
+        const links = document.querySelector('.links');
+        const divider = document.querySelector('.divider');
+        const registerLink = document.querySelector('.register-link') || document.querySelector('.register-footer');
+        
+        if (links) links.style.display = 'block';
+        if (divider) divider.style.display = 'block';
+        if (registerLink) registerLink.style.display = 'block';
     }
     
     setupCodeInputs(containerSelector) {

@@ -339,17 +339,47 @@ class SaldoAdminService {
      */
     static async atualizarComissao(novoPercentual) {
         try {
-            let saldoAdmin = await SaldoAdmin.findOne();
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { type: sequelize.QueryTypes.SELECT }
+            );
+            
+            let saldoAdmin = saldoAdminResult;
             
             if (!saldoAdmin) {
-                saldoAdmin = await this.inicializarSaldo();
+                await this.inicializarSaldo();
+                // Buscar novamente após criar
+                const [newResult] = await sequelize.query(
+                    `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes 
+                     FROM saldo_admin LIMIT 1`,
+                    { type: sequelize.QueryTypes.SELECT }
+                );
+                saldoAdmin = newResult;
             }
             
-            await saldoAdmin.update({
-                comissao_percentual: parseFloat(novoPercentual),
-                ultima_atualizacao: new Date(),
-                observacoes: `Percentual de comissão atualizado para ${novoPercentual}% em ${new Date().toLocaleString('pt-BR')} (NOTA: Receita COMPLETA vai para admin)`
-            });
+            // Atualizar usando SQL direto
+            await sequelize.query(
+                `UPDATE saldo_admin 
+                 SET comissao_percentual = :novoPercentual,
+                     ultima_atualizacao = NOW(),
+                     updated_at = NOW(),
+                     observacoes = :observacoes
+                 WHERE id = :id`,
+                {
+                    replacements: {
+                        id: saldoAdmin.id,
+                        novoPercentual: parseFloat(novoPercentual),
+                        observacoes: `Percentual de comissão atualizado para ${novoPercentual}% em ${new Date().toLocaleString('pt-BR')} (NOTA: Receita COMPLETA vai para admin)`
+                    },
+                    type: sequelize.QueryTypes.UPDATE
+                }
+            );
             
             console.log(`✅ Percentual de comissão atualizado para ${novoPercentual}%`);
             console.log(`💡 NOTA: A receita COMPLETA das vendas continua indo para o admin, não apenas a comissão`);
@@ -394,12 +424,34 @@ class SaldoAdminService {
                 transaction
             });
             
-            let saldoAdmin = await SaldoAdmin.findOne({ transaction });
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { 
+                    type: sequelize.QueryTypes.SELECT,
+                    transaction
+                }
+            );
+            
+            let saldoAdmin = saldoAdminResult;
             
             if (!saldoAdmin) {
-                saldoAdmin = await this.inicializarSaldo();
+                await this.inicializarSaldo();
                 // Buscar novamente dentro da transação
-                saldoAdmin = await SaldoAdmin.findOne({ transaction });
+                const [newResult] = await sequelize.query(
+                    `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes 
+                     FROM saldo_admin LIMIT 1`,
+                    { 
+                        type: sequelize.QueryTypes.SELECT,
+                        transaction
+                    }
+                );
+                saldoAdmin = newResult;
             }
             
             // Calcular totais
@@ -418,18 +470,36 @@ class SaldoAdminService {
             
             const saldoTotal = totalComissoes - totalSaquesPagos;
             
-            // Atualizar registro
-            await saldoAdmin.update({
-                saldo_total: Math.max(0, saldoTotal),
-                total_vendas_aprovadas: totalVendas,
-                valor_total_vendas: valorTotalVendas,
-                total_comissoes: totalComissoes,
-                total_saques_pagos: totalSaquesPagos,
-                taxas: totalComissoes, // As taxas são iguais às comissões no sistema atual
-                taxas_saques: 0, // Será calculado separadamente se necessário
-                ultima_atualizacao: new Date(),
-                observacoes: `Saldo recalculado em ${new Date().toLocaleString('pt-BR')}`
-            }, { transaction });
+            // Atualizar registro usando SQL direto
+            await sequelize.query(
+                `UPDATE saldo_admin 
+                 SET saldo_total = :saldoTotal,
+                     total_vendas_aprovadas = :totalVendas,
+                     valor_total_vendas = :valorTotalVendas,
+                     total_comissoes = :totalComissoes,
+                     total_saques_pagos = :totalSaquesPagos,
+                     taxas = :taxas,
+                     taxas_saques = :taxasSaques,
+                     ultima_atualizacao = NOW(),
+                     updated_at = NOW(),
+                     observacoes = :observacoes
+                 WHERE id = :id`,
+                {
+                    replacements: {
+                        id: saldoAdmin.id,
+                        saldoTotal: Math.max(0, saldoTotal),
+                        totalVendas,
+                        valorTotalVendas,
+                        totalComissoes,
+                        totalSaquesPagos,
+                        taxas: totalComissoes,
+                        taxasSaques: 0,
+                        observacoes: `Saldo recalculado em ${new Date().toLocaleString('pt-BR')}`
+                    },
+                    type: sequelize.QueryTypes.UPDATE,
+                    transaction
+                }
+            );
             
             await transaction.commit();
             
@@ -460,20 +530,56 @@ class SaldoAdminService {
             const transaction = await sequelize.transaction();
             
             try {
-                let saldoAdmin = await SaldoAdmin.findOne({ transaction });
+                // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+                const [saldoAdminResult] = await sequelize.query(
+                    `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes 
+                     FROM saldo_admin LIMIT 1`,
+                    { 
+                        type: sequelize.QueryTypes.SELECT,
+                        transaction
+                    }
+                );
+                
+                let saldoAdmin = saldoAdminResult;
                 
                 if (!saldoAdmin) {
-                    saldoAdmin = await this.inicializarSaldo();
-                    saldoAdmin = await SaldoAdmin.findOne({ transaction });
+                    await this.inicializarSaldo();
+                    // Buscar novamente dentro da transação
+                    const [newResult] = await sequelize.query(
+                        `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                         valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                         ultima_atualizacao, observacoes 
+                         FROM saldo_admin LIMIT 1`,
+                        { 
+                            type: sequelize.QueryTypes.SELECT,
+                            transaction
+                        }
+                    );
+                    saldoAdmin = newResult;
                 }
                 
                 const novoSaldo = Math.max(0, parseFloat(saldoAdmin.saldo_total || 0) - parseFloat(valor));
                 
-                await saldoAdmin.update({
-                    saldo_total: novoSaldo,
-                    ultima_atualizacao: new Date(),
-                    observacoes: `${descricao} - MZN ${valor} subtraído em ${new Date().toLocaleString('pt-BR')}`
-                }, { transaction });
+                // Atualizar usando SQL direto
+                await sequelize.query(
+                    `UPDATE saldo_admin 
+                     SET saldo_total = :novoSaldo,
+                         ultima_atualizacao = NOW(),
+                         updated_at = NOW(),
+                         observacoes = :observacoes
+                     WHERE id = :id`,
+                    {
+                        replacements: {
+                            id: saldoAdmin.id,
+                            novoSaldo,
+                            observacoes: `${descricao} - MZN ${valor} subtraído em ${new Date().toLocaleString('pt-BR')}`
+                        },
+                        type: sequelize.QueryTypes.UPDATE,
+                        transaction
+                    }
+                );
                 
                 await transaction.commit();
                 

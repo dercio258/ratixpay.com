@@ -291,15 +291,12 @@ function renderVendedoresTable(data = null) {
             // Indicador de conta Google
             const googleIcon = vendedor.google_user ? '<i class="fab fa-google" style="color: #4285f4; margin-left: 5px;" title="Conta Google"></i>' : '';
             
-            // Indicador de plano premium
-            const premiumIcon = vendedor.plano_premium ? '<i class="fas fa-crown" style="color: #ffd700; margin-left: 5px;" title="Plano Premium"></i>' : '';
-            
             return `
                 <div class="vendedor-item" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="vendedor-header" style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                    <div class="vendedor-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <div class="vendedor-info" style="flex: 1;">
                             <div class="vendedor-nome" style="font-weight: 600; font-size: 1.1rem; color: #1f2937; margin-bottom: 4px;">
-                                ${vendedor.nome_completo || 'Nome não informado'} ${googleIcon} ${premiumIcon}
+                                ${vendedor.nome_completo || 'Nome não informado'} ${googleIcon}
                             </div>
                             <div class="vendedor-email" style="color: #6b7280; font-size: 0.9rem; margin-bottom: 2px;">
                                 <i class="fas fa-envelope" style="margin-right: 5px;"></i>${vendedor.email || 'Email não informado'}
@@ -369,7 +366,6 @@ function filtrarVendedores() {
             (status === 'ativo' && vendedor.ativo) ||
             (status === 'inativo' && !vendedor.ativo) ||
             (status === 'suspenso' && vendedor.suspenso) ||
-            (status === 'premium' && vendedor.plano_premium) ||
             (status === 'google' && vendedor.google_user);
         
         return matchBusca && matchStatus;

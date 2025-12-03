@@ -256,6 +256,7 @@ const securityHeaders = (req, res, next) => {
         "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
         "font-src 'self' cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com cdn.jsdelivr.net; " +
         "connect-src 'self' https://opay.mucamba.site https://www.ratixpay.com https://ratixpay.com http://www.ratixpay.com http://ratixpay.com *; " +
+        "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com; " +
         "frame-ancestors 'none';"
     );
 
@@ -272,6 +273,7 @@ const helmetConfig = helmet({
             imgSrc: ["'self'", "data:", "https:", "http://localhost:*", "http://127.0.0.1:*"],
             fontSrc: ["'self'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"],
             connectSrc: ["'self'", "https://opay.mucamba.site", "https://www.ratixpay.com", "https://ratixpay.com", "http://www.ratixpay.com", "http://ratixpay.com", "*"],
+            frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://www.youtu.be", "https://youtu.be", "https://player.vimeo.com", "https://vimeo.com", "https://www.vimeo.com", "https://embed.videodelivery.net", "https://*.cloudinary.com", "https://*.cloudflare.com"],
             frameAncestors: ["'none'"]
         }
     },

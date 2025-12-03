@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oferta Especial - Não feche esta página</title>
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+    <!-- Configuração de Fonte e Cores -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            color: inherit;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #ffffff !important;
+        }
+
+        /* Garantir visibilidade de todos os textos */
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;
+        }
+        
+        p, span, div, li {
+            color: inherit;
+        }
+        
+        .text-white {
+            color: #ffffff !important;
+        }
+        
+        .text-slate-400 {
+            color: #94a3b8 !important; /* Mais claro para melhor visibilidade */
+        }
+        
+        .text-slate-500 {
+            color: #64748b !important; /* Mais claro */
+        }
+        
+        .text-slate-300 {
+            color: #cbd5e1 !important;
+        }
+        
+        .bg-slate-900 {
+            background-color: #0f172a !important; /* Mais claro que o fundo */
+        }
+        
+        .bg-slate-800 {
+            background-color: #1e293b !important;
+        }
+        
+        .bg-slate-950 {
+            background-color: #020617 !important;
+        }
+        
+        .border-slate-800 {
+            border-color: #1e293b !important;
+        }
+        
+        .border-slate-700 {
+            border-color: #334155 !important;
+        }
+        
+        /* Garantir visibilidade de elementos de lista */
+        ul li {
+            color: #cbd5e1 !important;
+        }
+        
+        ul li span {
+            color: #cbd5e1 !important;
+        }
+        
+        /* Garantir que ícones sejam visíveis */
+        i.ph-bold,
+        i.ph-fill {
+            color: inherit;
+        }
+        
+        /* Texto emerald para badges e destaques */
+        .text-emerald-400 {
+            color: #34d399 !important;
+        }
+        
+        .text-emerald-500 {
+            color: #10b981 !important;
+        }
+
+        /* Efeito de brilho suave no card */
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Classes customizadas para cores do Tailwind */
+        .bg-slate-850 { background-color: #151f32; }
+        .text-slate-850 { color: #151f32; }
+        
+        /* Animações personalizadas */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+            }
+        }
+        
+        .glow-effect {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        /* Animação do botão CTA */
+        @keyframes button-pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+            }
+        }
+        
+        #ctaButton {
+            animation: button-pulse 2s ease-in-out infinite;
+        }
+        
+        #ctaButton:hover {
+            transform: translateY(-2px) scale(1.02) !important;
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4) !important;
+        }
+        
+        #ctaButton:active {
+            transform: translateY(0) scale(0.98) !important;
+        }
+        
+        /* Melhorar contraste do card principal */
+        .bg-slate-900 {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        }
+        
+        /* Melhorar visibilidade dos elementos do card */
+        .bg-slate-800\/50 {
+            background-color: rgba(30, 41, 59, 0.6) !important;
+        }
+        
+        /* Animação de hover no card de imagem */
+        @keyframes image-glow {
+            0%, 100% {
+                box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1);
+            }
+            50% {
+                box-shadow: inset 0 0 40px rgba(16, 185, 129, 0.2);
+            }
+        }
+        
+        .group:hover .shadow-inner {
+            animation: image-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="text-white selection:bg-emerald-500 selection:text-white min-h-screen flex flex-col">
+
+    <!-- Top Warning Bar -->
+    <div class="bg-emerald-600 text-center py-2 px-4 text-sm font-medium animate-pulse tracking-wide" data-editable="text" data-field="texto_alerta" contenteditable="false" style="background-color: #10b981 !important; color: #ffffff !important; font-weight: 600 !important;">
+        PEDIDO CONFIRMADO! NÃO FECHE ESTA PÁGINA AINDA.
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full h-1.5 bg-slate-800" style="background-color: #1e293b !important; height: 6px !important;">
+        <div class="h-full bg-emerald-500 w-[85%] shadow-[0_0_10px_rgba(16,185,129,0.7)] relative" style="background-color: #10b981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.7) !important;">
+            <div class="absolute right-0 -top-1 w-2 h-3 bg-white/50 blur-sm" style="background-color: rgba(255, 255, 255, 0.5) !important;"></div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-8 md:py-12 flex-grow">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 text-emerald-400 bg-emerald-400/10 px-4 py-1.5 rounded-full text-xs md:text-sm font-semibold mb-6 border border-emerald-400/20" data-editable="text" data-field="badge_texto" contenteditable="false" style="color: #34d399 !important; background-color: rgba(52, 211, 153, 0.15) !important; border-color: rgba(52, 211, 153, 0.3) !important; padding: 8px 16px !important; font-weight: 600 !important; box-shadow: 0 0 10px rgba(52, 211, 153, 0.2) !important;">
+                <i class="ph-fill ph-check-circle text-lg" style="color: #34d399 !important; font-size: 18px !important;"></i>
+                <span style="color: #34d399 !important; font-weight: 600 !important;">Etapa 2 de 2: Oferta Especial</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 tracking-tight leading-tight" data-editable="text" data-field="titulo_principal" contenteditable="false" style="color: #ffffff !important; font-weight: 800 !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important; line-height: 1.2 !important;">
+                Espere! O seu pedido está <span class="text-emerald-400">90% completo...</span>
+            </h1>
+            <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed" data-editable="text" data-field="subtitulo" contenteditable="false" style="color: #cbd5e1 !important; font-weight: 400 !important; line-height: 1.6 !important;">
+                Adicione este complemento exclusivo ao seu pedido agora e poupe 70%. Esta oferta não será mostrada novamente.
+            </p>
+        </header>
+
+        <!-- Main Offer Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl relative glow-effect" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; border-color: #475569 !important; border-width: 2px !important; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(16, 185, 129, 0.1) !important;">
+            
+            <!-- Discount Badge -->
+            <div class="absolute top-0 right-0 bg-rose-600 text-white font-bold px-6 py-2 rounded-bl-2xl z-20 shadow-lg" data-editable="text" data-field="desconto_badge" contenteditable="false" style="background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; color: #ffffff !important; font-weight: 800 !important; font-size: 14px !important; padding: 10px 20px !important; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4) !important; text-transform: uppercase !important; letter-spacing: 1px !important;">
+                -70% OFF
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-0">
+                
+                <!-- Left: Product Image/Visual -->
+                <div class="bg-slate-800/50 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700 relative overflow-hidden" style="background-color: rgba(30, 41, 59, 0.6) !important; border-color: #475569 !important;">
+                    <!-- Background blobs -->
+                    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-500/5 to-transparent" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%) !important;"></div>
+                    
+                    <div class="relative w-full aspect-square max-w-[280px] bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center border border-slate-700/50 mb-6 group shadow-inner" data-editable="media" data-field="imagem_produto" data-media-type="image" contenteditable="false" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; border-color: rgba(71, 85, 105, 0.5) !important; box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.2) !important;">
+                        {{IMAGEM_PRODUTO}}
+                    </div>
+                    
+                    <div class="flex items-center gap-2 text-yellow-400 text-sm font-medium relative z-10" data-editable="text" data-field="avaliacao" contenteditable="false" style="color: #fbbf24 !important;">
+                        <div class="flex">
+                            <i class="ph-fill ph-star" style="color: #fbbf24 !important;"></i>
+                            <i class="ph-fill ph-star" style="color: #fbbf24 !important;"></i>
+                            <i class="ph-fill ph-star" style="color: #fbbf24 !important;"></i>
+                            <i class="ph-fill ph-star" style="color: #fbbf24 !important;"></i>
+                            <i class="ph-fill ph-star" style="color: #fbbf24 !important;"></i>
+                        </div>
+                        <span class="text-slate-400" style="color: #cbd5e1 !important;">(4.9/5 de 1.204 alunos)</span>
+                    </div>
+                </div>
+
+                <!-- Right: The Pitch & Checkout -->
+                <div class="p-6 md:p-8 flex flex-col justify-between relative bg-slate-900" style="background-color: #0f172a !important;">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-3 text-white" data-editable="text" data-field="titulo_produto" contenteditable="false" style="color: #ffffff !important;">Upgrade Premium Master</h2>
+                        <p class="text-slate-400 text-sm mb-6 leading-relaxed" data-editable="text" data-field="descricao_produto" contenteditable="false" style="color: #cbd5e1 !important;">
+                            Acelere os seus resultados em 3x com o nosso pacote avançado de ferramentas e mentorias gravadas. Acesso imediato.
+                        </p>
+
+                        <ul class="space-y-3 mb-8" data-editable="text" data-field="lista_beneficios" contenteditable="false" style="color: #cbd5e1 !important;">
+                            {{LISTA_BENEFICIOS}}
+                        </ul>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 mb-6" style="background: linear-gradient(135deg, rgba(2, 6, 23, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%) !important; border-color: #475569 !important; border-width: 2px !important; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.1) !important;">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-slate-500 text-sm line-through decoration-slate-600" data-editable="text" data-field="preco_original" contenteditable="false" style="color: #94a3b8 !important; font-size: 14px !important; text-decoration-color: #64748b !important;">De MZN 497,00</span>
+                            <span class="text-rose-400 text-xs font-bold bg-rose-400/10 px-2 py-0.5 rounded flex items-center gap-1" style="color: #fb7185 !important; background-color: rgba(251, 113, 133, 0.15) !important; padding: 6px 12px !important; border-radius: 6px !important; font-weight: 700 !important;">
+                                <i class="ph-fill ph-clock" style="color: #fb7185 !important; font-size: 14px !important;"></i> Expira em <span id="timer" style="color: #fb7185 !important; font-weight: 700 !important;">10:00</span>
+                            </span>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-extrabold text-white tracking-tight" data-editable="text" data-field="preco_oferta" contenteditable="false" style="color: #10b981 !important; font-weight: 900 !important; font-size: 42px !important; text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3) !important; line-height: 1 !important;">MZN 97</span>
+                            <span class="text-slate-400 text-sm mb-1.5 font-medium" data-editable="text" data-field="texto_pagamento" contenteditable="false" style="color: #cbd5e1 !important; font-size: 14px !important; margin-bottom: 8px !important;">/ pagamento único</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="ctaButton" onclick="triggerPurchase()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 group cursor-pointer" data-editable="button-text" data-field="texto_botao_aceitar" contenteditable="false" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: #ffffff !important; font-weight: 700 !important; font-size: 18px !important; padding: 16px 24px !important; border: none !important; border-radius: 12px !important; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3) !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; position: relative !important; overflow: hidden !important;">
+                        <span style="color: #ffffff !important; font-weight: 700 !important; z-index: 1 !important; position: relative !important;">Sim! Adicionar ao meu pedido</span>
+                        <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform" style="color: #ffffff !important; font-size: 20px !important; z-index: 1 !important; position: relative !important;"></i>
+                        <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%); pointer-events: none;"></div>
+                    </button>
+                    
+                    <p class="text-center mt-3 text-xs text-slate-500 flex items-center justify-center gap-1.5 opacity-80" style="color: #94a3b8 !important;">
+                        <i class="ph-fill ph-lock-key" style="color: #94a3b8 !important;"></i> Compra segura e encriptada
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Downsell / Refusal Link -->
+        <div class="text-center mt-8">
+            <button onclick="handleRefusal()" class="text-slate-500 hover:text-slate-300 text-sm underline underline-offset-4 transition-colors opacity-70 hover:opacity-100 cursor-pointer" data-editable="text" data-field="texto_botao_recusar" contenteditable="false" style="color: #94a3b8 !important;">
+                Não, obrigado. Eu prefiro recusar esta oferta única e pagar o preço normal depois.
+            </button>
+        </div>
+
+        <!-- Guarantee Badge -->
+        <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-4 text-slate-400 text-sm border-t border-slate-800 pt-8 opacity-60" style="color: #cbd5e1 !important; border-color: #334155 !important;">
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-shield-check text-emerald-500 text-xl" style="color: #10b981 !important;"></i>
+                <span style="color: #cbd5e1 !important;">Garantia de 30 dias incondicional</span>
+            </div>
+            <span class="hidden md:inline text-slate-700" style="color: #475569 !important;">|</span>
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-envelope-open text-emerald-500 text-xl" style="color: #10b981 !important;"></i>
+                <span style="color: #cbd5e1 !important;">Acesso imediato via e-mail</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (Hidden by default) -->
+    <div id="successModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl max-w-sm w-full text-center transform scale-95 transition-transform duration-300 shadow-2xl" style="background-color: #0f172a !important; border-color: #334155 !important;">
+            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce" style="background-color: rgba(16, 185, 129, 0.2) !important;">
+                <i class="ph-fill ph-check-circle text-4xl" style="color: #10b981 !important;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2" style="color: #ffffff !important;">Item Adicionado!</h3>
+            <p class="text-slate-400 mb-6 text-sm" style="color: #cbd5e1 !important;">A atualizar o seu pedido com o preço promocional...</p>
+            <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 px-4 rounded-lg w-full transition-colors cursor-pointer border border-slate-700" style="background-color: #1e293b !important; color: #ffffff !important; border-color: #334155 !important;">
+                Fechar
+            </button>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Timer Logic
+        let timeLeft = 600; // 10 minutes
+        const timerElement = document.getElementById('timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timerElement.textContent = `${minutes}:${seconds}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                clearInterval(timerInterval);
+                timerElement.textContent = "00:00";
+                timerElement.parentElement.classList.replace('bg-rose-400/10', 'bg-slate-800');
+                timerElement.parentElement.classList.replace('text-rose-400', 'text-slate-500');
+            }
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // Modal Logic
+        const modal = document.getElementById('successModal');
+        const modalContent = modal.querySelector('div');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Função de compra (será sobrescrita pelo sistema)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                openModal();
+            }
+        }
+
+        // Função de recusa (será sobrescrita pelo sistema)
+        function handleRefusal() {
+            if (confirm('Tem certeza? Esta oferta nunca mais aparecerá!')) {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITULO_PAGINA}}</title>
+    
+    <!-- Tailwind CSS CDN (CSS puro, sem JavaScript) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons via jsDelivr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/duotone/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback para ícones -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Fonte: Plus Jakarta Sans (Moderna e Geométrica) -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-400: #fb923c;
+            --brand-500: #f97316;
+            --brand-600: #ea580c;
+            --brand-glow: rgba(249, 115, 22, 0.4);
+            --dark-900: #18181b;
+            --dark-950: #09090b;
+        }
+        
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        body { 
+            background-color: #09090b; 
+            color: white;
+            min-height: 100vh;
+        }
+        
+        /* Classes customizadas que substituem o Tailwind config */
+        .bg-brand-500 { background-color: var(--brand-500); }
+        .bg-brand-600 { background-color: var(--brand-600); }
+        .text-brand-400 { color: var(--brand-400); }
+        .text-brand-500 { color: var(--brand-500); }
+        .from-brand-500 { --tw-gradient-from: var(--brand-500); }
+        .to-brand-600 { --tw-gradient-to: var(--brand-600); }
+        .hover\:from-brand-400:hover { --tw-gradient-from: var(--brand-400); }
+        .hover\:to-brand-500:hover { --tw-gradient-to: var(--brand-500); }
+        .bg-dark-900 { background-color: var(--dark-900); }
+        .bg-dark-950 { background-color: var(--dark-950); }
+        .border-brand-500\/20 { border-color: rgba(249, 115, 22, 0.2); }
+        .bg-brand-500\/10 { background-color: rgba(249, 115, 22, 0.1); }
+        
+        /* Efeito de brilho laranja atrás do vídeo */
+        .video-glow {
+            box-shadow: 0 0 60px -15px var(--brand-glow);
+        }
+        
+        .bg-grid {
+            background-image: radial-gradient(#3f3f46 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, transparent, black, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 70%, transparent 100%);
+        }
+        
+        /* Gradientes customizados */
+        .gradient-orange-red {
+            background: linear-gradient(to right, var(--brand-600), #dc2626);
+        }
+        
+        .gradient-orange-btn {
+            background: linear-gradient(to bottom, var(--brand-500), var(--brand-600));
+        }
+        
+        .gradient-orange-btn:hover {
+            background: linear-gradient(to bottom, var(--brand-400), var(--brand-500));
+        }
+        
+        .gradient-text {
+            background: linear-gradient(to bottom, white, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Sombra laranja */
+        .shadow-orange {
+            box-shadow: 0 10px 40px -10px rgba(249, 115, 22, 0.6);
+        }
+        
+        /* Animações */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        }
+        
+        .animate-pulse-slow { animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-bounce { animation: bounce 1s infinite; }
+        
+        /* Ícones Phosphor - Fallback para Font Awesome */
+        .ph-fill.ph-play::before,
+        .ph-fill.ph-warning-circle::before,
+        .ph-fill.ph-lock-key::before,
+        .ph-fill.ph-shield-check::before,
+        .ph-duotone.ph-lightning::before,
+        .ph-bold.ph-check::before {
+            font-family: 'Font Awesome 6 Free', 'Phosphor';
+            font-weight: 900;
+        }
+        
+        .ph-fill.ph-play::before { content: '\f04b'; }
+        .ph-fill.ph-warning-circle::before { content: '\f06a'; }
+        .ph-fill.ph-lock-key::before { content: '\f023'; }
+        .ph-fill.ph-shield-check::before { content: '\f2f7'; }
+        .ph-duotone.ph-lightning::before { content: '\f0e7'; }
+        .ph-bold.ph-check::before { content: '\f00c'; }
+        
+        /* Backdrop blur fallback */
+        .backdrop-blur-sm {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        
+        .backdrop-blur-xl {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        
+        /* Aspect ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+        
+        /* Transições */
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        .transition-transform {
+            transition-property: transform;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        .transition-colors {
+            transition-property: color, background-color, border-color;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        .transition-opacity {
+            transition-property: opacity;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+        
+        /* Hover transforms */
+        .hover\:-translate-y-1:hover {
+            transform: translateY(-0.25rem);
+        }
+        
+        .active\:translate-y-0\.5:active {
+            transform: translateY(0.125rem);
+        }
+        
+        .group:hover .group-hover\:scale-110 {
+            transform: scale(1.1);
+        }
+        
+        .group:hover .group-hover\:opacity-50 {
+            opacity: 0.5;
+        }
+        
+        .group:hover .group-hover\:text-zinc-400 {
+            color: #a1a1aa;
+        }
+        
+        .group:hover .group-hover\:underline {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="text-white antialiased min-h-screen flex flex-col relative overflow-x-hidden" style="background-color: #09090b;">
+    <!-- Background Grid Effect -->
+    <div class="fixed inset-0 bg-grid pointer-events-none z-0" style="opacity: 0.07;"></div>
+    <!-- Sticky Alert Bar -->
+    <div class="gradient-orange-red text-white text-center py-3 px-4 text-sm font-bold tracking-wide uppercase relative z-20 shadow-lg">
+        <div class="flex items-center justify-center gap-2 animate-pulse">
+            <i class="fas fa-exclamation-circle text-lg"></i>
+            <span data-editable="text" data-field="texto_alerta" contenteditable="false">{{TEXTO_ALERTA}}</span>
+        </div>
+    </div>
+    <main class="relative z-10 mx-auto px-4 pt-8 pb-20 w-full" style="max-width: 48rem;">
+        
+        <!-- Headline Strategy: Pattern Interrupt -->
+        <header class="text-center mb-8">
+            <div class="inline-block rounded-full px-4 py-2 mb-6 backdrop-blur-sm" style="background: rgba(39, 39, 42, 0.8); border: 1px solid #3f3f46;">
+                <span class="text-xs font-bold tracking-widest uppercase flex items-center gap-2" style="color: #fb923c;">
+                    <span class="rounded-full animate-ping" style="width: 8px; height: 8px; background: #f97316;"></span>
+                    <span data-editable="text" data-field="badge_texto" contenteditable="false">{{BADGE_TEXTO}}</span>
+                </span>
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-4 gradient-text" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                {{TITULO_PRINCIPAL}}
+            </h1>
+            
+            <p class="text-lg md:text-xl mx-auto font-medium" style="color: #a1a1aa; max-width: 42rem;" data-editable="text" data-field="subtitulo" contenteditable="false">
+                {{SUBTITULO}}
+            </p>
+        </header>
+        <!-- VIDEO SECTION (The Core) -->
+        <!-- Aspect Ratio 16:9 box -->
+        <div class="relative w-full aspect-video rounded-2xl video-glow mb-10 overflow-hidden group cursor-pointer" id="video-container" data-editable="media" data-field="video" data-media-type="video" contenteditable="false" style="background: #18181b; border: 1px solid #27272a;">
+            {{VIDEO_CONTENT}}
+        </div>
+        <!-- OFFER BLOCK (CTA) -->
+        <!-- Estratégia: Card flutuante minimalista -->
+        <div id="offer-section" class="backdrop-blur-xl p-6 md:p-8 rounded-3xl text-center shadow-2xl relative overflow-hidden" style="background: rgba(24, 24, 27, 0.8); border: 1px solid #27272a;">
+            
+            <!-- Background Accent -->
+            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-2/3 h-1" style="background: linear-gradient(to right, transparent, #f97316, transparent); opacity: 0.7;"></div>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-3 mb-6">
+                <span class="text-lg line-through font-medium" style="color: #71717a;" data-editable="text" data-field="preco_original" contenteditable="false">{{PRECO_ORIGINAL}}</span>
+                <span class="text-3xl md:text-4xl font-extrabold text-white" data-editable="text" data-field="preco_oferta" contenteditable="false">{{PRECO_OFERTA}}</span>
+                <span class="text-xs font-bold px-2 py-1 rounded" style="background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2);" data-editable="text" data-field="texto_oferta_unica" contenteditable="false">{{TEXTO_OFERTA_UNICA}}</span>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-6" data-editable="text" data-field="texto_pergunta_produto" contenteditable="false">
+                {{TEXTO_PERGUNTA_PRODUTO}}
+            </h3>
+            <!-- O BOTÃO DE 1 CLIQUE -->
+            <!-- Estratégia: Usar ícone de cartão para indicar facilidade -->
+            <button onclick="triggerPurchase()" class="w-full relative group gradient-orange-btn text-white text-lg md:text-xl font-bold py-5 px-6 rounded-xl shadow-orange transition-all transform hover:-translate-y-1 active:translate-y-0.5" style="border-top: 1px solid rgba(255,255,255,0.2);">
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-bolt text-2xl animate-pulse"></i>
+                    <span data-editable="button-text" data-field="texto_botao_aceitar" contenteditable="false">{{TEXTO_BOTAO_ACEITAR}}</span>
+                </div>
+                <!-- Subtext for 1-click indication -->
+                <span class="absolute left-0 right-0 text-center font-medium group-hover:text-zinc-400 transition-colors uppercase tracking-widest" style="bottom: -2rem; font-size: 10px; color: #71717a;">
+                    {{TEXTO_SUBTITULO_BOTAO}}
+                </span>
+            </button>
+            <!-- Refusal Link -->
+            <div class="mt-12 pt-6" style="border-top: 1px solid #27272a;">
+                <button onclick="handleRefusal()" class="group text-sm transition-colors text-center w-full" style="color: #71717a;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#71717a'">
+                    <span class="block mb-1 group-hover:underline" style="text-decoration-color: #52525b; text-underline-offset: 4px;" data-editable="text" data-field="texto_botao_recusar" contenteditable="false">
+                        {{TEXTO_BOTAO_RECUSAR}}
+                    </span>
+                    <span class="block" style="font-size: 10px; color: #52525b;" data-editable="text" data-field="texto_recusar_subtitulo" contenteditable="false">
+                        {{TEXTO_RECUSAR_SUBTITULO}}
+                    </span>
+                </button>
+            </div>
+        </div>
+        <!-- Security Footers -->
+        <div class="flex justify-center gap-6 mt-12 transition-all duration-500" style="opacity: 0.4; filter: grayscale(1);" onmouseover="this.style.filter='grayscale(0)'" onmouseout="this.style.filter='grayscale(1)'">
+            <!-- Security Logos (Using text/icons for simplicity) -->
+            <div class="flex items-center gap-2 text-xs font-semibold" style="color: #a1a1aa;">
+                <i class="fas fa-lock text-lg"></i> SSL SEGURO
+            </div>
+            <div class="flex items-center gap-2 text-xs font-semibold" style="color: #a1a1aa;">
+                <i class="fas fa-shield-alt text-lg"></i> GARANTIA BLINDADA
+            </div>
+        </div>
+    </main>
+    <!-- Modal de Feedback Visual -->
+    <div id="feedbackModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+        <div class="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl w-full max-w-sm text-center relative z-10 transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 rounded-full border-4 border-orange-500 border-t-transparent animate-spin mx-auto mb-4" id="spinner"></div>
+            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 hidden" id="successIcon">
+                <i class="ph-bold ph-check text-3xl text-zinc-900"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2" id="modalTitle">Processando...</h3>
+            <p class="text-zinc-400 text-sm">Adicionando à sua conta segura.</p>
+        </div>
+    </div>
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        function triggerPurchase() {
+            // Usar a mesma lógica de processamento do upsell-page.html
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                // Fallback se a função não estiver disponível
+                const modal = document.getElementById('feedbackModal');
+                const spinner = document.getElementById('spinner');
+                const successIcon = document.getElementById('successIcon');
+                const title = document.getElementById('modalTitle');
+
+                // Show Modal
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.querySelector('div.relative').classList.remove('scale-95');
+                modal.querySelector('div.relative').classList.add('scale-100');
+
+                // Simulate API Call
+                setTimeout(() => {
+                    spinner.classList.add('hidden');
+                    successIcon.classList.remove('hidden');
+                    successIcon.classList.add('animate-bounce');
+                    title.innerText = "Compra Adicionada!";
+                    title.classList.add('text-green-500');
+                    
+                    // Simulate Redirect
+                    setTimeout(() => {
+                        const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                        window.location.href = `/payment-success.html?${params}`;
+                    }, 1500);
+                }, 2000);
+            }
+        }
+
+        function handleRefusal() {
+            if(confirm("{{TEXTO_CONFIRMACAO_RECUSAR}}")) {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            // Esta função será sobrescrita pela lógica do sistema
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

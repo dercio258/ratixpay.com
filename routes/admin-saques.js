@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
 const { authenticateToken, isAdmin } = require('../middleware/auth');
-const { Pagamento, Usuario, SaldoAdmin } = require('../config/database');
+const { Pagamento, Usuario, SaldoAdmin, Carteira } = require('../config/database');
 const SaldoAdminService = require('../services/saldoAdminService');
 const SaldoVendedorService = require('../services/saldoVendedorService');
 
@@ -92,8 +92,8 @@ router.get('/saques/pendentes', authenticateToken, isAdmin, async (req, res) => 
                 },
                 order: [['data_solicitacao', 'DESC']],
                 attributes: [
-                    'id', 'valor', 'status', 'data_solicitacao', 'data_pagamento', 
-                    'metodo', 'telefone_titular', 'conta_destino', 'banco', 'observacoes', 'vendedor_id'
+                    'id', 'public_id', 'valor', 'status', 'data_solicitacao', 'data_pagamento', 
+                    'data_processamento', 'metodo', 'telefone_titular', 'conta_destino', 'banco', 'observacoes', 'vendedor_id'
                 ]
                 });
             
@@ -126,12 +126,33 @@ router.get('/saques/pendentes', authenticateToken, isAdmin, async (req, res) => 
                 console.warn('⚠️ Nenhum vendedor_id encontrado nos saques');
             }
             
+            // Buscar carteiras dos vendedores
+            let carteiras = [];
+            let carteirasMap = {};
+            if (vendedorIds.length > 0) {
+                carteiras = await Carteira.findAll({
+                    where: { vendedorId: { [Op.in]: vendedorIds } },
+                    attributes: ['vendedorId', 'contactoMpesa', 'nomeTitularMpesa', 'contactoEmola', 'nomeTitularEmola']
+                });
+                
+                carteiras.forEach(c => {
+                    carteirasMap[c.vendedorId] = c;
+                });
+                
+                console.log(`✅ ${carteiras.length} carteira(s) encontrada(s)`);
+            }
+            
             const saquesFormatados = saques.map(saque => {
                 const vendedor = vendedoresMap[saque.vendedor_id];
-                // Gerar ID amigável no mesmo formato da página pagamentos.html (últimos 6 caracteres)
+                const carteira = carteirasMap[saque.vendedor_id];
+                
+                // Gerar ID amigável: usar public_id se disponível, senão últimos 6 caracteres do UUID
                 let idAmigavel = '-';
-                if (saque.id) {
-                    // Usar o mesmo formato da página pagamentos.html: últimos 6 caracteres do UUID
+                if (saque.public_id) {
+                    // Usar public_id (formato numérico de 6 dígitos)
+                    idAmigavel = saque.public_id;
+                } else if (saque.id) {
+                    // Fallback: últimos 6 caracteres do UUID
                     idAmigavel = saque.id.substring(saque.id.length - 6).toUpperCase();
                 }
                 
@@ -144,7 +165,7 @@ router.get('/saques/pendentes', authenticateToken, isAdmin, async (req, res) => 
                 
                 return {
                     id: saque.id,
-                    publicId: saque.id, // Usar id como publicId temporariamente
+                    publicId: saque.public_id || saque.id, // Usar public_id se disponível
                     idSaque: idAmigavel,
                     valor: valorTotal, // Valor total solicitado
                     valorLiquido: valorLiquidoVendedor, // 95% que o vendedor receberá
@@ -155,12 +176,22 @@ router.get('/saques/pendentes', authenticateToken, isAdmin, async (req, res) => 
                     dataSolicitacao: saque.data_solicitacao || saque.createdAt || new Date(),
                     dataAprovacao: null, // Campo não existe no banco ainda
                     dataPagamento: saque.data_pagamento || null,
+                    dataProcessamento: saque.data_processamento || saque.data_pagamento, // Usar data_processamento se disponível
                     metodoPagamento: saque.metodo || 'N/A',
                     nomeTitular: saque.conta_destino || 'N/A', // conta_destino pode conter o nome do titular
                     telefoneTitular: saque.telefone_titular || 'N/A',
                     contaDestino: saque.conta_destino || 'N/A',
                     banco: saque.banco || 'N/A',
                     observacoes: saque.observacoes || 'N/A',
+                    // Dados da carteira (Emola e Mpesa)
+                    dadosEmola: carteira ? {
+                        nomeTitular: carteira.nomeTitularEmola || 'N/A',
+                        contacto: carteira.contactoEmola || 'N/A'
+                    } : { nomeTitular: 'N/A', contacto: 'N/A' },
+                    dadosMpesa: carteira ? {
+                        nomeTitular: carteira.nomeTitularMpesa || 'N/A',
+                        contacto: carteira.contactoMpesa || 'N/A'
+                    } : { nomeTitular: 'N/A', contacto: 'N/A' },
                     vendedor: vendedor ? {
                         id: vendedor.id,
                         nome: vendedor.nome_completo,
@@ -238,9 +269,9 @@ router.get('/saques/processados', authenticateToken, isAdmin, async (req, res) =
                 },
                 order: [['data_pagamento', 'DESC']],
                 attributes: [
-                    'id', 'vendedor_id', 'valor', 'metodo', 'conta_destino', 'banco', 
+                    'id', 'public_id', 'vendedor_id', 'valor', 'metodo', 'conta_destino', 'banco', 
                     'observacoes', 'telefone_titular', 'status', 'data_solicitacao', 
-                    'data_pagamento'
+                    'data_pagamento', 'data_processamento'
                 ]
             });
             
@@ -258,12 +289,33 @@ router.get('/saques/processados', authenticateToken, isAdmin, async (req, res) =
                 vendedoresMap[v.id] = v;
             });
             
+            // Buscar carteiras dos vendedores
+            const carteiras = await Carteira.findAll({
+                where: { vendedorId: { [Op.in]: vendedorIds } },
+                attributes: ['vendedorId', 'contactoMpesa', 'nomeTitularMpesa', 'contactoEmola', 'nomeTitularEmola']
+            });
+            
+            const carteirasMap = {};
+            carteiras.forEach(c => {
+                carteirasMap[c.vendedorId] = c;
+            });
+            
             const saquesFormatados = saques.map(saque => {
                 const vendedor = vendedoresMap[saque.vendedor_id];
+                const carteira = carteirasMap[saque.vendedor_id];
+                
+                // Gerar ID amigável: usar public_id se disponível, senão últimos 6 caracteres do UUID
+                let idAmigavel = '-';
+                if (saque.public_id) {
+                    idAmigavel = saque.public_id;
+                } else if (saque.id) {
+                    idAmigavel = saque.id.substring(saque.id.length - 6).toUpperCase();
+                }
+                
                 return {
                     id: saque.id,
-                    publicId: saque.id, // Usar ID como identificador público
-                    idSaque: saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : '-', // Usar ID de 6 dígitos
+                    publicId: saque.public_id || saque.id, // Usar public_id se disponível
+                    idSaque: idAmigavel,
                     valor: parseFloat(saque.valor || 0),
                     valorLiquido: parseFloat(saque.valor || 0), // Mesmo valor, sem taxa
                     taxa: 0, // Taxa não existe no banco
@@ -271,12 +323,22 @@ router.get('/saques/processados', authenticateToken, isAdmin, async (req, res) =
                     dataSolicitacao: saque.data_solicitacao,
                     dataAprovacao: null, // Campo não existe no banco
                     dataPagamento: saque.data_pagamento,
+                    dataProcessamento: saque.data_processamento || saque.data_pagamento, // Usar data_processamento se disponível
                     metodoPagamento: saque.metodo || 'N/A',
                     nomeTitular: saque.conta_destino || 'N/A', // Usar conta_destino como nome do titular
                     telefoneTitular: saque.telefone_titular || 'N/A',
                     contaDestino: saque.conta_destino || 'N/A',
                     banco: saque.banco || 'N/A',
                     observacoes: saque.observacoes || 'N/A',
+                    // Dados da carteira (Emola e Mpesa)
+                    dadosEmola: carteira ? {
+                        nomeTitular: carteira.nomeTitularEmola || 'N/A',
+                        contacto: carteira.contactoEmola || 'N/A'
+                    } : { nomeTitular: 'N/A', contacto: 'N/A' },
+                    dadosMpesa: carteira ? {
+                        nomeTitular: carteira.nomeTitularMpesa || 'N/A',
+                        contacto: carteira.contactoMpesa || 'N/A'
+                    } : { nomeTitular: 'N/A', contacto: 'N/A' },
                     vendedor: vendedor ? {
                         id: vendedor.id,
                         nome: vendedor.nome_completo,
@@ -340,9 +402,18 @@ router.get('/saques/:id', authenticateToken, isAdmin, async (req, res) => {
             attributes: ['id', 'nome_completo', 'email']
         });
 
+        // Gerar ID amigável: usar public_id se disponível, senão últimos 6 caracteres do UUID
+        let idAmigavel = '-';
+        if (saque.public_id) {
+            idAmigavel = saque.public_id;
+        } else if (saque.id) {
+            idAmigavel = saque.id.substring(saque.id.length - 6).toUpperCase();
+        }
+
         const saqueFormatado = {
             id: saque.id,
-            publicId: saque.id,
+            publicId: saque.public_id || saque.id,
+            idSaque: idAmigavel,
             valor: parseFloat(saque.valor),
             valorLiquido: parseFloat(saque.valor),
             taxa: 0,
@@ -390,8 +461,8 @@ router.get('/saques/:id/pdf', authenticateToken, isAdmin, async (req, res) => {
         const saque = await Pagamento.findOne({
             where: { id: saqueId },
             attributes: [
-                'id', 'id', 'id', 'valor', 'valor',
-                'status', 'data_solicitacao', 'metodo', 'observacoes', 'vendedor_id'
+                'id', 'public_id', 'valor', 'status', 'data_solicitacao', 
+                'metodo', 'observacoes', 'vendedor_id'
             ]
         });
 

@@ -19,26 +19,6 @@ let productData = {};
 let productId = null;
 let contentFile = null;
 
-// Função para normalizar URLs - garantir que sempre tenham o prefixo correto
-function normalizeUrl(url) {
-    if (!url) return url;
-    
-    // Se a URL já começa com http:// ou https://, retornar como está
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
-    }
-    
-    // Normalizar barras invertidas para barras normais (Windows -> Web)
-    const normalizedUrl = url.replace(/\\/g, '/');
-    
-    // Se a URL começa com /, adicionar o prefixo do servidor
-    if (normalizedUrl.startsWith('/')) {
-        return `http://localhost:4000${normalizedUrl}`;
-    }
-    
-    // Se não tem prefixo, assumir que é um caminho relativo
-    return `http://localhost:4000/${normalizedUrl}`;
-}
 let contentUrl = null;
 
 // Inicialização
@@ -303,22 +283,13 @@ function updateImagePreview(imageUrl) {
 function updateContentPreview(contentUrl) {
     const contentPreview = document.getElementById('contentPreview');
     if (contentPreview && contentUrl) {
-        // Verificar se é um link ou arquivo
-        if (contentUrl.startsWith('http')) {
+        // Mostrar link exatamente como foi digitado, sem validação
             contentPreview.innerHTML = `
                 <div style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
                     <strong>🔗 Link de Conteúdo:</strong><br>
-                    <a href="${contentUrl}" target="_blank" style="color: #007bff; word-break: break-all;">${contentUrl}</a>
+                <span style="color: #007bff; word-break: break-all;">${contentUrl}</span>
                 </div>
             `;
-        } else {
-            contentPreview.innerHTML = `
-                <div style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
-                    <strong>📁 Arquivo de Conteúdo:</strong><br>
-                    <span style="color: #28a745; word-break: break-all;">${contentUrl}</span>
-                </div>
-            `;
-        }
     }
 }
 
@@ -377,17 +348,14 @@ async function handleImageUpload(event) {
             
             const imageUrl = result.data.original.url;
             
-            // Normalizar a URL para garantir que tenha o prefixo correto
-            const normalizedImageUrl = normalizeUrl(imageUrl);
-            
-            // Atualizar campo de URL da imagem
+            // Atualizar campo de URL da imagem (manter exatamente como retornado)
             const imageUrlField = document.getElementById('imageUrl');
             if (imageUrlField) {
-                imageUrlField.value = normalizedImageUrl;
+                imageUrlField.value = imageUrl;
             }
             
             // Atualizar preview
-            updateImagePreview(normalizedImageUrl);
+            updateImagePreview(imageUrl);
             
             console.log('✅ Imagem enviada com sucesso:', imageUrl);
             showSuccess('Imagem enviada com sucesso!');
@@ -449,11 +417,8 @@ async function uploadImageToCloudinary(base64Data) {
 function handleImageUrl(event) {
     const url = event.target.value;
     if (url) {
-        // Normalizar a URL para garantir que tenha o prefixo correto
-        const normalizedUrl = normalizeUrl(url);
-        // Atualizar o campo com a URL normalizada
-        event.target.value = normalizedUrl;
-        updateImagePreview(normalizedUrl);
+        // Manter URL exatamente como digitada pelo usuário
+        updateImagePreview(url);
     }
 }
 
@@ -669,8 +634,8 @@ async function handleContentFileUpload(event) {
             
             const originalContentUrl = result.data.original.url;
             
-            // Normalizar a URL para garantir que tenha o prefixo correto
-            contentUrl = normalizeUrl(originalContentUrl);
+            // Manter URL exatamente como retornada
+            contentUrl = originalContentUrl;
             contentFile = file;
             
             // Atualizar preview do arquivo

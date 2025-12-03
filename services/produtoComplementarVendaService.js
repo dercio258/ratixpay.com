@@ -97,7 +97,11 @@ class ProdutoComplementarVendaService {
             
             // Primeiro, encontrar a venda pelo public_id
             const venda = await Venda.findOne({
-                where: { public_id: publicId }
+                where: { public_id: publicId },
+                include: [{
+                    model: Produto,
+                    as: 'produto'
+                }]
             });
             
             if (!venda) {
@@ -105,11 +109,59 @@ class ProdutoComplementarVendaService {
                 return [];
             }
             
-            // Buscar produtos complementares da venda
+            // Buscar produtos complementares da venda (order bumps)
             const produtosComplementares = await this.buscarProdutosComplementaresPorVenda(venda.id);
             
-            console.log(`📦 Encontrados ${produtosComplementares.length} produtos complementares para venda ${publicId}`);
-            return produtosComplementares;
+            // Buscar também vendas upsell relacionadas (mesmo cliente, mesmo vendedor)
+            // Identificar upsells pelas observações contendo "Upsell" ou "upsell"
+            const { Op } = require('sequelize');
+            const vendasUpsell = await Venda.findAll({
+                where: {
+                    cliente_id: venda.cliente_id,
+                    vendedor_id: venda.vendedor_id,
+                    id: { [Op.ne]: venda.id },
+                    status: { [Op.in]: ['Pago', 'Aprovado', 'approved', 'success', 'completed'] },
+                    [Op.or]: [
+                        { observacoes: { [Op.iLike]: '%Upsell%' } },
+                        { observacoes: { [Op.iLike]: '%upsell%' } }
+                    ]
+                },
+                include: [{
+                    model: Produto,
+                    as: 'produto'
+                }],
+                order: [['created_at', 'ASC']]
+            });
+            
+            // Converter vendas upsell para formato de produtos complementares
+            const produtosUpsell = vendasUpsell.map(vendaUpsell => {
+                return {
+                    id: vendaUpsell.id,
+                    venda_id: vendaUpsell.id,
+                    produto_complementar_id: vendaUpsell.produto_id,
+                    nome_produto: vendaUpsell.produto?.nome || 'Produto Upsell',
+                    nome: vendaUpsell.produto?.nome || 'Produto Upsell',
+                    preco: parseFloat(vendaUpsell.valor || vendaUpsell.pagamento_valor || 0),
+                    desconto: 0,
+                    imagem: vendaUpsell.produto?.imagem_url || '',
+                    miniatura: '',
+                    link_conteudo: vendaUpsell.produto?.link_conteudo || '',
+                    descricao: vendaUpsell.produto?.descricao || '',
+                    tipo: vendaUpsell.produto?.tipo || 'digital',
+                    vendedor_id: vendaUpsell.vendedor_id,
+                    created_at: vendaUpsell.created_at,
+                    is_upsell: true // Marcar como upsell (campo virtual, não salvo no banco)
+                };
+            });
+            
+            // Combinar produtos complementares (order bumps) e upsells
+            const todosProdutos = [...produtosComplementares, ...produtosUpsell];
+            
+            console.log(`📦 Encontrados ${produtosComplementares.length} produtos complementares (order bumps)`);
+            console.log(`🎯 Encontrados ${produtosUpsell.length} produtos upsell`);
+            console.log(`📦 Total: ${todosProdutos.length} produtos para venda ${publicId}`);
+            
+            return todosProdutos;
             
         } catch (error) {
             console.error('❌ Erro ao buscar produtos complementares por public_id:', error);

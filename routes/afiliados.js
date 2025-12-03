@@ -17,6 +17,50 @@ function gerarCodigoAfiliado() {
     return codigo;
 }
 
+// GET - Buscar configurações de integração do afiliado pelo código (público, para rastreamento)
+router.get('/config/:codigo', async (req, res) => {
+    try {
+        const { codigo } = req.params;
+        
+        if (!codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de afiliado é obrigatório'
+            });
+        }
+
+        const afiliado = await Afiliado.findOne({
+            where: {
+                codigo_afiliado: codigo,
+                status: 'ativo'
+            },
+            attributes: ['id', 'codigo_afiliado', 'meta_pixel_id', 'utmify_api_token']
+        });
+
+        if (!afiliado) {
+            return res.json({
+                success: true,
+                data: null
+            });
+        }
+
+        return res.json({
+            success: true,
+            data: {
+                meta_pixel_id: afiliado.meta_pixel_id || null,
+                utmify_api_token: afiliado.utmify_api_token || null
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar configurações do afiliado:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar configurações',
+            error: error.message
+        });
+    }
+});
+
 // GET - Teste simples
 router.get('/teste', async (req, res) => {
     try {
@@ -1122,6 +1166,131 @@ router.put('/vendas/atualizar-status', async (req, res) => {
     }
 });
 
+// POST - Registrar clique simples (apenas contabilizar acesso ao link)
+router.post('/registrar-clique-simples', async (req, res) => {
+    try {
+        const { codigo_afiliado, produto_id, produto_custom_id } = req.body;
+        
+        if (!codigo_afiliado) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de afiliado é obrigatório'
+            });
+        }
+        
+        // Buscar afiliado
+        const afiliado = await Afiliado.findOne({
+            where: { 
+                codigo_afiliado: codigo_afiliado,
+                status: 'ativo'
+            }
+        });
+        
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado ou inativo'
+            });
+        }
+        
+        // Buscar produto
+        let produto = null;
+        if (produto_id) {
+            produto = await Produto.findByPk(produto_id);
+        } else if (produto_custom_id) {
+            produto = await Produto.findOne({ where: { custom_id: produto_custom_id } });
+        }
+        
+        // Buscar ou criar link tracking (garantir que sempre existe)
+        let linkTracking = null;
+        if (produto) {
+            linkTracking = await LinkTracking.findOne({
+                where: {
+                    afiliado_id: afiliado.id,
+                    produto_id: produto.id
+                }
+            });
+            
+            console.log(`🔍 [CLIQUE SIMPLES] Busca de link tracking para afiliado ${afiliado.id} e produto ${produto.id}: ${linkTracking ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
+            
+            // Se não encontrou, criar um básico
+            if (!linkTracking) {
+                console.log(`⚠️ [CLIQUE SIMPLES] Link não encontrado, criando novo...`);
+                const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
+                const linkAfiliado = `${linkOriginal}&ref=${afiliado.codigo_afiliado}`;
+                
+                try {
+                    linkTracking = await LinkTracking.create({
+                        afiliado_id: afiliado.id,
+                        produto_id: produto.id,
+                        link_original: linkOriginal,
+                        link_afiliado: linkAfiliado,
+                        cliques: 0,
+                        cliques_pagos: 0,
+                        creditos_gerados: 0.00,
+                        conversoes: 0
+                    });
+                    console.log(`✅ [CLIQUE SIMPLES] Link criado: ${linkTracking.id}`);
+                } catch (createError) {
+                    // Se falhar por constraint única, tentar buscar novamente
+                    if (createError.name === 'SequelizeUniqueConstraintError' || createError.message.includes('duplicate')) {
+                        console.log(`⚠️ [CLIQUE SIMPLES] Link já existe (constraint), buscando novamente...`);
+                        linkTracking = await LinkTracking.findOne({
+                            where: {
+                                afiliado_id: afiliado.id,
+                                produto_id: produto.id
+                            }
+                        });
+                        if (linkTracking) {
+                            console.log(`✅ [CLIQUE SIMPLES] Link encontrado após tentativa de criação: ${linkTracking.id}`);
+                        }
+                    } else {
+                        console.error(`❌ [CLIQUE SIMPLES] Erro ao criar link:`, createError);
+                        // Continuar sem link tracking
+                    }
+                }
+            } else {
+                // Verificar e atualizar link_afiliado se necessário
+                const linkOriginalEsperado = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
+                const linkAfiliadoEsperado = `${linkOriginalEsperado}&ref=${afiliado.codigo_afiliado}`;
+                
+                if (linkTracking.link_afiliado !== linkAfiliadoEsperado || linkTracking.link_original !== linkOriginalEsperado) {
+                    console.log(`🔄 [CLIQUE SIMPLES] Atualizando link_afiliado...`);
+                    try {
+                        await linkTracking.update({
+                            link_original: linkOriginalEsperado,
+                            link_afiliado: linkAfiliadoEsperado
+                        });
+                        console.log(`✅ [CLIQUE SIMPLES] Link atualizado: ${linkAfiliadoEsperado}`);
+                    } catch (updateError) {
+                        console.error(`❌ [CLIQUE SIMPLES] Erro ao atualizar link:`, updateError);
+                    }
+                }
+            }
+        }
+        
+        // NOTA: Cliques válidos só são contabilizados quando uma venda é criada
+        // Esta rota apenas garante que o link tracking existe para rastreamento
+        if (linkTracking) {
+            console.log(`📊 Acesso rastreado: ${afiliado.nome} -> Produto ${produto?.nome || 'N/A'} (clique será validado apenas quando uma venda for criada)`);
+        }
+        
+        return res.json({
+            success: true,
+            cliqueRegistrado: true,
+            message: 'Clique contabilizado com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao registrar clique simples:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message
+        });
+    }
+});
+
 // POST - Registrar clique válido (quando usuário clica em "Pagar Agora" no checkout)
 router.post('/registrar-clique-valido', async (req, res) => {
     try {
@@ -1178,7 +1347,7 @@ router.post('/registrar-clique-valido', async (req, res) => {
             produto = await Produto.findOne({ where: { custom_id: produto_custom_id } });
         }
 
-        // Buscar link tracking
+        // Buscar link tracking (garantir que sempre existe)
         let linkTracking = null;
         if (produto) {
             linkTracking = await LinkTracking.findOne({
@@ -1187,23 +1356,59 @@ router.post('/registrar-clique-valido', async (req, res) => {
                     produto_id: produto.id
                 }
             });
+            
+            console.log(`🔍 [LINK TRACKING] Busca para afiliado ${afiliado.id} e produto ${produto.id}: ${linkTracking ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
         }
 
         // Se não encontrou link tracking, criar um básico
         if (!linkTracking && produto) {
+            console.log(`⚠️ [LINK TRACKING] Link não encontrado, criando novo para afiliado ${afiliado.id} e produto ${produto.id}...`);
             const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
             const linkAfiliado = `${linkOriginal}&ref=${afiliado.codigo_afiliado}`;
             
-            linkTracking = await LinkTracking.create({
-                afiliado_id: afiliado.id,
-                produto_id: produto.id,
-                link_original: linkOriginal,
-                link_afiliado: linkAfiliado,
-                cliques: 0,
-                cliques_pagos: 0,
-                creditos_gerados: 0.00,
-                conversoes: 0
-            });
+            try {
+                linkTracking = await LinkTracking.create({
+                    afiliado_id: afiliado.id,
+                    produto_id: produto.id,
+                    link_original: linkOriginal,
+                    link_afiliado: linkAfiliado,
+                    cliques: 0,
+                    cliques_pagos: 0,
+                    creditos_gerados: 0.00,
+                    conversoes: 0
+                });
+                console.log(`✅ [LINK TRACKING] Link criado com sucesso: ${linkTracking.id}`);
+            } catch (createError) {
+                // Se falhar por constraint única, tentar buscar novamente
+                if (createError.name === 'SequelizeUniqueConstraintError' || createError.message.includes('duplicate')) {
+                    console.log(`⚠️ [LINK TRACKING] Link já existe (constraint), buscando novamente...`);
+                    linkTracking = await LinkTracking.findOne({
+                        where: {
+                            afiliado_id: afiliado.id,
+                            produto_id: produto.id
+                        }
+                    });
+                    if (linkTracking) {
+                        console.log(`✅ [LINK TRACKING] Link encontrado após tentativa de criação: ${linkTracking.id}`);
+                    }
+                } else {
+                    console.error(`❌ [LINK TRACKING] Erro ao criar link:`, createError);
+                    throw createError;
+                }
+            }
+        } else if (linkTracking) {
+            // Atualizar link_afiliado se necessário (garantir que está correto)
+            const linkOriginalEsperado = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
+            const linkAfiliadoEsperado = `${linkOriginalEsperado}&ref=${afiliado.codigo_afiliado}`;
+            
+            if (linkTracking.link_afiliado !== linkAfiliadoEsperado || linkTracking.link_original !== linkOriginalEsperado) {
+                console.log(`🔄 [LINK TRACKING] Atualizando link_afiliado para o formato correto...`);
+                await linkTracking.update({
+                    link_original: linkOriginalEsperado,
+                    link_afiliado: linkAfiliadoEsperado
+                });
+                console.log(`✅ [LINK TRACKING] Link atualizado: ${linkAfiliadoEsperado}`);
+            }
         }
         
         // Validar clique contra fraudes (com dados adicionais)
@@ -1690,6 +1895,581 @@ router.post('/banners/upload-imagem', authenticateAfiliado, async (req, res) => 
         res.status(500).json({
             success: false,
             message: 'Erro ao fazer upload da imagem',
+            error: error.message
+        });
+    }
+});
+
+// GET - Métricas do afiliado (requer autenticação)
+router.get('/metricas', authenticateAfiliado, async (req, res) => {
+    try {
+        const afiliadoId = req.afiliado.id;
+        
+        // Total de vendas
+        const totalVendas = await VendaAfiliado.count({
+            where: { afiliado_id: afiliadoId }
+        });
+
+        // Total de cliques
+        const totalCliques = await LinkTracking.sum('cliques', {
+            where: { afiliado_id: afiliadoId }
+        }) || 0;
+
+        // Comissões
+        const comissoesLiberadas = await VendaAfiliado.sum('valor_comissao', {
+            where: { 
+                afiliado_id: afiliadoId,
+                status: 'pago'
+            }
+        }) || 0;
+
+        const comissoesPendentes = await VendaAfiliado.sum('valor_comissao', {
+            where: { 
+                afiliado_id: afiliadoId,
+                status: 'pendente'
+            }
+        }) || 0;
+
+        const totalComissoes = parseFloat(comissoesLiberadas) + parseFloat(comissoesPendentes);
+
+        res.json({
+            success: true,
+            data: {
+                total_vendas: totalVendas,
+                total_cliques: parseInt(totalCliques),
+                total_comissoes: totalComissoes,
+                comissoes_liberadas: parseFloat(comissoesLiberadas),
+                comissoes_pendentes: parseFloat(comissoesPendentes)
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar métricas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar métricas',
+            error: error.message
+        });
+    }
+});
+
+// GET - Meus produtos afiliados (requer autenticação)
+router.get('/meus-produtos', authenticateAfiliado, async (req, res) => {
+    try {
+        const afiliadoId = req.afiliado.id;
+        
+        // Buscar links de afiliado com produtos
+        const links = await LinkTracking.findAll({
+            where: { afiliado_id: afiliadoId },
+            include: [{
+                model: Produto,
+                as: 'produto',
+                required: true
+            }],
+            order: [['created_at', 'DESC']]
+        });
+
+        // Buscar vendas para cada produto
+        const produtosComStats = await Promise.all(links.map(async (link) => {
+            const produto = link.produto;
+            
+            // Estatísticas de vendas
+            const vendasProduto = await VendaAfiliado.findAll({
+                where: { 
+                    afiliado_id: afiliadoId,
+                    produto_id: produto.id
+                },
+                include: [{
+                    model: Venda,
+                    as: 'venda',
+                    required: false
+                }]
+            });
+
+            const totalVendas = vendasProduto.length;
+            const comissoesGeradas = vendasProduto.reduce((sum, v) => sum + parseFloat(v.valor_comissao || 0), 0);
+            const totalCliques = link.cliques || 0;
+
+            // Calcular comissão
+            let comissaoInfo = 'N/A';
+            if (produto.comissao_percentual) {
+                comissaoInfo = `${produto.comissao_percentual}%`;
+            } else if (produto.comissao_valor) {
+                comissaoInfo = `MZN ${parseFloat(produto.comissao_valor).toFixed(2)}`;
+            }
+
+            return {
+                id: link.id,
+                produto_id: produto.id,
+                nome: produto.nome,
+                imagem: produto.imagem_url || produto.imagem || null,
+                comissao_percentual: produto.comissao_percentual,
+                comissao_valor: produto.comissao_valor,
+                comissao_info: comissaoInfo,
+                link_afiliado: link.link_afiliado,
+                total_vendas: totalVendas,
+                total_cliques: totalCliques,
+                comissoes_geradas: comissoesGeradas,
+                status: link.status || 'ativo',
+                created_at: link.created_at
+            };
+        }));
+
+        res.json({
+            success: true,
+            data: produtosComStats,
+            total: produtosComStats.length
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar produtos afiliados:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar produtos afiliados',
+            error: error.message
+        });
+    }
+});
+
+// GET - Catálogo de produtos disponíveis para afiliação
+router.get('/catalogo', authenticateAfiliado, async (req, res) => {
+    try {
+        // Buscar produtos ativos que permitem afiliação
+        // Mostrar todos os produtos ativos, exceto os explicitamente marcados como false
+        const { Op } = require('sequelize');
+        const produtos = await Produto.findAll({
+            where: {
+                ativo: true,
+                [Op.or]: [
+                    { permitir_afiliados: true },
+                    { permitir_afiliados: null }  // Incluir produtos onde permitir_afiliados é NULL (padrão = permitido)
+                ],
+                [Op.not]: {
+                    permitir_afiliados: false  // Excluir apenas os explicitamente marcados como false
+                }
+            },
+            attributes: [
+                'id', 
+                'nome', 
+                'descricao', 
+                'preco', 
+                'preco_final',
+                'imagem_url', 
+                'imagem',
+                'custom_id',
+                'comissao_afiliados',
+                'comissao_minima',
+                'tipo_comissao',
+                'vendas'
+            ],
+            order: [['vendas', 'DESC'], ['nome', 'ASC']]  // Ordenar por vendas (mais populares primeiro)
+        });
+
+        res.json({
+            success: true,
+            data: produtos,
+            total: produtos.length
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar catálogo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar catálogo de produtos',
+            error: error.message
+        });
+    }
+});
+
+// POST - Afiliar-se a um produto
+router.post('/afiliar-produto', authenticateAfiliado, async (req, res) => {
+    try {
+        const { produto_id } = req.body;
+        const afiliadoId = req.afiliado.id;
+
+        if (!produto_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID do produto é obrigatório'
+            });
+        }
+
+        // Verificar se produto existe
+        const produto = await Produto.findByPk(produto_id);
+        if (!produto || !produto.ativo) {
+            return res.status(404).json({
+                success: false,
+                message: 'Produto não encontrado ou inativo'
+            });
+        }
+
+        // Verificar se já está afiliado
+        const linkExistente = await LinkTracking.findOne({
+            where: {
+                afiliado_id: afiliadoId,
+                produto_id: produto_id
+            }
+        });
+
+        if (linkExistente) {
+            return res.status(400).json({
+                success: false,
+                message: 'Você já está afiliado a este produto'
+            });
+        }
+
+        // Gerar link único de afiliado
+        const baseUrl = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:4000';
+        const codigoAfiliado = req.afiliado.codigo_afiliado;
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`;
+        const linkAfiliado = `${linkOriginal}&ref=${codigoAfiliado}`;
+
+        // Criar link de tracking
+        const linkTracking = await LinkTracking.create({
+            afiliado_id: afiliadoId,
+            produto_id: produto_id,
+            link_original: linkOriginal,
+            link_afiliado: linkAfiliado,
+            cliques: 0,
+            conversoes: 0,
+            status: 'ativo'
+        });
+
+        console.log(`✅ Afiliado ${req.afiliado.nome} afiliado ao produto ${produto.nome}`);
+
+        res.json({
+            success: true,
+            message: 'Produto afiliado com sucesso!',
+            data: {
+                link_id: linkTracking.id,
+                link_afiliado: linkAfiliado,
+                produto: {
+                    id: produto.id,
+                    nome: produto.nome
+                }
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao afiliar produto:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao processar afiliação',
+            error: error.message
+        });
+    }
+});
+
+// ========== ROTAS PARA VENDEDORES (usando autenticação de vendedor) ==========
+// Estas rotas são acessadas via /api/vendedor/afiliados/*
+
+// GET - Métricas do vendedor como afiliado
+router.get('/metricas', authenticateToken, async (req, res) => {
+    try {
+        const vendedorId = req.user.id;
+        
+        // Buscar ou criar registro de afiliado para o vendedor
+        let afiliado = await Afiliado.findOne({
+            where: { email: req.user.email }
+        });
+
+        // Se não existe, criar um código de afiliado para o vendedor
+        if (!afiliado) {
+            const codigoAfiliado = gerarCodigoAfiliado();
+            // Criar senha temporária (vendedores não precisam de senha de afiliado, mas o campo é obrigatório)
+            const bcrypt = require('bcrypt');
+            const senhaHash = await bcrypt.hash(`temp_${vendedorId}_${Date.now()}`, 12);
+            
+            afiliado = await Afiliado.create({
+                nome: req.user.nome_completo || req.user.email,
+                email: req.user.email,
+                senha: senhaHash,
+                codigo_afiliado: codigoAfiliado,
+                link_afiliado: `${process.env.BASE_URL || 'http://localhost:4000'}/?ref=${codigoAfiliado}`,
+                status: 'ativo',
+                vendedor_id: vendedorId,
+                email_verificado: true
+            });
+        }
+
+        const afiliadoId = afiliado.id;
+        
+        // Total de vendas
+        const totalVendas = await VendaAfiliado.count({
+            where: { afiliado_id: afiliadoId }
+        });
+
+        // Total de cliques
+        const totalCliques = await LinkTracking.sum('cliques', {
+            where: { afiliado_id: afiliadoId }
+        }) || 0;
+
+        // Comissões
+        const comissoesLiberadas = await VendaAfiliado.sum('valor_comissao', {
+            where: { 
+                afiliado_id: afiliadoId,
+                status: 'pago'
+            }
+        }) || 0;
+
+        const comissoesPendentes = await VendaAfiliado.sum('valor_comissao', {
+            where: { 
+                afiliado_id: afiliadoId,
+                status: 'pendente'
+            }
+        }) || 0;
+
+        const totalComissoes = parseFloat(comissoesLiberadas) + parseFloat(comissoesPendentes);
+
+        res.json({
+            success: true,
+            data: {
+                total_vendas: totalVendas,
+                total_cliques: parseInt(totalCliques),
+                total_comissoes: totalComissoes,
+                comissoes_liberadas: parseFloat(comissoesLiberadas),
+                comissoes_pendentes: parseFloat(comissoesPendentes)
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar métricas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar métricas',
+            error: error.message
+        });
+    }
+});
+
+// GET - Meus produtos afiliados (vendedor)
+router.get('/meus-produtos', authenticateToken, async (req, res) => {
+    try {
+        const vendedorId = req.user.id;
+        
+        // Buscar afiliado do vendedor
+        let afiliado = await Afiliado.findOne({
+            where: { email: req.user.email }
+        });
+
+        if (!afiliado) {
+            return res.json({
+                success: true,
+                data: [],
+                total: 0
+            });
+        }
+
+        const afiliadoId = afiliado.id;
+        
+        // Buscar links de afiliado com produtos
+        const links = await LinkTracking.findAll({
+            where: { afiliado_id: afiliadoId },
+            include: [{
+                model: Produto,
+                as: 'produto',
+                required: true
+            }],
+            order: [['created_at', 'DESC']]
+        });
+
+        // Buscar vendas para cada produto
+        const produtosComStats = await Promise.all(links.map(async (link) => {
+            const produto = link.produto;
+            
+            // Estatísticas de vendas
+            const vendasProduto = await VendaAfiliado.findAll({
+                where: { 
+                    afiliado_id: afiliadoId,
+                    produto_id: produto.id
+                }
+            });
+
+            const totalVendas = vendasProduto.length;
+            const comissoesGeradas = vendasProduto.reduce((sum, v) => sum + parseFloat(v.valor_comissao || 0), 0);
+            const totalCliques = link.cliques || 0;
+
+            // Calcular comissão
+            let comissaoInfo = 'N/A';
+            if (produto.comissao_percentual) {
+                comissaoInfo = `${produto.comissao_percentual}%`;
+            } else if (produto.comissao_valor) {
+                comissaoInfo = `MZN ${parseFloat(produto.comissao_valor).toFixed(2)}`;
+            }
+
+            return {
+                id: link.id,
+                produto_id: produto.id,
+                nome: produto.nome,
+                imagem: produto.imagem_url || produto.imagem || null,
+                comissao_percentual: produto.comissao_percentual,
+                comissao_valor: produto.comissao_valor,
+                comissao_info: comissaoInfo,
+                link_afiliado: link.link_afiliado,
+                total_vendas: totalVendas,
+                total_cliques: totalCliques,
+                comissoes_geradas: comissoesGeradas,
+                status: link.status || 'ativo',
+                created_at: link.created_at
+            };
+        }));
+
+        res.json({
+            success: true,
+            data: produtosComStats,
+            total: produtosComStats.length
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar produtos afiliados:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar produtos afiliados',
+            error: error.message
+        });
+    }
+});
+
+// GET - Catálogo de produtos disponíveis (vendedor)
+router.get('/catalogo', authenticateToken, async (req, res) => {
+    try {
+        const vendedorId = req.user.id;
+        
+        // Buscar produtos ativos de OUTROS vendedores (não os próprios)
+        const produtos = await Produto.findAll({
+            where: {
+                ativo: true,
+                vendedor_id: { [Op.ne]: vendedorId } // Excluir produtos do próprio vendedor
+            },
+            attributes: [
+                'id', 
+                'nome', 
+                'descricao', 
+                'preco', 
+                'imagem_url', 
+                'imagem',
+                'custom_id',
+                'comissao_percentual',
+                'comissao_valor',
+                'vendedor_id'
+            ],
+            order: [['nome', 'ASC']]
+        });
+
+        res.json({
+            success: true,
+            data: produtos,
+            total: produtos.length
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar catálogo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar catálogo de produtos',
+            error: error.message
+        });
+    }
+});
+
+// POST - Afiliar-se a um produto (vendedor)
+router.post('/afiliar-produto', authenticateToken, async (req, res) => {
+    try {
+        const { produto_id } = req.body;
+        const vendedorId = req.user.id;
+
+        if (!produto_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID do produto é obrigatório'
+            });
+        }
+
+        // Verificar se produto existe e não é do próprio vendedor
+        const produto = await Produto.findByPk(produto_id);
+        if (!produto || !produto.ativo) {
+            return res.status(404).json({
+                success: false,
+                message: 'Produto não encontrado ou inativo'
+            });
+        }
+
+        if (produto.vendedor_id === vendedorId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Você não pode se afiliar aos seus próprios produtos'
+            });
+        }
+
+        // Buscar ou criar afiliado para o vendedor
+        let afiliado = await Afiliado.findOne({
+            where: { email: req.user.email }
+        });
+
+        if (!afiliado) {
+            const codigoAfiliado = gerarCodigoAfiliado();
+            // Criar senha temporária (vendedores não precisam de senha de afiliado, mas o campo é obrigatório)
+            const bcrypt = require('bcrypt');
+            const senhaHash = await bcrypt.hash(`temp_${vendedorId}_${Date.now()}`, 12);
+            
+            afiliado = await Afiliado.create({
+                nome: req.user.nome_completo || req.user.email,
+                email: req.user.email,
+                senha: senhaHash,
+                codigo_afiliado: codigoAfiliado,
+                link_afiliado: `${process.env.BASE_URL || 'http://localhost:4000'}/?ref=${codigoAfiliado}`,
+                status: 'ativo',
+                vendedor_id: vendedorId,
+                email_verificado: true
+            });
+        }
+
+        const afiliadoId = afiliado.id;
+
+        // Verificar se já está afiliado
+        const linkExistente = await LinkTracking.findOne({
+            where: {
+                afiliado_id: afiliadoId,
+                produto_id: produto_id
+            }
+        });
+
+        if (linkExistente) {
+            return res.status(400).json({
+                success: false,
+                message: 'Você já está afiliado a este produto'
+            });
+        }
+
+        // Gerar link único de afiliado
+        const baseUrl = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:4000';
+        const codigoAfiliado = afiliado.codigo_afiliado;
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`;
+        const linkAfiliado = `${linkOriginal}&ref=${codigoAfiliado}`;
+
+        // Criar link de tracking
+        const linkTracking = await LinkTracking.create({
+            afiliado_id: afiliadoId,
+            produto_id: produto_id,
+            link_original: linkOriginal,
+            link_afiliado: linkAfiliado,
+            cliques: 0,
+            conversoes: 0,
+            status: 'ativo'
+        });
+
+        console.log(`✅ Vendedor ${req.user.email} afiliado ao produto ${produto.nome}`);
+
+        res.json({
+            success: true,
+            message: 'Produto afiliado com sucesso!',
+            data: {
+                link_id: linkTracking.id,
+                link_afiliado: linkAfiliado,
+                produto: {
+                    id: produto.id,
+                    nome: produto.nome
+                }
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao afiliar produto:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao processar afiliação',
             error: error.message
         });
     }

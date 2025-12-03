@@ -20,9 +20,12 @@ function formatarCarteira(carteira) {
     const data = carteira.toJSON ? carteira.toJSON() : carteira;
     return {
         ...data,
-        metodo_saque: data.metodoSaque || data.metodo_saque,
-        nome_titular: data.nomeTitular || data.nome_titular,
-        email_titular: data.emailTitular || data.email_titular,
+        contacto_mpesa: data.contactoMpesa || data.contacto_mpesa,
+        nome_titular_mpesa: data.nomeTitularMpesa || data.nome_titular_mpesa,
+        contacto_emola: data.contactoEmola || data.contacto_emola,
+        nome_titular_emola: data.nomeTitularEmola || data.nome_titular_emola,
+        metodo_saque: data.metodoSaque || data.metodo_saque || 'Mpesa',
+        email: data.email,
         vendedor_id: data.vendedorId || data.vendedor_id,
         saldo_disponivel: data.saldoDisponivel || data.saldo_disponivel,
         saldo_bloqueado: data.saldoBloqueado || data.saldo_bloqueado,
@@ -38,22 +41,26 @@ function formatarCarteira(carteira) {
  */
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const carteiras = await CarteiraService.listarCarteiras(req.user.id);
+        const carteira = await CarteiraService.buscarCarteiraUnica(req.user.id);
         
-        // Converter camelCase para snake_case para compatibilidade com frontend
-        const carteirasFormatadas = carteiras.map(formatarCarteira);
-        
-        res.json({
-            success: true,
-            carteiras: carteirasFormatadas,
-            total: carteirasFormatadas.length
-        });
+        if (carteira) {
+            res.json({
+                success: true,
+                carteira: formatarCarteira(carteira)
+            });
+        } else {
+            res.json({
+                success: true,
+                carteira: null,
+                message: 'Nenhuma carteira configurada'
+            });
+        }
         
     } catch (error) {
-        console.error('❌ Erro ao listar carteiras:', error);
+        console.error('❌ Erro ao buscar carteira:', error);
         res.status(500).json({
             success: false,
-            error: 'Erro ao listar carteiras',
+            error: 'Erro ao buscar carteira',
             message: error.message
         });
     }
@@ -61,74 +68,57 @@ router.get('/', authenticateToken, async (req, res) => {
 
 /**
  * POST /api/carteiras
- * Criar nova carteira
+ * Criar ou atualizar carteira única do usuário
  */
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { nome, metodoSaque, contacto, nomeTitular, emailTitular } = req.body;
+        const { contactoMpesa, nomeTitularMpesa, contactoEmola, nomeTitularEmola } = req.body;
         
         // Validações básicas
-        if (!nome || !metodoSaque || !contacto || !nomeTitular || !emailTitular) {
+        if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {
             return res.status(400).json({
                 success: false,
                 error: 'Dados incompletos',
-                message: 'Todos os campos são obrigatórios'
+                message: 'Todos os campos são obrigatórios: Contacto Mpesa, Nome Titular Mpesa, Contacto Emola, Nome Titular Emola'
             });
         }
         
-        // Validação adicional de tipos
-        if (typeof nome !== 'string' || typeof metodoSaque !== 'string' || 
-            typeof contacto !== 'string' || typeof nomeTitular !== 'string' || 
-            typeof emailTitular !== 'string') {
+        // Usar email do usuário autenticado
+        const email = req.user.email || req.user.email_usuario;
+        if (!email) {
             return res.status(400).json({
                 success: false,
-                error: 'Dados inválidos',
-                message: 'Todos os campos devem ser strings válidas'
+                error: 'Email não encontrado',
+                message: 'Email do usuário não encontrado. Faça login novamente.'
             });
         }
         
-        // Validar email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailTitular)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Email inválido',
-                message: 'O email fornecido não é válido'
-            });
-        }
+        console.log('🔄 Criando/atualizando carteira para vendedor:', req.user.id);
         
-        console.log('🔄 Criando carteira para vendedor:', req.user.id);
-        console.log('📋 Dados da carteira:', { nome, metodoSaque, contacto, nomeTitular, emailTitular: emailTitular.substring(0, 10) + '...' });
-        
-        const carteira = await CarteiraService.criarCarteira(req.user.id, {
-            nome: nome.trim(),
-            metodoSaque: metodoSaque.trim(),
-            contacto: contacto.trim(),
-            nomeTitular: nomeTitular.trim(),
-            emailTitular: emailTitular.trim().toLowerCase()
+        const carteira = await CarteiraService.criarOuAtualizarCarteira(req.user.id, {
+            contactoMpesa: contactoMpesa.trim(),
+            nomeTitularMpesa: nomeTitularMpesa.trim(),
+            contactoEmola: contactoEmola.trim(),
+            nomeTitularEmola: nomeTitularEmola.trim(),
+            email: email.trim().toLowerCase()
         });
         
         res.status(201).json({
             success: true,
-            message: 'Carteira criada com sucesso',
+            message: 'Carteira configurada com sucesso',
             carteira: formatarCarteira(carteira)
         });
         
     } catch (error) {
-        console.error('❌ Erro ao criar carteira:', error);
+        console.error('❌ Erro ao criar/atualizar carteira:', error);
         console.error('❌ Stack trace:', error.stack);
         
         // Mensagem de erro mais amigável
-        let errorMessage = error.message || 'Erro ao criar carteira';
-        
-        // Tratar erros específicos de transação
-        if (errorMessage.includes('transação') || errorMessage.includes('transaction')) {
-            errorMessage = 'Erro ao processar solicitação. Por favor, tente novamente em alguns instantes.';
-        }
+        let errorMessage = error.message || 'Erro ao configurar carteira';
         
         res.status(400).json({
             success: false,
-            error: 'Erro ao criar carteira',
+            error: 'Erro ao configurar carteira',
             message: errorMessage
         });
     }
@@ -138,29 +128,49 @@ router.post('/', authenticateToken, async (req, res) => {
 
 /**
  * POST /api/carteiras/saque/codigo
- * Gerar código de autenticação para saque
+ * Gerar código de autenticação para saque (usa carteira única do usuário)
  */
 router.post('/saque/codigo', authenticateToken, async (req, res) => {
     try {
         console.log('🔄 Rota /saque/codigo chamada');
-        console.log('📝 Body:', req.body);
         console.log('👤 Usuário:', req.user.id);
         
-        const { carteiraId } = req.body;
+        // Buscar carteira única do usuário usando o serviço
+        const carteira = await CarteiraService.buscarCarteiraUnica(req.user.id);
         
-        if (!carteiraId) {
-            console.log('❌ carteiraId não fornecido');
+        if (!carteira) {
             return res.status(400).json({
                 success: false,
-                error: 'ID da carteira é obrigatório'
+                error: 'Carteira não configurada',
+                message: 'Configure sua carteira primeiro antes de solicitar saques'
             });
         }
         
-        console.log('✅ carteiraId recebido:', carteiraId);
+        // Verificar se a carteira está ativa
+        if (!carteira.ativa && carteira.ativa !== undefined) {
+            return res.status(400).json({
+                success: false,
+                error: 'Carteira inativa',
+                message: 'Sua carteira está inativa. Ative-a antes de solicitar saques.'
+            });
+        }
+        
+        const carteiraId = carteira.id;
+        const emailCarteira = carteira.email || req.user.email || req.user.email_usuario;
+        console.log('✅ Carteira encontrada:', carteiraId);
+        
+        if (!emailCarteira) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email não encontrado',
+                message: 'Email da carteira não encontrado. Configure sua carteira novamente.'
+            });
+        }
         
         const resultado = await SaqueSimplificadoService.gerarCodigoSaque(
             req.user.id,
-            carteiraId
+            carteiraId,
+            emailCarteira
         );
         
         console.log('✅ Código gerado com sucesso');

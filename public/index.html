@@ -6,10 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-        <!-- Loader Inline - Aparece imediatamente -->
-    <script>
-        (function(){var p=window.location.pathname.split('/').pop()||'index.html';if(['checkout.html','payment-success.html'].some(e=>p.includes(e)))return;var u='/assets/images/icons/loader-icon-120.png';var h='<div id="loaderContainer" class="loader-container" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;"><img src="'+u+'" alt="RatixPay" class="loader-logo" style="width:120px;height:auto;margin-bottom:30px;opacity:0.9;" onerror="this.style.display=\'none\';"><div class="loader-spinner" style="width:60px;height:60px;border:4px solid rgba(246,76,0,0.1);border-top-color:#F64C00;border-radius:50%;animation:loader-spin 1s linear infinite;margin-bottom:20px;"></div><div class="loader-text" style="font-family:\'Poppins\',\'Segoe UI\',\'Roboto\',Arial,sans-serif;font-size:18px;font-weight:500;color:#333333;letter-spacing:0.5px;animation:loader-pulse 1.5s ease-in-out infinite;">Carregando...</div></div>';document.documentElement.insertAdjacentHTML('afterbegin',h);document.documentElement.classList.add('loading');if(!document.getElementById('loader-critical-styles')){var s=document.createElement('style');s.id='loader-critical-styles';s.textContent='@keyframes loader-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes loader-pulse{0%,100%{opacity:1}50%{opacity:0.6}}html.loading,body.loading{overflow:hidden;height:100%}html.loading>body{opacity:0}';document.head.appendChild(s);}})();
-    </script>
+        <!-- Loader removido para melhorar performance -->
 <title>Venda com a RatixPay</title>
     <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -1757,23 +1754,49 @@
                 </div>
 
                 <!-- Seção Direita: Botões de Ação (Visível em telas médias e maiores) -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="login.html" class="btn-secondary-elegant">
-                        Entrar
-                    </a>
-                    <a href="/register.html" class="btn-primary-gradient shine-effect">
-                        Registar
-                    </a>
+                <div id="header-actions-desktop" class="hidden md:flex items-center space-x-4">
+                    <!-- Mensagem de boas-vindas (mostrada quando logado) -->
+                    <div id="user-welcome-desktop" class="hidden mr-4">
+                        <span class="text-gray-700 font-medium">Olá, <span id="user-name-desktop" class="text-[#F64C00] font-semibold"></span>!</span>
+                    </div>
+                    <!-- Botões de login/register (mostrados quando não logado) -->
+                    <div id="login-buttons-desktop" class="flex items-center space-x-4">
+                        <a href="login.html" class="btn-secondary-elegant">
+                            Entrar
+                        </a>
+                        <a href="/register.html" class="btn-primary-gradient shine-effect">
+                            Registar
+                        </a>
+                    </div>
+                    <!-- Botão de dashboard (mostrado quando logado) -->
+                    <div id="dashboard-button-desktop" class="hidden">
+                        <a href="/dashboard.html" class="btn-primary-gradient shine-effect">
+                            Ir para o Dashboard
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Botões de Ação Mobile e Hamburger (Visível apenas em telas pequenas) -->
                 <div class="mobile-nav-buttons md:hidden flex items-center space-x-3">
-                    <a href="login.html" class="btn-secondary-elegant text-sm px-4 py-2">
-                        Entrar
-                    </a>
-                    <a href="/register.html" class="btn-primary-gradient shine-effect text-sm px-4 py-2">
-                        Registar
-                    </a>
+                    <!-- Mensagem de boas-vindas mobile (mostrada quando logado) -->
+                    <div id="user-welcome-mobile" class="hidden mr-2">
+                        <span class="text-gray-700 text-sm font-medium">Olá, <span id="user-name-mobile" class="text-[#F64C00] font-semibold"></span>!</span>
+                    </div>
+                    <!-- Botões de login/register mobile (mostrados quando não logado) -->
+                    <div id="login-buttons-mobile" class="flex items-center space-x-2">
+                        <a href="login.html" class="btn-secondary-elegant text-sm px-4 py-2">
+                            Entrar
+                        </a>
+                        <a href="/register.html" class="btn-primary-gradient shine-effect text-sm px-4 py-2">
+                            Registar
+                        </a>
+                    </div>
+                    <!-- Botão de dashboard mobile (mostrado quando logado) -->
+                    <div id="dashboard-button-mobile" class="hidden">
+                        <a href="/dashboard.html" class="btn-primary-gradient shine-effect text-sm px-4 py-2">
+                            Dashboard
+                        </a>
+                    </div>
                     <button id="mobile-menu-button" class="hamburger ml-2">
                         <span class="hamburger-line"></span>
                         <span class="hamburger-line"></span>
@@ -1902,13 +1925,26 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4 mt-4 space-y-3">
-                    <a href="login.html" class="btn-secondary-elegant block">
-                        Entrar
-                    </a>
-                    <a href="/register.html" class="btn-primary-gradient shine-effect block w-full text-center">
-                        Registar
-                </a>
-            </div>
+                    <!-- Mensagem de boas-vindas mobile menu (mostrada quando logado) -->
+                    <div id="user-welcome-menu" class="hidden mb-3 pb-3 border-b border-gray-200">
+                        <span class="text-gray-700 text-sm font-medium">Olá, <span id="user-name-menu" class="text-[#F64C00] font-semibold"></span>!</span>
+                    </div>
+                    <!-- Botões de login/register mobile menu (mostrados quando não logado) -->
+                    <div id="login-buttons-menu" class="space-y-3">
+                        <a href="login.html" class="btn-secondary-elegant block">
+                            Entrar
+                        </a>
+                        <a href="/register.html" class="btn-primary-gradient shine-effect block w-full text-center">
+                            Registar
+                        </a>
+                    </div>
+                    <!-- Botão de dashboard mobile menu (mostrado quando logado) -->
+                    <div id="dashboard-button-menu" class="hidden">
+                        <a href="/dashboard.html" class="btn-primary-gradient shine-effect block w-full text-center">
+                            Ir para o Dashboard
+                        </a>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -2489,6 +2525,9 @@
     <!-- JavaScript para a Animação -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o usuário está logado e atualizar UI
+            checkUserLogin();
+            
             const words = ["ideia", "paixão", "habilidade", "criação", "experiência"];
             let currentIndex = 0;
             const animatedWordElement = document.getElementById('animated-word');
@@ -2687,6 +2726,174 @@
             });
 
         });
+
+        // Função para verificar se o usuário está logado e atualizar UI
+        async function checkUserLogin() {
+            try {
+                // Garantir que API_BASE está definido
+                if (typeof window.API_BASE === 'undefined') {
+                    window.API_BASE = window.location.origin + '/api';
+                }
+
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                
+                if (!token) {
+                    // Usuário não está logado - mostrar botões de login/register
+                    showLoginButtons();
+                    return;
+                }
+
+                // Verificar se o token é válido fazendo uma requisição à API
+                const endpoint = '/auth/me';
+                const apiUrl = window.API_BASE.endsWith('/') 
+                    ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                    : `${window.API_BASE}${endpoint}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    cache: 'no-store'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success && result.user) {
+                        // Usuário está logado - mostrar mensagem de boas-vindas e botão de dashboard
+                        const userName = result.user.nome_completo || result.user.nome || 'Usuário';
+                        showUserWelcome(userName);
+                    } else {
+                        // Token inválido - limpar e mostrar botões de login
+                        clearAuthData();
+                        showLoginButtons();
+                    }
+                } else {
+                    // Token inválido ou expirado - limpar e mostrar botões de login
+                    clearAuthData();
+                    showLoginButtons();
+                }
+            } catch (error) {
+                console.error('Erro ao verificar login:', error);
+                // Em caso de erro, mostrar botões de login
+                showLoginButtons();
+            }
+        }
+
+        // Função para mostrar mensagem de boas-vindas e botão de dashboard
+        function showUserWelcome(userName) {
+            // Desktop
+            const welcomeDesktop = document.getElementById('user-welcome-desktop');
+            const userNameDesktop = document.getElementById('user-name-desktop');
+            const loginButtonsDesktop = document.getElementById('login-buttons-desktop');
+            const dashboardButtonDesktop = document.getElementById('dashboard-button-desktop');
+
+            if (welcomeDesktop && userNameDesktop) {
+                userNameDesktop.textContent = userName;
+                welcomeDesktop.classList.remove('hidden');
+            }
+            if (loginButtonsDesktop) {
+                loginButtonsDesktop.classList.add('hidden');
+            }
+            if (dashboardButtonDesktop) {
+                dashboardButtonDesktop.classList.remove('hidden');
+            }
+
+            // Mobile
+            const welcomeMobile = document.getElementById('user-welcome-mobile');
+            const userNameMobile = document.getElementById('user-name-mobile');
+            const loginButtonsMobile = document.getElementById('login-buttons-mobile');
+            const dashboardButtonMobile = document.getElementById('dashboard-button-mobile');
+
+            if (welcomeMobile && userNameMobile) {
+                userNameMobile.textContent = userName;
+                welcomeMobile.classList.remove('hidden');
+            }
+            if (loginButtonsMobile) {
+                loginButtonsMobile.classList.add('hidden');
+            }
+            if (dashboardButtonMobile) {
+                dashboardButtonMobile.classList.remove('hidden');
+            }
+
+            // Menu Mobile
+            const welcomeMenu = document.getElementById('user-welcome-menu');
+            const userNameMenu = document.getElementById('user-name-menu');
+            const loginButtonsMenu = document.getElementById('login-buttons-menu');
+            const dashboardButtonMenu = document.getElementById('dashboard-button-menu');
+
+            if (welcomeMenu && userNameMenu) {
+                userNameMenu.textContent = userName;
+                welcomeMenu.classList.remove('hidden');
+            }
+            if (loginButtonsMenu) {
+                loginButtonsMenu.classList.add('hidden');
+            }
+            if (dashboardButtonMenu) {
+                dashboardButtonMenu.classList.remove('hidden');
+            }
+        }
+
+        // Função para mostrar botões de login/register
+        function showLoginButtons() {
+            // Desktop
+            const welcomeDesktop = document.getElementById('user-welcome-desktop');
+            const loginButtonsDesktop = document.getElementById('login-buttons-desktop');
+            const dashboardButtonDesktop = document.getElementById('dashboard-button-desktop');
+
+            if (welcomeDesktop) {
+                welcomeDesktop.classList.add('hidden');
+            }
+            if (loginButtonsDesktop) {
+                loginButtonsDesktop.classList.remove('hidden');
+            }
+            if (dashboardButtonDesktop) {
+                dashboardButtonDesktop.classList.add('hidden');
+            }
+
+            // Mobile
+            const welcomeMobile = document.getElementById('user-welcome-mobile');
+            const loginButtonsMobile = document.getElementById('login-buttons-mobile');
+            const dashboardButtonMobile = document.getElementById('dashboard-button-mobile');
+
+            if (welcomeMobile) {
+                welcomeMobile.classList.add('hidden');
+            }
+            if (loginButtonsMobile) {
+                loginButtonsMobile.classList.remove('hidden');
+            }
+            if (dashboardButtonMobile) {
+                dashboardButtonMobile.classList.add('hidden');
+            }
+
+            // Menu Mobile
+            const welcomeMenu = document.getElementById('user-welcome-menu');
+            const loginButtonsMenu = document.getElementById('login-buttons-menu');
+            const dashboardButtonMenu = document.getElementById('dashboard-button-menu');
+
+            if (welcomeMenu) {
+                welcomeMenu.classList.add('hidden');
+            }
+            if (loginButtonsMenu) {
+                loginButtonsMenu.classList.remove('hidden');
+            }
+            if (dashboardButtonMenu) {
+                dashboardButtonMenu.classList.add('hidden');
+            }
+        }
+
+        // Função para limpar dados de autenticação
+        function clearAuthData() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('userData');
+        }
 
         // Redirecionar #signup para register.html
         (function() {

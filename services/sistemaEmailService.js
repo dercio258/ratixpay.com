@@ -706,64 +706,48 @@ class SistemaEmailService {
     async enviarNotificacaoProdutoCriado(dadosProduto) {
         const { email, nome, produto } = dadosProduto;
         
-        const assunto = `🎉 Novo Produto Criado com Sucesso - Ratixpay`;
+        const assunto = `🎉 Seu produto foi criado com sucesso!`;
         
         const produtoNome = produto.nome || 'Produto';
-        const produtoId = produto.custom_id || produto.id || 'N/A';
         const produtoPreco = produto.preco ? `MZN ${parseFloat(produto.preco).toFixed(2)}` : 'N/A';
         
         const conteudo = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <!-- Cabeçalho Verde -->
-                <div style="background-color: #28a745; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-                    <h2 style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 2px;">NOVO PRODUTO DISPONÍVEL NA SUA CONTA</h2>
-                </div>
-                
-                <div style="background-color: #ffffff; border: 2px solid #28a745; border-top: none; border-radius: 0 0 8px 8px; padding: 30px; margin-bottom: 20px;">
-                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                        Prezado(a) Parceiro(a), <strong>${nome || 'Parceiro'}</strong>
-                    </p>
-                    
-                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-                        Parabéns! Seu produto foi criado com sucesso e já está disponível na sua conta Ratixpay.
-                    </p>
-                    
-                    <div style="background-color: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                        <h3 style="color: #155724; margin-top: 0; margin-bottom: 15px; font-size: 18px;">
-                            📦 Detalhes do Produto:
-                        </h3>
-                        <div style="background-color: white; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px;">
-                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #333; font-size: 16px;">
-                                Nome: <strong style="color: #28a745;">${produtoNome}</strong>
-                            </p>
-                            <p style="margin: 5px 0; color: #666;">
-                                ID do Produto: <code style="background-color: #f1f1f1; padding: 2px 6px; border-radius: 3px;">${produtoId}</code>
-                            </p>
-                            <p style="margin: 5px 0; color: #666;">
-                                Preço: <strong style="color: #28a745;">${produtoPreco}</strong>
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://ratixpay.com/dashboard.html" 
-                           style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
-                            🚀 Acessar Meu Painel
-                        </a>
-                    </div>
-                    
-                    <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <p style="margin: 0; line-height: 1.6;">
-                            <strong>💡 Dica:</strong> Agora você pode compartilhar o link do seu produto e começar a vender! Use nossas ferramentas de marketing para aumentar suas vendas.
-                        </p>
-                    </div>
-                    
-                    <p style="margin-top: 30px; line-height: 1.6;">
-                        Atenciosamente,<br>
-                        <strong>Equipe Ratixpay</strong>
-                    </p>
-                </div>
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Olá, <strong>${nome || 'Parceiro'}</strong>!
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Parabéns! Seu produto <strong>"${produtoNome}"</strong> foi criado com sucesso e está aguardando aprovação.
+            </p>
+            
+            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #155724; font-size: 16px;">
+                    📦 ${produtoNome}
+                </p>
+                <p style="margin: 5px 0; color: #155724;">
+                    Preço: <strong>${produtoPreco}</strong>
+                </p>
             </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                <strong>O que acontece agora?</strong>
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Seu produto será analisado pela nossa equipe. Você receberá um email quando ele for aprovado e estiver disponível para venda.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://ratixpay.com/gestao-produtos.html" 
+                   style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    Ver Meus Produtos
+                </a>
+            </div>
+            
+            <p style="margin-top: 30px; line-height: 1.6; color: #666; font-size: 14px;">
+                Atenciosamente,<br>
+                <strong>Equipe Ratixpay</strong>
+            </p>
         `;
         
         return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'notificacao_produto_criado');
@@ -893,193 +877,59 @@ class SistemaEmailService {
     async enviarSolicitacaoAprovacaoProduto(dadosSolicitacao) {
         const { email, nome, produto, vendedor, motivo_rejeicao } = dadosSolicitacao;
         
-        const assunto = `🔍 Solicitação de Aprovação Manual de Produto - Ratixpay`;
+        const assunto = `Produto aguardando sua aprovação`;
         
         const conteudo = `
-            <!DOCTYPE html>
-            <html lang="pt-BR">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Solicitação de Aprovação - Ratixpay</title>
-                <style>
-                    body { 
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-                        line-height: 1.6; 
-                        color: #333; 
-                        margin: 0; 
-                        padding: 0; 
-                        background-color: #f4f4f4; 
-                    }
-                    .email-wrapper { 
-                        max-width: 600px; 
-                        margin: 0 auto; 
-                        background-color: #ffffff; 
-                    }
-                    .header-request { 
-                        background-color: #ffc107; 
-                        color: #333; 
-                        padding: 20px; 
-                        text-align: center; 
-                        border-radius: 8px 8px 0 0; 
-                    }
-                    .header-request h2 { 
-                        margin: 0; 
-                        font-size: 24px; 
-                        font-weight: bold; 
-                    }
-                    .content-box { 
-                        background-color: #ffffff; 
-                        border: 2px solid #ffc107; 
-                        border-top: none; 
-                        border-radius: 0 0 8px 8px; 
-                        padding: 30px 20px; 
-                    }
-                    .product-info { 
-                        background: #f8f9fa; 
-                        border-left: 4px solid #ffc107; 
-                        border-radius: 6px; 
-                        padding: 20px; 
-                        margin: 20px 0; 
-                    }
-                    .product-info h3 { 
-                        margin-top: 0; 
-                        color: #333; 
-                        font-size: 18px; 
-                    }
-                    .product-detail { 
-                        margin: 10px 0; 
-                        line-height: 1.8; 
-                    }
-                    .product-detail strong { 
-                        color: #333; 
-                    }
-                    .rejection-reason { 
-                        background: #fff3cd; 
-                        border: 2px solid #ffc107; 
-                        border-radius: 6px; 
-                        padding: 15px; 
-                        margin: 20px 0; 
-                    }
-                    .rejection-reason h4 { 
-                        margin-top: 0; 
-                        color: #856404; 
-                    }
-                    .btn-approve { 
-                        background-color: #28a745; 
-                        color: white; 
-                        padding: 12px 30px; 
-                        text-decoration: none; 
-                        border-radius: 8px; 
-                        display: inline-block; 
-                        font-weight: bold; 
-                        font-size: 16px; 
-                        margin: 10px 5px; 
-                    }
-                    .btn-reject { 
-                        background-color: #dc3545; 
-                        color: white; 
-                        padding: 12px 30px; 
-                        text-decoration: none; 
-                        border-radius: 8px; 
-                        display: inline-block; 
-                        font-weight: bold; 
-                        font-size: 16px; 
-                        margin: 10px 5px; 
-                    }
-                    @media only screen and (max-width: 600px) {
-                        .email-wrapper { width: 100% !important; }
-                        .content-box { padding: 20px 15px !important; }
-                        .header-request h2 { font-size: 20px !important; }
-                        .btn-approve, .btn-reject { 
-                            display: block !important; 
-                            width: 100% !important; 
-                            margin: 10px 0 !important; 
-                            box-sizing: border-box !important; 
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-wrapper">
-                    <div class="header-request">
-                        <h2>🔍 SOLICITAÇÃO DE APROVAÇÃO MANUAL</h2>
-                    </div>
-                    
-                    <div class="content-box">
-                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                            Prezado(a) Administrador(a), <strong>${nome || 'Administrador'}</strong>
-                        </p>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                            Um vendedor solicitou <strong>aprovação manual</strong> para um produto que foi rejeitado pela verificação automática.
-                        </p>
-                        
-                        <div class="product-info">
-                            <h3>📦 Informações do Produto:</h3>
-                            <div class="product-detail">
-                                <strong>Nome:</strong> ${produto.nome || 'N/A'}
-                            </div>
-                            <div class="product-detail">
-                                <strong>ID do Produto:</strong> <code style="background-color: #e9ecef; padding: 2px 6px; border-radius: 3px;">${produto.custom_id || 'N/A'}</code>
-                            </div>
-                            <div class="product-detail">
-                                <strong>Categoria:</strong> ${produto.categoria || 'N/A'}
-                            </div>
-                            <div class="product-detail">
-                                <strong>Tipo:</strong> ${produto.tipo || 'N/A'}
-                            </div>
-                            <div class="product-detail">
-                                <strong>Descrição:</strong> ${produto.descricao ? produto.descricao.substring(0, 200) + (produto.descricao.length > 200 ? '...' : '') : 'N/A'}
-                            </div>
-                            ${produto.imagem_url ? `
-                            <div class="product-detail">
-                                <strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank" style="color: #007bff;">Ver imagem do produto</a>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="product-info">
-                            <h3>👤 Informações do Vendedor:</h3>
-                            <div class="product-detail">
-                                <strong>Nome:</strong> ${vendedor.nome || 'N/A'}
-                            </div>
-                            <div class="product-detail">
-                                <strong>Email:</strong> ${vendedor.email || 'N/A'}
-                            </div>
-                        </div>
-                        
-                        <div class="rejection-reason">
-                            <h4>⚠️ Motivo da Rejeição Automática:</h4>
-                            <p style="margin: 0; line-height: 1.8; color: #856404;">
-                                ${motivo_rejeicao || 'Não especificado'}
-                            </p>
-                        </div>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; margin: 25px 0;">
-                            <strong>Por favor, analise o produto (nome, descrição e imagem) e decida se deve ser aprovado ou rejeitado.</strong>
-                        </p>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://ratixpay.com/admin-produtos.html?pendente=${produto.id}" class="btn-approve">
-                                ✅ Revisar Produto
-                            </a>
-                        </div>
-                        
-                        <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                            <p style="margin: 0; line-height: 1.6; font-size: 14px;">
-                                <strong>ℹ️ Nota:</strong> O conteúdo do produto permanece privado. Você verá apenas o nome, descrição e imagem para análise.
-                            </p>
-                        </div>
-                        
-                        <p style="margin-top: 30px; line-height: 1.6;">
-                            Atenciosamente,<br>
-                            <strong>Equipe Ratixpay</strong>
-                        </p>
-                    </div>
-                </div>
-            </body>
-            </html>
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Olá, <strong>${nome || 'Administrador'}</strong>!
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Um produto precisa da sua aprovação manual. O vendedor solicitou revisão após a rejeição automática.
+            </p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #495057; font-size: 16px;">
+                    📦 ${produto.nome || 'Produto'}
+                </p>
+                <p style="margin: 5px 0; color: #495057;">
+                    Vendedor: <strong>${vendedor.nome || 'N/A'}</strong> (${vendedor.email || 'N/A'})
+                </p>
+                <p style="margin: 5px 0; color: #495057;">
+                    Categoria: ${produto.categoria || 'N/A'}
+                </p>
+            </div>
+            
+            ${motivo_rejeicao ? `
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #856404; font-size: 16px;">
+                    ⚠️ Motivo da rejeição automática:
+                </p>
+                <p style="margin: 0; color: #856404; line-height: 1.6;">
+                    ${motivo_rejeicao}
+                </p>
+            </div>
+            ` : ''}
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                <strong>O que fazer?</strong>
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Acesse o painel administrativo para revisar o produto e decidir se deve ser aprovado ou rejeitado.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://ratixpay.com/admin-produtos.html?pendente=${produto.id}" 
+                   style="background-color: #ffc107; color: #333; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    Revisar Produto
+                </a>
+            </div>
+            
+            <p style="margin-top: 30px; line-height: 1.6; color: #666; font-size: 14px;">
+                Atenciosamente,<br>
+                <strong>Equipe Ratixpay</strong>
+            </p>
         `;
         
         return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'solicitacao_aprovacao_produto');
@@ -1091,130 +941,154 @@ class SistemaEmailService {
     async enviarNotificacaoProdutoAprovadoAdmin(dadosNotificacao) {
         const { email, nome, produto } = dadosNotificacao;
         
-        const assunto = `✅ Produto Aprovado - Ratixpay`;
+        const assunto = `✅ Seu produto foi aprovado!`;
         
         const conteudo = `
-            <!DOCTYPE html>
-            <html lang="pt-BR">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Produto Aprovado - Ratixpay</title>
-                <style>
-                    body { 
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-                        line-height: 1.6; 
-                        color: #333; 
-                        margin: 0; 
-                        padding: 0; 
-                        background-color: #f4f4f4; 
-                    }
-                    .email-wrapper { 
-                        max-width: 600px; 
-                        margin: 0 auto; 
-                        background-color: #ffffff; 
-                    }
-                    .header-approved { 
-                        background-color: #28a745; 
-                        color: white; 
-                        padding: 20px; 
-                        text-align: center; 
-                        border-radius: 8px 8px 0 0; 
-                    }
-                    .header-approved h2 { 
-                        margin: 0; 
-                        font-size: 24px; 
-                        font-weight: bold; 
-                    }
-                    .content-box { 
-                        background-color: #ffffff; 
-                        border: 2px solid #28a745; 
-                        border-top: none; 
-                        border-radius: 0 0 8px 8px; 
-                        padding: 30px 20px; 
-                    }
-                    .alert-success { 
-                        background-color: #d4edda; 
-                        border: 2px solid #28a745; 
-                        border-radius: 8px; 
-                        padding: 20px; 
-                        margin: 25px 0; 
-                    }
-                    .btn-primary { 
-                        background-color: #28a745; 
-                        color: white; 
-                        padding: 15px 30px; 
-                        text-decoration: none; 
-                        border-radius: 8px; 
-                        display: inline-block; 
-                        font-weight: bold; 
-                        font-size: 16px; 
-                        text-align: center; 
-                    }
-                    @media only screen and (max-width: 600px) {
-                        .email-wrapper { width: 100% !important; }
-                        .content-box { padding: 20px 15px !important; }
-                        .header-approved h2 { font-size: 20px !important; }
-                        .btn-primary { 
-                            padding: 12px 20px !important; 
-                            font-size: 14px !important; 
-                            display: block !important; 
-                            width: 100% !important; 
-                            box-sizing: border-box !important; 
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-wrapper">
-                    <div class="header-approved">
-                        <h2>✅ PRODUTO APROVADO</h2>
-                    </div>
-                    
-                    <div class="content-box">
-                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                            Prezado(a) Parceiro(a), <strong>${nome || 'Parceiro'}</strong>
-                        </p>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                            Temos o prazer de informar que seu produto foi <strong style="color: #28a745;">APROVADO</strong> pelo administrador e já está disponível na plataforma Ratixpay.
-                        </p>
-                        
-                        <div class="alert-success">
-                            <h3 style="color: #155724; margin-top: 0; text-align: center; font-size: 18px;">
-                                ✅ PRODUTO DISPONÍVEL ✅
-                            </h3>
-                            <div style="background-color: white; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px; margin-top: 15px;">
-                                <p style="margin: 0 0 10px 0; font-weight: bold; color: #333; font-size: 16px;">
-                                    Nome: <strong style="color: #28a745;">${produto.nome || 'N/A'}</strong>
-                                </p>
-                                <p style="margin: 5px 0; color: #666;">
-                                    ID do Produto: <code style="background-color: #f1f1f1; padding: 2px 6px; border-radius: 3px;">${produto.custom_id || 'N/A'}</code>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://ratixpay.com/gestao-produtos.html" class="btn-primary">
-                                🚀 Acessar Meu Painel
-                            </a>
-                        </div>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-                            Seu produto já está ativo e pode ser visualizado pelos clientes. Você pode começar a compartilhar o link e fazer vendas!
-                        </p>
-                        
-                        <p style="margin-top: 30px; line-height: 1.6;">
-                            Atenciosamente,<br>
-                            <strong>Equipe Ratixpay</strong>
-                        </p>
-                    </div>
-                </div>
-            </body>
-            </html>
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Olá, <strong>${nome || 'Parceiro'}</strong>!
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Ótimas notícias! Seu produto <strong>"${produto.nome || 'Produto'}"</strong> foi <strong style="color: #28a745;">aprovado</strong> pelo administrador e já está disponível para venda.
+            </p>
+            
+            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #155724; font-size: 16px;">
+                    📦 ${produto.nome || 'Produto'}
+                </p>
+                <p style="margin: 5px 0; color: #155724;">
+                    Preço: <strong>MZN ${produto.preco ? parseFloat(produto.preco).toFixed(2) : 'N/A'}</strong>
+                </p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                <strong>O que fazer agora?</strong>
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Seu produto já está ativo e pode ser visualizado pelos clientes. Você pode compartilhar o link e começar a vender!
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://ratixpay.com/gestao-produtos.html" 
+                   style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    Ver Meus Produtos
+                </a>
+            </div>
+            
+            <p style="margin-top: 30px; line-height: 1.6; color: #666; font-size: 14px;">
+                Atenciosamente,<br>
+                <strong>Equipe Ratixpay</strong>
+            </p>
         `;
         
         return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'notificacao_produto_aprovado_admin');
+    }
+
+    /**
+     * Enviar notificação de produto aprovado pela API
+     */
+    async enviarNotificacaoProdutoAprovado(dadosNotificacao) {
+        const { email, nome, produto } = dadosNotificacao;
+        
+        const assunto = `✅ Seu produto foi aprovado!`;
+        
+        const conteudo = `
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Olá, <strong>${nome || 'Parceiro'}</strong>!
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Ótimas notícias! Seu produto <strong>"${produto.nome || 'Produto'}"</strong> foi <strong style="color: #28a745;">aprovado</strong> e já está disponível para venda.
+            </p>
+            
+            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #155724; font-size: 16px;">
+                    📦 ${produto.nome || 'Produto'}
+                </p>
+                <p style="margin: 5px 0; color: #155724;">
+                    Preço: <strong>MZN ${produto.preco ? parseFloat(produto.preco).toFixed(2) : 'N/A'}</strong>
+                </p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                <strong>O que fazer agora?</strong>
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Você já pode compartilhar o link do seu produto e começar a vender! Acesse seu painel para copiar o link e usar nossas ferramentas de marketing.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://ratixpay.com/gestao-produtos.html" 
+                   style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    Ver Meus Produtos
+                </a>
+            </div>
+            
+            <p style="margin-top: 30px; line-height: 1.6; color: #666; font-size: 14px;">
+                Atenciosamente,<br>
+                <strong>Equipe Ratixpay</strong>
+            </p>
+        `;
+        
+        return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'notificacao_produto_aprovado');
+    }
+
+    /**
+     * Enviar notificação de produto rejeitado pela API
+     */
+    async enviarNotificacaoProdutoRejeitado(dadosNotificacao) {
+        const { email, nome, produto, motivo } = dadosNotificacao;
+        
+        const assunto = `Seu produto precisa de ajustes`;
+        
+        const conteudo = `
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Olá, <strong>${nome || 'Parceiro'}</strong>!
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                Seu produto <strong>"${produto.nome || 'Produto'}"</strong> não foi aprovado automaticamente. Não se preocupe, você pode fazer ajustes e tentar novamente.
+            </p>
+            
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-weight: bold; color: #856404; font-size: 16px;">
+                    📋 Motivo:
+                </p>
+                <p style="margin: 0; color: #856404; line-height: 1.6;">
+                    ${motivo || 'O produto não atende aos critérios de aprovação. Por favor, revise as informações e faça os ajustes necessários.'}
+                </p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                <strong>O que fazer agora?</strong>
+            </p>
+            
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Acesse seu painel, edite o produto com base no motivo indicado acima e envie novamente para aprovação.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="https://ratixpay.com/gestao-produtos.html" 
+                   style="background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    Editar Produto
+                </a>
+            </div>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0; line-height: 1.6; color: #495057;">
+                    <strong>Precisa de ajuda?</strong> Entre em contato: <a href="mailto:suporte@ratixpay.com" style="color: #007bff;">suporte@ratixpay.com</a>
+                </p>
+            </div>
+            
+            <p style="margin-top: 30px; line-height: 1.6; color: #666; font-size: 14px;">
+                Atenciosamente,<br>
+                <strong>Equipe Ratixpay</strong>
+            </p>
+        `;
+        
+        return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'notificacao_produto_rejeitado');
     }
 }
 

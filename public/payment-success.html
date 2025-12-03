@@ -130,17 +130,30 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             width: 100%;
-            max-width: 500px;
+            max-width: 900px;
             position: relative;
-            border: 2px solid #F64c00;
+            border: 1px solid #e2e8f0;
             margin: 0 auto;
         }
         
         .success-header {
-            background: #F64C00;
+            background: linear-gradient(135deg, #F64C00 0%, #ff8c42 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .success-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
         }
 
         .logo {
@@ -154,17 +167,26 @@
         }
 
         .success-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #4CAF50;
-            animation: bounceIn 0.8s ease-out;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: white;
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
         .success-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .success-message {
+            opacity: 0.9;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .footer-logo {
@@ -206,7 +228,60 @@
         }
         
         .success-content {
-            padding: 30px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 768px) {
+            .success-content {
+                flex-direction: row;
+                min-height: 400px;
+            }
+        }
+        
+        .main-column {
+            flex: 1.3;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .main-column {
+                border-right: 1px solid #e2e8f0;
+            }
+        }
+        
+        .side-column {
+            flex: 0.9;
+            padding: 40px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        @media (max-width: 767px) {
+            .main-column, .side-column {
+                padding: 30px;
+            }
+            .side-column {
+                background: #f8fafc;
+                border-top: 1px solid #e2e8f0;
+            }
+        }
+        
+        .product-display {
+            text-align: center;
+        }
+        
+        .product-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #1e293b;
         }
         
         .product-info {
@@ -296,64 +371,118 @@
             font-weight: 600;
         }
         
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+            font-family: 'Inter', monospace;
+        }
+        
         .transaction-info {
-            background: #e8f5e8;
-            border: 1px solid #28a745;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 25px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
         }
         
         .transaction-id {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: #28a745;
+            font-family: 'Inter', monospace;
+            font-weight: 600;
+            color: #1e293b;
         }
         
         .transaction-date {
-            border-top: 1px solid #c3e6cb;
-            padding-top: 15px;
+            border-top: none;
+            padding-top: 0;
         }
         
         .transaction-date h6 {
-            color: #28a745;
-            font-weight: 600;
+            color: #64748b;
+            font-weight: 500;
             margin-bottom: 8px;
+            font-size: 0.9rem;
         }
         
         .transaction-date-value {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: #28a745;
-            font-size: 14px;
+            font-family: 'Inter', monospace;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
         }
         
         .transaction-actions {
-            border-top: 1px solid #c3e6cb;
-            padding-top: 15px;
+            border-top: none;
+            padding-top: 0;
+            margin-top: 25px;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
         
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-action:hover {
+            border-color: #F64C00;
+            color: #F64C00;
+            background: white;
+        }
+        
         .btn-copy, .btn-share {
-            background: #f64c00;
-            border: none;
-            color: white;
-            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s ease;
             flex: 1;
             min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .btn-copy:hover, .btn-share:hover {
-            background: rgba(246, 76, 0, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3);
+            border-color: #F64C00;
+            color: #F64C00;
+            background: white;
         }
         
         .btn-copy:active, .btn-share:active {
@@ -361,19 +490,22 @@
         }
         
         .btn-copy.copied {
-            background: rgba(246, 76, 0, 0.8);
+            border-color: #F64C00;
+            color: #F64C00;
         }
         
         .btn-share.shared {
-            background: rgba(246, 76, 0, 0.8);
+            border-color: #F64C00;
+            color: #F64C00;
         }
         
         .contact-info {
-            background: #f0f8ff;
-            border: 1px solid #007bff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 25px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
+            margin-top: 25px;
         }
         
         .contact-item {
@@ -405,30 +537,77 @@
         }
         
         .btn-download {
-            background: #f64c00;
-            border: none;
+            background: #10b981;
             color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-weight: 600;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
             text-decoration: none;
-            display: inline-block;
-            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
             transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .btn-download:hover {
-            background: rgba(246, 76, 0, 0.8);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+            background: #059669;
             color: white;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3);
+        }
+        
+        .btn-download::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
         }
         
         /* Estilos específicos para produtos complementares */
         .complementar-product {
             border-left: 4px solid #f59e0b !important;
             position: relative;
+        }
+        
+        .complementary-list > div {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .complementary-list > div > div {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        
+        .complementary-list a {
+            color: #F64C00;
+            font-size: 0.8rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .complementary-list a:hover {
+            text-decoration: underline;
         }
         
         .complementar-product::before {
@@ -1248,6 +1427,7 @@
     <!-- Sistema de Autenticação Global -->
     <script src="/js/server-check.js"></script>
     <script src="/js/global-auth.js"></script>
+    <script src="/js/afiliado-tracking.js"></script>
 
     
     
@@ -1262,105 +1442,108 @@
                 <div class="success-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="success-title">Compra Realizada com Sucesso!</div>
+                <h1 class="success-title">Pagamento Aprovado!</h1>
                 <div class="success-message" id="successMessage">
-                    Oi! <span id="customerName">Cliente</span>. A sua compra foi feita com sucesso.
+                    Obrigado, <span id="customerName">Cliente</span>. Seu pedido está confirmado.
                 </div>
         </div>
 
             <div class="success-content">
                 <!-- Loading state -->
-                <div id="loadingState" class="loading">
-                    <div class="spinner-border text-success" role="status">
-                        <span class="visually-hidden">Carregando...</span>
-            </div>
-                    <p class="mt-3">Carregando informações da compra...</p>
-            </div>
+                <div id="loadingState" class="loading" style="padding: 60px; text-align: center; color: #64748b;">
+                    <div class="spinner" style="width: 40px; height: 40px; border: 3px solid rgba(0,0,0,0.1); border-top-color: #F64C00; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                    <p>Gerando seu acesso...</p>
+                </div>
                 
                 <!-- Content state -->
                 <div id="contentState" style="display: none;">
-                    <!-- Products Info (principal + complementares) -->
-                    <div id="productsContainer">
-                        <div class="product-info" id="principalInfo">
-                            <div class="product-details">
-                                <div id="productName" style="color: #333; font-weight: 600; font-size: 1.3rem; margin-bottom: 20px;">
-                                    Nome do produto: <span id="productNameValue">Produto</span>
+                    <!-- Coluna Esquerda: Produto (Hero) -->
+                    <div class="main-column">
+                        <div class="product-display">
+                            <div id="productName" class="product-name">Carregando produto...</div>
+                            
+                            <a href="#" id="downloadBtn" class="btn-download">
+                                <i class="fas fa-download"></i>
+                                <span>BAIXAR CONTEÚDO AGORA</span>
+                            </a>
+                            
+                            <p style="margin-top: 15px; font-size: 0.85rem; color: #64748b;">
+                                <i class="fas fa-envelope"></i> Uma cópia também foi enviada para seu e-mail.
+                            </p>
+                            
+                            <!-- Produtos Complementares -->
+                            <div id="complementaryContainer" class="complementary-list" style="margin-top: 30px; text-align: left;"></div>
+                            <div id="orderBumpList"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coluna Direita: Detalhes (Info) -->
+                    <div class="side-column">
+                        <div class="detail-row">
+                            <span class="detail-label">ID da Transação</span>
+                            <span class="detail-value" id="transactionId">...</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Data</span>
+                            <span class="detail-value" id="transactionDate">...</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Valor Total</span>
+                            <span class="detail-value" style="color: #10b981;" id="transactionAmount">...</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value" style="color: #10b981;">
+                                <i class="fas fa-check-circle"></i> Aprovado
+                            </span>
+                        </div>
+                        
+                        <div class="transaction-actions">
+                            <button class="btn-action" onclick="copyReceiptLink()">
+                                <i class="fas fa-link"></i> Copiar Link
+                            </button>
+                            <button class="btn-action" onclick="shareReceipt()">
+                                <i class="fas fa-share-alt"></i> Compartilhar
+                            </button>
+                        </div>
+                        
+                        <!-- Informações do Vendedor -->
+                        <div class="vendedor-info-section" style="margin-top: 30px; padding-top: 25px; border-top: 2px solid #e2e8f0;">
+                            <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-user-tie" style="color: #F64C00;"></i>
+                                <span id="contactTitle">Informações do Vendedor</span>
+                            </h4>
+                            <div class="contact-info" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div class="contact-item" style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-user contact-icon" style="color: #F64C00; width: 20px;"></i>
+                                    <span style="color: var(--text-color); font-weight: 500;" id="vendedorNome">Carregando...</span>
                                 </div>
-                                <div class="mt-3" style="position: relative; text-align: center;">
-                                    <!-- Seta animada apontando para o botão -->
-                                    <div class="download-arrow-container" id="downloadArrowContainer">
-                                        <div class="download-arrow">
-                                            <i class="fas fa-arrow-left"></i>
-                                        </div>
-                                        <div class="download-arrow-text">
-                                            <span class="blink-text">Clica aqui</span>
-                                        </div>
-                                    </div>
-                                    <a href="#" id="downloadBtn" class="btn-download" style="display: inline-block;">
-                                        <i class="fas fa-download me-2"></i>Baixar conteúdo
+                                <div class="contact-item" style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fab fa-whatsapp contact-icon" style="color: #25D366; width: 20px;"></i>
+                                    <a href="#" id="vendedorWhatsappLink" class="contact-link" style="color: #25D366; text-decoration: none; font-weight: 500;" target="_blank">
+                                        <span id="vendedorWhatsapp">Carregando...</span>
+                                    </a>
+                                </div>
+                                <div class="contact-item" style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-envelope contact-icon" style="color: #F64C00; width: 20px;"></i>
+                                    <a href="#" id="vendedorEmailLink" class="contact-link" style="color: #F64C00; text-decoration: none; font-weight: 500;" target="_blank">
+                                        <span id="vendedorEmail">Carregando...</span>
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div id="orderBumpList"></div>
                     </div>
-
-                    <!-- Transaction ID -->
-                    <div class="transaction-info">
-                        <h6><i class="fas fa-receipt me-2"></i>ID da Transação</h6>
-                        <div class="transaction-id" id="transactionId">-</div>
-                        
-                        <!-- Data da Compra -->
-                        <div class="transaction-date mt-3">
-                            <h6><i class="fas fa-calendar-alt me-2"></i>Data da Compra</h6>
-                            <div class="transaction-date-value" id="transactionDate">-</div>
-                        </div>
-                        
-                        <!-- Botões de Ação -->
-                        <div class="transaction-actions mt-3">
-                            <button class="btn-copy" onclick="copyReceiptLink()" title="Copiar Link do Comprovativo">
-                                <i class="fas fa-link me-2"></i>Copiar Link
-                            </button>
-                            <button class="btn-share" onclick="shareReceipt()" title="Compartilhar Comprovativo">
-                                <i class="fas fa-share-alt me-2"></i>Compartilhar
-                            </button>
-                        </div>
-                    </div>
-
-                                        <!-- Contact Info -->
-                    <div class="contact-info">
-                        <h6><i class="fas fa-headset me-2"></i><span id="contactTitle">Suporte</span></h6>
-                        
-                        <div class="contact-item" style="margin-bottom: 15px;">
-                            <i class="fas fa-user contact-icon"></i>
-                            <span id="vendedorNome" style="font-weight: bold; color: #333;">Suporte</span>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <i class="fab fa-whatsapp contact-icon"></i>
-                            <a href="https://wa.me/258860769147" id="vendedorWhatsappLink" class="contact-link" target="_blank">
-                                <span id="vendedorWhatsapp">+258 860 769 147</span>
-                            </a>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <i class="fas fa-envelope contact-icon"></i>
-                            <a href="mailto:suporte@ratixpay.com" id="vendedorEmailLink" class="contact-link">
-                                <span id="vendedorEmail">suporte@ratixpay.com</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="text-center">
-                        <div class="mt-3">
-                            <p class="text-muted small">
-                                <i class="fas fa-info-circle me-1"></i>
-                                O conteúdo também foi enviado automaticamente para seu email e WhatsApp
-                            </p>
-                        </div>
-                    </div>
-        </div>
+                </div>
+            </div>
+            
+            <!-- Footer de Suporte -->
+            <div class="support-footer" style="background: #f8fafc; padding: 20px; text-align: center; font-size: 0.85rem; color: #64748b; border-top: 1px solid #e2e8f0;">
+                Precisa de ajuda? <a href="#" onclick="toggleSupportChat(); return false;" class="support-link" style="color: #F64C00; text-decoration: none; font-weight: 600;">Fale com o Suporte</a>
+                <br>
+                <span style="font-size: 0.75rem; opacity: 0.7; margin-top: 5px; display: block;">ID Pedido: <span id="orderIdFooter">...</span></span>
             </div>
         </div>
     </div>
@@ -1449,9 +1632,6 @@
         } catch (error) {
             console.error('❌ Erro ao processar parâmetros UTM:', error);
         }
-        
-        // Verificar se é produto premium
-        const isPremiumProduct = productId === 'V7XZPKGEF' || window.location.href.includes('V7XZPKGEF');
         
         // Log para debug
         // Validar acesso seguro
@@ -1634,11 +1814,6 @@
                             produtoId: produtoId,
                             pedidoNumero: pedidoNumero
                         });
-                    }
-                    
-                    // Mostrar chave de desbloqueio se for produto premium
-                    if (isPremiumProduct) {
-                        showPremiumUnlockKey();
                     }
                     
                     // Usar produtos complementares que vêm do endpoint principal
@@ -1862,7 +2037,11 @@
         
         // Função para criar product-info de produtos complementares
         function criarProductInfoComplementar(produto, index) {
-            const productsContainer = document.getElementById('productsContainer');
+            const complementaryContainer = document.getElementById('complementaryContainer');
+            if (!complementaryContainer) {
+                console.warn('Container de produtos complementares não encontrado');
+                return;
+            }
             
             // Criar elemento product-info para o produto complementar
             const productInfo = document.createElement('div');
@@ -1939,7 +2118,7 @@
                 });
             }
             
-            productsContainer.appendChild(productInfo);
+            complementaryContainer.appendChild(productInfo);
             }
         
         // Função para buscar produtos complementares do banco de dados
@@ -2196,26 +2375,18 @@
         }
         
         // Display transaction data
-        function displayTransactionData(data) {
+        async function displayTransactionData(data) {
             console.log('📋 Exibindo dados da transação:', data);
-            
-            // Verificar se é produto premium através dos dados
-            if (data && data.produto && data.produto.custom_id === 'V7XZPKGEF') {
-                if (!isPremiumProduct) {
-                    isPremiumProduct = true;
-                    showPremiumUnlockKey();
-                }
-            }
             
             // Store order data globally
             orderData = data;
             
-            // Verificar se é um pagamento Premium e ativar automaticamente
-            checkAndActivatePremium(data);
-            
             // Update success message with client name
             const clientName = data.cliente?.nome || 'Cliente';
-            document.getElementById('customerName').textContent = clientName;
+            const customerNameEl = document.getElementById('customerName');
+            if (customerNameEl) {
+                customerNameEl.textContent = clientName;
+            }
             
             // Função para formatar transaction_id do PayMoz como TXP_{8 últimos números}
             function formatarTransactionIdPayMoz(transactionId) {
@@ -2237,10 +2408,52 @@
             
             // Transaction ID (formatado como TXP_{8 últimos números})
             const transactionIdOriginal = data.numeroPedido || 'N/A';
-            document.getElementById('transactionId').textContent = formatarTransactionIdPayMoz(transactionIdOriginal);
+            const transactionIdEl = document.getElementById('transactionId');
+            if (transactionIdEl) {
+                transactionIdEl.textContent = formatarTransactionIdPayMoz(transactionIdOriginal);
+            }
+            
+            // Order ID Footer
+            const orderIdFooterEl = document.getElementById('orderIdFooter');
+            if (orderIdFooterEl) {
+                orderIdFooterEl.textContent = transactionIdOriginal;
+            }
+            
+            // Transaction Amount
+            const transactionAmountEl = document.getElementById('transactionAmount');
+            if (transactionAmountEl) {
+                let valor = 0;
+                if (data.venda?.valor_pago) {
+                    valor = data.venda.valor_pago;
+                } else if (data.pagamento?.valor_pago) {
+                    valor = data.pagamento.valor_pago;
+                } else if (data.valor_pago) {
+                    valor = data.valor_pago;
+                } else if (data.produto?.preco_original) {
+                    valor = data.produto.preco_original;
+                } else if (data.produto?.valor_original) {
+                    valor = data.produto.valor_original;
+                } else if (data.pagamento?.valor_original) {
+                    valor = data.pagamento.valor_original;
+                } else if (data.valor_original) {
+                    valor = data.valor_original;
+                } else if (data.produto?.preco) {
+                    valor = data.produto.preco;
+                } else if (data.produto?.valor) {
+                    valor = data.produto.valor;
+                } else if (data.valor) {
+                    valor = data.valor;
+                } else if (data.pagamento?.valor) {
+                    valor = data.pagamento.valor;
+                } else if (data.venda?.valor) {
+                    valor = data.venda.valor;
+                }
+                transactionAmountEl.textContent = `MZN ${parseFloat(valor).toFixed(2)}`;
+            }
             
             // Transaction Date
             const transactionDateElement = document.getElementById('transactionDate');
+            if (transactionDateElement) {
             let transactionDate = null;
             
             // Tentar diferentes fontes para a data
@@ -2273,38 +2486,33 @@
                 }
             } catch (error) {
                 transactionDateElement.textContent = transactionDate || 'Data não disponível';
+                }
             }
             
-            // Criar product-info para o produto principal
-            criarProductInfoPrincipal(data);
+            // Atualizar nome do produto no novo layout
+            const productNameEl = document.getElementById('productName');
+            if (productNameEl && data.produto) {
+                productNameEl.textContent = data.produto.nome || 'Produto Digital';
+            }
             
-            // Informações de Suporte (sempre fixas)
-            // Não expor informações do vendedor, sempre mostrar suporte
-                const contactTitle = document.getElementById('contactTitle');
-            contactTitle.textContent = 'Suporte';
+            // Atualizar botão de download
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn && data.produto) {
+                const linkConteudo = data.produto.link_conteudo || data.produto.linkConteudo || '';
+                if (linkConteudo) {
+                    downloadBtn.href = linkConteudo;
+                    downloadBtn.target = '_blank';
+                    downloadBtn.style.display = 'inline-flex';
+                } else {
+                    downloadBtn.style.display = 'none';
+                    if (productNameEl) {
+                        productNameEl.insertAdjacentHTML('afterend', '<p style="color:#ef4444; margin-bottom:20px;">Link temporariamente indisponível. Contate o suporte.</p>');
+                    }
+                }
+            }
             
-            // Valores fixos de suporte
-            const nome = 'Suporte';
-            const whatsappText = '+258 860 769 147';
-            const emailText = 'suporte@ratixpay.com';
-                
-                document.getElementById('vendedorNome').textContent = nome;
-                document.getElementById('vendedorWhatsapp').textContent = whatsappText;
-                document.getElementById('vendedorEmail').textContent = emailText;
-                
-                // Configurar links clicáveis
-                const whatsappLink = document.getElementById('vendedorWhatsappLink');
-                const emailLink = document.getElementById('vendedorEmailLink');
-                
-            whatsappLink.href = 'https://wa.me/258860769147';
-                    whatsappLink.target = '_blank';
-            whatsappLink.style.pointerEvents = 'auto';
-            whatsappLink.style.opacity = '1';
-            
-            emailLink.href = 'mailto:suporte@ratixpay.com';
-                    emailLink.target = '_blank';
-            emailLink.style.pointerEvents = 'auto';
-            emailLink.style.opacity = '1';
+            // Carregar informações do vendedor
+            await loadVendedorInfo(data.produto?.id || productId);
             
             // Show content
             showContent();
@@ -2340,19 +2548,158 @@
             }
         }
         
-        // Show content and hide loading
+            // Show content and hide loading
         function showContent() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('contentState').style.display = 'block';
+            const loadingState = document.getElementById('loadingState');
+            if (loadingState) {
+                loadingState.style.display = 'none';
+            }
+            const contentState = document.getElementById('contentState');
+            if (contentState) {
+            contentState.style.display = 'flex';
+            // Garantir que o layout flex funcione corretamente
+            if (window.innerWidth >= 768) {
+                contentState.style.flexDirection = 'row';
+            } else {
+                contentState.style.flexDirection = 'column';
+                }
+            }
+        }
+        
+        // Função para carregar informações do vendedor
+        async function loadVendedorInfo(produtoId) {
+            if (!produtoId) {
+                console.warn('⚠️ ProductId não fornecido para buscar informações do vendedor');
+                // Mostrar informações de suporte padrão
+                displayVendedorInfo({
+                    nome: 'Suporte RatixPay',
+                    whatsapp: '+258 860 769 147',
+                    email: 'suporte@ratixpay.com'
+                });
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/produtos/${produtoId}/vendedor`);
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar informações do vendedor');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    displayVendedorInfo(data.data);
+                } else {
+                    // Fallback para suporte
+                    displayVendedorInfo({
+                        nome: 'Suporte RatixPay',
+                        whatsapp: '+258 860 769 147',
+                        email: 'suporte@ratixpay.com'
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar informações do vendedor:', error);
+                // Mostrar informações de suporte padrão em caso de erro
+                displayVendedorInfo({
+                    nome: 'Suporte RatixPay',
+                    whatsapp: '+258 860 769 147',
+                    email: 'suporte@ratixpay.com'
+                });
+            }
+        }
+        
+        // Função para exibir informações do vendedor
+        function displayVendedorInfo(vendedorData) {
+            const contactTitle = document.getElementById('contactTitle');
+            if (contactTitle) {
+                contactTitle.textContent = 'Informações do Vendedor';
+            }
+            
+            // Nome do vendedor
+            const vendedorNomeEl = document.getElementById('vendedorNome');
+            if (vendedorNomeEl) {
+                vendedorNomeEl.textContent = vendedorData.nome || 'Vendedor';
+            }
+            
+            // WhatsApp do vendedor
+            const vendedorWhatsappEl = document.getElementById('vendedorWhatsapp');
+            const whatsappLink = document.getElementById('vendedorWhatsappLink');
+            
+            if (vendedorData.whatsapp) {
+                // Formatar número para exibição
+                let whatsappDisplay = vendedorData.whatsapp;
+                // Remover código do país se estiver no início
+                if (whatsappDisplay.startsWith('258')) {
+                    whatsappDisplay = '+' + whatsappDisplay;
+                } else if (!whatsappDisplay.startsWith('+')) {
+                    whatsappDisplay = '+258' + whatsappDisplay;
+                }
+                
+                // Formatar para exibição (ex: +258 84 123 4567)
+                const formatted = whatsappDisplay.replace(/(\+258)(\d{2})(\d{3})(\d{4})/, '$1 $2 $3 $4');
+                
+                if (vendedorWhatsappEl) {
+                    vendedorWhatsappEl.textContent = formatted;
+                }
+                
+                // Configurar link do WhatsApp
+                if (whatsappLink) {
+                    // Remover caracteres não numéricos para o link
+                    const whatsappNumber = whatsappDisplay.replace(/\D/g, '');
+                    whatsappLink.href = `https://wa.me/${whatsappNumber}`;
+                    whatsappLink.target = '_blank';
+                    whatsappLink.style.pointerEvents = 'auto';
+                    whatsappLink.style.opacity = '1';
+                }
+            } else {
+                if (vendedorWhatsappEl) {
+                    vendedorWhatsappEl.textContent = 'Não disponível';
+                }
+                if (whatsappLink) {
+                    whatsappLink.style.pointerEvents = 'none';
+                    whatsappLink.style.opacity = '0.5';
+                }
+            }
+            
+            // Email do vendedor
+            const vendedorEmailEl = document.getElementById('vendedorEmail');
+            const emailLink = document.getElementById('vendedorEmailLink');
+            
+            if (vendedorData.email) {
+                if (vendedorEmailEl) {
+                    vendedorEmailEl.textContent = vendedorData.email;
+                }
+                
+                if (emailLink) {
+                    emailLink.href = `mailto:${vendedorData.email}`;
+                    emailLink.target = '_blank';
+                    emailLink.style.pointerEvents = 'auto';
+                    emailLink.style.opacity = '1';
+                }
+            } else {
+                if (vendedorEmailEl) {
+                    vendedorEmailEl.textContent = 'Não disponível';
+                }
+                if (emailLink) {
+                    emailLink.style.pointerEvents = 'none';
+                    emailLink.style.opacity = '0.5';
+                }
+            }
         }
         
         // Show error state
         function showErrorState(message) {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('contentState').style.display = 'block';
+            const loadingState = document.getElementById('loadingState');
+            if (loadingState) {
+                loadingState.style.display = 'none';
+            }
+            const contentState = document.getElementById('contentState');
+            if (contentState) {
+                contentState.style.display = 'block';
             
             // Substituir conteúdo por mensagem de erro
-            document.getElementById('contentState').innerHTML = `
+                contentState.innerHTML = `
                 <div class="text-center" style="padding: 40px 20px;">
                     <div style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -2364,6 +2711,7 @@
                     </a>
                 </div>
             `;
+            }
         }
         
         // Global variables to store order data

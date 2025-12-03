@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RatixPay - Configuração WhatsApp</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #f64c00;
+            --secondary-color: #E67E22;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-bg: #1e293b;
+            --light-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --whatsapp-green: #25D366;
+        }
+
+        .whatsapp-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .whatsapp-header {
+            margin-bottom: 40px;
+        }
+
+        .whatsapp-header h1 {
+            font-size: 2.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .whatsapp-header h1 i {
+            color: var(--whatsapp-green);
+        }
+
+        .whatsapp-header p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .whatsapp-config-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .whatsapp-config-section h2 {
+            font-size: 1.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: var(--danger-color);
+            margin-left: 4px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="tel"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="tel"]:focus {
+            outline: none;
+            border-color: var(--whatsapp-green);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .form-group .help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .notifications-section {
+            margin-top: 30px;
+        }
+
+        .notifications-section h3 {
+            font-size: 1.2rem;
+            color: var(--dark-bg);
+            margin-bottom: 15px;
+        }
+
+        .notifications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .notification-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--light-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-checkbox:hover {
+            background: #e9ecef;
+            border-color: var(--whatsapp-green);
+        }
+
+        .notification-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .notification-checkbox input[type="checkbox"]:checked + label {
+            color: var(--whatsapp-green);
+            font-weight: 600;
+        }
+
+        .notification-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .notification-checkbox .notification-icon {
+            margin-left: 8px;
+            color: var(--whatsapp-green);
+        }
+
+        .select-all-section {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid var(--whatsapp-green);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .select-all-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .select-all-checkbox input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .select-all-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--whatsapp-green) 0%, #128C7E 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--dark-bg);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: var(--dark-bg);
+        }
+
+        .current-config {
+            background: linear-gradient(135deg, #d4f4dd 0%, #c3e6cb 100%);
+            border: 2px solid var(--whatsapp-green);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .current-config h3 {
+            font-size: 1.1rem;
+            color: var(--dark-bg);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-item-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .config-item-value {
+            font-size: 1rem;
+            color: var(--dark-bg);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-container {
+                padding: 20px 15px;
+            }
+
+            .notifications-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <div class="whatsapp-container">
+                <!-- Header -->
+                <div class="whatsapp-header">
+                    <h1>
+                        <i class="fab fa-whatsapp"></i>
+                        Configuração WhatsApp
+                    </h1>
+                    <p>Configure seu número de WhatsApp e escolha os tipos de notificações que deseja receber</p>
+                </div>
+
+                <!-- Configuração do WhatsApp -->
+                <div class="whatsapp-config-section">
+                    <h2>
+                        <i class="fas fa-cog"></i>
+                        Configuração de Notificações WhatsApp
+                    </h2>
+
+                    <!-- Configuração Atual -->
+                    <div id="current-config" class="current-config" style="display: none;">
+                        <h3>
+                            <i class="fas fa-info-circle"></i>
+                            Configuração Atual
+                        </h3>
+                        <div class="config-info">
+                            <div class="config-item">
+                                <span class="config-item-label">Número WhatsApp</span>
+                                <span id="current-whatsapp" class="config-item-value">-</span>
+                            </div>
+                            <div class="config-item">
+                                <span class="config-item-label">Status</span>
+                                <span id="current-status" class="config-item-value">
+                                    <span class="status-badge inactive">Inativo</span>
+                                </span>
+                            </div>
+                            <div class="config-item">
+                                <span class="config-item-label">Notificações Ativas</span>
+                                <span id="current-notifications" class="config-item-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário de Configuração -->
+                    <form id="whatsapp-config-form">
+                        <div class="form-group">
+                            <label for="whatsapp-number">
+                                Número de WhatsApp <span class="required">*</span>
+                            </label>
+                            <input 
+                                type="tel" 
+                                id="whatsapp-number" 
+                                name="whatsappNumber"
+                                placeholder="Ex: 258867792543"
+                                maxlength="15"
+                            />
+                            <div class="help-text">
+                                Digite seu número de WhatsApp com código do país (ex: 258 para Moçambique). 
+                                Formato: código do país + número (sem espaços ou caracteres especiais).
+                            </div>
+                        </div>
+
+                        <div class="notifications-section">
+                            <h3>
+                                <i class="fas fa-bell"></i>
+                                Tipos de Notificações
+                            </h3>
+                            <p style="color: #64748b; margin-bottom: 15px; font-size: 0.9rem;">
+                                Selecione os tipos de notificações que deseja receber via WhatsApp.
+                            </p>
+                            
+                            <!-- Selecionar Todas -->
+                            <div class="select-all-section">
+                                <div class="select-all-checkbox">
+                                    <input 
+                                        type="checkbox" 
+                                        id="select-all-notifications"
+                                        name="selectAll"
+                                    />
+                                    <label for="select-all-notifications">
+                                        Receber todas as notificações
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="notifications-grid" id="notifications-grid">
+                                <!-- Notificações serão inseridas aqui via JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i class="fas fa-save"></i>
+                                Salvar Configuração
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="clear-btn">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/sidebar-component.js"></script>
+    
+    <script>
+        // Tipos de notificações disponíveis
+        const TIPOS_NOTIFICACOES = [
+            { id: 'codigo_verificacao', nome: 'Códigos de Verificação', descricao: 'Códigos de verificação de email/telefone', icon: 'fa-key' },
+            { id: 'codigo_saque', nome: 'Código de Saque', descricao: 'Códigos para autorizar saques', icon: 'fa-money-bill-wave' },
+            { id: 'nova_venda', nome: 'Nova Venda Realizada', descricao: 'Notificações de novas vendas', icon: 'fa-shopping-cart' },
+            { id: 'saque_pago', nome: 'Saque Pago', descricao: 'Confirmação de saques pagos', icon: 'fa-check-circle' },
+            { id: 'remarketing', nome: 'Remarketing', descricao: 'Notificações de remarketing enviadas', icon: 'fa-bullhorn' },
+            { id: 'upsell', nome: 'Upsell', descricao: 'Ofertas de upsell e produtos complementares', icon: 'fa-arrow-up' },
+            { id: 'venda_afiliado', nome: 'Venda Afiliado', descricao: 'Vendas realizadas por afiliados', icon: 'fa-user-tie' }
+        ];
+
+        let usuarioAtual = null;
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('integracoes');
+            
+            inicializarEventos();
+            renderizarNotificacoes();
+            carregarConfiguracaoAtual();
+        });
+
+        function inicializarEventos() {
+            // Formulário
+            document.getElementById('whatsapp-config-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                salvarConfiguracao();
+            });
+
+            // Botão limpar
+            document.getElementById('clear-btn').addEventListener('click', function() {
+                limparFormulario();
+            });
+
+            // Selecionar todas as notificações
+            document.getElementById('select-all-notifications').addEventListener('change', function(e) {
+                const todosMarcados = e.target.checked;
+                document.querySelectorAll('input[name="notifications"]').forEach(checkbox => {
+                    checkbox.checked = todosMarcados;
+                });
+            });
+
+            // Quando qualquer checkbox muda, verificar se "todas" deve ser marcada
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'notifications') {
+                    const todasMarcadas = Array.from(document.querySelectorAll('input[name="notifications"]')).every(cb => cb.checked);
+                    document.getElementById('select-all-notifications').checked = todasMarcadas;
+                }
+            });
+        }
+
+        function renderizarNotificacoes() {
+            const grid = document.getElementById('notifications-grid');
+            grid.innerHTML = '';
+
+            TIPOS_NOTIFICACOES.forEach(tipo => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'notification-checkbox';
+                checkboxDiv.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        id="notification-${tipo.id}" 
+                        name="notifications" 
+                        value="${tipo.id}"
+                    />
+                    <label for="notification-${tipo.id}">
+                        ${tipo.nome}
+                        <span style="display: block; font-size: 0.8rem; color: #64748b; font-weight: normal; margin-top: 2px;">
+                            ${tipo.descricao}
+                        </span>
+                    </label>
+                    <i class="fas ${tipo.icon} notification-icon"></i>
+                `;
+                grid.appendChild(checkboxDiv);
+            });
+        }
+
+        async function carregarConfiguracaoAtual() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    mostrarToast('Erro: Usuário não autenticado', 'error');
+                    return;
+                }
+
+                // Buscar dados do usuário atual
+                const response = await fetch(`${window.API_BASE || '/api'}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    // Tentar endpoint alternativo
+                    const altResponse = await fetch(`${window.API_BASE || '/api'}/auth/profile`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!altResponse.ok) {
+                        throw new Error('Erro ao carregar dados do usuário');
+                    }
+                    
+                    const altData = await altResponse.json();
+                    usuarioAtual = altData.user || altData.data || altData;
+                } else {
+                    const data = await response.json();
+                    usuarioAtual = data.user || data.data || data;
+                }
+
+                if (!usuarioAtual) {
+                    throw new Error('Dados do usuário não encontrados');
+                }
+
+                // Preencher formulário
+                const whatsappNumber = usuarioAtual.whatsapp_contact || '';
+                const whatsappEnabled = usuarioAtual.whatsapp_enabled || false;
+                const notificationTypes = usuarioAtual.whatsapp_notification_types || [];
+
+                document.getElementById('whatsapp-number').value = whatsappNumber;
+
+                // Marcar notificações
+                TIPOS_NOTIFICACOES.forEach(tipo => {
+                    const checkbox = document.getElementById(`notification-${tipo.id}`);
+                    if (checkbox) {
+                        checkbox.checked = notificationTypes.includes(tipo.id);
+                    }
+                });
+
+                // Atualizar checkbox "todas"
+                const todasMarcadas = TIPOS_NOTIFICACOES.every(tipo => 
+                    notificationTypes.includes(tipo.id)
+                );
+                document.getElementById('select-all-notifications').checked = todasMarcadas;
+
+                // Mostrar configuração atual se houver número
+                if (whatsappNumber) {
+                    document.getElementById('current-config').style.display = 'block';
+                    document.getElementById('current-whatsapp').textContent = whatsappNumber;
+                    document.getElementById('current-status').innerHTML = whatsappEnabled 
+                        ? '<span class="status-badge active">Ativo</span>'
+                        : '<span class="status-badge inactive">Inativo</span>';
+                    
+                    // Mostrar notificações ativas
+                    if (notificationTypes.length > 0) {
+                        const tiposNomes = notificationTypes.map(tipoId => {
+                            const tipo = TIPOS_NOTIFICACOES.find(t => t.id === tipoId);
+                            return tipo ? tipo.nome : tipoId;
+                        });
+                        document.getElementById('current-notifications').textContent = tiposNomes.join(', ');
+                    } else {
+                        document.getElementById('current-notifications').textContent = 'Nenhuma';
+                    }
+                } else {
+                    document.getElementById('current-config').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar configuração:', error);
+                mostrarToast('Erro ao carregar configuração: ' + error.message, 'error');
+            }
+        }
+
+        async function salvarConfiguracao() {
+            const whatsappNumber = document.getElementById('whatsapp-number').value.trim();
+            const notificationTypes = Array.from(document.querySelectorAll('input[name="notifications"]:checked')).map(cb => cb.value);
+
+            if (!whatsappNumber) {
+                mostrarToast('Digite o número de WhatsApp', 'warning');
+                return;
+            }
+
+            // Validar formato do número (deve ter pelo menos 9 dígitos)
+            if (whatsappNumber.length < 9) {
+                mostrarToast('Número de WhatsApp inválido. Use o formato: código do país + número', 'warning');
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-btn');
+            const originalContent = saveBtn.innerHTML;
+            
+            try {
+                // Feedback visual
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="loading-spinner"></span> Salvando...';
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                // Ativar WhatsApp se houver número e notificações selecionadas
+                const whatsappEnabled = whatsappNumber && notificationTypes.length > 0;
+
+                const response = await fetch(`${window.API_BASE || '/api'}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        whatsapp_contact: whatsappNumber,
+                        whatsapp_enabled: whatsappEnabled,
+                        whatsapp_notification_types: notificationTypes
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
+                    throw new Error(errorData.error || 'Erro ao salvar configuração');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Atualizar usuário atual
+                    if (usuarioAtual) {
+                        usuarioAtual.whatsapp_contact = whatsappNumber;
+                        usuarioAtual.whatsapp_enabled = whatsappEnabled;
+                        usuarioAtual.whatsapp_notification_types = notificationTypes;
+                    }
+
+                    // Recarregar configuração atual
+                    await carregarConfiguracaoAtual();
+
+                    // Feedback de sucesso
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    saveBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                    
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalContent;
+                        saveBtn.style.background = '';
+                        saveBtn.disabled = false;
+                    }, 2000);
+
+                    mostrarToast(
+                        '✅ Configuração do WhatsApp salva com sucesso!',
+                        'success'
+                    );
+                } else {
+                    throw new Error(data.error || 'Erro ao salvar configuração');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+                mostrarToast('❌ Erro ao salvar: ' + error.message, 'error');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalContent;
+            }
+        }
+
+        function limparFormulario() {
+            document.getElementById('whatsapp-number').value = '';
+            document.querySelectorAll('input[name="notifications"]').forEach(cb => {
+                cb.checked = false;
+            });
+            document.getElementById('select-all-notifications').checked = false;
+            document.getElementById('current-config').style.display = 'none';
+        }
+
+        function mostrarToast(mensagem, tipo = 'success') {
+            // Remover toast anterior
+            const toastAnterior = document.querySelector('.toast');
+            if (toastAnterior) {
+                toastAnterior.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            
+            const icon = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle'
+            }[tipo] || 'fa-info-circle';
+
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${mensagem}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Remover após 5 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

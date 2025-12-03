@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transações - Afiliados - RatixPay</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        /* Navbar de Navegação */
+        .affiliate-navbar {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        .navbar-brand:hover {
+            color: #9b59b6;
+        }
+        .navbar-brand i {
+            color: #9b59b6;
+        }
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-item {
+            position: relative;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .nav-link:hover {
+            background: #f8f9fa;
+            color: #9b59b6;
+            transform: translateY(-2px);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .affiliate-navbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .navbar-nav {
+                width: 100%;
+                justify-content: center;
+            }
+            .nav-link {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+        }
+        @media (max-width: 576px) {
+            .navbar-nav {
+                flex-direction: column;
+            }
+            .nav-link {
+                width: 100%;
+            }
+        }
+        .transactions-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transactions-table thead {
+            background: #f8f9fa;
+        }
+
+        .transactions-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transactions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+
+        .transactions-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .type-venda {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-comissao {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pendente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-aprovado, .status-pago {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .valor-comissao {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-exchange-alt"></i> Transações</h1>
+                    <p>Acompanhe suas vendas e comissões de afiliado</p>
+                </div>
+            </div>
+
+
+            <!-- Conteúdo -->
+            <div class="container-fluid mb-5">
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-list"></i> Histórico de Transações
+                        </h2>
+                        <button class="btn btn-primary" onclick="window.location.href='afiliados-painel.html'">
+                            <i class="fas fa-arrow-left"></i> Voltar ao Painel
+                        </button>
+                    </div>
+
+                    <div id="loadingTransactions" class="loading" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-3">Carregando transações...</p>
+                    </div>
+
+                    <div id="transactionsTable" style="display: none;">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Nome do Produto</th>
+                                    <th>Data/Hora</th>
+                                    <th>Comissão</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Nenhuma transação encontrada</h3>
+                        <p>Suas vendas e comissões aparecerão aqui</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+    <script src="/js/sidebar-component.js"></script>
+    <script>
+        const API_BASE = window.location.origin.includes('localhost') 
+            ? 'http://localhost:4000/api' 
+            : `${window.location.origin}/api`;
+
+        let user = null;
+
+        // Função para fazer requisições autenticadas
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken') || sessionStorage.getItem('token');
+            
+            if (!token || token.trim() === '') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Não autenticado');
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Sessão expirada');
+            }
+
+            return response;
+        }
+
+        // Formatação
+        const Formatters = {
+            moeda(valor) {
+                return `MZN ${parseFloat(valor || 0).toFixed(2)}`;
+            },
+            dataHora(data) {
+                if (!data) return '-';
+                const date = new Date(data);
+                return date.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        };
+
+        // Verificar autenticação
+        async function verificarAutenticacao() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || sessionStorage.getItem('token');
+                
+                if (!token || token.trim() === '') {
+                    window.location.href = '/login.html';
+                    return false;
+                }
+
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok || response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+
+                const data = await response.json();
+                
+                if (!data.success || !data.user) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+
+                user = data.user;
+                return true;
+            } catch (error) {
+                console.error('Erro na verificação de autenticação:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+
+        // Carregar transações
+        async function carregarTransacoes() {
+            try {
+                document.getElementById('loadingTransactions').style.display = 'block';
+                document.getElementById('transactionsTable').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+
+                const response = await authenticatedFetch(`${API_BASE}/vendedor/afiliados/transacoes`);
+                const data = await response.json();
+                
+                document.getElementById('loadingTransactions').style.display = 'none';
+
+                if (data.success && data.data && data.data.transacoes && data.data.transacoes.length > 0) {
+                    renderizarTransacoes(data.data.transacoes);
+                    document.getElementById('transactionsTable').style.display = 'block';
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar transações:', error);
+                document.getElementById('loadingTransactions').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        }
+
+        // Renderizar transações
+        function renderizarTransacoes(transacoes) {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = transacoes.map(transacao => {
+                const tipoClass = transacao.tipo === 'venda' ? 'type-venda' : 'type-comissao';
+                const tipoTexto = transacao.tipo === 'venda' ? 'Venda' : 'Comissão Aprovada';
+                const nome = transacao.tipo === 'venda' ? transacao.nome_produto : 'Comissão Aprovada';
+                const status = transacao.tipo === 'venda' ? transacao.status_venda : transacao.status;
+                const statusClass = status === 'pago' || status === 'aprovado' ? 'status-aprovado' : 
+                                   status === 'pendente' ? 'status-pendente' : 'status-cancelado';
+                const statusTexto = status === 'pago' ? 'Pago' : 
+                                   status === 'aprovado' ? 'Aprovado' : 
+                                   status === 'pendente' ? 'Pendente' : 'Cancelado';
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="transaction-type ${tipoClass}">
+                                ${tipoTexto}
+                            </span>
+                        </td>
+                        <td>${nome}</td>
+                        <td>${Formatters.dataHora(transacao.data_hora)}</td>
+                        <td class="valor-comissao">${Formatters.moeda(transacao.comissao || transacao.valor)}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${statusTexto}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Inicializar página
+        async function init() {
+            try {
+                const autenticado = await verificarAutenticacao();
+                if (!autenticado) {
+                    return;
+                }
+
+                // Aplicar sidebar
+                if (typeof SidebarComponent !== 'undefined') {
+                    const sidebar = new SidebarComponent();
+                    sidebar.applyToPage('afiliados');
+                }
+
+                await carregarTransacoes();
+            } catch (error) {
+                console.error('Erro ao inicializar:', error);
+            }
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+

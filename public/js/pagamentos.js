@@ -45,6 +45,20 @@ function formatDate(dateString) {
     });
 }
 
+// Função para formatar data e hora completa
+function formatDateTime(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('pt-MZ', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
 // Função para gerar ID único no formato WDW + vendedorId + dataCriacao + 2 dígitos aleatórios
 function generateUniqueId(vendedorId) {
     const now = new Date();
@@ -157,18 +171,10 @@ async function loadReceitaTotal() {
             // LÓGICA CORRETA: Mostrar receita disponível (total - saques processados)
             receitaTotal = parseFloat(data.data.receitaDisponivel || 0);
             
-            // Mostrar informações detalhadas
-            const receitaVendas = parseFloat(data.data.receitaTotal || 0);
-            const saquesProcessados = parseFloat(data.data.valorSaquesProcessados || 0);
-            
-            // Atualizar elemento com informações detalhadas
-            receitaTotalEl.innerHTML = `
-                <div class="receita-principal">${formatCurrency(receitaTotal)}</div>
-                <div class="receita-detalhes">
-                    <small>Receita Acumulada: ${formatCurrency(receitaVendas)}</small><br>
-                    <small>Saques Processados: ${formatCurrency(saquesProcessados)}</small>
-                </div>
-            `;
+            // Atualizar elemento apenas com o saldo disponível
+            if (receitaTotalEl) {
+                receitaTotalEl.textContent = formatCurrency(receitaTotal);
+            }
         } else {
             throw new Error('Dados de receita não disponíveis');
         }
@@ -227,17 +233,37 @@ async function loadSaqueAtual() {
                 // Atualizar saque atual
                 saqueAtual = saque;
             } else {
-                // Não há saque pendente
+                // Não há saque pendente - mostrar content-cards
                 if (saqueAtualEl) {
                     saqueAtualEl.style.display = 'none';
                 }
+                
+                // Mostrar content-cards quando não houver saque pendente
+                const walletPanel = document.getElementById('walletPanel');
+                const withdrawalPanel = document.getElementById('withdrawalPanel');
+                const historicoPanel = document.getElementById('historicoPanel');
+                
+                if (walletPanel) walletPanel.style.display = 'block';
+                if (withdrawalPanel) withdrawalPanel.style.display = 'block';
+                if (historicoPanel) historicoPanel.style.display = 'block';
+                
                 saqueAtual = null;
             }
         } else {
-            // Não há saque pendente
+            // Não há saque pendente - mostrar content-cards
             if (saqueAtualEl) {
                 saqueAtualEl.style.display = 'none';
             }
+            
+            // Mostrar content-cards quando não houver saque pendente
+            const walletPanel = document.getElementById('walletPanel');
+            const withdrawalPanel = document.getElementById('withdrawalPanel');
+            const historicoPanel = document.getElementById('historicoPanel');
+            
+            if (walletPanel) walletPanel.style.display = 'block';
+            if (withdrawalPanel) withdrawalPanel.style.display = 'block';
+            if (historicoPanel) historicoPanel.style.display = 'block';
+            
             saqueAtual = null;
         }
         
@@ -246,12 +272,34 @@ async function loadSaqueAtual() {
         if (saqueAtualEl) {
             saqueAtualEl.style.display = 'none';
         }
+        
+        // Em caso de erro, mostrar content-cards
+        const walletPanel = document.getElementById('walletPanel');
+        const withdrawalPanel = document.getElementById('withdrawalPanel');
+        const historicoPanel = document.getElementById('historicoPanel');
+        
+        if (walletPanel) walletPanel.style.display = 'block';
+        if (withdrawalPanel) withdrawalPanel.style.display = 'block';
+        if (historicoPanel) historicoPanel.style.display = 'block';
     }
 }
 
         // Função para mostrar saque atual
         function mostrarSaqueAtual(saque) {
+            if (!saqueAtualEl) return;
+            
             saqueAtualEl.style.display = 'block';
+            
+            // Ocultar apenas painéis de carteira e solicitar saque quando houver saque pendente
+            // MANTER histórico de saques visível
+            const walletPanel = document.getElementById('walletPanel');
+            const withdrawalPanel = document.getElementById('withdrawalPanel');
+            const historicoPanel = document.getElementById('historicoPanel');
+            
+            if (walletPanel) walletPanel.style.display = 'none';
+            if (withdrawalPanel) withdrawalPanel.style.display = 'none';
+            // MANTER histórico visível - não ocultar
+            // if (historicoPanel) historicoPanel.style.display = 'none';
             
             // Atualizar título com status
             const statusTitle = document.getElementById('saqueStatusTitle');
@@ -261,26 +309,38 @@ async function loadSaqueAtual() {
             }
             
             // Mostrar detalhes do saque (formato simplificado)
-            const idSaque = saque.idSaque || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : '-');
+            // SEMPRE usar publicId (formato: apenas números de 6 dígitos) - NUNCA expor UUID completo
+            let idSaque = saque.public_id || saque.publicId || saque.idSaque || '-';
+            if (!idSaque || idSaque === '-' || idSaque.length > 6) {
+                // Se ainda não tiver publicId válido, usar apenas últimos 6 caracteres do UUID
+                if (saque.id && typeof saque.id === 'string' && saque.id.length > 6) {
+                    idSaque = saque.id.substring(saque.id.length - 6).toUpperCase();
+                } else {
+                    idSaque = '-';
+                }
+            }
             
-            saqueDetailsEl.innerHTML = `
-                <div class="saque-detail">
-                    <strong>ID do Saque</strong>
-                    <span>${idSaque}</span>
-                </div>
-                <div class="saque-detail">
-                    <strong>Nome do Titular</strong>
-                    <span>${saque.nomeTitular || 'N/A'}</span>
-                </div>
-                <div class="saque-detail">
-                    <strong>Valor</strong>
-                    <span>${formatCurrency(saque.valor || 0)}</span>
-                </div>
-                <div class="saque-detail">
-                    <strong>Status</strong>
-                    <span class="status-badge status-${saque.status || 'pendente'}">${(saque.status || 'pendente').toUpperCase()}</span>
-                </div>
-            `;
+            // Verificar se elemento existe antes de acessar innerHTML
+            if (saqueDetailsEl) {
+                saqueDetailsEl.innerHTML = `
+                    <div class="saque-detail">
+                        <strong>ID do Saque</strong>
+                        <span>${idSaque}</span>
+                    </div>
+                    <div class="saque-detail">
+                        <strong>Nome do Titular</strong>
+                        <span>${saque.nomeTitular || saque.nome_titular || 'N/A'}</span>
+                    </div>
+                    <div class="saque-detail">
+                        <strong>Valor</strong>
+                        <span>${formatCurrency(saque.valor || 0)}</span>
+                    </div>
+                    <div class="saque-detail">
+                        <strong>Status</strong>
+                        <span class="status-badge status-${saque.status || 'pendente'}">${(saque.status || 'pendente').toUpperCase()}</span>
+                    </div>
+                `;
+            }
             
             // Mostrar ações baseadas no status
             mostrarAcoesSaque(saque);
@@ -304,8 +364,10 @@ async function loadSaqueAtual() {
             
             switch (saque.status) {
                 case 'pendente':
+                    // Usar publicId para identificar saque, não UUID completo
+                    const saqueIdPublico = saque.public_id || saque.publicId || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : 'N/A');
                     acoesHTML = `
-                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saque.id}')">
+                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saqueIdPublico}')">
                             <i class="fas fa-clock"></i> Aguardando Aprovação
                         </button>
                     `;
@@ -318,15 +380,19 @@ async function loadSaqueAtual() {
                     `;
                     break;
                 case 'cancelado':
+                    // Usar publicId para identificar saque, não UUID completo
+                    const saqueIdPublicoCancelado = saque.public_id || saque.publicId || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : 'N/A');
                     acoesHTML = `
-                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saque.id}')">
+                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saqueIdPublicoCancelado}')">
                             <i class="fas fa-info-circle"></i> Ver Motivo do Cancelamento
                         </button>
                     `;
                     break;
                 default:
+                    // Usar publicId para identificar saque, não UUID completo
+                    const saqueIdPublicoDefault = saque.public_id || saque.publicId || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : 'N/A');
                     acoesHTML = `
-                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saque.id}')">
+                        <button class="btn-status btn-ver-status" onclick="verStatusSaque('${saqueIdPublicoDefault}')">
                             <i class="fas fa-eye"></i> Ver Status
                         </button>
                     `;
@@ -448,29 +514,34 @@ function renderHistoricoSaques(saques) {
                 <thead>
                     <tr>
                         <th>ID do Saque</th>
-                        <th>Nome do Titular</th>
-                        <th>Telefone</th>
                         <th>Valor</th>
-                        <th>Método</th>
                         <th>Status</th>
-                        <th>Data</th>
+                        <th>Data/Hora Solicitado</th>
+                        <th>Data/Hora Processado</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${saques.map((saque, index) => {
                         const status = saque.status || 'pendente';
                         const valor = saque.valor || saque.valorSolicitado || 0;
-                        const saqueId = saque.idSaque || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : '-');
+                        // SEMPRE usar publicId (formato: apenas números de 6 dígitos, ex: 606734) - NUNCA expor UUID completo
+                        let saqueId = saque.public_id || saque.publicId || saque.idSaque || '-';
+                        if (!saqueId || saqueId === '-' || saqueId.length > 6) {
+                            // Se ainda não tiver publicId válido, usar apenas últimos 6 caracteres do UUID
+                            if (saque.id && typeof saque.id === 'string' && saque.id.length > 6) {
+                                saqueId = saque.id.substring(saque.id.length - 6).toUpperCase();
+                            } else {
+                                saqueId = '-';
+                            }
+                        }
                         
                         return `
                         <tr>
-                            <td>${saqueId || '-'}</td>
-                            <td>${saque.nomeTitular || 'N/A'}</td>
-                            <td>${saque.telefoneTitular || 'N/A'}</td>
+                            <td><strong>${saqueId || '-'}</strong></td>
                             <td>${formatCurrency(valor)}</td>
-                            <td>${saque.metodoPagamento || saque.metodo || 'N/A'}</td>
                             <td><span class="status-badge status-${status}">${status}</span></td>
-                            <td>${formatDate(saque.dataSolicitacao || saque.createdAt)}</td>
+                            <td>${formatDateTime(saque.dataSolicitacao || saque.createdAt)}</td>
+                            <td>${formatDateTime(saque.dataProcessamento || saque.dataPagamento)}</td>
                         </tr>
                     `;
                     }).join('')}
@@ -684,15 +755,28 @@ async function solicitarSaque(event) {
             }
             
             // Mostrar sucesso
-            const saque = result.saque;
+            const saque = result.data || result.saque;
             const calculoTaxas = result.calculoTaxas || {};
+            
+            // Obter ID do saque (publicId ou fallback)
+            let idSaque = result.data?.publicId || result.data?.idSaque || saque?.publicId || saque?.idSaque || '-';
+            if (!idSaque || idSaque === '-') {
+                if (result.data?.id || saque?.id) {
+                    const saqueId = result.data?.id || saque?.id;
+                    idSaque = saqueId.substring(saqueId.length - 6).toUpperCase();
+                }
+            }
             
             let mensagemTaxas = '';
             if (calculoTaxas.taxaAdmin && calculoTaxas.valorLiquidoVendedor) {
                 mensagemTaxas = `\n\n💰 Detalhes do Saque:\n   📊 Valor Total: MZN ${calculoTaxas.valorTotal.toFixed(2)}\n   💼 Taxa Admin (5%): MZN ${calculoTaxas.taxaAdmin.toFixed(2)}\n   👤 Você Receberá (95%): MZN ${calculoTaxas.valorLiquidoVendedor.toFixed(2)}`;
             }
             
-            alert(`✅ Pedido de saque criado com sucesso!\n\n💰 Valor Solicitado: MZN ${saque.valor.toFixed(2)}\n💳 Carteira: ${saque.carteira}\n📱 Método: ${saque.metodoPagamento}\n⏳ Status: ${saque.status.toUpperCase()}${mensagemTaxas}\n\n📋 Seu pedido está aguardando aprovação do administrador.\n⏰ Você receberá uma notificação quando for processado.`);
+            const valorSaque = parseFloat(result.data?.valor || saque?.valor || 0);
+            const metodoPagamento = result.data?.metodoPagamento || saque?.metodoPagamento || 'N/A';
+            const statusSaque = (result.data?.status || saque?.status || 'pendente').toUpperCase();
+            
+            alert(`✅ Pedido de saque criado com sucesso!\n\n🆔 ID do Saque: ${idSaque}\n💰 Valor Solicitado: MZN ${valorSaque.toFixed(2)}\n📱 Método: ${metodoPagamento}\n⏳ Status: ${statusSaque}${mensagemTaxas}\n\n📋 Seu pedido está aguardando aprovação do administrador.\n⏰ Você receberá uma notificação quando for processado.`);
             
             // Atualizar dados
             await loadReceitaTotal();
@@ -722,12 +806,21 @@ async function solicitarSaque(event) {
 // Função para inicializar a página
 async function initializePage() {
     
+    // Garantir que content-cards estejam visíveis por padrão
+    const walletPanel = document.getElementById('walletPanel');
+    const withdrawalPanel = document.getElementById('withdrawalPanel');
+    const historicoPanel = document.getElementById('historicoPanel');
+    
+    if (walletPanel) walletPanel.style.display = 'block';
+    if (withdrawalPanel) withdrawalPanel.style.display = 'block';
+    if (historicoPanel) historicoPanel.style.display = 'block';
+    
     try {
         // Carregar dados iniciais (nova lógica sem saques pendentes)
         
         await Promise.all([
             loadReceitaTotal(),
-            loadSaqueAtual(), // Apenas oculta a seção
+            loadSaqueAtual(), // Verifica se há saque pendente e oculta/mostra content-cards
             loadHistoricoSaques(),
             carregarCarteirasInline(), // Carregar carteiras na seção inline
             carregarCarteirasSelectInline() // Carregar carteiras no select de saque
@@ -1245,9 +1338,78 @@ function mostrarTab(tabName) {
         carregarCarteirasInline();
     }
     
-    // Se for a tab de saque, carregar carteiras no select
+    // Se for a tab de saque, carregar dados da carteira
     if (tabName === 'saque') {
-        carregarCarteirasSelectInline();
+        carregarDadosCarteiraSaque();
+    }
+}
+
+// Função para buscar carteira única do usuário
+async function getCarteiraUnica() {
+    try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            return null;
+        }
+        
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = '/carteiras';
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = '/api/carteiras';
+        }
+        
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            return null;
+        }
+        
+        const result = await response.json();
+        if (result.success && result.carteira) {
+            return result.carteira;
+        }
+        return null;
+    } catch (error) {
+        console.error('❌ Erro ao buscar carteira:', error);
+        return null;
+    }
+}
+
+// Função para carregar e exibir dados da carteira na seção de saque
+async function carregarDadosCarteiraSaque() {
+    const carteiraInfoEl = document.getElementById('carteiraInfoSaque');
+    const infoMpesaEl = document.getElementById('infoMpesa');
+    const infoEmolaEl = document.getElementById('infoEmola');
+    
+    if (!carteiraInfoEl || !infoMpesaEl || !infoEmolaEl) {
+        return;
+    }
+    
+    try {
+        const carteira = await getCarteiraUnica();
+        
+        if (carteira) {
+            const mpesaInfo = `${carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || 'N/A'} - ${carteira.contacto_mpesa || carteira.contactoMpesa || 'N/A'}`;
+            const emolaInfo = `${carteira.nome_titular_emola || carteira.nomeTitularEmola || 'N/A'} - ${carteira.contacto_emola || carteira.contactoEmola || 'N/A'}`;
+            
+            infoMpesaEl.textContent = mpesaInfo;
+            infoEmolaEl.textContent = emolaInfo;
+            carteiraInfoEl.style.display = 'block';
+        } else {
+            carteiraInfoEl.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados da carteira:', error);
+        carteiraInfoEl.style.display = 'none';
     }
 }
 
@@ -1255,29 +1417,147 @@ function mostrarTab(tabName) {
 function toggleNovaCarteira() {
     const form = document.getElementById('novaCarteiraForm');
     const btn = document.getElementById('btnToggleNovaCarteira');
+    const btnSave = document.getElementById('btnSalvarCarteira');
     
-    if (form.style.display === 'none' || !form.style.display) {
-        form.style.display = 'block';
-        btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
-        btn.style.background = '#dc3545';
-    } else {
-        form.style.display = 'none';
-        btn.innerHTML = '<i class="fas fa-plus"></i><span>Nova Carteira</span>';
-        btn.style.background = '#28a745';
-        // Limpar formulário
-        document.getElementById('formNovaCarteiraInline').reset();
+    if (form && btn) {
+        if (form.style.display === 'none' || !form.style.display) {
+            form.style.display = 'block';
+            btn.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+            btn.style.background = '#dc3545';
+            // Resetar botão salvar para criar
+            if (btnSave) {
+                btnSave.onclick = criarCarteiraInline;
+                btnSave.innerHTML = '<i class="fas fa-save"></i> Salvar';
+            }
+        } else {
+            form.style.display = 'none';
+            btn.innerHTML = '<i class="fas fa-plus"></i><span>Configurar Carteira</span>';
+            btn.style.background = 'var(--primary-color)';
+            const formElement = document.getElementById('formNovaCarteiraInline');
+            if (formElement) formElement.reset();
+            // Resetar botão salvar
+            if (btnSave) {
+                btnSave.onclick = criarCarteiraInline;
+                btnSave.innerHTML = '<i class="fas fa-save"></i> Salvar';
+            }
+        }
     }
 }
 
-// Função para carregar carteiras na lista inline
-async function carregarCarteirasInline() {
-    const listaEl = document.getElementById('listaCarteirasInline');
+// Função para encriptografar número (mostra apenas últimos 3 dígitos)
+// Variável global para controlar visibilidade dos dados da carteira
+window.carteiraVisivel = false;
+
+// Função para mascarar número de forma discreta (exemplo: 843******543)
+function mascararNumeroDiscreto(numero) {
+    if (!numero || numero === 'N/A') return 'N/A';
+    const numeroStr = String(numero).replace(/\D/g, ''); // Remove não-dígitos
+    if (numeroStr.length < 9) return numeroStr; // Se muito curto, mostrar completo
     
-    if (!listaEl) return;
+    // Mostrar primeiros 3 dígitos, mascarar o meio, mostrar últimos 3
+    const primeiros3 = numeroStr.slice(0, 3);
+    const ultimos3 = numeroStr.slice(-3);
+    return `${primeiros3}******${ultimos3}`;
+}
+
+// Função para mascarar nome de forma discreta (exemplo: De****o Ma****pe)
+function mascararNomeDiscreto(nomeCompleto) {
+    if (!nomeCompleto || nomeCompleto === 'N/A') return 'N/A';
+    const partes = nomeCompleto.trim().split(/\s+/);
+    if (partes.length === 0) return 'N/A';
+    
+    // Mascarar cada parte do nome mantendo primeiras 2 letras e últimas 1-2
+    const partesMascaradas = partes.map(parte => {
+        if (parte.length <= 3) return parte; // Nomes muito curtos, mostrar completo
+        
+        const primeiraParte = parte.slice(0, 2);
+        const ultimaParte = parte.length > 5 ? parte.slice(-2) : parte.slice(-1);
+        const meioMascarado = '*'.repeat(Math.max(3, parte.length - 4));
+        return `${primeiraParte}${meioMascarado}${ultimaParte}`;
+    });
+    
+    return partesMascaradas.join(' ');
+}
+
+// Função para encriptografar número (mantida para compatibilidade)
+function encriptografarNumero(numero) {
+    if (!numero || numero === 'N/A') return 'N/A';
+    return mascararNumeroDiscreto(numero);
+}
+
+// Função para encriptografar nome (mantida para compatibilidade)
+function encriptografarNome(nomeCompleto) {
+    if (!nomeCompleto || nomeCompleto === 'N/A') return 'N/A';
+    return mascararNomeDiscreto(nomeCompleto);
+}
+
+// Função para armazenar dados completos da carteira
+function armazenarDadosCompletos(carteira) {
+    window.carteiraCompleta = {
+        id: carteira.id,
+        mpesa: {
+            nome: carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || '',
+            contacto: carteira.contacto_mpesa || carteira.contactoMpesa || ''
+        },
+        emola: {
+            nome: carteira.nome_titular_emola || carteira.nomeTitularEmola || '',
+            contacto: carteira.contacto_emola || carteira.contactoEmola || ''
+        }
+    };
+}
+
+// Função para renderizar dados da carteira (mascarados ou completos)
+function renderizarDadosCarteira(mpesaNome, mpesaContacto, emolaNome, emolaContacto) {
+    const displayMpesa = document.getElementById('displayMpesa');
+    const displayEmola = document.getElementById('displayEmola');
+    
+    if (!displayMpesa || !displayEmola) return;
+    
+    // Escolher dados baseado na visibilidade
+    const mpesaNomeDisplay = window.carteiraVisivel ? mpesaNome : mascararNomeDiscreto(mpesaNome);
+    const mpesaContactoDisplay = window.carteiraVisivel ? mpesaContacto : mascararNumeroDiscreto(mpesaContacto);
+    const emolaNomeDisplay = window.carteiraVisivel ? emolaNome : mascararNomeDiscreto(emolaNome);
+    const emolaContactoDisplay = window.carteiraVisivel ? emolaContacto : mascararNumeroDiscreto(emolaContacto);
+    
+    // Renderizar dados de forma organizada e compacta (formato: Contacto: 843******543; Nome do titular: De****o Ma****pe)
+    displayMpesa.innerHTML = `
+        <div style="font-size: 0.875rem; line-height: 1.6; color: var(--text-secondary);">
+            <div style="margin-bottom: 0.25rem;">
+                <strong style="color: var(--text-primary);">Contacto:</strong>
+                <span style="color: var(--text-primary); font-family: 'Courier New', monospace; margin-left: 0.25rem;">${mpesaContactoDisplay}</span>
+            </div>
+            <div>
+                <strong style="color: var(--text-primary);">Nome do titular:</strong>
+                <span style="color: var(--text-primary); margin-left: 0.25rem;">${mpesaNomeDisplay}</span>
+            </div>
+        </div>
+    `;
+    
+    displayEmola.innerHTML = `
+        <div style="font-size: 0.875rem; line-height: 1.6; color: var(--text-secondary);">
+            <div style="margin-bottom: 0.25rem;">
+                <strong style="color: var(--text-primary);">Contacto:</strong>
+                <span style="color: var(--text-primary); font-family: 'Courier New', monospace; margin-left: 0.25rem;">${emolaContactoDisplay}</span>
+            </div>
+            <div>
+                <strong style="color: var(--text-primary);">Nome do titular:</strong>
+                <span style="color: var(--text-primary); margin-left: 0.25rem;">${emolaNomeDisplay}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Função para carregar e exibir informações da carteira
+async function carregarCarteirasInline() {
+    const carteiraInfoContent = document.getElementById('carteiraInfoContent');
+    const carteiraInfoEmpty = document.getElementById('carteiraInfoEmpty');
+    const carteiraEmptyState = document.getElementById('carteiraEmptyState');
+    const displayMpesa = document.getElementById('displayMpesa');
+    const displayEmola = document.getElementById('displayEmola');
+    
+    if (!carteiraInfoContent || !carteiraInfoEmpty) return;
     
     try {
-        listaEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Carregando carteiras...</p></div>';
-        
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
         
         if (!token) {
@@ -1301,99 +1581,83 @@ async function carregarCarteirasInline() {
         });
         
         if (!response.ok) {
-            throw new Error('Erro ao carregar carteiras');
-        }
-        
-        const result = await response.json();
-        carteiras = result.carteiras || result.data || [];
-        
-        if (carteiras.length === 0) {
-            listaEl.innerHTML = '<div class="info-box"><i class="fas fa-info-circle"></i><div><p>Nenhuma carteira configurada. Clique em "Nova Carteira" para adicionar uma.</p></div></div>';
+            // Mostrar estado vazio
+            carteiraInfoContent.style.display = 'none';
+            if (carteiraEmptyState) carteiraEmptyState.style.display = 'block';
             return;
         }
         
-        listaEl.innerHTML = carteiras.map(carteira => `
-            <div class="carteira-item">
-                <div class="carteira-info-item">
-                    <h5>${carteira.nome}</h5>
-                    <p><i class="fas fa-mobile-alt"></i> ${carteira.metodo_saque || carteira.metodoSaque}</p>
-                    <p><i class="fas fa-phone"></i> ${carteira.contacto}</p>
-                    <p><i class="fas fa-user"></i> ${carteira.nome_titular || carteira.nomeTitular}</p>
-                    <p><i class="fas fa-envelope"></i> ${carteira.email_titular || carteira.emailTitular}</p>
-                </div>
-                <div class="carteira-actions">
-                    <button class="btn-delete" onclick="desativarCarteira(${carteira.id})" title="Desativar carteira">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        const result = await response.json();
         
+        if (result.success && result.carteira) {
+            const carteira = result.carteira;
+            
+            // Armazenar ID da carteira e dados completos
+            window.carteiraAtualId = carteira.id;
+            armazenarDadosCompletos(carteira);
+            
+            // Resetar visibilidade para mascarado por padrão
+            window.carteiraVisivel = false;
+            
+            // Obter dados originais
+            const mpesaNome = carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || 'N/A';
+            const mpesaContacto = carteira.contacto_mpesa || carteira.contactoMpesa || 'N/A';
+            const emolaNome = carteira.nome_titular_emola || carteira.nomeTitularEmola || 'N/A';
+            const emolaContacto = carteira.contacto_emola || carteira.contactoEmola || 'N/A';
+            
+            // Renderizar dados (mascarados por padrão)
+            renderizarDadosCarteira(mpesaNome, mpesaContacto, emolaNome, emolaContacto);
+            
+            // Mostrar lista de carteiras
+            const carteiraListDisplay = document.getElementById('carteiraListDisplay');
+            if (carteiraListDisplay) {
+                carteiraListDisplay.style.display = 'block';
+            }
+            
+            // Mostrar conteúdo e esconder estado vazio
+            carteiraInfoContent.style.display = 'flex';
+            if (carteiraEmptyState) carteiraEmptyState.style.display = 'none';
+            
+            // Esconder botão de configurar quando há carteira
+            const btnToggle = document.getElementById('btnToggleNovaCarteira');
+            if (btnToggle) {
+                btnToggle.style.display = 'none';
+            }
+            
+            // Garantir que o botão de visualizar tenha o ícone correto
+            const btnVisualizar = document.querySelector('[onclick="visualizarCarteira()"]');
+            if (btnVisualizar) {
+                const icon = btnVisualizar.querySelector('i');
+                if (icon && !window.carteiraVisivel) {
+                    icon.className = 'fas fa-eye';
+                    btnVisualizar.title = 'Visualizar dados';
+                }
+            }
+        } else {
+            // Mostrar estado vazio
+            carteiraInfoContent.style.display = 'none';
+            if (carteiraEmptyState) carteiraEmptyState.style.display = 'block';
+            window.carteiraAtualId = null;
+            window.carteiraCompleta = null;
+            
+            // Mostrar botão de configurar quando não há carteira
+            const btnToggle = document.getElementById('btnToggleNovaCarteira');
+            if (btnToggle) {
+                btnToggle.style.display = 'inline-flex';
+            }
+        }
     } catch (error) {
         console.error('❌ Erro ao carregar carteiras:', error);
-        listaEl.innerHTML = `<div class="info-box"><i class="fas fa-exclamation-triangle"></i><div><p>Erro ao carregar carteiras: ${error.message}</p></div></div>`;
+        carteiraInfoContent.style.display = 'none';
+        if (carteiraEmptyState) carteiraEmptyState.style.display = 'block';
     }
 }
 
 // Função para carregar carteiras no select inline
 async function carregarCarteirasSelectInline() {
-    const select = document.getElementById('carteiraSaqueInline');
-    
-    if (!select) return;
-    
-    try {
-        select.innerHTML = '<option value="">Carregando carteiras...</option>';
-        
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-        
-        if (!token) {
-            throw new Error('Usuário não autenticado');
-        }
-        
-        let apiUrl;
-        if (window.API_BASE) {
-            const endpoint = '/carteiras';
-            apiUrl = window.API_BASE.endsWith('/') 
-                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
-                : `${window.API_BASE}${endpoint}`;
-        } else {
-            apiUrl = '/api/carteiras';
-        }
-        
-        const response = await fetch(apiUrl, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao carregar carteiras');
-        }
-        
-        const result = await response.json();
-        const carteirasList = result.carteiras || result.data || [];
-        
-        if (carteirasList.length === 0) {
-            select.innerHTML = '<option value="">Nenhuma carteira configurada</option>';
-            select.disabled = true;
-            return;
-        }
-        
-        select.disabled = false;
-        select.innerHTML = '<option value="">Selecione uma carteira...</option>' +
-            carteirasList.map(carteira => 
-                `<option value="${carteira.id}">${carteira.nome} (${carteira.metodo_saque || carteira.metodoSaque})</option>`
-            ).join('');
-        
-        // Adicionar evento de mudança
-        select.addEventListener('change', function() {
-            mostrarDetalhesCarteiraInline(this.value, carteirasList);
-        });
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar carteiras:', error);
-        select.innerHTML = '<option value="">Erro ao carregar carteiras</option>';
-    }
+    // Função removida - não há mais select de carteira
+    // A carteira é buscada automaticamente pela API
+    return;
 }
 
 // Função para mostrar detalhes da carteira inline
@@ -1432,34 +1696,42 @@ async function criarCarteiraInline() {
         }
 
         // Coletar todos os campos obrigatórios
-        const nomeCarteira = document.getElementById('nomeCarteiraInline')?.value?.trim();
-        const metodoSaque = document.getElementById('metodoSaqueInline')?.value?.trim();
-        const contacto = document.getElementById('contactoInline')?.value?.trim();
-        const nomeTitular = document.getElementById('nomeTitularInline')?.value?.trim();
-        const emailTitular = document.getElementById('emailTitularInline')?.value?.trim();
+        const contactoMpesa = document.getElementById('contactoMpesaInline')?.value?.trim().replace(/\s+/g, '');
+        const nomeTitularMpesa = document.getElementById('nomeTitularMpesaInline')?.value?.trim();
+        const contactoEmola = document.getElementById('contactoEmolaInline')?.value?.trim().replace(/\s+/g, '');
+        const nomeTitularEmola = document.getElementById('nomeTitularEmolaInline')?.value?.trim();
         
         // Validações básicas
-        if (!nomeCarteira || !metodoSaque || !contacto || !nomeTitular || !emailTitular) {
+        if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {
             mostrarErro('Todos os campos são obrigatórios');
             return;
         }
 
-        // Validar formato de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailTitular)) {
-            mostrarErro('Por favor, insira um email válido');
+        // Validar formato de contactos (moçambicano: 8[4-7] seguido de 7 dígitos)
+        const contactoRegex = /^8[4-7]\d{7}$/;
+        if (!contactoRegex.test(contactoMpesa)) {
+            mostrarErro('Contacto Mpesa inválido. Deve ser um número moçambicano válido (84, 85, 86 ou 87 seguido de 7 dígitos)');
+            return;
+        }
+        if (!contactoRegex.test(contactoEmola)) {
+            mostrarErro('Contacto Emola inválido. Deve ser um número moçambicano válido (84, 85, 86 ou 87 seguido de 7 dígitos)');
             return;
         }
 
         const dados = {
-            nome: nomeCarteira,
-            metodoSaque: metodoSaque,
-            contacto: contacto,
-            nomeTitular: nomeTitular,
-            emailTitular: emailTitular
+            contactoMpesa: contactoMpesa,
+            nomeTitularMpesa: nomeTitularMpesa,
+            contactoEmola: contactoEmola,
+            nomeTitularEmola: nomeTitularEmola
         };
 
-        console.log('📤 Dados da carteira a serem enviados:', { ...dados, emailTitular: emailTitular.substring(0, 10) + '...' });
+        console.log('📤 Dados da carteira a serem enviados:', dados);
+        console.log('✅ Validação dos dados:', {
+            contactoMpesa: !!contactoMpesa && contactoMpesa.length > 0,
+            nomeTitularMpesa: !!nomeTitularMpesa && nomeTitularMpesa.length > 0,
+            contactoEmola: !!contactoEmola && contactoEmola.length > 0,
+            nomeTitularEmola: !!nomeTitularEmola && nomeTitularEmola.length > 0
+        });
 
         // Determinar URL da API
         let apiUrl;
@@ -1519,7 +1791,7 @@ async function criarCarteiraInline() {
             mostrarSucesso('Carteira criada com sucesso!');
             form.reset();
             toggleNovaCarteira();
-            carregarCarteirasInline();
+            await carregarCarteirasInline();
             carregarCarteirasSelectInline();
         } else {
             throw new Error(result.message || 'Erro ao criar carteira');
@@ -1545,13 +1817,7 @@ async function criarCarteiraInline() {
 
 // Função para solicitar código de saque inline
 async function solicitarCodigoSaqueInline() {
-    const carteiraId = document.getElementById('carteiraSaqueInline')?.value;
     const btn = document.getElementById('btnSolicitarCodigoInline');
-    
-    if (!carteiraId) {
-        mostrarErro('Selecione uma carteira primeiro');
-        return;
-    }
     
     try {
         btn.disabled = true;
@@ -1560,8 +1826,22 @@ async function solicitarCodigoSaqueInline() {
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
         
         if (!token) {
-            throw new Error('Usuário não autenticado');
+            throw new Error('Usuário não autenticado. Faça login novamente.');
         }
+        
+        // Garantir que a carteira foi carregada antes de solicitar código
+        // Se não estiver carregada, carregar agora
+        if (!window.carteiraAtualId || !window.carteiraCompleta) {
+            console.log('🔄 Carteira não encontrada em cache, carregando...');
+            await carregarCarteirasInline();
+            
+            // Verificar novamente após carregar
+            if (!window.carteiraAtualId || !window.carteiraCompleta) {
+                throw new Error('Carteira não configurada. Por favor, configure sua carteira primeiro.');
+            }
+        }
+        
+        console.log('✅ Carteira encontrada:', window.carteiraAtualId);
         
         let apiUrl;
         if (window.API_BASE) {
@@ -1573,26 +1853,52 @@ async function solicitarCodigoSaqueInline() {
             apiUrl = '/api/carteiras/saque/codigo';
         }
         
+        console.log('🔄 Solicitando código de saque...');
+        
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ carteiraId })
+            body: JSON.stringify({})
         });
         
-        const result = await response.json();
+        console.log('📥 Resposta recebida - Status:', response.status, response.statusText);
+        
+        let result;
+        try {
+            const responseText = await response.text();
+            console.log('📄 Resposta do servidor (texto):', responseText);
+            
+            if (responseText) {
+                result = JSON.parse(responseText);
+                console.log('📊 Resposta do servidor (JSON):', result);
+            } else {
+                result = { success: false, message: 'Resposta vazia do servidor' };
+            }
+        } catch (parseError) {
+            console.error('❌ Erro ao parsear resposta:', parseError);
+            throw new Error('Erro ao processar resposta do servidor');
+        }
         
         if (result.success) {
             mostrarSucesso('Código enviado para seu email! Verifique sua caixa de entrada.');
+            
+            // Se houver informação de expiração, mostrar
+            if (result.expiraEm) {
+                const dataExpiracao = new Date(result.expiraEm).toLocaleString('pt-BR');
+                console.log(`⏰ Código expira em: ${dataExpiracao}`);
+            }
         } else {
-            throw new Error(result.message || 'Erro ao solicitar código');
+            const errorMessage = result.message || result.error || 'Erro ao solicitar código';
+            throw new Error(errorMessage);
         }
         
     } catch (error) {
         console.error('❌ Erro ao solicitar código:', error);
-        mostrarErro(error.message || 'Erro ao solicitar código');
+        console.error('❌ Stack:', error.stack);
+        mostrarErro(error.message || 'Erro ao solicitar código de saque');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Solicitar';
@@ -1608,18 +1914,19 @@ async function solicitarSaqueInline(event) {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
         
-        const carteiraId = document.getElementById('carteiraSaqueInline').value;
         const valorSaque = parseFloat(document.getElementById('valorSaqueInline').value);
         const codigoAutenticacao = document.getElementById('codigoAutenticacaoInline').value;
         
-        // Validações
-        if (!carteiraId) {
-            mostrarErro('Selecione uma carteira para o saque');
+        // Buscar carteira para obter dados
+        const carteira = await getCarteiraUnica();
+        if (!carteira) {
+            mostrarErro('Nenhuma carteira configurada. Por favor, configure sua carteira primeiro.');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Saque';
             return;
         }
         
+        // Validações
         if (isNaN(valorSaque) || valorSaque < 1) {
             mostrarErro('Valor mínimo para saque é MZN 1,00');
             btn.disabled = false;
@@ -1642,9 +1949,9 @@ async function solicitarSaqueInline(event) {
         }
         
         const saqueData = {
-            carteiraId: carteiraId,
             valor: valorSaque,
-            codigoAutenticacao: codigoAutenticacao
+            codigoAutenticacao: codigoAutenticacao,
+            carteiraId: carteira.id
         };
         
         console.log('📤 Dados do saque a serem enviados:', saqueData);
@@ -1655,6 +1962,7 @@ async function solicitarSaqueInline(event) {
             throw new Error('Usuário não autenticado. Faça login novamente.');
         }
         
+        // Usar endpoint de carteiras/saque/processar
         let apiUrl;
         if (window.API_BASE) {
             const endpoint = '/carteiras/saque/processar';
@@ -1702,9 +2010,29 @@ async function solicitarSaqueInline(event) {
         }
         
         if (result.success) {
-            mostrarSucesso('Saque solicitado com sucesso!');
-            document.getElementById('formSaqueInline').reset();
-            document.getElementById('carteiraInfoInline').style.display = 'none';
+            // Obter ID do saque - SEMPRE usar publicId, NUNCA expor UUID completo
+            let idSaque = result.data?.public_id || result.data?.publicId || result.data?.idSaque || '-';
+            if (!idSaque || idSaque === '-' || idSaque.length > 6) {
+                // Se ainda não tiver publicId válido, usar apenas últimos 6 caracteres do UUID
+                if (result.data?.id && typeof result.data.id === 'string' && result.data.id.length > 6) {
+                    idSaque = result.data.id.substring(result.data.id.length - 6).toUpperCase();
+                } else {
+                    idSaque = '-';
+                }
+            }
+            
+            mostrarSucesso(`Saque solicitado com sucesso! ID: ${idSaque}`);
+            
+            const formSaque = document.getElementById('formSaqueInline');
+            if (formSaque) {
+                formSaque.reset();
+            }
+            
+            // Verificar se elemento existe antes de acessar style
+            const carteiraInfoInline = document.getElementById('carteiraInfoInline');
+            if (carteiraInfoInline) {
+                carteiraInfoInline.style.display = 'none';
+            }
             
             // Atualizar dados
             await loadReceitaTotal();
@@ -1859,7 +2187,7 @@ async function solicitarCodigoSaque() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ carteiraId })
+            body: JSON.stringify({})
         });
 
         
@@ -1886,3 +2214,279 @@ async function solicitarCodigoSaque() {
 // O código é enviado instantaneamente sem temporizador
 
 // Função window.onclick removida - não há mais modais para fechar
+
+// Função para editar carteira
+// Função para visualizar dados completos da carteira
+// Função para alternar visualização da carteira (mascarado/completo)
+async function visualizarCarteira() {
+    if (!window.carteiraAtualId || !window.carteiraCompleta) {
+        mostrarErro('Nenhuma carteira encontrada');
+        return;
+    }
+    
+    // Alternar estado de visibilidade
+    window.carteiraVisivel = !window.carteiraVisivel;
+    
+    // Obter dados completos
+    const dados = window.carteiraCompleta;
+    const mpesaNome = dados.mpesa.nome || 'N/A';
+    const mpesaContacto = dados.mpesa.contacto || 'N/A';
+    const emolaNome = dados.emola.nome || 'N/A';
+    const emolaContacto = dados.emola.contacto || 'N/A';
+    
+    // Renderizar com novo estado
+    renderizarDadosCarteira(mpesaNome, mpesaContacto, emolaNome, emolaContacto);
+    
+    // Atualizar ícone do botão
+    const btnVisualizar = document.querySelector('[onclick="visualizarCarteira()"]');
+    if (btnVisualizar) {
+        const icon = btnVisualizar.querySelector('i');
+        if (icon) {
+            if (window.carteiraVisivel) {
+                icon.className = 'fas fa-eye-slash';
+                btnVisualizar.title = 'Ocultar dados';
+            } else {
+                icon.className = 'fas fa-eye';
+                btnVisualizar.title = 'Visualizar dados';
+            }
+        }
+    }
+    
+    // Mostrar mensagem informativa
+    if (window.carteiraVisivel) {
+        mostrarSucesso('Dados da carteira exibidos');
+    } else {
+        mostrarSucesso('Dados da carteira ocultos');
+    }
+}
+
+async function editarCarteira() {
+    if (!window.carteiraAtualId) {
+        mostrarErro('Nenhuma carteira encontrada');
+        return;
+    }
+    
+    // Abrir formulário de edição
+    const form = document.getElementById('novaCarteiraForm');
+    const carteiraInfoContent = document.getElementById('carteiraInfoContent');
+    const carteiraEmptyState = document.getElementById('carteiraEmptyState');
+    const btnToggle = document.getElementById('btnToggleNovaCarteira');
+    
+    if (form) {
+        // Carregar dados da carteira atual
+        try {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            let apiUrl;
+            if (window.API_BASE) {
+                const endpoint = `/carteiras/${window.carteiraAtualId}`;
+                apiUrl = window.API_BASE.endsWith('/') 
+                    ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                    : `${window.API_BASE}${endpoint}`;
+            } else {
+                apiUrl = `/api/carteiras/${window.carteiraAtualId}`;
+            }
+            
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.carteira) {
+                    const carteira = result.carteira;
+                    
+                    // Preencher campos do formulário
+                    document.getElementById('contactoMpesaInline').value = carteira.contacto_mpesa || carteira.contactoMpesa || '';
+                    document.getElementById('nomeTitularMpesaInline').value = carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || '';
+                    document.getElementById('contactoEmolaInline').value = carteira.contacto_emola || carteira.contactoEmola || '';
+                    document.getElementById('nomeTitularEmolaInline').value = carteira.nome_titular_emola || carteira.nomeTitularEmola || '';
+                    
+                    // Esconder conteúdo da carteira e mostrar formulário
+                    if (carteiraInfoContent) carteiraInfoContent.style.display = 'none';
+                    if (carteiraEmptyState) carteiraEmptyState.style.display = 'block';
+                    form.style.display = 'block';
+                    
+                    // Alterar botão toggle se existir
+                    if (btnToggle) {
+                        btnToggle.style.display = 'inline-flex';
+                        btnToggle.innerHTML = '<i class="fas fa-times"></i><span>Cancelar</span>';
+                        btnToggle.style.background = '#dc3545';
+                    }
+                    
+                    // Alterar função do botão salvar para atualizar
+                    const btnSave = document.getElementById('btnSalvarCarteira');
+                    if (btnSave) {
+                        btnSave.onclick = atualizarCarteira;
+                        btnSave.innerHTML = '<i class="fas fa-save"></i> Atualizar';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar carteira:', error);
+            mostrarErro('Erro ao carregar dados da carteira');
+        }
+    }
+}
+
+// Função para atualizar carteira
+async function atualizarCarteira() {
+    if (!window.carteiraAtualId) {
+        mostrarErro('Nenhuma carteira encontrada');
+        return;
+    }
+    
+    try {
+        const form = document.getElementById('formNovaCarteiraInline');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const contactoMpesa = document.getElementById('contactoMpesaInline')?.value?.trim().replace(/\s+/g, '');
+        const nomeTitularMpesa = document.getElementById('nomeTitularMpesaInline')?.value?.trim();
+        const contactoEmola = document.getElementById('contactoEmolaInline')?.value?.trim().replace(/\s+/g, '');
+        const nomeTitularEmola = document.getElementById('nomeTitularEmolaInline')?.value?.trim();
+        
+        if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {
+            mostrarErro('Todos os campos são obrigatórios');
+            return;
+        }
+
+        const contactoRegex = /^8[4-7]\d{7}$/;
+        if (!contactoRegex.test(contactoMpesa) || !contactoRegex.test(contactoEmola)) {
+            mostrarErro('Contactos inválidos. Use formato moçambicano (84, 85, 86 ou 87 seguido de 7 dígitos)');
+            return;
+        }
+
+        const dados = {
+            contactoMpesa: contactoMpesa,
+            nomeTitularMpesa: nomeTitularMpesa,
+            contactoEmola: contactoEmola,
+            nomeTitularEmola: nomeTitularEmola
+        };
+
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = `/carteiras/${window.carteiraAtualId}`;
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = `/api/carteiras/${window.carteiraAtualId}`;
+        }
+        
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(dados)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            mostrarSucesso('Carteira atualizada com sucesso!');
+            form.reset();
+            
+            // Esconder formulário e mostrar dados atualizados
+            const formElement = document.getElementById('novaCarteiraForm');
+            const carteiraInfoContent = document.getElementById('carteiraInfoContent');
+            const carteiraEmptyState = document.getElementById('carteiraEmptyState');
+            const btnToggle = document.getElementById('btnToggleNovaCarteira');
+            
+            if (formElement) formElement.style.display = 'none';
+            if (carteiraEmptyState) carteiraEmptyState.style.display = 'none';
+            
+            // Resetar botão toggle
+            if (btnToggle) {
+                btnToggle.style.display = 'none';
+            }
+            
+            // Resetar botão salvar
+            const btnSave = document.getElementById('btnSalvarCarteira');
+            if (btnSave) {
+                btnSave.onclick = criarCarteiraInline;
+                btnSave.innerHTML = '<i class="fas fa-save"></i> Salvar';
+            }
+            
+            // Recarregar carteiras para mostrar dados atualizados
+            await carregarCarteirasInline();
+        } else {
+            throw new Error(result.message || 'Erro ao atualizar carteira');
+        }
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        mostrarErro(error.message || 'Erro ao atualizar carteira');
+    }
+}
+
+// Função para deletar carteira
+async function deletarCarteira() {
+    if (!window.carteiraAtualId) {
+        mostrarErro('Nenhuma carteira encontrada');
+        return;
+    }
+    
+    // Usar SweetAlert2 se disponível, senão usar confirm padrão
+    let confirmar = false;
+    if (typeof Swal !== 'undefined') {
+        const result = await Swal.fire({
+            title: 'Tem certeza?',
+            text: 'Deseja apagar esta carteira? Esta ação não pode ser desfeita.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sim, apagar',
+            cancelButtonText: 'Cancelar'
+        });
+        confirmar = result.isConfirmed;
+    } else {
+        confirmar = confirm('Tem certeza que deseja apagar esta carteira? Esta ação não pode ser desfeita.');
+    }
+    
+    if (!confirmar) {
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        let apiUrl;
+        if (window.API_BASE) {
+            const endpoint = `/carteiras/${window.carteiraAtualId}`;
+            apiUrl = window.API_BASE.endsWith('/') 
+                ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+                : `${window.API_BASE}${endpoint}`;
+        } else {
+            apiUrl = `/api/carteiras/${window.carteiraAtualId}`;
+        }
+        
+        const response = await fetch(apiUrl, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarSucesso('Carteira apagada com sucesso!');
+            window.carteiraAtualId = null;
+            window.carteiraCompleta = null;
+            await carregarCarteirasInline();
+        } else {
+            throw new Error(result.message || 'Erro ao apagar carteira');
+        }
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        mostrarErro(error.message || 'Erro ao apagar carteira');
+    }
+}

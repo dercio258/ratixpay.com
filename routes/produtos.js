@@ -7,6 +7,7 @@ const fetch = require('node-fetch');
 const LocalImageService = require('../services/localImageService');
 const LargeFileService = require('../services/largeFileService');
 const GeminiService = require('../services/geminiService');
+const ratixpayApprovalService = require('../services/ratixpayApprovalService');
 const { Produto, Usuario } = require('../config/database');
 const { Op } = require('sequelize');
 const { authenticateToken, isAdmin, isVendedorOrAdmin } = require('../middleware/auth');
@@ -200,26 +201,79 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       solicitar_aprovacao
     } = req.body;
 
-    // Validações
-    if (!name || !category || !description || !price || !finalPrice) {
-      return res.status(400).json({
-        success: false,
-        error: 'Dados obrigatórios não fornecidos',
-        message: 'Nome, categoria, descrição, preço e preço final são obrigatórios'
-      });
-    }
-
-    // Validar se há imagem (obrigatória)
-    console.log('🔍 Verificando imagem:', { imagem_url, imagemBase64: req.body.imagemBase64 ? 'presente' : 'ausente' });
+    // ==================== VALIDAÇÃO COMPLETA E PROFISSIONAL DOS CAMPOS ====================
+    console.log('🔍 Iniciando validação completa dos campos do produto...');
     
+    const errosValidacao = [];
+    
+    // Validar nome
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      errosValidacao.push('Nome do produto é obrigatório');
+    } else if (name.trim().length < 3) {
+      errosValidacao.push('Nome do produto deve ter pelo menos 3 caracteres');
+    } else if (name.trim().length > 255) {
+      errosValidacao.push('Nome do produto não pode exceder 255 caracteres');
+    }
+    
+    // Validar categoria
+    if (!category || typeof category !== 'string' || category.trim().length === 0) {
+      errosValidacao.push('Categoria do produto é obrigatória');
+    }
+    
+    // Validar descrição
+    if (!description || typeof description !== 'string' || description.trim().length === 0) {
+      errosValidacao.push('Descrição do produto é obrigatória');
+    } else if (description.trim().length < 50) {
+      errosValidacao.push('Descrição do produto deve ter pelo menos 50 caracteres');
+    }
+    
+    // Validar preço
+    if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+      errosValidacao.push('Preço do produto é obrigatório e deve ser maior que zero');
+    }
+    
+    // Validar preço final
+    if (!finalPrice || isNaN(parseFloat(finalPrice)) || parseFloat(finalPrice) <= 0) {
+      errosValidacao.push('Preço final do produto é obrigatório e deve ser maior que zero');
+    }
+    
+    // Validar se preço final não é maior que preço original
+    if (price && finalPrice && parseFloat(finalPrice) > parseFloat(price)) {
+      errosValidacao.push('Preço final não pode ser maior que o preço original');
+    }
+    
+    // Validar tipo
+    if (type && !['digital', 'fisico', 'curso', 'ebook', 'servico'].includes(type.toLowerCase())) {
+      errosValidacao.push('Tipo de produto inválido. Use: digital, fisico, curso, ebook ou servico');
+    }
+    
+    // Validar imagem (obrigatória)
     if (!imagem_url) {
-      console.log('❌ Produto rejeitado: sem imagem');
+      errosValidacao.push('Imagem do produto é obrigatória');
+    } else if (typeof imagem_url !== 'string' || imagem_url.trim().length === 0) {
+      errosValidacao.push('URL da imagem do produto é inválida');
+    }
+    
+    // Validar configurações de afiliados se fornecidas
+    if (permitir_afiliados === 'true' || permitir_afiliados === true) {
+      const comissao = parseFloat(comissao_afiliados) || 0;
+      if (comissao < 0 || comissao > 50) {
+        errosValidacao.push('Comissão de afiliados deve estar entre 0% e 50%');
+      }
+    }
+    
+    // Se houver erros de validação, retornar todos de uma vez
+    if (errosValidacao.length > 0) {
+      console.log('❌ Erros de validação encontrados:', errosValidacao);
       return res.status(400).json({
         success: false,
-        error: 'IMAGEM_OBRIGATORIA',
-        message: 'É obrigatório fornecer uma imagem para o produto'
+        error: 'VALIDACAO_FALHOU',
+        message: 'Erros de validação encontrados',
+        erros: errosValidacao
       });
     }
+    
+    console.log('✅ Validação completa dos campos concluída com sucesso');
 
     // Verificar se já existe um produto com o mesmo nome para este vendedor
     const existingProduct = await Produto.findOne({
@@ -512,7 +566,7 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       }
     }
 
-    // Criar produto
+    // Criar produto imediatamente com status "Aguardando Aprovação" para aparecer na gestão
     console.log('💾 Salvando produto no banco de dados...');
     console.log('🔧 Configurações que serão salvas:');
     console.log('  - discount_config:', discountConfig);
@@ -537,8 +591,8 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       link_conteudo: contentLink || null,
       marketplace: marketplace === 'true',
       observacoes: observations || null,
-      ativo: true,
-      status_aprovacao: 'aprovado', // Aprovado automaticamente pelo Gemini
+      ativo: false, // Produto inativo até ser aprovado
+      status_aprovacao: 'pendente_aprovacao', // Status inicial: aguardando aprovação
       // Persistir configuração Order Bump se enviada
       order_bump_ativo: order_bump_ativo === true || order_bump_ativo === 'true' || false,
       // Configurações de afiliados
@@ -555,7 +609,7 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
       remarketing_config: remarketingConfig
     });
     
-    console.log('✅ Produto criado com sucesso!');
+    console.log('✅ Produto criado como rascunho!');
     console.log('📊 Configurações salvas no banco:');
     console.log('  - discount_config:', produto.discount_config);
     console.log('  - timer_config:', produto.timer_config);
@@ -563,32 +617,10 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
 
     console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
 
-    // Enviar notificação de criação de produto ao vendedor
-    try {
-      const { Usuario } = require('../config/database');
-      const vendedor = await Usuario.findByPk(req.user.id);
-      if (vendedor && vendedor.email) {
-        const emailManagerService = require('../services/emailManagerService');
-        await emailManagerService.enviarEmailSistema('notificacao_produto_criado', {
-          email: vendedor.email,
-          nome: vendedor.nome_completo || vendedor.email,
-          produto: {
-            id: produto.id,
-            custom_id: produto.custom_id,
-            nome: produto.nome,
-            preco: produto.preco
-          }
-        });
-        console.log(`📧 Notificação de criação de produto enviada para: ${vendedor.email}`);
-      }
-    } catch (emailError) {
-      console.error('⚠️ Erro ao enviar notificação de criação de produto:', emailError);
-      // Não bloquear a operação se o email falhar
-    }
-
+    // Retornar resposta imediata ao cliente (produto criado e aguardando aprovação)
     res.status(201).json({
       success: true,
-      message: 'Produto criado com sucesso',
+      message: 'Produto criado com sucesso! Aguardando análise e aprovação...',
       produto: {
         id: produto.id,
         custom_id: produto.custom_id,
@@ -597,16 +629,242 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
         preco: produto.preco,
         preco_final: produto.preco_final,
         imagem_url: produto.imagem_url,
-        ativo: produto.ativo
+        ativo: produto.ativo,
+        status_aprovacao: produto.status_aprovacao
       },
-      verificacao: verificacaoGemini ? {
-        aprovado: verificacaoGemini.aprovado,
-        motivo: verificacaoGemini.motivo,
-        score: verificacaoGemini.score,
-        resposta_ia: verificacaoGemini.resposta_ia,
-        timestamp: verificacaoGemini.timestamp
-      } : null
+      aprovacao: {
+        status: 'processando',
+        mensagem: 'Produto será analisado em breve. Você receberá uma notificação quando a análise for concluída.'
+      }
     });
+
+    // Processar aprovação em background após 30 segundos (para dar aparência profissional)
+    setTimeout(async () => {
+      try {
+        console.log('⏳ Aguardando 30 segundos antes de enviar para aprovação...');
+        // O delay já está no setTimeout externo, então apenas logamos
+        console.log('🔍 Enviando produto para aprovação na API RatixPay...');
+        
+        const resultadoAprovacao = await ratixpayApprovalService.analisarProduto({
+          nome: name,
+          descricao: description,
+          tipo: type || 'digital',
+          categoria: category,
+          link_conteudo: contentLink || null,
+          link_imagem: imagem_url || null
+        });
+
+        console.log('📋 Resultado da aprovação:', resultadoAprovacao);
+
+        // Recarregar produto do banco para garantir dados atualizados
+        await produto.reload();
+
+        // Atualizar status do produto baseado na resposta da API
+        if (resultadoAprovacao.status === 'aprovado') {
+          await produto.update({
+          status_aprovacao: 'aprovado',
+          ativo: true,
+          motivo_rejeicao: null
+        });
+        console.log('✅ Produto aprovado pela API RatixPay!');
+        
+        // Enviar notificação de aprovação ao vendedor
+        try {
+          const vendedor = await Usuario.findByPk(req.user.id);
+          if (vendedor && vendedor.email) {
+            const emailManagerService = require('../services/emailManagerService');
+            await emailManagerService.enviarEmailSistema('notificacao_produto_aprovado', {
+              email: vendedor.email,
+              nome: vendedor.nome_completo || vendedor.email,
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                preco: produto.preco
+              }
+            });
+            console.log(`📧 Notificação de aprovação enviada para: ${vendedor.email}`);
+          }
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar notificação de aprovação:', emailError);
+        }
+      } else if (resultadoAprovacao.status === 'erro_comunicacao') {
+        // Erro de comunicação - manter como pendente para aprovação manual
+        await produto.update({
+          status_aprovacao: 'pendente_aprovacao',
+          ativo: false,
+          motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com o serviço de aprovação. Aguardando revisão manual.'
+        });
+        console.log('⚠️ Erro de comunicação com API - Produto mantido como pendente para aprovação manual');
+        
+        // Notificar admin sobre produto pendente por erro de comunicação
+        try {
+          const emailManagerService = require('../services/emailManagerService');
+          const admin = await Usuario.findOne({ 
+            where: {
+              [Op.or]: [
+                { role: 'admin' },
+                { tipo_conta: 'admin' },
+                { email: 'ratixpay.mz@gmail.com' }
+              ]
+            },
+            order: [['created_at', 'DESC']]
+          });
+          
+          if (admin && admin.email) {
+            const vendedor = await Usuario.findByPk(req.user.id);
+            await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+              email: admin.email,
+              nome: admin.nome_completo || 'Administrador',
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                descricao: produto.descricao,
+                categoria: produto.categoria,
+                tipo: produto.tipo,
+                imagem_url: produto.imagem_url
+              },
+              vendedor: {
+                nome: vendedor?.nome_completo || vendedor?.email,
+                email: vendedor?.email
+              },
+              motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'
+            });
+            console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+          }
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+        }
+      } else {
+        // Produto rejeitado - MANTER no banco para revisão manual do admin
+        console.log('❌ Produto rejeitado pela API RatixPay:', resultadoAprovacao.motivo);
+        console.log('📝 Mantendo produto no banco para revisão manual do administrador...');
+        
+        // Atualizar status do produto como rejeitado (mas mantê-lo no banco)
+        await produto.update({
+          status_aprovacao: 'rejeitado',
+          ativo: false,
+          motivo_rejeicao: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+        });
+        console.log(`✅ Produto ${produto.custom_id} marcado como rejeitado e mantido no banco para revisão do admin`);
+        
+        // Enviar notificação de rejeição ao vendedor
+        try {
+          const vendedor = await Usuario.findByPk(produto.vendedor_id);
+          if (vendedor && vendedor.email) {
+            const emailManagerService = require('../services/emailManagerService');
+            await emailManagerService.enviarEmailSistema('notificacao_produto_rejeitado', {
+              email: vendedor.email,
+              nome: vendedor.nome_completo || vendedor.email,
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome
+              },
+              motivo: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+            });
+            console.log(`📧 Notificação de rejeição enviada para: ${vendedor.email}`);
+          }
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar notificação de rejeição:', emailError);
+        }
+        
+        // Notificar admin sobre produto rejeitado para revisão manual
+        try {
+          const emailManagerService = require('../services/emailManagerService');
+          const admin = await Usuario.findOne({ 
+            where: {
+              [Op.or]: [
+                { role: 'admin' },
+                { tipo_conta: 'admin' },
+                { email: 'ratixpay.mz@gmail.com' }
+              ]
+            },
+            order: [['created_at', 'DESC']]
+          });
+          
+          if (admin && admin.email) {
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+              email: admin.email,
+              nome: admin.nome_completo || 'Administrador',
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                descricao: produto.descricao,
+                categoria: produto.categoria,
+                tipo: produto.tipo,
+                imagem_url: produto.imagem_url
+              },
+              vendedor: {
+                nome: vendedor?.nome_completo || vendedor?.email,
+                email: vendedor?.email
+              },
+              motivo_rejeicao: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+            });
+            console.log(`📧 Notificação enviada para admin sobre produto rejeitado: ${admin.email}`);
+          }
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+        }
+      }
+      } catch (approvalError) {
+        console.error('❌ Erro inesperado ao processar aprovação do produto:', approvalError);
+        // Em caso de erro inesperado, manter como pendente
+        try {
+          await produto.reload();
+          await produto.update({
+            status_aprovacao: 'pendente_aprovacao',
+            ativo: false,
+            motivo_rejeicao: 'Erro inesperado ao processar aprovação. Produto será revisado manualmente pelo administrador.'
+          });
+          
+          // Notificar admin sobre produto pendente por erro
+          try {
+            const emailManagerService = require('../services/emailManagerService');
+            const admin = await Usuario.findOne({ 
+              where: {
+                [Op.or]: [
+                  { role: 'admin' },
+                  { tipo_conta: 'admin' },
+                  { email: 'ratixpay.mz@gmail.com' }
+                ]
+              },
+              order: [['created_at', 'DESC']]
+            });
+            
+            if (admin && admin.email) {
+              const vendedor = await Usuario.findByPk(produto.vendedor_id);
+              await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+                email: admin.email,
+                nome: admin.nome_completo || 'Administrador',
+                produto: {
+                  id: produto.id,
+                  custom_id: produto.custom_id,
+                  nome: produto.nome,
+                  descricao: produto.descricao,
+                  categoria: produto.categoria,
+                  tipo: produto.tipo,
+                  imagem_url: produto.imagem_url
+                },
+                vendedor: {
+                  nome: vendedor?.nome_completo || vendedor?.email,
+                  email: vendedor?.email
+                },
+                motivo_rejeicao: 'Erro inesperado ao processar aprovação'
+              });
+              console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+            }
+          } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+          }
+        } catch (updateError) {
+          console.error('❌ Erro ao atualizar produto após erro de aprovação:', updateError);
+        }
+      }
+    }, 30000); // Executar após 30 segundos
 
   } catch (error) {
     console.error('❌ Erro ao criar produto simples:', error);
@@ -643,22 +901,69 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
       solicitar_aprovacao
     } = req.body;
 
-    // Validações
-    if (!name || !category || !description || !price || !finalPrice) {
-      return res.status(400).json({
-        success: false,
-        error: 'Dados obrigatórios não fornecidos',
-        message: 'Nome, categoria, descrição, preço e preço final são obrigatórios'
-      });
+    // ==================== VALIDAÇÃO COMPLETA E PROFISSIONAL DOS CAMPOS ====================
+    console.log('🔍 Iniciando validação completa dos campos do produto...');
+    
+    const errosValidacao = [];
+    
+    // Validar nome
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      errosValidacao.push('Nome do produto é obrigatório');
+    } else if (name.trim().length < 3) {
+      errosValidacao.push('Nome do produto deve ter pelo menos 3 caracteres');
+    } else if (name.trim().length > 255) {
+      errosValidacao.push('Nome do produto não pode exceder 255 caracteres');
     }
-
+    
+    // Validar categoria
+    if (!category || typeof category !== 'string' || category.trim().length === 0) {
+      errosValidacao.push('Categoria do produto é obrigatória');
+    }
+    
+    // Validar descrição
+    if (!description || typeof description !== 'string' || description.trim().length === 0) {
+      errosValidacao.push('Descrição do produto é obrigatória');
+    } else if (description.trim().length < 50) {
+      errosValidacao.push('Descrição do produto deve ter pelo menos 50 caracteres');
+    }
+    
+    // Validar preço
+    if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+      errosValidacao.push('Preço do produto é obrigatório e deve ser maior que zero');
+    }
+    
+    // Validar preço final
+    if (!finalPrice || isNaN(parseFloat(finalPrice)) || parseFloat(finalPrice) <= 0) {
+      errosValidacao.push('Preço final do produto é obrigatório e deve ser maior que zero');
+    }
+    
+    // Validar se preço final não é maior que preço original
+    if (price && finalPrice && parseFloat(finalPrice) > parseFloat(price)) {
+      errosValidacao.push('Preço final não pode ser maior que o preço original');
+    }
+    
+    // Validar tipo
+    if (type && !['digital', 'fisico', 'curso', 'ebook', 'servico'].includes(type.toLowerCase())) {
+      errosValidacao.push('Tipo de produto inválido. Use: digital, fisico, curso, ebook ou servico');
+    }
+    
+    // Validar imagem (obrigatória)
     if (!uploads.image) {
+      errosValidacao.push('Imagem do produto é obrigatória');
+    }
+    
+    // Se houver erros de validação, retornar todos de uma vez
+    if (errosValidacao.length > 0) {
+      console.log('❌ Erros de validação encontrados:', errosValidacao);
       return res.status(400).json({
         success: false,
-        error: 'Imagem obrigatória',
-        message: 'Uma imagem do produto é obrigatória'
+        error: 'VALIDACAO_FALHOU',
+        message: 'Erros de validação encontrados',
+        erros: errosValidacao
       });
     }
+    
+    console.log('✅ Validação completa dos campos concluída com sucesso');
 
     // Gerar custom_id único
     let customId;
@@ -838,7 +1143,7 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
     // Gerar public_id único (6 dígitos)
     const publicId = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Criar produto
+    // Criar produto inicialmente como rascunho (sem link de checkout)
     const produto = await Produto.create({
       public_id: publicId,
       custom_id: customId,
@@ -857,37 +1162,16 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
       link_conteudo: contentLink || (uploads.contentFile ? uploads.contentFile.url : null),
       marketplace: marketplace === 'true',
       observacoes: observations || null,
-      ativo: true
+      ativo: false, // Produto inativo até ser aprovado
+      status_aprovacao: 'pendente_aprovacao' // Status inicial: rascunho aguardando aprovação
     });
 
-    console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
+    console.log(`✅ Produto criado: ${produto.custom_id}`);
 
-    // Enviar notificação de criação de produto ao vendedor
-    try {
-      const { Usuario } = require('../config/database');
-      const vendedor = await Usuario.findByPk(req.user.id);
-      if (vendedor && vendedor.email) {
-        const emailManagerService = require('../services/emailManagerService');
-        await emailManagerService.enviarEmailSistema('notificacao_produto_criado', {
-          email: vendedor.email,
-          nome: vendedor.nome_completo || vendedor.email,
-          produto: {
-            id: produto.id,
-            custom_id: produto.custom_id,
-            nome: produto.nome,
-            preco: produto.preco
-          }
-        });
-        console.log(`📧 Notificação de criação de produto enviada para: ${vendedor.email}`);
-      }
-    } catch (emailError) {
-      console.error('⚠️ Erro ao enviar notificação de criação de produto:', emailError);
-      // Não bloquear a operação se o email falhar
-    }
-
+    // Retornar resposta imediata ao cliente (produto criado e aguardando aprovação)
     res.status(201).json({
       success: true,
-      message: 'Produto criado com sucesso',
+      message: 'Produto criado com sucesso! Aguardando análise e aprovação...',
       produto: {
         id: produto.id,
         custom_id: produto.custom_id,
@@ -896,16 +1180,238 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
         preco: produto.preco,
         preco_final: produto.preco_final,
         imagem_url: produto.imagem_url,
-        ativo: produto.ativo
+        ativo: produto.ativo,
+        status_aprovacao: produto.status_aprovacao
       },
-      verificacao: verificacaoGemini ? {
-        aprovado: verificacaoGemini.aprovado,
-        motivo: verificacaoGemini.motivo,
-        score: verificacaoGemini.score,
-        resposta_ia: verificacaoGemini.resposta_ia,
-        timestamp: verificacaoGemini.timestamp
-      } : null
+      aprovacao: {
+        status: 'processando',
+        mensagem: 'Produto será analisado em breve. Você receberá uma notificação quando a análise for concluída.'
+      }
     });
+
+    // Processar aprovação em background após 30 segundos (para dar aparência profissional)
+    setTimeout(async () => {
+      try {
+        console.log('⏳ Aguardando 30 segundos antes de enviar para aprovação...');
+        // O delay já está no setTimeout externo, então apenas logamos
+        console.log('🔍 Enviando produto para aprovação na API RatixPay...');
+        
+        const resultadoAprovacao = await ratixpayApprovalService.analisarProduto({
+          nome: name,
+          descricao: description,
+          tipo: type || 'digital',
+          categoria: category,
+          link_conteudo: contentLink || (uploads.contentFile ? uploads.contentFile.url : null),
+          link_imagem: uploads.image.url || null
+        });
+
+        console.log('📋 Resultado da aprovação:', resultadoAprovacao);
+
+        // Recarregar produto do banco para garantir dados atualizados
+        await produto.reload();
+
+        // Atualizar status do produto baseado na resposta da API
+        if (resultadoAprovacao.status === 'aprovado') {
+          await produto.update({
+            status_aprovacao: 'aprovado',
+            ativo: true,
+            motivo_rejeicao: null
+          });
+          console.log('✅ Produto aprovado pela API RatixPay!');
+          
+          // Enviar notificação de aprovação ao vendedor
+          try {
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            if (vendedor && vendedor.email) {
+              const emailManagerService = require('../services/emailManagerService');
+              await emailManagerService.enviarEmailSistema('notificacao_produto_aprovado', {
+                email: vendedor.email,
+                nome: vendedor.nome_completo || vendedor.email,
+                produto: {
+                  id: produto.id,
+                  custom_id: produto.custom_id,
+                  nome: produto.nome,
+                  preco: produto.preco
+                }
+              });
+              console.log(`📧 Notificação de aprovação enviada para: ${vendedor.email}`);
+            }
+          } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação de aprovação:', emailError);
+          }
+        } else if (resultadoAprovacao.status === 'erro_comunicacao') {
+          // Erro de comunicação - manter como pendente para aprovação manual
+          await produto.update({
+            status_aprovacao: 'pendente_aprovacao',
+            ativo: false,
+            motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com o serviço de aprovação. Aguardando revisão manual.'
+          });
+          console.log('⚠️ Erro de comunicação com API - Produto mantido como pendente para aprovação manual');
+          
+          // Notificar admin sobre produto pendente por erro de comunicação
+          try {
+            const emailManagerService = require('../services/emailManagerService');
+            const admin = await Usuario.findOne({ 
+              where: {
+                [Op.or]: [
+                  { role: 'admin' },
+                  { tipo_conta: 'admin' },
+                  { email: 'ratixpay.mz@gmail.com' }
+                ]
+              },
+              order: [['created_at', 'DESC']]
+            });
+            
+            if (admin && admin.email) {
+              const vendedor = await Usuario.findByPk(produto.vendedor_id);
+              await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+                email: admin.email,
+                nome: admin.nome_completo || 'Administrador',
+                produto: {
+                  id: produto.id,
+                  custom_id: produto.custom_id,
+                  nome: produto.nome,
+                  descricao: produto.descricao,
+                  categoria: produto.categoria,
+                  tipo: produto.tipo,
+                  imagem_url: produto.imagem_url
+                },
+                vendedor: {
+                  nome: vendedor?.nome_completo || vendedor?.email,
+                  email: vendedor?.email
+                },
+                motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'
+              });
+              console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+            }
+          } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+          }
+        } else {
+          // Produto rejeitado - MANTER no banco para revisão manual do admin
+          console.log('❌ Produto rejeitado pela API RatixPay:', resultadoAprovacao.motivo);
+          console.log('📝 Mantendo produto no banco para revisão manual do administrador...');
+          
+          // Atualizar status do produto como rejeitado (mas mantê-lo no banco)
+          await produto.update({
+            status_aprovacao: 'rejeitado',
+            ativo: false,
+            motivo_rejeicao: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+          });
+          console.log(`✅ Produto ${produto.custom_id} marcado como rejeitado e mantido no banco para revisão do admin`);
+          
+          // Enviar notificação de rejeição ao vendedor
+          try {
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            if (vendedor && vendedor.email) {
+              const emailManagerService = require('../services/emailManagerService');
+              await emailManagerService.enviarEmailSistema('notificacao_produto_rejeitado', {
+                email: vendedor.email,
+                nome: vendedor.nome_completo || vendedor.email,
+                produto: {
+                  id: produto.id,
+                  custom_id: produto.custom_id,
+                  nome: produto.nome
+                },
+                motivo: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+              });
+              console.log(`📧 Notificação de rejeição enviada para: ${vendedor.email}`);
+            }
+          } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação de rejeição:', emailError);
+          }
+          
+          // Notificar admin sobre produto rejeitado para revisão manual
+          try {
+            const emailManagerService = require('../services/emailManagerService');
+            const admin = await Usuario.findOne({ 
+              where: {
+                [Op.or]: [
+                  { role: 'admin' },
+                  { tipo_conta: 'admin' },
+                  { email: 'ratixpay.mz@gmail.com' }
+                ]
+              },
+              order: [['created_at', 'DESC']]
+            });
+            
+            if (admin && admin.email) {
+              const vendedor = await Usuario.findByPk(produto.vendedor_id);
+              await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+                email: admin.email,
+                nome: admin.nome_completo || 'Administrador',
+                produto: {
+                  id: produto.id,
+                  custom_id: produto.custom_id,
+                  nome: produto.nome,
+                  descricao: produto.descricao,
+                  categoria: produto.categoria,
+                  tipo: produto.tipo,
+                  imagem_url: produto.imagem_url
+                },
+                vendedor: {
+                  nome: vendedor?.nome_completo || vendedor?.email,
+                  email: vendedor?.email
+                },
+                motivo_rejeicao: resultadoAprovacao.motivo || 'Produto rejeitado pela API de aprovação'
+              });
+              console.log(`📧 Notificação enviada para admin sobre produto rejeitado: ${admin.email}`);
+            }
+          } catch (emailError) {
+            console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+          }
+        }
+      } catch (approvalError) {
+        console.error('❌ Erro inesperado ao processar aprovação do produto:', approvalError);
+        // Em caso de erro inesperado, manter como pendente
+        await produto.reload();
+        await produto.update({
+          status_aprovacao: 'pendente_aprovacao',
+          ativo: false,
+          motivo_rejeicao: 'Erro inesperado ao processar aprovação. Produto será revisado manualmente pelo administrador.'
+        });
+        
+        // Notificar admin sobre produto pendente por erro
+        try {
+          const emailManagerService = require('../services/emailManagerService');
+          const admin = await Usuario.findOne({ 
+            where: {
+              [Op.or]: [
+                { role: 'admin' },
+                { tipo_conta: 'admin' },
+                { email: 'ratixpay.mz@gmail.com' }
+              ]
+            },
+            order: [['created_at', 'DESC']]
+          });
+          
+          if (admin && admin.email) {
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+              email: admin.email,
+              nome: admin.nome_completo || 'Administrador',
+              produto: {
+                id: produto.id,
+                custom_id: produto.custom_id,
+                nome: produto.nome,
+                descricao: produto.descricao,
+                categoria: produto.categoria,
+                tipo: produto.tipo,
+                imagem_url: produto.imagem_url
+              },
+              vendedor: {
+                nome: vendedor?.nome_completo || vendedor?.email,
+                email: vendedor?.email
+              },
+              motivo_rejeicao: 'Erro inesperado ao processar aprovação'
+            });
+            console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+          }
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+        }
+      }
+    }, 30000); // Executar após 30 segundos
 
   } catch (error) {
     console.error('❌ Erro ao criar produto unificado:', error);
@@ -987,11 +1493,49 @@ router.get('/', authenticateToken, async (req, res) => {
       console.log('👑 Usuário admin - carregando todos os produtos');
     }
     
-    // Filtro de status
+    // Filtro de status - incluir produtos pendentes de aprovação para aparecerem na gestão
+    // Produtos rejeitados são ocultos do cliente, mas visíveis para admin
     if (req.query.ativo !== undefined) {
       whereClause.ativo = req.query.ativo === 'true';
     } else {
-      whereClause.ativo = true; // Por padrão, apenas produtos ativos
+      // Se for admin, mostrar todos os produtos (incluindo rejeitados)
+      if (req.user.role === 'admin') {
+        // Admin vê todos os produtos (aprovados, pendentes e rejeitados)
+        const statusConditions = [
+          { status_aprovacao: 'aprovado' },
+          { status_aprovacao: 'pendente_aprovacao' },
+          { status_aprovacao: 'rejeitado' }
+        ];
+        
+        if (whereClause.vendedor_id) {
+          const vendedorId = whereClause.vendedor_id;
+          delete whereClause.vendedor_id;
+          whereClause[Op.and] = [
+            { vendedor_id: vendedorId },
+            { [Op.or]: statusConditions }
+          ];
+        } else {
+          whereClause[Op.or] = statusConditions;
+        }
+      } else {
+        // Cliente/vendedor: mostrar apenas aprovados e pendentes (ocultar rejeitados)
+        const statusConditions = [
+          { ativo: true, status_aprovacao: 'aprovado' },
+          { status_aprovacao: 'pendente_aprovacao' }
+        ];
+        
+        // Se já tem vendedor_id, combinar com Op.and
+        if (whereClause.vendedor_id) {
+          const vendedorId = whereClause.vendedor_id;
+          delete whereClause.vendedor_id;
+          whereClause[Op.and] = [
+            { vendedor_id: vendedorId },
+            { [Op.or]: statusConditions }
+          ];
+        } else {
+          whereClause[Op.or] = statusConditions;
+        }
+      }
     }
     
     // Buscar produtos com query otimizada
@@ -1042,6 +1586,21 @@ router.get('/public/:productId', async (req, res) => {
 
     if (!produto) {
       return res.status(404).json({ erro: 'Produto não encontrado' });
+    }
+
+    // Verificar se o produto está aprovado
+    if (produto.status_aprovacao !== 'aprovado') {
+      const statusMessage = produto.status_aprovacao === 'rejeitado' 
+        ? 'Este produto foi rejeitado e não está disponível para venda.'
+        : produto.status_aprovacao === 'pendente_aprovacao'
+        ? 'Este produto está aguardando aprovação e ainda não está disponível para venda.'
+        : 'Este produto não está disponível para venda.';
+      
+      return res.status(403).json({ 
+        erro: 'Produto não disponível',
+        mensagem: statusMessage,
+        status_aprovacao: produto.status_aprovacao
+      });
     }
 
     // Verificar se o produto está ativo (tratar undefined como false)
@@ -1650,6 +2209,14 @@ router.delete('/:id', authenticateToken, isVendedorOrAdmin, async (req, res) => 
     // Verificar se o vendedor tem acesso ao produto (admins podem editar qualquer produto)
     if (req.user.tipo_conta !== 'admin' && req.user.role !== 'admin' && produto.vendedor_id !== req.user.id) {
       return res.status(403).json({ erro: 'Acesso negado. Este produto não pertence ao seu catálogo.' });
+    }
+    
+    // Produtos rejeitados só podem ser excluídos por admin
+    if (produto.status_aprovacao === 'rejeitado' && req.user.tipo_conta !== 'admin' && req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        erro: 'Acesso negado', 
+        message: 'Produtos rejeitados só podem ser excluídos pelo administrador. Entre em contato com o suporte se necessário.'
+      });
     }
     
     // Se o produto tem imagem local, excluir

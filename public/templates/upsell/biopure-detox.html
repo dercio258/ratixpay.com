@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioPure Detox - Pele Limpa e Hálito Fresco</title>
+    <meta name="description" content="Elimine as toxinas que causam mau hálito e acne. Recupere sua autoestima com BioPure.">
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-primary: #0EA5E9;
+            --color-dark: #0369A1;
+            --color-light: #E0F2FE;
+            --color-green: #10B981;
+            --color-alert: #EF4444;
+            --color-text: #334155;
+        }
+        
+        body {
+            background-color: #F8FAFC;
+            color: var(--color-text);
+            font-family: 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Top Alert Bar */
+        .alert-bar {
+            background: var(--color-dark);
+            color: #ffffff;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #F3F4F6;
+            padding: 16px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 24px;
+            color: var(--color-dark);
+            letter-spacing: -1px;
+        }
+        
+        .navbar-brand i {
+            color: var(--color-primary);
+        }
+        
+        .navbar-brand .highlight {
+            color: var(--color-primary);
+        }
+        
+        .navbar-cta {
+            background: var(--color-green);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            font-size: 14px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .navbar-cta:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            padding: 48px 0 80px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        
+        .hero-pattern {
+            position: absolute;
+            inset: 0;
+            background-color: #ffffff;
+            background-image: radial-gradient(var(--color-primary) 0.5px, transparent 0.5px), 
+                              radial-gradient(var(--color-primary) 0.5px, #ffffff 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero-header {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 40px;
+        }
+        
+        .hero-badge {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--color-dark);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(28px, 5vw, 60px);
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+        
+        .hero-title-highlight {
+            color: var(--color-alert);
+            text-decoration: underline;
+            text-decoration-color: rgba(239, 68, 68, 0.2);
+            text-decoration-thickness: 4px;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: #64748B;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero-video-container {
+            position: relative;
+        }
+        
+        .hero-video-wrapper {
+            position: relative;
+        }
+        
+        .hero-video-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-green));
+            border-radius: 16px;
+            filter: blur(8px);
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        
+        .hero-video-wrapper:hover .hero-video-glow {
+            opacity: 0.5;
+        }
+        
+        .hero-video-box {
+            position: relative;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #F3F4F6;
+        }
+        
+        .hero-video-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+        
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-play-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--color-primary);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+        }
+        
+        .hero-play-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .hero-play-button i {
+            font-size: 32px;
+            margin-left: 4px;
+        }
+        
+        .hero-video-caption {
+            text-align: center;
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        
+        .hero-copy {
+            width: 100%;
+        }
+        
+        .hero-copy-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 24px;
+        }
+        
+        .hero-copy-text {
+            color: #4B5563;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        
+        .hero-copy-text strong {
+            color: var(--color-text);
+            font-weight: 700;
+        }
+        
+        .checkmark-list {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        
+        .checkmark-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            color: #374151;
+        }
+        
+        .checkmark-icon {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px;
+            border-radius: 50%;
+            margin-right: 12px;
+            color: var(--color-green);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .checkmark-icon i {
+            font-size: 16px;
+        }
+        
+        .checkmark-text {
+            flex: 1;
+        }
+        
+        .checkmark-text strong {
+            color: var(--color-text);
+            font-weight: 700;
+        }
+        
+        .hero-cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+            background: var(--color-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.15);
+        }
+        
+        .hero-cta-button:hover {
+            background: #0284C7;
+            transform: translateY(-2px);
+        }
+        
+        .hero-cta-button i {
+            margin-left: 8px;
+            font-size: 20px;
+        }
+        
+        /* Social Proof Section */
+        .social-proof-section {
+            background: #ffffff;
+            border-top: 1px solid #F3F4F6;
+            border-bottom: 1px solid #F3F4F6;
+            padding: 32px 0;
+        }
+        
+        .social-proof-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            opacity: 0.8;
+        }
+        
+        .social-proof-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .social-proof-item i {
+            font-size: 32px;
+            color: var(--color-primary);
+        }
+        
+        .social-proof-text {
+            line-height: 1.3;
+        }
+        
+        .social-proof-text p:first-child {
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        .social-proof-text p:last-child {
+            color: #6B7280;
+        }
+        
+        /* Agitation Section */
+        .agitation-section {
+            padding: 80px 0;
+            background: rgba(224, 242, 254, 0.3);
+        }
+        
+        .agitation-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .agitation-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 48px;
+        }
+        
+        .agitation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .agitation-card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #F3F4F6;
+            transition: all 0.3s ease;
+        }
+        
+        .agitation-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .agitation-card.highlight {
+            transform: translateY(-16px);
+            border-bottom: 4px solid var(--color-primary);
+        }
+        
+        .agitation-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: var(--color-alert);
+        }
+        
+        .agitation-icon i {
+            font-size: 32px;
+        }
+        
+        .agitation-card-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .agitation-card-text {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        /* How it Works Section */
+        .how-it-works-section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        
+        .how-it-works-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .how-it-works-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 48px;
+        }
+        
+        .how-it-works-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .how-it-works-text {
+            width: 100%;
+        }
+        
+        .how-it-works-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 24px;
+        }
+        
+        .how-it-works-description {
+            color: #4B5563;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        
+        .how-it-works-description strong {
+            color: var(--color-text);
+            font-weight: 700;
+        }
+        
+        .how-it-works-steps {
+            list-style: none;
+        }
+        
+        .how-it-works-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .how-it-works-step-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #E5E7EB;
+            flex-shrink: 0;
+        }
+        
+        .how-it-works-step-content h4 {
+            font-weight: 700;
+            color: var(--color-primary);
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .how-it-works-step-content p {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        /* Pricing Section */
+        .pricing-section {
+            padding: 96px 0;
+            background: var(--color-dark);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-decoration {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .pricing-decoration-1 {
+            top: -96px;
+            right: -96px;
+            width: 384px;
+            height: 384px;
+            background: #ffffff;
+        }
+        
+        .pricing-decoration-2 {
+            top: 50%;
+            left: -96px;
+            width: 256px;
+            height: 256px;
+            background: var(--color-green);
+        }
+        
+        .pricing-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 64px;
+            color: #ffffff;
+        }
+        
+        .pricing-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .pricing-subtitle {
+            color: rgba(191, 219, 254, 1);
+            font-size: 18px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+        
+        .pricing-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .pricing-card.scale-down {
+            transform: scale(0.95);
+        }
+        
+        .pricing-card.highlight {
+            transform: scale(1.1);
+            border: 2px solid var(--color-green);
+            position: relative;
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--color-green);
+            color: #ffffff;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .pricing-card-title {
+            font-weight: 700;
+            color: #6B7280;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .pricing-card-title.highlight {
+            color: var(--color-dark);
+            font-size: 24px;
+        }
+        
+        .pricing-card-subtitle {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-bottom: 24px;
+        }
+        
+        .pricing-price-old {
+            font-size: 14px;
+            color: #9CA3AF;
+            text-decoration: line-through;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-price-new {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+        }
+        
+        .pricing-price-new.highlight {
+            color: var(--color-green);
+            font-size: clamp(40px, 5vw, 60px);
+        }
+        
+        .pricing-price-unit {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-price-bonus {
+            color: var(--color-green);
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .pricing-button.border {
+            border: 2px solid var(--color-dark);
+            color: var(--color-dark);
+            background: transparent;
+        }
+        
+        .pricing-button.border:hover {
+            background: var(--color-dark);
+            color: #ffffff;
+        }
+        
+        .pricing-button.primary {
+            background: var(--color-green);
+            color: #ffffff;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .pricing-button.primary:hover {
+            background: #059669;
+        }
+        
+        /* Guarantee Section */
+        .guarantee-section {
+            padding: 64px 0;
+            background: #F9FAFB;
+        }
+        
+        .guarantee-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .guarantee-image {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 24px;
+            opacity: 0.8;
+        }
+        
+        .guarantee-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 16px;
+        }
+        
+        .guarantee-text {
+            color: #4B5563;
+            line-height: 1.7;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            padding: 64px 0;
+            background: #ffffff;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .faq-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .faq-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--color-dark);
+            margin-bottom: 40px;
+        }
+        
+        .faq-list {
+            list-style: none;
+        }
+        
+        .faq-item {
+            margin-bottom: 16px;
+        }
+        
+        .faq-item details {
+            padding: 16px;
+            background: #F9FAFB;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .faq-item summary {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            color: #374151;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .faq-item summary i {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item details[open] summary i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-item p {
+            color: #4B5563;
+            font-size: 14px;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer-section {
+            background: #0F172A;
+            color: #94A3B8;
+            padding: 48px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-security {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .footer-security i {
+            font-size: 20px;
+        }
+        
+        .footer-text {
+            margin-bottom: 8px;
+        }
+        
+        .footer-disclaimer {
+            max-width: 800px;
+            margin: 24px auto 0;
+            font-size: 12px;
+            color: #475569;
+        }
+        
+        /* Responsividade */
+        @media (min-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .hero-cta-button {
+                width: auto;
+            }
+            
+            .social-proof-content {
+                flex-direction: row;
+                gap: 64px;
+            }
+            
+            .how-it-works-grid {
+                flex-direction: row;
+            }
+            
+            .how-it-works-image {
+                width: 50%;
+            }
+            
+            .how-it-works-text {
+                width: 50%;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Alert Bar -->
+    <div class="alert-bar" data-editable="text" data-field="alert_bar" contenteditable="false">
+        🚚 FRETE GRÁTIS PARA TODO O BRASIL HOJE
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand" data-editable="text" data-field="navbar_brand" contenteditable="false">
+                <i class="ph-fill ph-drop"></i>
+                BioPure<span class="highlight">Detox</span>
+            </div>
+            <a href="#oferta" onclick="triggerPurchase(); return false;" class="navbar-cta" data-editable="button-text" data-field="navbar_cta" contenteditable="false">
+                QUERO COMPRAR
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+            <div class="hero-header">
+                <span class="hero-badge" data-editable="text" data-field="hero_badge" contenteditable="false">Nova Fórmula Americana 🇺🇸</span>
+                
+                <h1 class="hero-title" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                    Você sofre com <span class="hero-title-highlight">Mau Hálito</span> e <span class="hero-title-highlight">Espinhas</span> sem saber o motivo?
+                </h1>
+                
+                <p class="hero-subtitle" data-editable="text" data-field="subtitulo" contenteditable="false">
+                    Descubra como limpar seu organismo das toxinas silenciosas que causam inflamação na pele e odores estomacais.
+                </p>
+            </div>
+            
+            <div class="hero-grid">
+                <!-- VSL / Video Container -->
+                <div class="hero-video-container" data-editable="media" data-field="hero_video" data-media-type="video" contenteditable="false">
+                    <div class="hero-video-wrapper">
+                        <div class="hero-video-glow"></div>
+                        <div class="hero-video-box">
+                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Mulher confiante pele limpa" class="hero-video-image">
+                            <div class="hero-video-overlay">
+                                <div class="hero-play-button">
+                                    <i class="ph-fill ph-play"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="hero-video-caption" data-editable="text" data-field="video_caption" contenteditable="false">Assista ao vídeo explicativo (2min)</p>
+                </div>
+                
+                <!-- Sales Copy -->
+                <div class="hero-copy">
+                    <h2 class="hero-copy-title" data-editable="text" data-field="copy_titulo" contenteditable="false">O problema não é falta de higiene. É intoxicação.</h2>
+                    
+                    <p class="hero-copy-text" data-editable="text" data-field="copy_texto" contenteditable="false">
+                        Cremes caros e enxaguantes bucais apenas mascaram o problema. O <strong>BioPure Detox</strong> age na raiz: no seu intestino e sistema linfático.
+                    </p>
+                    
+                    <ul class="checkmark-list" data-editable="text" data-field="copy_lista" contenteditable="false">
+                        <li class="checkmark-item">
+                            <div class="checkmark-icon">
+                                <i class="ph-fill ph-check"></i>
+                            </div>
+                            <span class="checkmark-text"><strong>Combate o Hálito Intestinal:</strong> Neutraliza gases sulfurosos na origem.</span>
+                        </li>
+                        <li class="checkmark-item">
+                            <div class="checkmark-icon">
+                                <i class="ph-fill ph-check"></i>
+                            </div>
+                            <span class="checkmark-text"><strong>Limpa a Pele:</strong> Reduz a oleosidade e inflamação das espinhas de dentro para fora.</span>
+                        </li>
+                        <li class="checkmark-item">
+                            <div class="checkmark-icon">
+                                <i class="ph-fill ph-check"></i>
+                            </div>
+                            <span class="checkmark-text"><strong>Regula o Intestino:</strong> Fim do inchaço e desconforto abdominal.</span>
+                        </li>
+                    </ul>
+                    
+                    <a href="#oferta" onclick="triggerPurchase(); return false;" class="hero-cta-button" data-editable="button-text" data-field="hero_cta" contenteditable="false">
+                        Experimentar BioPure Agora
+                        <i class="ph-fill ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof-section">
+        <div class="social-proof-content">
+            <div class="social-proof-item" data-editable="text" data-field="social_proof_1" contenteditable="false">
+                <i class="ph-fill ph-flask"></i>
+                <div class="social-proof-text">
+                    <p>Clinicamente</p>
+                    <p>Testado</p>
+                </div>
+            </div>
+            <div class="social-proof-item" data-editable="text" data-field="social_proof_2" contenteditable="false">
+                <i class="ph-fill ph-shield-check"></i>
+                <div class="social-proof-text">
+                    <p>Aprovado pela</p>
+                    <p>Anvisa</p>
+                </div>
+            </div>
+            <div class="social-proof-item" data-editable="text" data-field="social_proof_3" contenteditable="false">
+                <i class="ph-fill ph-leaf"></i>
+                <div class="social-proof-text">
+                    <p>100% Natural</p>
+                    <p>Sem Efeitos Colaterais</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agitation Section -->
+    <section class="agitation-section">
+        <div class="agitation-content">
+            <h2 class="agitation-title" data-editable="text" data-field="agitation_titulo" contenteditable="false">Sinais de que seu corpo pede socorro</h2>
+            
+            <div class="agitation-grid">
+                <!-- Card 1 -->
+                <div class="agitation-card" data-editable="text" data-field="agitation_card_1" contenteditable="false">
+                    <div class="agitation-icon">
+                        <i class="ph-fill ph-frown"></i>
+                    </div>
+                    <h3 class="agitation-card-title" data-editable="text" data-field="agitation_card_1_titulo" contenteditable="false">Mau Hálito Persistente</h3>
+                    <p class="agitation-card-text" data-editable="text" data-field="agitation_card_1_texto" contenteditable="false">Mesmo escovando os dentes e usando fio dental, o odor volta em poucas horas.</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="agitation-card highlight" data-editable="text" data-field="agitation_card_2" contenteditable="false">
+                    <div class="agitation-icon">
+                        <i class="ph-fill ph-warning-circle"></i>
+                    </div>
+                    <h3 class="agitation-card-title" data-editable="text" data-field="agitation_card_2_titulo" contenteditable="false">Acne Inflamatória</h3>
+                    <p class="agitation-card-text" data-editable="text" data-field="agitation_card_2_texto" contenteditable="false">Espinhas doloridas no rosto, costas ou peito que não respondem a cremes tópicos.</p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="agitation-card" data-editable="text" data-field="agitation_card_3" contenteditable="false">
+                    <div class="agitation-icon">
+                        <i class="ph-fill ph-battery-low"></i>
+                    </div>
+                    <h3 class="agitation-card-title" data-editable="text" data-field="agitation_card_3_titulo" contenteditable="false">Cansaço e Inchaço</h3>
+                    <p class="agitation-card-text" data-editable="text" data-field="agitation_card_3_texto" contenteditable="false">Sensação de peso no estômago após as refeições e falta de energia diária.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works Section -->
+    <section class="how-it-works-section">
+        <div class="how-it-works-content">
+            <div class="how-it-works-grid">
+                <div class="how-it-works-image-wrapper" data-editable="media" data-field="how_it_works_imagem" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Doctor Holding Pill" class="how-it-works-image">
+                </div>
+                <div class="how-it-works-text">
+                    <h2 class="how-it-works-title" data-editable="text" data-field="how_it_works_titulo" contenteditable="false">A Ciência por trás do BioPure</h2>
+                    <p class="how-it-works-description" data-editable="text" data-field="how_it_works_descricao" contenteditable="false">
+                        O BioPure combina <strong>Clorofila Concentrada, Zinco Quelato e Probióticos</strong>. Essa tríade poderosa atua como um "ímã" de toxinas.
+                    </p>
+                    
+                    <ul class="how-it-works-steps" data-editable="text" data-field="how_it_works_steps" contenteditable="false">
+                        <li class="how-it-works-step">
+                            <span class="how-it-works-step-number">01</span>
+                            <div class="how-it-works-step-content">
+                                <h4 data-editable="text" data-field="step_1_titulo" contenteditable="false">Desintoxicação Gástrica</h4>
+                                <p data-editable="text" data-field="step_1_texto" contenteditable="false">A clorofila neutraliza os odores no estômago antes que subam pelo esôfago.</p>
+                            </div>
+                        </li>
+                        <li class="how-it-works-step">
+                            <span class="how-it-works-step-number">02</span>
+                            <div class="how-it-works-step-content">
+                                <h4 data-editable="text" data-field="step_2_titulo" contenteditable="false">Limpeza Sanguínea</h4>
+                                <p data-editable="text" data-field="step_2_texto" contenteditable="false">Purifica o sangue, reduzindo a carga inflamatória que causa a acne cística.</p>
+                            </div>
+                        </li>
+                        <li class="how-it-works-step">
+                            <span class="how-it-works-step-number">03</span>
+                            <div class="how-it-works-step-content">
+                                <h4 data-editable="text" data-field="step_3_titulo" contenteditable="false">Equilíbrio da Flora</h4>
+                                <p data-editable="text" data-field="step_3_texto" contenteditable="false">Repovoa seu intestino com bactérias boas que combatem o mau cheiro.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="oferta" class="pricing-section">
+        <div class="pricing-decoration pricing-decoration-1"></div>
+        <div class="pricing-decoration pricing-decoration-2"></div>
+        <div class="pricing-content">
+            <div class="pricing-header">
+                <h2 class="pricing-title" data-editable="text" data-field="preco_titulo" contenteditable="false">Escolha seu Kit de Tratamento</h2>
+                <p class="pricing-subtitle" data-editable="text" data-field="preco_subtitulo" contenteditable="false">Resultados visíveis a partir de 14 dias de uso contínuo.</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <!-- Option 1: Basic -->
+                <div class="pricing-card scale-down" data-editable="text" data-field="preco_card_1" contenteditable="false">
+                    <h3 class="pricing-card-title" data-editable="text" data-field="preco_card_1_titulo" contenteditable="false">Tratamento Inicial</h3>
+                    <p class="pricing-card-subtitle" data-editable="text" data-field="preco_card_1_subtitulo" contenteditable="false">1 Pote (30 dias)</p>
+                    <div class="pricing-price-old" data-editable="text" data-field="preco_card_1_antigo" contenteditable="false">MZN 197,00</div>
+                    <div class="pricing-price-new" data-editable="text" data-field="preco_card_1_atual" contenteditable="false">MZN 147</div>
+                    <p class="pricing-price-bonus" data-editable="text" data-field="preco_card_1_bonus" contenteditable="false">5% OFF à vista</p>
+                    <button onclick="triggerPurchase()" class="pricing-button border" data-editable="button-text" data-field="preco_card_1_botao" contenteditable="false">COMPRAR 1 POTE</button>
+                </div>
+                
+                <!-- Option 2: Best Seller -->
+                <div class="pricing-card highlight" data-editable="text" data-field="preco_card_2" contenteditable="false">
+                    <div class="pricing-badge" data-editable="text" data-field="preco_card_2_badge" contenteditable="false">Mais Vendido</div>
+                    <h3 class="pricing-card-title highlight" data-editable="text" data-field="preco_card_2_titulo" contenteditable="false">Tratamento Completo</h3>
+                    <p class="pricing-card-subtitle" data-editable="text" data-field="preco_card_2_subtitulo" contenteditable="false">3 Potes (90 dias) - Ideal para Acne</p>
+                    <div class="pricing-price-old" data-editable="text" data-field="preco_card_2_antigo" contenteditable="false">MZN 591,00</div>
+                    <div class="pricing-price-new highlight" data-editable="text" data-field="preco_card_2_atual" contenteditable="false">MZN 297</div>
+                    <p class="pricing-price-unit" data-editable="text" data-field="preco_card_2_unit" contenteditable="false">apenas MZN 99/pote</p>
+                    <p class="pricing-price-bonus" data-editable="text" data-field="preco_card_2_bonus" contenteditable="false">Frete Grátis</p>
+                    <button onclick="triggerPurchase()" class="pricing-button primary" data-editable="button-text" data-field="preco_card_2_botao" contenteditable="false">COMPRAR COM DESCONTO</button>
+                </div>
+                
+                <!-- Option 3: Extended -->
+                <div class="pricing-card scale-down" data-editable="text" data-field="preco_card_3" contenteditable="false">
+                    <h3 class="pricing-card-title" data-editable="text" data-field="preco_card_3_titulo" contenteditable="false">Tratamento Familiar</h3>
+                    <p class="pricing-card-subtitle" data-editable="text" data-field="preco_card_3_subtitulo" contenteditable="false">5 Potes (150 dias)</p>
+                    <div class="pricing-price-old" data-editable="text" data-field="preco_card_3_antigo" contenteditable="false">MZN 985,00</div>
+                    <div class="pricing-price-new" data-editable="text" data-field="preco_card_3_atual" contenteditable="false">MZN 397</div>
+                    <p class="pricing-price-unit" data-editable="text" data-field="preco_card_3_unit" contenteditable="false">apenas MZN 79/pote</p>
+                    <p class="pricing-price-bonus" data-editable="text" data-field="preco_card_3_bonus" contenteditable="false">Frete Grátis</p>
+                    <button onclick="triggerPurchase()" class="pricing-button border" data-editable="button-text" data-field="preco_card_3_botao" contenteditable="false">COMPRAR 5 POTES</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guarantee Section -->
+    <section class="guarantee-section">
+        <div class="guarantee-content">
+            <img src="https://cdn-icons-png.flaticon.com/512/6559/6559073.png" alt="Garantia" class="guarantee-image" data-editable="media" data-field="garantia_imagem" data-media-type="image" contenteditable="false">
+            <h2 class="guarantee-title" data-editable="text" data-field="garantia_titulo" contenteditable="false">Desafio 30 Dias BioPure</h2>
+            <p class="guarantee-text" data-editable="text" data-field="garantia_texto" contenteditable="false">
+                Nós confiamos tanto na nossa fórmula que se você não notar melhora no hálito ou na pele em 30 dias, nós compramos os potes de volta de você. Risco Zero.
+            </p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-content">
+            <h2 class="faq-title" data-editable="text" data-field="faq_titulo" contenteditable="false">Dúvidas Frequentes</h2>
+            
+            <ul class="faq-list" data-editable="text" data-field="faq_lista" contenteditable="false">
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_1_pergunta" contenteditable="false">Em quanto tempo vejo resultados?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_1_resposta" contenteditable="false">A maioria dos clientes relata melhora no hálito nos primeiros 7 dias. A limpeza da pele (acne) geralmente apresenta resultados visíveis a partir da 3ª semana de uso contínuo.</p>
+                    </details>
+                </li>
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_2_pergunta" contenteditable="false">Precisa de receita médica?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_2_resposta" contenteditable="false">Não. BioPure Detox é um suplemento 100% natural, aprovado pela Anvisa como alimento funcional, sem contraindicações para adultos saudáveis.</p>
+                    </details>
+                </li>
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_3_pergunta" contenteditable="false">Como devo tomar?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_3_resposta" contenteditable="false">Recomendamos 2 cápsulas por dia. Uma antes do café da manhã e outra antes de dormir, para otimizar a desintoxicação noturna.</p>
+                    </details>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <div class="footer-security" data-editable="text" data-field="footer_security" contenteditable="false">
+                <i class="ph-fill ph-lock"></i>
+                <span>Site Seguro 256-bit SSL</span>
+            </div>
+            <p class="footer-text" data-editable="text" data-field="footer_texto" contenteditable="false">BioPure Detox © 2024. Todos os direitos reservados.</p>
+            <p class="footer-disclaimer" data-editable="text" data-field="footer_disclaimer" contenteditable="false">
+                Os resultados podem variar de pessoa para pessoa. Este produto não substitui o aconselhamento médico profissional.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

@@ -4,15 +4,8 @@ const { Usuario } = require('../config/database');
 // Middleware para verificar token JWT
 const authenticateToken = async (req, res, next) => {
     try {
-        // PRIMEIRO: Verificar se é rota de afiliados ANTES de processar token
-        // Não processar rotas de afiliados - elas têm seu próprio middleware
-        // Usar originalUrl que contém o caminho completo antes do router processar
-        const fullPath = req.originalUrl || req.url || req.baseUrl + req.path || req.path || '';
-        if (fullPath.includes('/afiliados/') || fullPath.includes('/afiliados/auth/') || fullPath.startsWith('/afiliados') || fullPath.includes('/api/afiliados')) {
-            // Esta é uma rota de afiliado, não deve passar por aqui
-            // Não processar, deixar passar para o próximo middleware
-            return next();
-        }
+        // Sistema de afiliados antigo foi removido
+        // Apenas rotas /vendedor/afiliados são suportadas (integradas ao dashboard de vendedores)
         
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
@@ -27,19 +20,7 @@ const authenticateToken = async (req, res, next) => {
             });
         }
         
-        // ANTES de decodificar, verificar se é token de afiliado pela estrutura
-        // Se for token de afiliado, deixar passar sem processar
-        try {
-            const jwtSecret = process.env.JWT_SECRET || 'ratixpay-secret-key-2024';
-            // Decodificar SEM verificar expiração primeiro para ver o tipo
-            const decodedUnverified = jwt.decode(token);
-            if (decodedUnverified && decodedUnverified.tipo === 'afiliado') {
-                // É token de afiliado, deixar passar
-                return next();
-            }
-        } catch (e) {
-            // Se não conseguir decodificar, continuar com verificação normal
-        }
+        // Sistema de afiliados antigo foi removido - não há mais tokens de afiliado separados
         
         console.log(`🔐 [AUTH] Verificando autenticação para: ${req.method} ${req.url}`);
 
@@ -63,7 +44,7 @@ const authenticateToken = async (req, res, next) => {
             });
         }
         
-        // Se for token de afiliado, não processar aqui - deve usar authenticateAfiliado
+        // Sistema de afiliados antigo foi removido
         if (decoded.tipo === 'afiliado') {
             // Se chegou aqui mesmo sendo token de afiliado, deixar passar
             return next();
@@ -194,39 +175,6 @@ const checkAdminAccess = (req, res, next) => {
     }
 };
 
-// Middleware para verificar marketing avançado ativo
-const requireMarketingAvancado = async (req, res, next) => {
-    try {
-        if (!req.user) {
-            console.log('❌ requireMarketingAvancado: Usuário não autenticado');
-            return res.status(401).json({
-                success: false,
-                error: 'Usuário não autenticado'
-            });
-        }
-
-        // Verificando marketing avançado
-
-        // Verificar se o usuário tem marketing avançado ativo
-        if (!req.user.marketing_avancado) {
-            return res.status(403).json({
-                success: false,
-                error: 'Marketing avançado não está ativo. Ative o plano premium para acessar estas funcionalidades.',
-                code: 'MARKETING_AVANCADO_REQUIRED'
-            });
-        }
-
-        console.log('✅ requireMarketingAvancado: Marketing avançado ativo - acesso autorizado');
-        next();
-    } catch (error) {
-        console.error('❌ Erro na verificação de marketing avançado:', error);
-        return res.status(500).json({
-            success: false,
-            error: 'Erro interno do servidor'
-        });
-    }
-};
-
 // Alias para compatibilidade
 const requireAdmin = isAdmin;
 
@@ -235,6 +183,5 @@ module.exports = {
     requireAdmin,
     isAdmin,
     isVendedorOrAdmin,
-    checkAdminAccess,
-    requireMarketingAvancado
+    checkAdminAccess
 };

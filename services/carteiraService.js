@@ -10,143 +10,164 @@ const professionalEmailService = require('./professionalEmailService');
 class CarteiraService {
     
     /**
-     * Criar nova carteira para um vendedor
+     * Criar ou atualizar carteira única para um vendedor
+     * Garante apenas uma carteira por usuário
      */
-    static async criarCarteira(vendedorId, dadosCarteira) {
-        // IMPORTANTE: Fazer verificações ANTES de iniciar a transação
-        // para evitar problemas com transações pendentes do PostgreSQL
-        
-        // Função auxiliar para fazer verificações com retry em caso de erro de transação
-        const fazerVerificacaoComRetry = async (queryFn, maxRetries = 2) => {
-            for (let attempt = 0; attempt <= maxRetries; attempt++) {
-                try {
-                    // Aguardar um pouco antes de tentar novamente (exceto na primeira tentativa)
-                    if (attempt > 0) {
-                        await new Promise(resolve => setTimeout(resolve, 100 * attempt));
-                        console.log(`🔄 Tentativa ${attempt + 1} de verificação após erro de transação...`);
-                    }
-                    
-                    return await queryFn();
-                } catch (error) {
-                    // Se for erro de transação pendente (25P02), tentar novamente
-                    if (error.code === '25P02' || 
-                        (error.parent && error.parent.code === '25P02') ||
-                        (error.message && error.message.includes('transação atual foi interrompida'))) {
-                        
-                        if (attempt < maxRetries) {
-                            console.log(`⚠️ Erro de transação pendente detectado, tentando novamente...`);
-                            continue;
-                        }
-                    }
-                    throw error;
-                }
-            }
-        };
-        
+    static async criarOuAtualizarCarteira(vendedorId, dadosCarteira) {
         try {
             // Verificar conexão
             await sequelize.authenticate();
             
-            // IMPORTANTE: Fazer verificações SEM transação para evitar problemas
-            // com transações pendentes do PostgreSQL (erro 25P02)
-            // As verificações são rápidas e não precisam de transação
+            // Validar campos obrigatórios (email não é mais obrigatório, será obtido do usuário)
+            const camposObrigatorios = [
+                'contactoMpesa', 'nomeTitularMpesa',
+                'contactoEmola', 'nomeTitularEmola'
+            ];
             
-            // Verificar se o vendedor já tem 2 carteiras (SEM transação) com retry
-            const carteirasExistentes = await fazerVerificacaoComRetry(async () => {
-                return await Carteira.count({
-                    where: { 
-                        vendedorId: vendedorId,
-                        ativa: true
-                    }
-                });
-            });
-            
-            if (carteirasExistentes >= 2) {
-                throw new Error('Limite máximo de 2 carteiras atingido');
-            }
-            
-            // Verificar se o nome da carteira já existe para este vendedor (SEM transação) com retry
-            const carteiraExistente = await fazerVerificacaoComRetry(async () => {
-                return await Carteira.findOne({
-                    where: {
-                        vendedorId: vendedorId,
-                        nome: dadosCarteira.nome
-                    }
-                });
-            });
-            
-            if (carteiraExistente) {
-                throw new Error('Já existe uma carteira com este nome');
-            }
-            
-            // Agora sim, criar transação APENAS para a criação da carteira
-            // Com retry para garantir que não haja transação pendente
-            let transaction = null;
-            let carteira = null;
-            
-            for (let attempt = 0; attempt <= 2; attempt++) {
-                try {
-                    if (attempt > 0) {
-                        await new Promise(resolve => setTimeout(resolve, 200 * attempt));
-                        console.log(`🔄 Tentativa ${attempt + 1} de criar transação...`);
-                    }
-                    
-                    // Criar transação simples sem especificar nível de isolamento
-                    // (o Sequelize usa READ COMMITTED por padrão no PostgreSQL)
-                    transaction = await sequelize.transaction();
-                    
-                    // Criar carteira dentro da transação
-                    // Usar camelCase conforme definição do modelo (Sequelize converterá para snake_case)
-                    carteira = await Carteira.create({
-                        vendedorId: vendedorId,
-                        nome: dadosCarteira.nome,
-                        metodoSaque: dadosCarteira.metodoSaque,
-                        contacto: dadosCarteira.contacto,
-                        nomeTitular: dadosCarteira.nomeTitular,
-                        emailTitular: dadosCarteira.emailTitular,
-                        ativa: true
-                    }, { transaction });
-            
-                    await transaction.commit();
-                    
-                    // Recarregar carteira para garantir que todos os campos estão disponíveis
-                    await carteira.reload();
-                    
-                    console.log(`✅ Carteira criada com sucesso: ${carteira.nome}`);
-                    console.log(`📋 Dados da carteira criada:`, {
-                        nome: carteira.nome,
-                        metodoSaque: carteira.metodoSaque,
-                        contacto: carteira.contacto,
-                        nomeTitular: carteira.nomeTitular,
-                        emailTitular: carteira.emailTitular
-                    });
-                    return carteira;
-                    
-                } catch (createError) {
-                    // Se for erro de transação pendente, tentar novamente
-                    if ((createError.code === '25P02' || 
-                         (createError.parent && createError.parent.code === '25P02') ||
-                         (createError.message && createError.message.includes('transação atual foi interrompida'))) &&
-                        attempt < 2) {
-                        
-                        if (transaction && !transaction.finished) {
-                            try {
-                                await transaction.rollback();
-                            } catch (rollbackErr) {
-                                // Ignorar erro de rollback
-                            }
-                        }
-                        transaction = null;
-                        continue; // Tentar novamente
-                    }
-                    
-                    // Rollback apenas se a criação falhar e não for erro de transação pendente
-                    if (transaction && !transaction.finished) {
-                        await transaction.rollback();
-                    }
-                    throw createError;
+            for (const campo of camposObrigatorios) {
+                if (!dadosCarteira[campo] || typeof dadosCarteira[campo] !== 'string' || dadosCarteira[campo].trim() === '') {
+                    throw new Error(`Campo obrigatório ausente ou inválido: ${campo}`);
                 }
             }
+            
+            // Obter email do usuário se não foi fornecido nos dados
+            let emailParaSalvar = dadosCarteira.email ? dadosCarteira.email.trim().toLowerCase() : null;
+            
+            // Se não tem email nos dados, buscar do usuário
+            if (!emailParaSalvar) {
+                const usuario = await Usuario.findByPk(vendedorId, {
+                    attributes: ['id', 'email', 'email_usuario']
+                });
+                
+                if (usuario) {
+                    emailParaSalvar = (usuario.email || usuario.email_usuario || '').trim().toLowerCase();
+                }
+            }
+            
+            // Validar email se foi encontrado
+            if (emailParaSalvar) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailParaSalvar)) {
+                    throw new Error('Email inválido');
+                }
+            }
+            
+            // Validar contactos (formato moçambicano: 8[4-7] seguido de 7 dígitos)
+            const contactoRegex = /^8[4-7]\d{7}$/;
+            if (!contactoRegex.test(dadosCarteira.contactoMpesa.replace(/\s+/g, ''))) {
+                throw new Error('Contacto Mpesa inválido. Deve ser um número moçambicano válido (84, 85, 86 ou 87 seguido de 7 dígitos)');
+            }
+            if (!contactoRegex.test(dadosCarteira.contactoEmola.replace(/\s+/g, ''))) {
+                throw new Error('Contacto Emola inválido. Deve ser um número moçambicano válido (84, 85, 86 ou 87 seguido de 7 dígitos)');
+            }
+            
+            // Buscar carteira existente primeiro (abordagem mais robusta que findOrCreate)
+            let carteira = await Carteira.findOne({
+                where: { vendedorId: vendedorId }
+            });
+            
+            const dadosAtualizados = {
+                contactoMpesa: dadosCarteira.contactoMpesa.trim().replace(/\s+/g, ''),
+                nomeTitularMpesa: dadosCarteira.nomeTitularMpesa.trim(),
+                contactoEmola: dadosCarteira.contactoEmola.trim().replace(/\s+/g, ''),
+                nomeTitularEmola: dadosCarteira.nomeTitularEmola.trim(),
+                ultimaAtualizacao: new Date()
+            };
+            
+            // Email e email_titular sempre vêm do usuário autenticado
+            if (emailParaSalvar) {
+                dadosAtualizados.email = emailParaSalvar;
+                dadosAtualizados.emailTitular = emailParaSalvar; // Email do usuário usado como email_titular
+            }
+            
+            // Atualizar metodo_saque apenas se fornecido explicitamente
+            if (dadosCarteira.metodoSaque) {
+                dadosAtualizados.metodoSaque = dadosCarteira.metodoSaque.trim();
+            }
+            
+            // Preencher campo 'contacto' (legado) com contacto Mpesa ao atualizar
+            dadosAtualizados.contacto = dadosAtualizados.contactoMpesa || '';
+            
+            // Preencher campo 'nome_titular' (legado) com nome titular Mpesa ao atualizar
+            dadosAtualizados.nomeTitular = dadosAtualizados.nomeTitularMpesa || '';
+            
+            if (carteira) {
+                // Atualizar carteira existente
+                // Preservar metodo_saque se não foi fornecido na atualização
+                if (!dadosAtualizados.metodoSaque) {
+                    dadosAtualizados.metodoSaque = carteira.metodoSaque || carteira.metodo_saque || 'Mpesa';
+                }
+                // Garantir que contacto seja preenchido na atualização também
+                if (!dadosAtualizados.contacto || dadosAtualizados.contacto === '') {
+                    dadosAtualizados.contacto = dadosAtualizados.contactoMpesa || carteira.contacto || '';
+                }
+                // Garantir que nome_titular seja preenchido na atualização também
+                if (!dadosAtualizados.nomeTitular || dadosAtualizados.nomeTitular === '') {
+                    dadosAtualizados.nomeTitular = dadosAtualizados.nomeTitularMpesa || carteira.nomeTitular || carteira.nome_titular || '';
+                }
+                // Garantir que email_titular seja preenchido na atualização também
+                if (!dadosAtualizados.emailTitular || dadosAtualizados.emailTitular === '') {
+                    dadosAtualizados.emailTitular = emailParaSalvar || dadosAtualizados.email || carteira.emailTitular || carteira.email_titular || carteira.email || '';
+                }
+                await carteira.update(dadosAtualizados);
+                console.log(`✅ Carteira atualizada com sucesso para vendedor ${vendedorId}`);
+            } else {
+                // Criar nova carteira
+                dadosAtualizados.vendedorId = vendedorId;
+                dadosAtualizados.ativa = true;
+                dadosAtualizados.nome = 'Carteira Principal'; // Nome padrão para a carteira única
+                
+                // Definir metodo_saque padrão como 'Mpesa' (campo obrigatório no BD)
+                // Como a carteira tem ambos Mpesa e Emola, usamos 'Mpesa' como padrão
+                // IMPORTANTE: Sempre definir explicitamente para evitar erro NOT NULL
+                dadosAtualizados.metodoSaque = (dadosCarteira.metodoSaque || 'Mpesa').trim();
+                
+                // Preencher campo 'contacto' (legado) com o contacto Mpesa
+                // Este campo é obrigatório no banco, usar contacto Mpesa como padrão
+                dadosAtualizados.contacto = dadosAtualizados.contactoMpesa || '';
+                
+                // Preencher campo 'nome_titular' (legado) com o nome titular Mpesa
+                // Este campo é obrigatório no banco, usar nome_titular_mpesa como padrão
+                dadosAtualizados.nomeTitular = dadosAtualizados.nomeTitularMpesa || '';
+                
+                // Garantir que email seja sempre preenchido (obrigatório)
+                // O email vem do usuário autenticado (routes/carteiras.js)
+                if (!emailParaSalvar) {
+                    throw new Error('Email do usuário é obrigatório para criar carteira. Faça login novamente.');
+                }
+                
+                    dadosAtualizados.email = emailParaSalvar;
+                
+                // Preencher campo 'email_titular' (legado) com o email do usuário autenticado
+                // Este campo é obrigatório no banco, usar email do usuário como padrão
+                dadosAtualizados.emailTitular = emailParaSalvar;
+                
+                // Garantir que contacto seja sempre preenchido (obrigatório no BD)
+                if (!dadosAtualizados.contacto || dadosAtualizados.contacto === '') {
+                    throw new Error('Contacto Mpesa é obrigatório para criar carteira');
+                }
+                
+                // Garantir que nome_titular seja sempre preenchido (obrigatório no BD)
+                if (!dadosAtualizados.nomeTitular || dadosAtualizados.nomeTitular === '') {
+                    throw new Error('Nome titular Mpesa é obrigatório para criar carteira');
+                }
+                
+                console.log(`🔍 Dados para criar carteira:`, JSON.stringify({
+                    ...dadosAtualizados,
+                    metodoSaque: dadosAtualizados.metodoSaque // Garantir que aparece no log
+                }, null, 2));
+                
+                carteira = await Carteira.create(dadosAtualizados, {
+                    // Garantir que todos os campos obrigatórios sejam validados
+                    validate: true
+                });
+                console.log(`✅ Carteira criada com sucesso para vendedor ${vendedorId}`);
+            }
+            
+            // Recarregar carteira para garantir que todos os campos estão disponíveis
+            await carteira.reload();
+            
+            return carteira;
             
         } catch (error) {
             console.error('❌ Erro ao criar carteira:', error);
@@ -256,7 +277,8 @@ class CarteiraService {
      */
     static async listarCarteiras(vendedorId) {
         try {
-            const carteiras = await Carteira.findAll({
+            // Retornar apenas uma carteira (a única do usuário)
+            const carteira = await Carteira.findOne({
                 where: {
                     vendedorId: vendedorId,
                     ativa: true
@@ -264,10 +286,32 @@ class CarteiraService {
                 order: [['dataCriacao', 'ASC']]
             });
             
-            return carteiras;
+            // Retornar array com a carteira ou array vazio
+            return carteira ? [carteira] : [];
             
         } catch (error) {
             console.error('❌ Erro ao listar carteiras:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Buscar carteira única de um vendedor
+     */
+    static async buscarCarteiraUnica(vendedorId) {
+        try {
+            const carteira = await Carteira.findOne({
+                where: {
+                    vendedorId: vendedorId,
+                    ativa: true
+                },
+                order: [['dataCriacao', 'ASC']]
+            });
+            
+            return carteira;
+            
+        } catch (error) {
+            console.error('❌ Erro ao buscar carteira única:', error);
             throw error;
         }
     }

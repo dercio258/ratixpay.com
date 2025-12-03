@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RatixPay - Configuração UTMify</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #f64c00;
+            --secondary-color: #E67E22;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-bg: #1e293b;
+            --light-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --utmfy-purple: #667eea;
+        }
+
+        .utmfy-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .utmfy-header {
+            margin-bottom: 40px;
+        }
+
+        .utmfy-header h1 {
+            font-size: 2.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .utmfy-header h1 i {
+            color: var(--utmfy-purple);
+        }
+
+        .utmfy-header p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .product-selector-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .product-selector-section h2 {
+            font-size: 1.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-select-wrapper {
+            position: relative;
+        }
+
+        .product-select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.05rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e293b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 50px;
+            font-weight: 500;
+            color: var(--dark-bg);
+        }
+
+        .product-select:hover {
+            border-color: var(--utmfy-purple);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .product-select:focus {
+            outline: none;
+            border-color: var(--utmfy-purple);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .product-select option {
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+
+        .product-select option:first-child {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .products-grid {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+
+        .products-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .products-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        .product-card {
+            flex: 0 0 auto;
+            width: 180px;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .product-card:hover {
+            border-color: var(--utmfy-purple);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15);
+        }
+
+        .product-card.selected {
+            border-color: var(--utmfy-purple);
+            background: rgba(102, 126, 234, 0.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .product-card-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .product-card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 2rem;
+        }
+
+        .product-card-id {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin-top: auto;
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .product-card {
+                width: 150px;
+            }
+
+            .product-card-image {
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                gap: 15px;
+            }
+
+            .product-card {
+                width: 130px;
+                padding: 12px;
+            }
+
+            .product-card-image {
+                height: 100px;
+            }
+
+            .product-card-id {
+                font-size: 0.8rem;
+            }
+        }
+
+        .utmfy-config-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .utmfy-config-section.active {
+            display: block;
+        }
+
+        .utmfy-config-section h2 {
+            font-size: 1.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: var(--danger-color);
+            margin-left: 4px;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--utmfy-purple);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group .help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .events-section {
+            margin-top: 30px;
+        }
+
+        .events-section h3 {
+            font-size: 1.2rem;
+            color: var(--dark-bg);
+            margin-bottom: 15px;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .event-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--light-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .event-checkbox:hover {
+            background: #e9ecef;
+            border-color: var(--utmfy-purple);
+        }
+
+        .event-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .event-checkbox input[type="checkbox"]:checked + label {
+            color: var(--utmfy-purple);
+            font-weight: 600;
+        }
+
+        .event-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .event-checkbox .event-icon {
+            margin-left: 8px;
+            color: var(--utmfy-purple);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--utmfy-purple) 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--dark-bg);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: var(--dark-bg);
+        }
+
+        .current-config {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border: 2px solid var(--utmfy-purple);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .current-config h3 {
+            font-size: 1.1rem;
+            color: var(--dark-bg);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-item-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .config-item-value {
+            font-size: 1rem;
+            color: var(--dark-bg);
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #cbd5e1;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark-bg);
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .utmfy-container {
+                padding: 20px 15px;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <div class="utmfy-container">
+                <!-- Header -->
+                <div class="utmfy-header">
+                    <h1>
+                        <i class="fas fa-chart-line"></i>
+                        Configuração UTMify
+                    </h1>
+                    <p>Configure o UTMify para rastreamento avançado de tráfego e análise detalhada de conversões</p>
+                </div>
+
+                <!-- Seletor de Produto -->
+                <div class="product-selector-section">
+                    <h2>
+                        <i class="fas fa-box"></i>
+                        Selecionar Produto
+                    </h2>
+                    <div class="product-select-wrapper">
+                        <select id="product-select" class="product-select">
+                            <option value="">-- Selecione um produto --</option>
+                        </select>
+                    </div>
+                    <div id="products-grid" class="products-grid">
+                        <!-- Produtos serão renderizados aqui -->
+                    </div>
+                </div>
+
+                <!-- Configuração do UTMify -->
+                <div id="utmfy-config-section" class="utmfy-config-section">
+                    <h2>
+                        <i class="fas fa-cog"></i>
+                        Configuração do UTMify
+                    </h2>
+
+                    <!-- Configuração Atual -->
+                    <div id="current-config" class="current-config" style="display: none;">
+                        <h3>
+                            <i class="fas fa-info-circle"></i>
+                            Configuração Atual
+                        </h3>
+                        <div class="config-info">
+                            <div class="config-item">
+                                <span class="config-item-label">API Key</span>
+                                <span id="current-api-key" class="config-item-value">-</span>
+                            </div>
+                            <div class="config-item">
+                                <span class="config-item-label">Status</span>
+                                <span id="current-status" class="config-item-value">
+                                    <span class="status-badge inactive">Inativo</span>
+                                </span>
+                            </div>
+                            <div class="config-item">
+                                <span class="config-item-label">Eventos Ativos</span>
+                                <span id="current-events" class="config-item-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário de Configuração -->
+                    <form id="utmfy-config-form">
+                        <div class="form-group">
+                            <label for="api-key">
+                                API Key <span class="required">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="api-key" 
+                                name="apiKey"
+                                placeholder="Ex: utm_xxxxxxxxxxxxxxxxxxxx ou umtfy_api_xxxxxxxxxxxx"
+                            />
+                            <div class="help-text">
+                                Digite sua chave de API do UTMify. Pode ser um token alfanumérico (20+ caracteres), 
+                                um token UTMify (utm_xxx) ou uma chave API UMTFY (umtfy_api_xxx).
+                            </div>
+                        </div>
+
+                        <div class="events-section">
+                            <h3>
+                                <i class="fas fa-list-check"></i>
+                                Eventos do UTMify
+                            </h3>
+                            <p style="color: #64748b; margin-bottom: 15px; font-size: 0.9rem;">
+                                Selecione os eventos que deseja rastrear. Quando uma API Key é configurada, todos os eventos são ativados automaticamente.
+                            </p>
+                            <div class="events-grid" id="events-grid">
+                                <!-- Eventos serão inseridos aqui via JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i class="fas fa-save"></i>
+                                Salvar Configuração
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="clear-btn">
+                                <i class="fas fa-times"></i>
+                                Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Estado Vazio -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Nenhum produto encontrado</h3>
+                    <p>Você precisa criar produtos antes de configurar o UTMify.</p>
+                    <a href="gestao-produtos.html" class="btn btn-primary" style="margin-top: 20px; text-decoration: none; display: inline-flex;">
+                        <i class="fas fa-plus"></i>
+                        Criar Produto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/sidebar-component.js"></script>
+    
+    <script>
+        // Eventos disponíveis do UTMify
+        const EVENTOS_DISPONIVEIS = [
+            { id: 'page_view', nome: 'Page View', descricao: 'Visualização de página', icon: 'fa-eye' },
+            { id: 'purchase_completed', nome: 'Purchase Completed', descricao: 'Compra concluída', icon: 'fa-shopping-cart' },
+            { id: 'cart_abandoned', nome: 'Cart Abandoned', descricao: 'Carrinho abandonado', icon: 'fa-cart-arrow-down' },
+            { id: 'checkout_started', nome: 'Checkout Started', descricao: 'Início do checkout', icon: 'fa-credit-card' }
+        ];
+
+        let produtos = [];
+        let produtoSelecionado = null;
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('integracoes');
+            
+            inicializarEventos();
+            carregarProdutos();
+            renderizarEventos();
+        });
+
+        function inicializarEventos() {
+            // Seletor de produto
+            document.getElementById('product-select').addEventListener('change', function(e) {
+                const produtoId = e.target.value;
+                if (produtoId) {
+                    selecionarProduto(produtoId);
+                } else {
+                    esconderConfiguracao();
+                }
+            });
+
+            // Formulário
+            document.getElementById('utmfy-config-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                salvarConfiguracao();
+            });
+
+            // Botão limpar
+            document.getElementById('clear-btn').addEventListener('click', function() {
+                limparFormulario();
+            });
+
+            // Validação da API Key em tempo real
+            document.getElementById('api-key').addEventListener('input', function(e) {
+                validarApiKey(e.target.value);
+            });
+        }
+
+        async function carregarProdutos() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    mostrarToast('Erro: Usuário não autenticado', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${window.API_BASE || '/api'}/produtos`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar produtos');
+                }
+
+                const data = await response.json();
+                produtos = data.data || data.produtos || [];
+                
+                // Garantir que cada produto tenha os campos necessários
+                produtos = produtos.map(produto => ({
+                    ...produto,
+                    utmfy_api_key: produto.utmfy_api_key || null,
+                    utmfy_events: produto.utmfy_events || [],
+                    utmfy_active: produto.utmfy_active || false
+                }));
+
+                if (produtos.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    document.querySelector('.product-selector-section').style.display = 'none';
+                    return;
+                }
+
+                popularSelectProdutos();
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                mostrarToast('Erro ao carregar produtos: ' + error.message, 'error');
+            }
+        }
+
+        function popularSelectProdutos() {
+            const select = document.getElementById('product-select');
+            const productsGrid = document.getElementById('products-grid');
+            
+            // Limpar opções existentes (exceto a primeira)
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+
+            // Limpar grid de produtos
+            if (productsGrid) {
+                productsGrid.innerHTML = '';
+            }
+
+            produtos.forEach(produto => {
+                // Adicionar ao select
+                const option = document.createElement('option');
+                option.value = produto.id;
+                option.textContent = produto.nome; // Apenas o nome, sem preço
+                select.appendChild(option);
+
+                // Criar card de produto
+                if (productsGrid) {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.dataset.productId = produto.id;
+                    card.onclick = () => {
+                        // Remover seleção anterior
+                        document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+                        // Selecionar este card
+                        card.classList.add('selected');
+                        // Atualizar select
+                        select.value = produto.id;
+                        // Disparar evento de mudança
+                        select.dispatchEvent(new Event('change'));
+                    };
+
+                    // Imagem do produto
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'product-card-image';
+                    
+                    if (produto.imagem_url) {
+                        const img = document.createElement('img');
+                        img.src = produto.imagem_url;
+                        img.alt = produto.nome || 'Produto';
+                        img.onerror = function() {
+                            this.parentElement.innerHTML = '<div class="product-card-image-placeholder"><i class="fas fa-image"></i></div>';
+                        };
+                        imageContainer.appendChild(img);
+                    } else {
+                        imageContainer.innerHTML = '<div class="product-card-image-placeholder"><i class="fas fa-image"></i></div>';
+                    }
+
+                    // Custom ID
+                    const customId = document.createElement('div');
+                    customId.className = 'product-card-id';
+                    customId.textContent = produto.custom_id || produto.id.substring(0, 8);
+
+                    card.appendChild(imageContainer);
+                    card.appendChild(customId);
+                    productsGrid.appendChild(card);
+                }
+            });
+        }
+
+        async function selecionarProduto(produtoId) {
+            try {
+                // Destacar card selecionado
+                document.querySelectorAll('.product-card').forEach(card => {
+                    if (card.dataset.productId === produtoId) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+
+                // Mostrar loading
+                const saveBtn = document.getElementById('save-btn');
+                const originalContent = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="loading-spinner"></span> Carregando...';
+
+                // Buscar configurações UTMify do produto
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const response = await fetch(`${window.API_BASE || '/api'}/produtos/${produtoId}/utmfy`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar configurações UTMify');
+                }
+
+                const data = await response.json();
+                const utmfyConfig = data.utmfy_config || data;
+                
+                // Buscar produto completo também
+                produtoSelecionado = produtos.find(p => p.id === produtoId);
+                if (!produtoSelecionado) {
+                    throw new Error('Produto não encontrado');
+                }
+
+                // Atualizar com configurações UTMify
+                produtoSelecionado.utmfy_api_key = utmfyConfig.utmfy_api_key || null;
+                produtoSelecionado.utmfy_events = utmfyConfig.utmfy_events || [];
+                produtoSelecionado.utmfy_active = utmfyConfig.utmfy_active || false;
+                produtoSelecionado.utmfy_token_type = utmfyConfig.utmfy_token_type || 'utmify';
+
+                // Atualizar produto na lista local
+                const produtoIndex = produtos.findIndex(p => p.id === produtoId);
+                if (produtoIndex !== -1) {
+                    produtos[produtoIndex] = { ...produtos[produtoIndex], ...produtoSelecionado };
+                }
+
+                // Mostrar seção de configuração
+                document.getElementById('utmfy-config-section').classList.add('active');
+                document.getElementById('empty-state').style.display = 'none';
+
+                // Carregar configuração atual do banco de dados
+                await carregarConfiguracaoAtual();
+
+                // Restaurar botão
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalContent;
+
+            } catch (error) {
+                console.error('Erro ao selecionar produto:', error);
+                mostrarToast('Erro ao carregar configurações: ' + error.message, 'error');
+                
+                // Restaurar botão
+                const saveBtn = document.getElementById('save-btn');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Configuração';
+            }
+        }
+
+        async function carregarConfiguracaoAtual() {
+            if (!produtoSelecionado) return;
+
+            // Garantir que temos os dados mais recentes do banco
+            const apiKey = produtoSelecionado.utmfy_api_key || null;
+            const utmfyEvents = produtoSelecionado.utmfy_events || [];
+            const utmfyActive = produtoSelecionado.utmfy_active || false;
+
+            console.log('📊 Carregando configuração UTMify do produto:', {
+                produto: produtoSelecionado.nome,
+                apiKey: apiKey ? apiKey.substring(0, 15) + '...' : null,
+                utmfyEvents: utmfyEvents,
+                utmfyActive: utmfyActive
+            });
+
+            // Preencher formulário
+            document.getElementById('api-key').value = apiKey || '';
+
+            // Marcar eventos
+            EVENTOS_DISPONIVEIS.forEach(evento => {
+                const checkbox = document.getElementById(`event-${evento.id}`);
+                if (checkbox) {
+                    // Se há API Key, todos os eventos são ativados automaticamente
+                    // Caso contrário, marcar apenas os eventos salvos
+                    if (apiKey) {
+                        checkbox.checked = true; // Todos os eventos quando há API Key
+                    } else {
+                        checkbox.checked = utmfyEvents.includes(evento.id);
+                    }
+                }
+            });
+
+            // Mostrar configuração atual se houver API Key
+            if (apiKey) {
+                document.getElementById('current-config').style.display = 'block';
+                document.getElementById('current-api-key').textContent = apiKey.length > 30 
+                    ? apiKey.substring(0, 30) + '...' 
+                    : apiKey;
+                document.getElementById('current-status').innerHTML = utmfyActive 
+                    ? '<span class="status-badge active">Ativo</span>'
+                    : '<span class="status-badge inactive">Inativo</span>';
+                
+                // Mostrar eventos
+                if (utmfyEvents && utmfyEvents.length > 0) {
+                    const eventosNomes = utmfyEvents.map(eventId => {
+                        const evento = EVENTOS_DISPONIVEIS.find(e => e.id === eventId);
+                        return evento ? evento.nome : eventId;
+                    });
+                    document.getElementById('current-events').textContent = eventosNomes.join(', ');
+                } else {
+                    document.getElementById('current-events').textContent = 'Todos os eventos';
+                }
+            } else {
+                document.getElementById('current-config').style.display = 'none';
+            }
+        }
+
+        function renderizarEventos() {
+            const grid = document.getElementById('events-grid');
+            grid.innerHTML = '';
+
+            EVENTOS_DISPONIVEIS.forEach(evento => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'event-checkbox';
+                checkboxDiv.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        id="event-${evento.id}" 
+                        name="events" 
+                        value="${evento.id}"
+                        checked
+                    />
+                    <label for="event-${evento.id}">
+                        ${evento.nome}
+                        <span style="display: block; font-size: 0.8rem; color: #64748b; font-weight: normal; margin-top: 2px;">
+                            ${evento.descricao}
+                        </span>
+                    </label>
+                    <i class="fas ${evento.icon} event-icon"></i>
+                `;
+                grid.appendChild(checkboxDiv);
+            });
+        }
+
+        function validarApiKey(apiKey) {
+            const input = document.getElementById('api-key');
+            // Aceitar tokens alfanuméricos, tokens UTMify (utm_xxx) e chaves API UMTFY (umtfy_api_xxx)
+            const alphanumericPattern = /^[A-Za-z0-9]{20,}$/;
+            const utmifyPattern = /^utm_[a-zA-Z0-9]{20,}$/;
+            const umtfyPattern = /^umtfy_api_[a-zA-Z0-9]{12,}$/;
+            const isValid = !apiKey || alphanumericPattern.test(apiKey) || utmifyPattern.test(apiKey) || umtfyPattern.test(apiKey);
+            
+            if (apiKey && !isValid) {
+                input.style.borderColor = '#dc3545';
+                return false;
+            } else {
+                input.style.borderColor = '';
+                return true;
+            }
+        }
+
+        async function salvarConfiguracao() {
+            if (!produtoSelecionado) {
+                mostrarToast('Selecione um produto primeiro', 'warning');
+                return;
+            }
+
+            const apiKey = document.getElementById('api-key').value.trim();
+            
+            // Validar API Key
+            if (apiKey && !validarApiKey(apiKey)) {
+                mostrarToast('API Key inválida. Use: Token alfanumérico (20+ chars), utm_xxx ou umtfy_api_xxx', 'warning');
+                return;
+            }
+
+            // Obter eventos selecionados (ou todos se houver API Key)
+            const eventosSelecionados = apiKey 
+                ? EVENTOS_DISPONIVEIS.map(e => e.id) // Todos os eventos quando há API Key
+                : Array.from(document.querySelectorAll('input[name="events"]:checked')).map(cb => cb.value);
+
+            const saveBtn = document.getElementById('save-btn');
+            const originalContent = saveBtn.innerHTML;
+            
+            try {
+                // Feedback visual
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="loading-spinner"></span> Salvando...';
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                if (!token) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const response = await fetch(`${window.API_BASE || '/api'}/produtos/${produtoSelecionado.id}/utmfy`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        apiKey: apiKey || null,
+                        tokenType: 'utmify',
+                        events: eventosSelecionados,
+                        active: !!apiKey
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+                    throw new Error(errorData.message || 'Erro ao salvar configuração');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Atualizar produto na lista local
+                    const produtoIndex = produtos.findIndex(p => p.id === produtoSelecionado.id);
+                    if (produtoIndex !== -1) {
+                        produtos[produtoIndex].utmfy_api_key = apiKey || null;
+                        produtos[produtoIndex].utmfy_events = eventosSelecionados;
+                        produtos[produtoIndex].utmfy_active = !!apiKey;
+                    }
+
+                    // Atualizar produto selecionado
+                    produtoSelecionado.utmfy_api_key = apiKey || null;
+                    produtoSelecionado.utmfy_events = eventosSelecionados;
+                    produtoSelecionado.utmfy_active = !!apiKey;
+
+                    // Recarregar configuração atual
+                    await carregarConfiguracaoAtual();
+
+                    // Feedback de sucesso
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+                    saveBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                    
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalContent;
+                        saveBtn.style.background = '';
+                        saveBtn.disabled = false;
+                    }, 2000);
+
+                    mostrarToast(
+                        apiKey 
+                            ? '✅ Configuração do UTMify salva com sucesso! Todos os eventos serão rastreados.'
+                            : '✅ Configuração do UTMify removida com sucesso!',
+                        'success'
+                    );
+                } else {
+                    throw new Error(data.message || 'Erro ao salvar configuração');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+                mostrarToast('❌ Erro ao salvar: ' + error.message, 'error');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalContent;
+            }
+        }
+
+        function limparFormulario() {
+            document.getElementById('api-key').value = '';
+            document.querySelectorAll('input[name="events"]').forEach(cb => {
+                cb.checked = true; // Todos marcados por padrão
+            });
+            document.getElementById('current-config').style.display = 'none';
+        }
+
+        function esconderConfiguracao() {
+            document.getElementById('utmfy-config-section').classList.remove('active');
+            produtoSelecionado = null;
+            // Remover seleção de todos os cards
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        function mostrarToast(mensagem, tipo = 'success') {
+            // Remover toast anterior
+            const toastAnterior = document.querySelector('.toast');
+            if (toastAnterior) {
+                toastAnterior.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            
+            const icon = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle'
+            }[tipo] || 'fa-info-circle';
+
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${mensagem}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Remover após 5 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

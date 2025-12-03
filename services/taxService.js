@@ -16,6 +16,7 @@ class TaxService {
      */
     static async processarVendaComTaxas(vendaId, valorVenda, vendedorId) {
         const transaction = await sequelize.transaction();
+        let transactionCommitted = false;
         
         try {
             console.log(`🔄 Processando venda com taxas: ${vendaId}, valor: ${valorVenda}, vendedor: ${vendedorId}`);
@@ -34,17 +35,29 @@ class TaxService {
             console.log(`   💼 Taxa do administrador (10%): MZN ${taxaAdmin.toFixed(2)}`);
             console.log(`   👤 Receita do vendedor (90%): MZN ${receitaVendedor.toFixed(2)}`);
             
-            // 1. Atualizar saldo do administrador (adicionar taxa) - FUNCIONANDO
+            // 1. Atualizar saldo do administrador (adicionar taxa)
             try {
                 await this.adicionarTaxaAdmin(taxaAdmin, transaction);
                 await transaction.commit();
+                transactionCommitted = true;
+                console.log('✅ Transação de taxa do admin commitada com sucesso');
             } catch (taxError) {
                 console.error('❌ Erro ao adicionar taxa ao admin:', taxError);
-                await transaction.rollback();
+                // Verificar se a transação ainda está ativa antes de fazer rollback
+                if (!transaction.finished) {
+                    try {
+                        await transaction.rollback();
+                    } catch (rollbackError) {
+                        // Ignorar erro de rollback se a transação já foi finalizada
+                        if (!rollbackError.message.includes('finished')) {
+                            console.error('⚠️ Erro ao fazer rollback da transação:', rollbackError.message);
+                        }
+                    }
+                }
                 throw taxError;
             }
             
-            // 2. Atualizar receita do vendedor diretamente
+            // 2. Atualizar receita do vendedor diretamente (fora da transação principal)
             try {
                 console.log(`🔄 Adicionando receita do vendedor: MZN ${receitaVendedor.toFixed(2)}`);
                 await this.adicionarReceitaVendedor(vendedorId, receitaVendedor);
@@ -70,10 +83,16 @@ class TaxService {
             };
             
         } catch (error) {
-            try {
-                await transaction.rollback();
-            } catch (rollbackError) {
-                console.error('⚠️ Erro ao fazer rollback da transação:', rollbackError.message);
+            // Só fazer rollback se a transação não foi commitada e ainda está ativa
+            if (!transactionCommitted && !transaction.finished) {
+                try {
+                    await transaction.rollback();
+                } catch (rollbackError) {
+                    // Ignorar erro se a transação já foi finalizada
+                    if (!rollbackError.message.includes('finished') && !rollbackError.message.includes('cannot be rolled back')) {
+                        console.error('⚠️ Erro ao fazer rollback da transação:', rollbackError.message);
+                    }
+                }
             }
             console.error('❌ Erro ao processar venda com taxas:', error);
             throw error;
@@ -85,55 +104,131 @@ class TaxService {
      */
     static async adicionarTaxaAdmin(valorTaxa, existingTransaction = null) {
         const transaction = existingTransaction || await sequelize.transaction();
+        const isOwnTransaction = !existingTransaction;
         
         try {
-            let saldoAdmin = await SaldoAdmin.findOne({ transaction });
+            // Verificar se a transação ainda está ativa antes de usar
+            if (existingTransaction && existingTransaction.finished) {
+                throw new Error('Transação fornecida já foi finalizada');
+            }
             
-            if (!saldoAdmin) {
-                // Inicializar saldo do admin se não existir
-                saldoAdmin = await SaldoAdmin.create({
-                    saldo_total: 0,
-                    comissao_percentual: 10.00,
-                    total_vendas_aprovadas: 0,
-                    valor_total_vendas: 0,
-                    total_comissoes: 0,
-                    total_saques_pagos: 0,
-                    taxas: 0,
-                    observacoes: 'Registro inicial criado automaticamente'
-                }, { transaction });
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { 
+                    type: sequelize.QueryTypes.SELECT,
+                    transaction: isOwnTransaction ? transaction : undefined
+                }
+            );
+            
+            let saldoAdmin = saldoAdminResult;
+            
+            // Se não encontrou e está usando transação existente, tentar sem transação
+            if (!saldoAdmin && existingTransaction) {
+                const [resultWithoutTransaction] = await sequelize.query(
+                    `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes 
+                     FROM saldo_admin LIMIT 1`,
+                    { type: sequelize.QueryTypes.SELECT }
+                );
+                saldoAdmin = resultWithoutTransaction;
             }
             
             const valorTaxaFloat = parseFloat(valorTaxa || 0);
             
-            // Atualizar saldo do admin
-            await saldoAdmin.update({
-                saldo_total: parseFloat(saldoAdmin.saldo_total || 0) + valorTaxaFloat,
-                total_vendas_aprovadas: parseInt(saldoAdmin.total_vendas_aprovadas || 0) + 1,
-                valor_total_vendas: parseFloat(saldoAdmin.valor_total_vendas || 0) + (valorTaxaFloat / 0.10), // Valor total da venda (taxa / 10%)
-                total_comissoes: parseFloat(saldoAdmin.total_comissoes || 0) + valorTaxaFloat,
-                taxas: parseFloat(saldoAdmin.taxas || 0) + valorTaxaFloat,
-                ultima_atualizacao: new Date()
-            }, { transaction });
+            if (!saldoAdmin) {
+                // Inicializar saldo do admin se não existir usando SQL direto
+                const insertResult = await sequelize.query(
+                    `INSERT INTO saldo_admin (id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     observacoes, created_at, updated_at) 
+                     VALUES (gen_random_uuid(), :valorTaxa, 10.00, 1, :valorTotalVenda, :valorTaxa, 0, :valorTaxa, 0, 
+                     'Registro inicial criado automaticamente', NOW(), NOW())
+                     RETURNING id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes`,
+                    {
+                        replacements: {
+                            valorTaxa: valorTaxaFloat,
+                            valorTotalVenda: valorTaxaFloat / 0.10
+                        },
+                        type: sequelize.QueryTypes.SELECT,
+                        transaction: isOwnTransaction ? transaction : undefined
+                    }
+                );
+                // insertResult retorna um array diretamente com SELECT
+                saldoAdmin = insertResult[0];
+            } else {
+                // Calcular novos valores
+                const novoSaldoTotal = parseFloat(saldoAdmin.saldo_total || 0) + valorTaxaFloat;
+                const novoTotalVendas = parseInt(saldoAdmin.total_vendas_aprovadas || 0) + 1;
+                const novoValorTotalVendas = parseFloat(saldoAdmin.valor_total_vendas || 0) + (valorTaxaFloat / 0.10);
+                const novoTotalComissoes = parseFloat(saldoAdmin.total_comissoes || 0) + valorTaxaFloat;
+                const novasTaxas = parseFloat(saldoAdmin.taxas || 0) + valorTaxaFloat;
+                
+                // Atualizar saldo do admin usando SQL direto
+                await sequelize.query(
+                    `UPDATE saldo_admin 
+                     SET saldo_total = :novoSaldoTotal,
+                         total_vendas_aprovadas = :novoTotalVendas,
+                         valor_total_vendas = :novoValorTotalVendas,
+                         total_comissoes = :novoTotalComissoes,
+                         taxas = :novasTaxas,
+                         ultima_atualizacao = NOW(),
+                         updated_at = NOW()
+                     WHERE id = :id`,
+                    {
+                        replacements: {
+                            id: saldoAdmin.id,
+                            novoSaldoTotal,
+                            novoTotalVendas,
+                            novoValorTotalVendas,
+                            novoTotalComissoes,
+                            novasTaxas
+                        },
+                        type: sequelize.QueryTypes.UPDATE,
+                        transaction: isOwnTransaction ? transaction : undefined
+                    }
+                );
+                
+                // Atualizar objeto saldoAdmin com novos valores para retorno
+                saldoAdmin.saldo_total = novoSaldoTotal;
+                saldoAdmin.taxas = novasTaxas;
+            }
             
             // Só faz commit se criou a transação
-            if (!existingTransaction) {
+            if (isOwnTransaction && !transaction.finished) {
                 await transaction.commit();
             }
             
+            const novoSaldoTotal = parseFloat(saldoAdmin.saldo_total || 0);
+            const totalTaxas = parseFloat(saldoAdmin.taxas || 0);
+            
             console.log(`✅ Taxa de MZN ${valorTaxaFloat.toFixed(2)} adicionada ao saldo do administrador`);
-            console.log(`💰 Novo saldo total do admin: MZN ${(parseFloat(saldoAdmin.saldo_total) + valorTaxaFloat).toFixed(2)}`);
-            console.log(`💼 Total de taxas coletadas: MZN ${(parseFloat(saldoAdmin.taxas) + valorTaxaFloat).toFixed(2)}`);
+            console.log(`💰 Novo saldo total do admin: MZN ${novoSaldoTotal.toFixed(2)}`);
+            console.log(`💼 Total de taxas coletadas: MZN ${totalTaxas.toFixed(2)}`);
             
             return {
                 taxa_adicionada: valorTaxaFloat,
-                novo_saldo_total: parseFloat(saldoAdmin.saldo_total) + valorTaxaFloat,
-                total_taxas: parseFloat(saldoAdmin.taxas) + valorTaxaFloat
+                novo_saldo_total: novoSaldoTotal,
+                total_taxas: totalTaxas
             };
             
         } catch (error) {
-            // Só faz rollback se criou a transação
-            if (!existingTransaction) {
-                await transaction.rollback();
+            // Só faz rollback se criou a transação e ela ainda está ativa
+            if (isOwnTransaction && !transaction.finished) {
+                try {
+                    await transaction.rollback();
+                } catch (rollbackError) {
+                    // Ignorar erro se a transação já foi finalizada
+                    if (!rollbackError.message.includes('finished') && !rollbackError.message.includes('cannot be rolled back')) {
+                        console.error('⚠️ Erro ao fazer rollback:', rollbackError.message);
+                    }
+                }
             }
             console.error('❌ Erro ao adicionar taxa ao admin:', error);
             throw error;
@@ -225,7 +320,16 @@ class TaxService {
      */
     static async obterEstatisticasTaxas() {
         try {
-            const saldoAdmin = await SaldoAdmin.findOne();
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { type: sequelize.QueryTypes.SELECT }
+            );
+            
+            const saldoAdmin = saldoAdminResult;
             
             if (!saldoAdmin) {
                 return {
@@ -307,52 +411,94 @@ class TaxService {
      */
     static async adicionarTaxaSaqueAdmin(valorTaxaSaque, existingTransaction = null) {
         const transaction = existingTransaction || await sequelize.transaction();
+        const isOwnTransaction = !existingTransaction;
         
         try {
-            let saldoAdmin = await SaldoAdmin.findOne({ transaction });
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { 
+                    type: sequelize.QueryTypes.SELECT,
+                    transaction: isOwnTransaction ? transaction : undefined
+                }
+            );
             
-            if (!saldoAdmin) {
-                // Inicializar saldo do admin se não existir
-                saldoAdmin = await SaldoAdmin.create({
-                    saldo_total: 0,
-                    comissao_percentual: 10.00,
-                    total_vendas_aprovadas: 0,
-                    valor_total_vendas: 0,
-                    total_comissoes: 0,
-                    total_saques_pagos: 0,
-                    taxas: 0,
-                    taxas_saques: 0,
-                    observacoes: 'Registro inicial criado automaticamente'
-                }, { transaction });
-            }
-            
+            let saldoAdmin = saldoAdminResult;
             const valorTaxaSaqueFloat = parseFloat(valorTaxaSaque || 0);
             
-            // Atualizar saldo do admin
-            await saldoAdmin.update({
-                saldo_total: parseFloat(saldoAdmin.saldo_total || 0) + valorTaxaSaqueFloat,
-                taxas_saques: parseFloat(saldoAdmin.taxas_saques || 0) + valorTaxaSaqueFloat,
-                ultima_atualizacao: new Date()
-            }, { transaction });
+            if (!saldoAdmin) {
+                // Inicializar saldo do admin se não existir usando SQL direto
+                const insertResult = await sequelize.query(
+                    `INSERT INTO saldo_admin (id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     observacoes, created_at, updated_at) 
+                     VALUES (gen_random_uuid(), :valorTaxaSaque, 10.00, 0, 0, 0, 0, 0, :valorTaxaSaque, 
+                     'Registro inicial criado automaticamente', NOW(), NOW())
+                     RETURNING id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes`,
+                    {
+                        replacements: {
+                            valorTaxaSaque: valorTaxaSaqueFloat
+                        },
+                        type: sequelize.QueryTypes.SELECT,
+                        transaction: isOwnTransaction ? transaction : undefined
+                    }
+                );
+                saldoAdmin = insertResult[0];
+            } else {
+                // Calcular novos valores
+                const novoSaldoTotal = parseFloat(saldoAdmin.saldo_total || 0) + valorTaxaSaqueFloat;
+                const novasTaxasSaques = parseFloat(saldoAdmin.taxas_saques || 0) + valorTaxaSaqueFloat;
+                
+                // Atualizar saldo do admin usando SQL direto
+                await sequelize.query(
+                    `UPDATE saldo_admin 
+                     SET saldo_total = :novoSaldoTotal,
+                         taxas_saques = :novasTaxasSaques,
+                         ultima_atualizacao = NOW(),
+                         updated_at = NOW()
+                     WHERE id = :id`,
+                    {
+                        replacements: {
+                            id: saldoAdmin.id,
+                            novoSaldoTotal,
+                            novasTaxasSaques
+                        },
+                        type: sequelize.QueryTypes.UPDATE,
+                        transaction: isOwnTransaction ? transaction : undefined
+                    }
+                );
+                
+                // Atualizar objeto saldoAdmin com novos valores para retorno
+                saldoAdmin.saldo_total = novoSaldoTotal;
+                saldoAdmin.taxas_saques = novasTaxasSaques;
+            }
             
             // Só faz commit se criou a transação
-            if (!existingTransaction) {
+            if (isOwnTransaction && !transaction.finished) {
                 await transaction.commit();
             }
             
+            const novoSaldoTotal = parseFloat(saldoAdmin.saldo_total || 0);
+            const totalTaxasSaques = parseFloat(saldoAdmin.taxas_saques || 0);
+            
             console.log(`✅ Taxa de saque de MZN ${valorTaxaSaqueFloat.toFixed(2)} adicionada ao saldo do administrador`);
-            console.log(`💰 Novo saldo total do admin: MZN ${(parseFloat(saldoAdmin.saldo_total) + valorTaxaSaqueFloat).toFixed(2)}`);
-            console.log(`💼 Total de taxas de saques: MZN ${(parseFloat(saldoAdmin.taxas_saques) + valorTaxaSaqueFloat).toFixed(2)}`);
+            console.log(`💰 Novo saldo total do admin: MZN ${novoSaldoTotal.toFixed(2)}`);
+            console.log(`💼 Total de taxas de saques: MZN ${totalTaxasSaques.toFixed(2)}`);
             
             return {
                 taxa_saque_adicionada: valorTaxaSaqueFloat,
-                novo_saldo_total: parseFloat(saldoAdmin.saldo_total) + valorTaxaSaqueFloat,
-                total_taxas_saques: parseFloat(saldoAdmin.taxas_saques) + valorTaxaSaqueFloat
+                novo_saldo_total: novoSaldoTotal,
+                total_taxas_saques: totalTaxasSaques
             };
             
         } catch (error) {
             // Só faz rollback se criou a transação
-            if (!existingTransaction) {
+            if (isOwnTransaction && !transaction.finished) {
                 await transaction.rollback();
             }
             console.error('❌ Erro ao adicionar taxa de saque ao admin:', error);
@@ -376,19 +522,37 @@ class TaxService {
                 transaction
             });
             
-            let saldoAdmin = await SaldoAdmin.findOne({ transaction });
+            // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+            const [saldoAdminResult] = await sequelize.query(
+                `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                 valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                 ultima_atualizacao, observacoes 
+                 FROM saldo_admin LIMIT 1`,
+                { 
+                    type: sequelize.QueryTypes.SELECT,
+                    transaction
+                }
+            );
+            
+            let saldoAdmin = saldoAdminResult;
             
             if (!saldoAdmin) {
-                saldoAdmin = await SaldoAdmin.create({
-                    saldo_total: 0,
-                    comissao_percentual: 10.00,
-                    total_vendas_aprovadas: 0,
-                    valor_total_vendas: 0,
-                    total_comissoes: 0,
-                    total_saques_pagos: 0,
-                    taxas: 0,
-                    observacoes: 'Registro inicial criado automaticamente'
-                }, { transaction });
+                // Criar registro inicial usando SQL direto
+                const insertResult = await sequelize.query(
+                    `INSERT INTO saldo_admin (id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     observacoes, created_at, updated_at) 
+                     VALUES (gen_random_uuid(), 0, 10.00, 0, 0, 0, 0, 0, 0, 
+                     'Registro inicial criado automaticamente', NOW(), NOW())
+                     RETURNING id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+                     valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+                     ultima_atualizacao, observacoes`,
+                    {
+                        type: sequelize.QueryTypes.SELECT,
+                        transaction
+                    }
+                );
+                saldoAdmin = insertResult[0];
             }
             
             // Resetar contadores
@@ -408,16 +572,31 @@ class TaxService {
                 totalComissoes += taxaAdmin;
             }
             
-            // Atualizar saldo do admin
-            await saldoAdmin.update({
-                saldo_total: totalTaxas,
-                total_vendas_aprovadas: totalVendas,
-                valor_total_vendas: valorTotalVendas,
-                total_comissoes: totalComissoes,
-                taxas: totalTaxas,
-                ultima_atualizacao: new Date(),
-                observacoes: `Taxas recalculadas em ${new Date().toLocaleString('pt-BR')}`
-            }, { transaction });
+            // Atualizar saldo do admin usando SQL direto
+            await sequelize.query(
+                `UPDATE saldo_admin 
+                 SET saldo_total = :totalTaxas,
+                     total_vendas_aprovadas = :totalVendas,
+                     valor_total_vendas = :valorTotalVendas,
+                     total_comissoes = :totalComissoes,
+                     taxas = :totalTaxas,
+                     ultima_atualizacao = NOW(),
+                     updated_at = NOW(),
+                     observacoes = :observacoes
+                 WHERE id = :id`,
+                {
+                    replacements: {
+                        id: saldoAdmin.id,
+                        totalTaxas,
+                        totalVendas,
+                        valorTotalVendas,
+                        totalComissoes,
+                        observacoes: `Taxas recalculadas em ${new Date().toLocaleString('pt-BR')}`
+                    },
+                    type: sequelize.QueryTypes.UPDATE,
+                    transaction
+                }
+            );
             
             await transaction.commit();
             

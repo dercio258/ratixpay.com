@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Fórmula da Mulher Irresistível - Conexão e Sedução</title>
+    <meta name="description" content="Guia definitivo para entender a dinâmica dos relacionamentos entre mulheres, aumentar sua autoconfiança e criar conexões magnéticas.">
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-primary: #BE185D;
+            --color-light: #FCE7F3;
+            --color-dark: #831843;
+            --color-purple: #4C1D95;
+            --color-lavender: #E9D5FF;
+        }
+        
+        body {
+            color: var(--color-purple);
+            background-color: #FFF1F2;
+            font-family: 'Montserrat', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(to right, #BE185D, #9333EA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #BE185D, #db2777);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(190, 24, 93, 0.3);
+        }
+        
+        .soft-image {
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -10px rgba(190, 24, 93, 0.2);
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: var(--color-purple);
+            color: #ffffff;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: linear-gradient(to right bottom, rgba(76, 29, 149, 0.6), rgba(190, 24, 93, 0.6)), url('https://images.unsplash.com/photo-1574271143515-5cddf8da19be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
+            padding: 0 20px;
+        }
+        
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            padding: 8px 24px;
+            border-radius: 50px;
+            margin-bottom: 24px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 18px;
+        }
+        
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 6vw, 72px);
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-title-italic {
+            font-style: italic;
+            color: rgba(255, 192, 203, 1);
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: rgba(255, 192, 203, 1);
+        }
+        
+        .hero-cta-button {
+            background: linear-gradient(to right, #BE185D, #db2777);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(190, 24, 93, 0.3);
+        }
+        
+        .hero-cta-button i {
+            font-size: 20px;
+        }
+        
+        .hero-note {
+            margin-top: 16px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .hero-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+        
+        .hero-wave svg {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 60px;
+        }
+        
+        /* Pain Points Section */
+        .pain-points-section {
+            padding: 80px 0;
+        }
+        
+        .pain-points-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .pain-points-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .pain-points-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 16px;
+        }
+        
+        .pain-points-divider {
+            width: 80px;
+            height: 4px;
+            background: var(--color-primary);
+            border-radius: 50px;
+            margin: 0 auto;
+        }
+        
+        .pain-points-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+        
+        .pain-point-card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(190, 24, 93, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .pain-point-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pain-point-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(190, 24, 93, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: var(--color-primary);
+        }
+        
+        .pain-point-icon i {
+            font-size: 24px;
+        }
+        
+        .pain-point-title {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: var(--color-purple);
+        }
+        
+        .pain-point-text {
+            color: #4B5563;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        /* Storytelling Section */
+        .storytelling-section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        
+        .storytelling-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .storytelling-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 48px;
+        }
+        
+        .storytelling-image-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        
+        .storytelling-image-bg {
+            position: absolute;
+            inset: 0;
+            background: var(--color-primary);
+            border-radius: 16px;
+            transform: rotate(3deg);
+            opacity: 0.2;
+        }
+        
+        .storytelling-image {
+            position: relative;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            z-index: 10;
+        }
+        
+        .storytelling-text {
+            width: 100%;
+        }
+        
+        .storytelling-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 24px;
+        }
+        
+        .storytelling-paragraphs {
+            list-style: none;
+        }
+        
+        .storytelling-paragraph {
+            color: #374151;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        
+        .storytelling-paragraph strong {
+            color: var(--color-purple);
+            font-weight: 700;
+        }
+        
+        /* Solution Section */
+        .solution-section {
+            padding: 96px 0;
+            background: var(--color-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .solution-decoration {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 256px;
+            height: 256px;
+            background: var(--color-primary);
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: translate(80px, -80px);
+        }
+        
+        .solution-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .solution-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 24px;
+        }
+        
+        .solution-subtitle {
+            font-size: 20px;
+            color: #4B5563;
+            margin-bottom: 48px;
+        }
+        
+        .solution-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            text-align: left;
+        }
+        
+        .solution-features h3 {
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--color-purple);
+            margin-bottom: 16px;
+        }
+        
+        .solution-features-list {
+            list-style: none;
+        }
+        
+        .solution-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .solution-feature i {
+            color: var(--color-primary);
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .solution-feature-text {
+            color: #374151;
+        }
+        
+        .solution-feature-text strong {
+            color: var(--color-purple);
+            font-weight: 700;
+        }
+        
+        .solution-image-wrapper {
+            position: relative;
+        }
+        
+        .solution-image {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+        
+        .solution-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(76, 29, 149, 0.8), transparent);
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+        }
+        
+        .solution-image-text {
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        /* Social Proof Section */
+        .social-proof-section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        
+        .social-proof-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .social-proof-title {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 48px;
+        }
+        
+        .social-proof-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+        
+        .social-proof-card {
+            background: rgba(190, 24, 93, 0.05);
+            padding: 24px;
+            border-radius: 16px;
+        }
+        
+        .social-proof-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .social-proof-star {
+            color: #FBBF24;
+            font-size: 16px;
+        }
+        
+        .social-proof-text {
+            color: #374151;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 16px;
+        }
+        
+        .social-proof-author {
+            font-weight: 700;
+            color: var(--color-purple);
+        }
+        
+        /* Offer Section */
+        .offer-section {
+            padding: 96px 0;
+            background: var(--color-dark);
+            color: #ffffff;
+            position: relative;
+        }
+        
+        .offer-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .offer-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 4vw, 40px);
+            margin-bottom: 16px;
+        }
+        
+        .offer-subtitle {
+            color: rgba(255, 192, 203, 1);
+            margin-bottom: 32px;
+        }
+        
+        .offer-card {
+            background: #ffffff;
+            color: var(--color-dark);
+            border-radius: 16px;
+            padding: 48px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offer-ribbon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--color-primary);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 32px;
+            transform: rotate(45deg) translate(32px, 16px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .offer-price-old {
+            color: #6B7280;
+            text-decoration: line-through;
+            font-size: 18px;
+        }
+        
+        .offer-price-new {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: 8px 0;
+        }
+        
+        .offer-price-note {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 32px;
+        }
+        
+        .offer-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 32px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .offer-feature {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+        
+        .offer-feature i {
+            color: #10B981;
+            font-size: 20px;
+        }
+        
+        .offer-button {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(to right, #BE185D, #db2777);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 20px;
+            padding: 16px 48px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+        }
+        
+        .offer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(190, 24, 93, 0.3);
+        }
+        
+        .offer-button i {
+            font-size: 24px;
+        }
+        
+        .offer-security {
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255, 192, 203, 1);
+            opacity: 0.8;
+        }
+        
+        .offer-security i {
+            font-size: 16px;
+        }
+        
+        /* Guarantee Section */
+        .guarantee-section {
+            padding: 64px 0;
+            background: #ffffff;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .guarantee-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .guarantee-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--color-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .guarantee-icon i {
+            font-size: 40px;
+            color: var(--color-primary);
+        }
+        
+        .guarantee-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 16px;
+        }
+        
+        .guarantee-text {
+            color: #4B5563;
+            line-height: 1.7;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            padding: 64px 0;
+            background: rgba(190, 24, 93, 0.05);
+        }
+        
+        .faq-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .faq-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            text-align: center;
+            color: var(--color-dark);
+            margin-bottom: 40px;
+        }
+        
+        .faq-list {
+            list-style: none;
+        }
+        
+        .faq-item {
+            margin-bottom: 16px;
+        }
+        
+        .faq-item details {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .faq-item summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--color-purple);
+            list-style: none;
+        }
+        
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .faq-item summary i {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item details[open] summary i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-item p {
+            color: #4B5563;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        
+        /* Footer */
+        .footer-section {
+            background: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--color-dark);
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-description {
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-bottom: 32px;
+        }
+        
+        .footer-links a {
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-primary);
+        }
+        
+        .footer-copyright {
+            font-size: 12px;
+            color: #D1D5DB;
+        }
+        
+        /* Responsividade */
+        @media (min-width: 768px) {
+            .storytelling-grid {
+                flex-direction: row;
+            }
+            
+            .storytelling-image-wrapper {
+                width: 50%;
+            }
+            
+            .storytelling-text {
+                width: 50%;
+            }
+            
+            .solution-card {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .offer-button {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar" data-editable="text" data-field="top_bar" contenteditable="false">
+        ✨ Acesso exclusivo para mulheres
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero-section" data-editable="media" data-field="hero_background" data-media-type="image" contenteditable="false">
+        <div class="hero-content">
+            <span class="hero-badge" data-editable="text" data-field="hero_badge" contenteditable="false">Relacionamento & Autoconfiança</span>
+            
+            <h1 class="hero-title" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                Pare de ser "apenas a amiga".<br>
+                Torne-se <span class="hero-title-italic">Inesquecível</span>.
+            </h1>
+            
+            <p class="hero-subtitle" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Descubra o segredo psicológico para despertar atração genuína, decifrar sinais e construir relacionamentos profundos e apaixonantes com outras mulheres.
+            </p>
+            
+            <a href="#oferta" onclick="triggerPurchase(); return false;" class="hero-cta-button" data-editable="button-text" data-field="hero_cta" contenteditable="false">
+                DESCOBRIR O SEGREDO
+                <i class="ph-fill ph-heart"></i>
+            </a>
+            
+            <p class="hero-note" data-editable="text" data-field="hero_note" contenteditable="false">Método 100% Online e Discreto</p>
+        </div>
+        
+        <!-- Wave Divider -->
+        <div class="hero-wave">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#FFF1F2"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Pain Points Section -->
+    <section class="pain-points-section">
+        <div class="pain-points-content">
+            <div class="pain-points-header">
+                <h2 class="pain-points-title" data-editable="text" data-field="pain_points_titulo" contenteditable="false">Você já se sentiu assim?</h2>
+                <div class="pain-points-divider"></div>
+            </div>
+            
+            <div class="pain-points-grid" data-editable="text" data-field="pain_points_cards" contenteditable="false">
+                <!-- Pain 1 -->
+                <div class="pain-point-card" data-editable="text" data-field="pain_point_1" contenteditable="false">
+                    <div class="pain-point-icon">
+                        <i class="ph-fill ph-question"></i>
+                    </div>
+                    <h3 class="pain-point-title" data-editable="text" data-field="pain_point_1_titulo" contenteditable="false">O Dilema da Dúvida</h3>
+                    <p class="pain-point-text" data-editable="text" data-field="pain_point_1_texto" contenteditable="false">
+                        "Será que ela está flertando ou está apenas sendo simpática?" Você perde oportunidades por medo de confundir as coisas e estragar a amizade.
+                    </p>
+                </div>
+                
+                <!-- Pain 2 -->
+                <div class="pain-point-card" data-editable="text" data-field="pain_point_2" contenteditable="false">
+                    <div class="pain-point-icon">
+                        <i class="ph-fill ph-eye-slash"></i>
+                    </div>
+                    <h3 class="pain-point-title" data-editable="text" data-field="pain_point_2_titulo" contenteditable="false">Invisibilidade</h3>
+                    <p class="pain-point-text" data-editable="text" data-field="pain_point_2_texto" contenteditable="false">
+                        Você sente que não consegue chamar a atenção da mulher que deseja. Parece que você entra automaticamente na zona de amizade (friendzone).
+                    </p>
+                </div>
+                
+                <!-- Pain 3 -->
+                <div class="pain-point-card" data-editable="text" data-field="pain_point_3" contenteditable="false">
+                    <div class="pain-point-icon">
+                        <i class="ph-fill ph-chat-circle-dots"></i>
+                    </div>
+                    <h3 class="pain-point-title" data-editable="text" data-field="pain_point_3_titulo" contenteditable="false">Trava na Conversa</h3>
+                    <p class="pain-point-text" data-editable="text" data-field="pain_point_3_texto" contenteditable="false">
+                        Quando você finalmente consegue falar com ela, o assunto acaba, o nervosismo bate e você não sabe como criar aquele clima de romance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Storytelling Section -->
+    <section class="storytelling-section">
+        <div class="storytelling-content">
+            <div class="storytelling-grid">
+                <div class="storytelling-image-wrapper" data-editable="media" data-field="storytelling_imagem" data-media-type="image" contenteditable="false">
+                    <div class="storytelling-image-bg"></div>
+                    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Mulher confiante sorrindo" class="storytelling-image soft-image">
+                </div>
+                <div class="storytelling-text">
+                    <h3 class="storytelling-title" data-editable="text" data-field="storytelling_titulo" contenteditable="false">Eu era a "Melhor Amiga" de todas... e namorada de ninguém.</h3>
+                    <ul class="storytelling-paragraphs" data-editable="text" data-field="storytelling_texto" contenteditable="false">
+                        <li class="storytelling-paragraph" data-editable="text" data-field="storytelling_paragrafo_1" contenteditable="false">
+                            Mergulhei no estudo da psicologia feminina, linguagem corporal e dinâmica social. Descobri que a atração entre mulheres tem códigos sutis, mas poderosos.
+                        </li>
+                        <li class="storytelling-paragraph" data-editable="text" data-field="storytelling_paragrafo_2" contenteditable="false">
+                            Chamei esse conjunto de descobertas de <strong>"A Fórmula da Mulher Irresistível"</strong>. Não é mágica, nem manipulação. É a habilidade de se posicionar como uma mulher confiante, que sabe o que quer e, por isso, se torna irresistível.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution-section">
+        <div class="solution-decoration"></div>
+        <div class="solution-content">
+            <h2 class="solution-title" data-editable="text" data-field="solution_titulo" contenteditable="false">
+                Apresentando: <span class="text-gradient">A Fórmula da Mulher Irresistível</span>
+            </h2>
+            <p class="solution-subtitle" data-editable="text" data-field="solution_subtitulo" contenteditable="false">
+                O guia digital completo para desenvolver sua inteligência emocional, ler sinais ocultos e conquistar a mulher dos seus sonhos com autenticidade.
+            </p>
+            
+            <div class="solution-card">
+                <div class="solution-features">
+                    <h3 data-editable="text" data-field="solution_features_titulo" contenteditable="false">O que você vai aprender:</h3>
+                    <ul class="solution-features-list" data-editable="text" data-field="solution_features_lista" contenteditable="false">
+                        <li class="solution-feature">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span class="solution-feature-text" data-editable="text" data-field="feature_1" contenteditable="false"><strong>O Radar Invisível:</strong> Como identificar se ela também gosta de mulheres e se está interessada em você, sem precisar perguntar.</span>
+                        </li>
+                        <li class="solution-feature">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span class="solution-feature-text" data-editable="text" data-field="feature_2" contenteditable="false"><strong>Autoconfiança Inabalável:</strong> Técnicas para vencer a timidez e abordar qualquer mulher com naturalidade.</span>
+                        </li>
+                        <li class="solution-feature">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span class="solution-feature-text" data-editable="text" data-field="feature_3" contenteditable="false"><strong>A Arte da Conversa:</strong> Como sair do "oi, tudo bem?" e criar diálogos instigantes que geram conexão emocional imediata.</span>
+                        </li>
+                        <li class="solution-feature">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span class="solution-feature-text" data-editable="text" data-field="feature_4" contenteditable="false"><strong>Saindo da Friendzone:</strong> O passo a passo para mudar a dinâmica de amizade para romance.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="solution-image-wrapper" data-editable="media" data-field="solution_imagem" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1516575334481-f85287c2c81d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="E-book Cover Mockup" class="solution-image">
+                    <div class="solution-image-overlay">
+                        <span class="solution-image-text" data-editable="text" data-field="solution_imagem_texto" contenteditable="false">Mais de 120 páginas de conteúdo transformador</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof-section">
+        <div class="social-proof-content">
+            <h2 class="social-proof-title" data-editable="text" data-field="social_proof_titulo" contenteditable="false">Histórias de quem aplicou o método</h2>
+            
+            <div class="social-proof-grid" data-editable="text" data-field="social_proof_cards" contenteditable="false">
+                <!-- Testimonial 1 -->
+                <div class="social-proof-card" data-editable="text" data-field="testimonial_1" contenteditable="false">
+                    <div class="social-proof-stars">
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                    </div>
+                    <p class="social-proof-text" data-editable="text" data-field="testimonial_1_texto" contenteditable="false">"Eu sempre fui tímida e não sabia chegar em ninguém. O livro me deu uma clareza absurda sobre como me portar. Hoje estou namorando há 6 meses!"</p>
+                    <div class="social-proof-author" data-editable="text" data-field="testimonial_1_autor" contenteditable="false">— Júlia M., 24 anos</div>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="social-proof-card" data-editable="text" data-field="testimonial_2" contenteditable="false">
+                    <div class="social-proof-stars">
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                    </div>
+                    <p class="social-proof-text" data-editable="text" data-field="testimonial_2_texto" contenteditable="false">"O capítulo sobre linguagem corporal mudou tudo. Entendi que eu passava uma imagem fechada. Mudei minha postura e as mulheres começaram a me notar."</p>
+                    <div class="social-proof-author" data-editable="text" data-field="testimonial_2_autor" contenteditable="false">— Camila R., 29 anos</div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="social-proof-card" data-editable="text" data-field="testimonial_3" contenteditable="false">
+                    <div class="social-proof-stars">
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                        <i class="ph-fill ph-star social-proof-star"></i>
+                    </div>
+                    <p class="social-proof-text" data-editable="text" data-field="testimonial_3_texto" contenteditable="false">"Leitura leve, direta e muito empática. Não é papo de 'pegadora', é sobre conexão real. Recomendo para todas as minhas amigas."</p>
+                    <div class="social-proof-author" data-editable="text" data-field="testimonial_3_autor" contenteditable="false">— Larissa B., 31 anos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offer Section -->
+    <section id="oferta" class="offer-section">
+        <div class="offer-content">
+            <h2 class="offer-title" data-editable="text" data-field="oferta_titulo" contenteditable="false">Comece sua transformação hoje</h2>
+            <p class="offer-subtitle" data-editable="text" data-field="oferta_subtitulo" contenteditable="false">Não deixe o medo te impedir de viver a história de amor que você merece.</p>
+            
+            <div class="offer-card">
+                <div class="offer-ribbon" data-editable="text" data-field="oferta_ribbon" contenteditable="false">OFERTA ESPECIAL</div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span class="offer-price-old" data-editable="text" data-field="oferta_preco_antigo" contenteditable="false">De MZN 197,00</span>
+                    <div class="offer-price-new" data-editable="text" data-field="oferta_preco_atual" contenteditable="false">MZN 67,90</div>
+                    <span class="offer-price-note" data-editable="text" data-field="oferta_preco_nota" contenteditable="false">Pagamento único | Acesso Vitalício</span>
+                    
+                    <ul class="offer-features" data-editable="text" data-field="oferta_beneficios" contenteditable="false">
+                        <li class="offer-feature">
+                            <i class="ph-fill ph-check"></i>
+                            <span data-editable="text" data-field="beneficio_1" contenteditable="false">E-book Completo</span>
+                        </li>
+                        <li class="offer-feature">
+                            <i class="ph-fill ph-check"></i>
+                            <span data-editable="text" data-field="beneficio_2" contenteditable="false">Bônus: Guia de Estilo e Imagem</span>
+                        </li>
+                        <li class="offer-feature">
+                            <i class="ph-fill ph-check"></i>
+                            <span data-editable="text" data-field="beneficio_3" contenteditable="false">Bônus: Lista de "Red Flags"</span>
+                        </li>
+                        <li class="offer-feature">
+                            <i class="ph-fill ph-check"></i>
+                            <span data-editable="text" data-field="beneficio_4" contenteditable="false">Garantia de 7 Dias</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="triggerPurchase()" class="offer-button" data-editable="button-text" data-field="oferta_botao" contenteditable="false">
+                        QUERO A FÓRMULA AGORA
+                        <i class="ph-fill ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="offer-security" data-editable="text" data-field="oferta_security" contenteditable="false">
+                <i class="ph-fill ph-lock"></i>
+                <span>Site Blindado e Compra 100% Segura</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guarantee Section -->
+    <section class="guarantee-section">
+        <div class="guarantee-content">
+            <div class="guarantee-icon">
+                <i class="ph-fill ph-shield-check"></i>
+            </div>
+            <h3 class="guarantee-title" data-editable="text" data-field="garantia_titulo" contenteditable="false">Sua satisfação é garantida</h3>
+            <p class="guarantee-text" data-editable="text" data-field="garantia_texto" contenteditable="false">
+                Você tem 7 dias para ler o material e testar as técnicas. Se sentir que não serviu para você, devolvemos 100% do seu dinheiro. Sem letras miúdas.
+            </p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-content">
+            <h2 class="faq-title" data-editable="text" data-field="faq_titulo" contenteditable="false">Perguntas Frequentes</h2>
+            
+            <ul class="faq-list" data-editable="text" data-field="faq_lista" contenteditable="false">
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_1_pergunta" contenteditable="false">O material é físico ou digital?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_1_resposta" contenteditable="false">É um produto 100% digital (E-book). Você recebe o acesso no seu e-mail imediatamente após a confirmação do pagamento e pode ler no celular, tablet ou computador.</p>
+                    </details>
+                </li>
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_2_pergunta" contenteditable="false">Vou aparecer na fatura do cartão?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_2_resposta" contenteditable="false">Prezamos pela sua privacidade. Na fatura do cartão aparecerá apenas o nome da plataforma de pagamentos (ex: Hotmart, Eduzz, etc), sem mencionar o nome do produto.</p>
+                    </details>
+                </li>
+                <li class="faq-item">
+                    <details>
+                        <summary>
+                            <span data-editable="text" data-field="faq_3_pergunta" contenteditable="false">Serve para quem nunca namorou?</span>
+                            <i class="ph-fill ph-caret-down"></i>
+                        </summary>
+                        <p data-editable="text" data-field="faq_3_resposta" contenteditable="false">Com certeza! O guia começa do básico da comunicação e autoconfiança, sendo ideal tanto para quem está começando quanto para quem quer melhorar relacionamentos atuais.</p>
+                    </details>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <p class="footer-brand" data-editable="text" data-field="footer_brand" contenteditable="false">A Fórmula da Mulher Irresistível</p>
+            <p class="footer-description" data-editable="text" data-field="footer_descricao" contenteditable="false">Desenvolvimento pessoal e relacionamentos para mulheres.</p>
+            <div class="footer-links" data-editable="text" data-field="footer_links" contenteditable="false">
+                <a href="#">Termos de Uso</a>
+                <a href="#">Privacidade</a>
+                <a href="#">Contato</a>
+            </div>
+            <p class="footer-copyright" data-editable="text" data-field="footer_copyright" contenteditable="false">© 2024 Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

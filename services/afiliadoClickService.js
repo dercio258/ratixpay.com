@@ -14,7 +14,8 @@ class AfiliadoClickService {
         this.CLICKS_POR_CREDITO = 10; // 10 cliques = 1 MZN
         this.VALOR_CREDITO = 1.00; // 1 MZN por 10 cliques
         this.TIMEOUT_DUPLICADO = 60000; // 60 segundos para considerar clique duplicado
-        this.MIN_CONVERSOES_POR_10_CLIQUES = 2; // Mínimo 2 conversões a cada 10 cliques
+        this.MIN_VENDAS_150MZN = 2; // Mínimo 2 vendas de 150MZN para converter cliques
+        this.VALOR_MINIMO_VENDA = 150.00; // Valor mínimo de venda para qualificar (150MZN)
     }
 
     /**
@@ -115,8 +116,11 @@ class AfiliadoClickService {
                 throw new Error('Link tracking não encontrado');
             }
 
-            // Verificar se o link pertence ao afiliado
-            if (linkTracking.afiliado_id !== parseInt(afiliadoId)) {
+            // Verificar se o link pertence ao afiliado (comparar como strings para UUID)
+            const linkAfiliadoId = String(linkTracking.afiliado_id);
+            const afiliadoIdStr = String(afiliadoId);
+            if (linkAfiliadoId !== afiliadoIdStr) {
+                console.error(`❌ [CLIQUE VALIDO] Link tracking não pertence ao afiliado. Link afiliado_id: ${linkAfiliadoId}, esperado: ${afiliadoIdStr}`);
                 throw new Error('Link tracking não pertence ao afiliado especificado');
             }
 

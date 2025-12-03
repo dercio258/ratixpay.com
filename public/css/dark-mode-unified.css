@@ -1,0 +1,350 @@
+/**
+ * Sistema Unificado de Dark Mode - RatixPay
+ * Dark Mode PRETO (não azul) - Implementação uniforme e consistente
+ * 
+ * IMPORTANTE: Este CSS deve ser carregado ANTES do dark-mode-manager.js
+ * para evitar flicker durante o carregamento da página.
+ */
+
+:root {
+    /* Modo Claro (Default) */
+    --dm-bg-primary: #ffffff;
+    --dm-bg-secondary: #f8fafc;
+    --dm-bg-card: #ffffff;
+    --dm-bg-hover: #f1f5f9;
+    --dm-text-primary: #1e293b;
+    --dm-text-secondary: #64748b;
+    --dm-text-muted: #94a3b8;
+    --dm-border: #e2e8f0;
+    --dm-shadow: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode PRETO - Aplicado via classe no html e body */
+html.dark-mode,
+body.dark-mode {
+    --dm-bg-primary: #000000;
+    --dm-bg-secondary: #0a0a0a;
+    --dm-bg-card: #111111;
+    --dm-bg-hover: #1a1a1a;
+    --dm-text-primary: #ffffff;
+    --dm-text-secondary: #e5e5e5;
+    --dm-text-muted: #a0a0a0;
+    --dm-border: #2a2a2a;
+    --dm-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Aplicar cores base (light mode é o padrão) */
+html,
+body {
+    background-color: var(--dm-bg-primary) !important;
+    color: var(--dm-text-primary) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Aplicar dark mode em todos os elementos quando html ou body tiverem a classe */
+html.dark-mode,
+body.dark-mode {
+    background-color: var(--dm-bg-primary) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+/* Sidebar Dark Mode Preto - Mesmas cores, sem ofuscamentos */
+body.dark-mode .sidebar,
+.sidebar {
+    background: var(--dm-bg-primary, #000000) !important;
+    border-right: 1px solid var(--dm-border, #2a2a2a) !important;
+    color: var(--dm-text-primary, #ffffff) !important;
+}
+
+body.dark-mode .sidebar-logo {
+    background: var(--dm-bg-primary, #000000) !important;
+    border-bottom-color: var(--dm-border, #2a2a2a) !important;
+}
+
+body.dark-mode .sidebar ul li a {
+    color: var(--dm-text-primary, #ffffff) !important;
+}
+
+body.dark-mode .sidebar ul li a:hover,
+body.dark-mode .sidebar ul li a.active {
+    background: linear-gradient(135deg, rgba(246, 76, 0, 0.2) 0%, rgba(246, 76, 0, 0.1) 100%) !important;
+    border-color: rgba(246, 76, 0, 0.3) !important;
+    color: var(--dm-text-primary, #ffffff) !important;
+}
+
+/* Sidebar sempre preto no dark mode, mesmo quando não está em dark mode */
+.sidebar {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .sidebar {
+    background: var(--dm-bg-primary, #000000) !important;
+    color: var(--dm-text-primary, #ffffff) !important;
+}
+
+/* Cards */
+body.dark-mode .card,
+body.dark-mode [class*="card"],
+body.dark-mode .stat-card,
+body.dark-mode .chart-container {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Headers e Containers */
+body.dark-mode .dashboard-header,
+body.dark-mode .header,
+body.dark-mode [class*="header"] {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Main Content */
+body.dark-mode .main-content {
+    background: var(--dm-bg-primary) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+/* Tabelas */
+body.dark-mode table {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode table th {
+    background: var(--dm-bg-hover) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode table td {
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+body.dark-mode table tr:hover {
+    background: var(--dm-bg-hover) !important;
+}
+
+/* Inputs e Formulários */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Botões */
+body.dark-mode button {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .btn-primary,
+body.dark-mode button[type="submit"] {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Modais */
+body.dark-mode .modal-content {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .modal {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Links */
+body.dark-mode a {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode a:hover {
+    color: var(--primary) !important;
+}
+
+/* Títulos */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: var(--dm-text-primary) !important;
+}
+
+/* Textos secundários */
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode div {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .text-muted,
+body.dark-mode [class*="muted"] {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Containers genéricos */
+body.dark-mode .container,
+body.dark-mode [class*="container"] {
+    background: transparent !important;
+}
+
+body.dark-mode [class*="box"],
+body.dark-mode [class*="panel"] {
+    background: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Sombras */
+body.dark-mode [class*="shadow"] {
+    box-shadow: 0 4px 6px var(--dm-shadow) !important;
+}
+
+/* Scrollbar para dark mode */
+body.dark-mode ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: var(--dm-bg-primary);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: var(--dm-border);
+    border-radius: 5px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--dm-text-muted);
+}
+
+/* Tooltips e Dropdowns */
+body.dark-mode .dropdown-menu,
+body.dark-mode [class*="dropdown"],
+body.dark-mode .tooltip {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Badges e Labels */
+body.dark-mode .badge,
+body.dark-mode [class*="badge"],
+body.dark-mode .label,
+body.dark-mode [class*="label"] {
+    color: var(--dm-text-primary) !important;
+}
+
+/* Produtos Cards */
+body.dark-mode .product-card {
+    background: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .product-card:hover {
+    border-color: var(--primary) !important;
+}
+
+/* Loading Spinners */
+body.dark-mode .loading-spinner,
+body.dark-mode [class*="spinner"] {
+    border-color: var(--dm-border) !important;
+}
+
+/* Estatísticas */
+body.dark-mode .stat-card {
+    background: var(--dm-bg-card) !important;
+}
+
+body.dark-mode .stat-number {
+    color: var(--dm-text-primary) !important;
+}
+
+body.dark-mode .stat-label {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Gráficos */
+body.dark-mode .chart-container {
+    background: var(--dm-bg-card) !important;
+}
+
+/* Notification Panel */
+body.dark-mode .notification-dropdown,
+body.dark-mode .notification-panel {
+    background: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .notification-item {
+    background: transparent !important;
+    border-color: var(--dm-border) !important;
+}
+
+body.dark-mode .notification-item:hover {
+    background: var(--dm-bg-hover) !important;
+}
+
+/* User Panel */
+body.dark-mode .user-info-panel {
+    background: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Filters */
+body.dark-mode .filters-container {
+    background: var(--dm-bg-card) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Progress Bars */
+body.dark-mode .progress-bar {
+    background: var(--dm-bg-hover) !important;
+}
+
+/* Transições suaves para ambos os modos */
+body,
+body.dark-mode {
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+*,
+*::before,
+*::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Garantir que elementos usem as variáveis CSS corretas no light mode */
+body:not(.dark-mode) .card,
+body:not(.dark-mode) [class*="card"],
+body:not(.dark-mode) .stat-card,
+body:not(.dark-mode) .chart-container {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+body:not(.dark-mode) .main-content {
+    background: var(--dm-bg-primary) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+body:not(.dark-mode) .dashboard-header,
+body:not(.dark-mode) .header {
+    background: var(--dm-bg-card) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: var(--dm-border) !important;
+}
+

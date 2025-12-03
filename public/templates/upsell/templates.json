@@ -1,0 +1,1060 @@
+{
+  "templates": [
+    {
+      "id": "vsl-laranja",
+      "nome": "VSL Laranja",
+      "descricao": "Template moderno com design escuro, foco em vídeo e call-to-action destacado",
+      "arquivo": "vsl-laranja.html",
+      "preview": "/templates/upsell/previews/vsl-laranja-preview.png",
+      "categoria": "VSL",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Oferta Exclusiva - One Time Offer"
+        },
+        {
+          "nome": "TEXTO_ALERTA",
+          "descricao": "Texto do alerta no topo da página",
+          "padrao": "Atenção: Esta página expira assim que a fechar"
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "Oferta de Passo Único"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "ESPERE! O seu pedido ainda não está completo."
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Veja como duplicar os seus resultados por apenas alguns centavos extra."
+        },
+        {
+          "nome": "VIDEO_CONTENT",
+          "descricao": "Conteúdo do vídeo (será substituído dinamicamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "PRECO_ORIGINAL",
+          "descricao": "Preço original (riscado)",
+          "padrao": "MZN 297,00"
+        },
+        {
+          "nome": "PRECO_OFERTA",
+          "descricao": "Preço da oferta",
+          "padrao": "MZN 47,90"
+        },
+        {
+          "nome": "TEXTO_OFERTA_UNICA",
+          "descricao": "Texto do badge de oferta única",
+          "padrao": "OFERTA ÚNICA"
+        },
+        {
+          "nome": "TEXTO_PERGUNTA_PRODUTO",
+          "descricao": "Texto da pergunta sobre adicionar produto",
+          "padrao": "Adicionar \"Acelerador de Resultados\" ao pedido?"
+        },
+        {
+          "nome": "TEXTO_BOTAO_ACEITAR",
+          "descricao": "Texto do botão principal",
+          "padrao": "Sim, Adicionar ao Meu Pedido"
+        },
+        {
+          "nome": "TEXTO_SUBTITULO_BOTAO",
+          "descricao": "Texto abaixo do botão principal",
+          "padrao": "Não é necessário inserir dados novamente"
+        },
+        {
+          "nome": "TEXTO_BOTAO_RECUSAR",
+          "descricao": "Texto do botão de recusar",
+          "padrao": "Não, obrigado. Eu não quero acelerar meus resultados."
+        },
+        {
+          "nome": "TEXTO_RECUSAR_SUBTITULO",
+          "descricao": "Texto abaixo do botão de recusar",
+          "padrao": "Compreendo que perderei este desconto de 80% para sempre."
+        },
+        {
+          "nome": "TEXTO_CONFIRMACAO_RECUSAR",
+          "descricao": "Texto de confirmação ao recusar",
+          "padrao": "Tem a certeza? Esta oferta de MZN 47 (Desconto de 80%) nunca mais aparecerá."
+        }
+      ]
+    },
+    {
+      "id": "master-pack",
+      "nome": "Master Pack",
+      "descricao": "Template moderno com foco em imagem, lista de benefícios e design escuro elegante",
+      "arquivo": "master-pack.html",
+      "preview": "/templates/upsell/previews/master-pack-preview.png",
+      "categoria": "Imagem",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Oferta Especial - Não feche esta página"
+        },
+        {
+          "nome": "TEXTO_ALERTA",
+          "descricao": "Texto do alerta no topo da página",
+          "padrao": "PEDIDO CONFIRMADO! NÃO FECHE ESTA PÁGINA AINDA."
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "Etapa 2 de 2: Oferta Especial"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Espere! O seu pedido está 90% completo..."
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Adicione este complemento exclusivo ao seu pedido agora e poupe 70%."
+        },
+        {
+          "nome": "IMAGEM_PRODUTO",
+          "descricao": "Imagem do produto (será substituída dinamicamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TITULO_PRODUTO",
+          "descricao": "Título do produto",
+          "padrao": "Upgrade Premium Master"
+        },
+        {
+          "nome": "DESCRICAO_PRODUTO",
+          "descricao": "Descrição do produto",
+          "padrao": "Acelere os seus resultados em 3x com o nosso pacote avançado."
+        },
+        {
+          "nome": "LISTA_BENEFICIOS",
+          "descricao": "Lista de benefícios do produto",
+          "padrao": ""
+        },
+        {
+          "nome": "DESCONTO_BADGE",
+          "descricao": "Texto do badge de desconto",
+          "padrao": "-70% OFF"
+        },
+        {
+          "nome": "TEXTO_AVALIACAO",
+          "descricao": "Texto de avaliação/rating",
+          "padrao": "(4.9/5 de 1.204 alunos)"
+        },
+        {
+          "nome": "PRECO_ORIGINAL",
+          "descricao": "Preço original (riscado)",
+          "padrao": "De MZN 497,00"
+        },
+        {
+          "nome": "PRECO_OFERTA",
+          "descricao": "Preço da oferta",
+          "padrao": "MZN 97"
+        },
+        {
+          "nome": "TEXTO_PAGAMENTO",
+          "descricao": "Texto sobre pagamento",
+          "padrao": "/ pagamento único"
+        },
+        {
+          "nome": "TEXTO_BOTAO_ACEITAR",
+          "descricao": "Texto do botão principal",
+          "padrao": "Sim! Adicionar ao meu pedido"
+        },
+        {
+          "nome": "TEXTO_BOTAO_RECUSAR",
+          "descricao": "Texto do botão de recusar",
+          "padrao": "Não, obrigado. Eu prefiro recusar esta oferta única e pagar o preço normal depois."
+        }
+      ]
+    },
+    {
+      "id": "mentoria-elite",
+      "nome": "Mentoria Elite",
+      "descricao": "Template premium de alta exclusividade com VSL, design roxo/violeta e foco em mentoria de alto valor",
+      "arquivo": "mentoria-elite.html",
+      "preview": "/templates/upsell/previews/mentoria-elite-preview.png",
+      "categoria": "VSL",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Mentoria Elite: Acelerador de Lucros Online"
+        },
+        {
+          "nome": "TEXTO_ALERTA",
+          "descricao": "Texto do alerta no topo da página",
+          "padrao": "APENAS 27 VAGAS RESTANTES NA TURMA DE MENTORIA 2.0"
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "Mentoria Elite (Alto Nível)"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Como Faturar seus Primeiros MZN 10.000 Online"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Descubra a Estratégia Secreta de Tráfego e Vendas que Gere MZN 10K/Mês com Apenas 2 Horas de Trabalho por Dia."
+        },
+        {
+          "nome": "VIDEO_CONTENT",
+          "descricao": "Conteúdo do vídeo (será substituído dinamicamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TEXTO_PRECO_LABEL",
+          "descricao": "Texto acima do preço",
+          "padrao": "Valor de Mercado da Mentoria (12 meses):"
+        },
+        {
+          "nome": "PRECO_ORIGINAL",
+          "descricao": "Preço original (riscado)",
+          "padrao": "MZN 5.000,00"
+        },
+        {
+          "nome": "PRECO_OFERTA",
+          "descricao": "Preço da oferta",
+          "padrao": "MZN 1.997,00"
+        },
+        {
+          "nome": "DESCONTO_BADGE",
+          "descricao": "Texto do badge de desconto",
+          "padrao": "60% OFF EXCLUSIVO"
+        },
+        {
+          "nome": "TEXTO_GARANTIA",
+          "descricao": "Texto de garantia/acesso",
+          "padrao": "Garanta Sua Vaga Agora e Receba 1 Ano de Acesso Ilimitado."
+        },
+        {
+          "nome": "TEXTO_BOTAO_ACEITAR",
+          "descricao": "Texto do botão principal",
+          "padrao": "QUERO LUCRAR ONLINE (GARANTIR MINHA VAGA)"
+        },
+        {
+          "nome": "TEXTO_URGENCIA",
+          "descricao": "Texto de urgência abaixo do botão",
+          "padrao": "Última Chamada: A Mentoria Começa na Próxima Segunda."
+        },
+        {
+          "nome": "TEXTO_BOTAO_RECUSAR",
+          "descricao": "Texto do botão de recusar",
+          "padrao": "Não, obrigado. Prefiro continuar tentando sozinho."
+        },
+        {
+          "nome": "TEXTO_RECUSAR_SUBTITULO",
+          "descricao": "Texto abaixo do botão de recusar",
+          "padrao": "Compreendo que perderei esta oportunidade de ser mentorado por especialistas."
+        },
+        {
+          "nome": "BENEFICIOS",
+          "descricao": "Lista de benefícios (será gerada automaticamente)",
+          "padrao": ""
+        }
+      ]
+    },
+    {
+      "id": "emagrecimento-definitivo",
+      "nome": "Emagrecimento Definitivo",
+      "descricao": "Template focado em emagrecimento com VSL, imagens de resultados antes/depois, carrossel de depoimentos e contador regressivo",
+      "arquivo": "emagrecimento-definitivo.html",
+      "preview": "/templates/upsell/previews/emagrecimento-definitivo-preview.png",
+      "categoria": "VSL",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Transformação Rápida | Emagrecimento Definitivo"
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "MÉTODO CIENTIFICAMENTE COMPROVADO"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "O Segredo que Desbloqueia 20Kg de Perda em Apenas 60 Dias"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Assista a carta de vendas e descubra o sistema de reprogramação metabólica que a indústria não quer que você conheça."
+        },
+        {
+          "nome": "VIDEO_CONTENT",
+          "descricao": "Conteúdo do vídeo VSL (será substituído dinamicamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TEXTO_PRECO_INICIAL",
+          "descricao": "Texto do preço no CTA inicial",
+          "padrao": "Oferta Limitada: De MZN 997,00 por apenas 12x MZN 29,90"
+        },
+        {
+          "nome": "TEXTO_BOTAO_INICIAL",
+          "descricao": "Texto do botão CTA inicial",
+          "padrao": "QUERO TRANSFORMAR MEU CORPO AGORA!"
+        },
+        {
+          "nome": "TITULO_RESULTADOS",
+          "descricao": "Título da seção de resultados",
+          "padrao": "PROVAS REAIS: DEZENAS DE PESSOAS JÁ CONSEGUIRAM"
+        },
+        {
+          "nome": "RESULTADOS_IMAGENS",
+          "descricao": "Imagens de resultados antes/depois (será gerado automaticamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TITULO_DEPOIMENTOS",
+          "descricao": "Título da seção de depoimentos",
+          "padrao": "O Que Dizem Nossos Alunos..."
+        },
+        {
+          "nome": "DEPOIMENTOS_CARROSSEL",
+          "descricao": "Depoimentos para o carrossel (será gerado automaticamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TEXTO_ESCASSEZ",
+          "descricao": "Texto de escassez acima do contador",
+          "padrao": "ESTA PROMOÇÃO TERMINA EM:"
+        },
+        {
+          "nome": "TEXTO_PRECO_FINAL",
+          "descricao": "Texto do preço na seção de escassez",
+          "padrao": "De MZN 997,00 por 12x MZN 29,90"
+        },
+        {
+          "nome": "TEXTO_BOTAO_FINAL",
+          "descricao": "Texto do botão CTA final",
+          "padrao": "SIM! EU QUERO MEU NOVO CORPO JÁ"
+        },
+        {
+          "nome": "TEXTO_FOOTER",
+          "descricao": "Texto do footer",
+          "padrao": "© 2025 Emagrecimento Definitivo. Produto desenvolvido para resultados reais."
+        },
+        {
+          "nome": "LINKS_FOOTER",
+          "descricao": "Links do footer",
+          "padrao": "Garantia de 30 Dias | Política de Privacidade"
+        }
+      ]
+    },
+    {
+      "id": "pacote-maestria",
+      "nome": "Pacote Maestria",
+      "descricao": "Template de venda de múltiplos ebooks com upload de imagens, design elegante e barra CTA sticky",
+      "arquivo": "pacote-maestria.html",
+      "preview": "/templates/upsell/previews/pacote-maestria-preview.png",
+      "categoria": "Ebook",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Pacote Maestria Pessoal | Coleção de eBooks"
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "A CHAVE PARA SUA MÁXIMA PERFORMANCE"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "O PACOTE MAESTRIA que Transforma Seus Hábitos"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Adquira a Coleção Completa de 10 eBooks que destravam seu potencial, de produtividade a inteligência emocional."
+        },
+        {
+          "nome": "EBOOKS_GRID",
+          "descricao": "Grid de ebooks com imagens (será gerado automaticamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TITULO_VALOR",
+          "descricao": "Título da seção de valor",
+          "padrao": "O Valor Desta Coleção"
+        },
+        {
+          "nome": "LISTA_VALORES",
+          "descricao": "Lista de valores (será gerada automaticamente)",
+          "padrao": ""
+        },
+        {
+          "nome": "TEXTO_ECONOMIA",
+          "descricao": "Texto sobre economia",
+          "padrao": "Economia Imediata de mais de MZN 697,00."
+        },
+        {
+          "nome": "TEXTO_BOTAO_PRINCIPAL",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "BAIXAR O PACOTE COMPLETO POR MZN 97,00"
+        },
+        {
+          "nome": "TEXTO_BOTAO_STICKY",
+          "descricao": "Texto do botão CTA sticky",
+          "padrao": "GARANTIR ACESSO IMEDIATO"
+        },
+        {
+          "nome": "TEXTO_FOOTER",
+          "descricao": "Texto do footer",
+          "padrao": "© 2025 Maestria Pessoal. Todos os direitos reservados. Material digital para download imediato."
+        },
+        {
+          "nome": "LINKS_FOOTER",
+          "descricao": "Links do footer",
+          "padrao": "Garantia de 7 Dias | Termos de Serviço"
+        }
+      ]
+    },
+    {
+      "id": "plataforma-saas",
+      "nome": "Plataforma SaaS",
+      "descricao": "Template moderno para plataforma SaaS com foco em copy, múltiplos planos de preço e design dark mode elegante",
+      "arquivo": "plataforma-saas.html",
+      "preview": "/templates/upsell/previews/plataforma-saas-preview.png",
+      "categoria": "SaaS",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Plataforma [NOME] | Inovação e Crescimento"
+        },
+        {
+          "nome": "BADGE_TEXTO",
+          "descricao": "Texto do badge acima do título",
+          "padrao": "LANÇAMENTO BETA 3.0 | [SEU NICHO AQUI]"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Construa Sistemas Imbatíveis Sem escrever uma linha de código."
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "A Plataforma [NOME] é a ferramenta definitiva que transforma suas ideias complexas em soluções funcionais em minutos, não em meses."
+        },
+        {
+          "nome": "TEXTO_BOTAO_PRINCIPAL",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "COMECE GRÁTIS POR 7 DIAS"
+        },
+        {
+          "nome": "TEXTO_PROVA_SOCIAL",
+          "descricao": "Texto de prova social abaixo do botão",
+          "padrao": "Mais de 15.000 usuários confiam na nossa tecnologia."
+        },
+        {
+          "nome": "TITULO_PROVA_SOCIAL",
+          "descricao": "Título da seção de prova social",
+          "padrao": "Ferramenta escolhida por líderes globais e startups inovadoras:"
+        },
+        {
+          "nome": "BADGE_FUNCIONALIDADES",
+          "descricao": "Badge da seção de funcionalidades",
+          "padrao": "O QUE VOCÊ GANHA"
+        },
+        {
+          "nome": "TITULO_FUNCIONALIDADES",
+          "descricao": "Título da seção de funcionalidades",
+          "padrao": "A Revolução da Eficiência"
+        },
+        {
+          "nome": "BADGE_PLANOS",
+          "descricao": "Badge da seção de planos",
+          "padrao": "INVESTIMENTO"
+        },
+        {
+          "nome": "TITULO_PLANOS",
+          "descricao": "Título da seção de planos",
+          "padrao": "Escolha Seu Plano de Sucesso"
+        },
+        {
+          "nome": "STICKY_LABEL",
+          "descricao": "Label da barra sticky",
+          "padrao": "PLANOS A PARTIR DE:"
+        },
+        {
+          "nome": "STICKY_PRECO",
+          "descricao": "Preço na barra sticky",
+          "padrao": "MZN 99,00 / mês"
+        },
+        {
+          "nome": "STICKY_BOTAO",
+          "descricao": "Texto do botão na barra sticky",
+          "padrao": "TESTAR GRATUITAMENTE AGORA"
+        },
+        {
+          "nome": "TEXTO_FOOTER",
+          "descricao": "Texto do footer",
+          "padrao": "© 2025 [Nome da Empresa]. Todos os direitos reservados. Plataforma de Desenvolvimento Simplificado."
+        },
+        {
+          "nome": "LINKS_FOOTER",
+          "descricao": "Links do footer",
+          "padrao": "Política de Privacidade | Termos de Uso"
+        }
+      ]
+    },
+    {
+      "id": "black-friday-ingles",
+      "nome": "Black Friday Inglês",
+      "descricao": "Template de Black Friday para curso de inglês com countdown, design dark mode elegante e foco em conversão",
+      "arquivo": "black-friday-ingles.html",
+      "preview": "/templates/upsell/previews/black-friday-ingles-preview.png",
+      "categoria": "Curso",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Black Friday - Inglês Fluência Total"
+        },
+        {
+          "nome": "TOP_BAR_TEXTO",
+          "descricao": "Texto da barra superior sticky",
+          "padrao": "⚠️ ATENÇÃO: Oferta de Black Friday expira em breve!"
+        },
+        {
+          "nome": "BADGE_HERO",
+          "descricao": "Texto do badge no hero",
+          "padrao": "Black Friday Deal"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Fale Inglês com Confiança Absoluta"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "O método validado por mais de 15.000 alunos. Desbloqueie sua carreira e viagens com o Plano Fluência Total."
+        },
+        {
+          "nome": "COUNTDOWN_LABEL",
+          "descricao": "Label do countdown",
+          "padrao": "A oferta encerra em:"
+        },
+        {
+          "nome": "TEXTO_BOTAO_HERO",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "GARANTIR MEU DESCONTO AGORA"
+        },
+        {
+          "nome": "TEXTO_GARANTIA",
+          "descricao": "Texto da garantia",
+          "padrao": "Garantia de 30 dias ou seu dinheiro de volta"
+        },
+        {
+          "nome": "PROBLEMA_TITULO",
+          "descricao": "Título da seção de problemas",
+          "padrao": "Cansado de cursos que não funcionam?"
+        },
+        {
+          "nome": "SOLUCAO_TITULO",
+          "descricao": "Título da seção de soluções",
+          "padrao": "A Solução Fluência Total:"
+        },
+        {
+          "nome": "OFERTA_TITULO",
+          "descricao": "Título da seção de oferta",
+          "padrao": "PREÇO DE BLACK FRIDAY"
+        },
+        {
+          "nome": "OFERTA_SUBTITULO",
+          "descricao": "Subtítulo da seção de oferta",
+          "padrao": "Esta oferta desaparecerá quando o cronômetro zerar."
+        },
+        {
+          "nome": "RIBBON_TEXTO",
+          "descricao": "Texto do ribbon no card de preço",
+          "padrao": "Mais Vendido"
+        },
+        {
+          "nome": "PLANO_NOME",
+          "descricao": "Nome do plano",
+          "padrao": "Plano Fluência Total"
+        },
+        {
+          "nome": "PLANO_DESCRICAO",
+          "descricao": "Descrição do plano",
+          "padrao": "Tudo o que você precisa para ir do Zero ao Avançado."
+        },
+        {
+          "nome": "PRECO_ANTIGO",
+          "descricao": "Preço antigo (riscado)",
+          "padrao": "De MZN 997,00"
+        },
+        {
+          "nome": "DESCONTO_TEXTO",
+          "descricao": "Texto do desconto",
+          "padrao": "ECONOMIZE MZN 700"
+        },
+        {
+          "nome": "PRECO_ATUAL",
+          "descricao": "Preço atual",
+          "padrao": "MZN 297"
+        },
+        {
+          "nome": "PARCELAS",
+          "descricao": "Texto das parcelas",
+          "padrao": "ou 12x de MZN 29,70"
+        },
+        {
+          "nome": "TEXTO_BOTAO_OFERTA",
+          "descricao": "Texto do botão CTA da oferta",
+          "padrao": "QUERO FLUÊNCIA AGORA"
+        },
+        {
+          "nome": "FAQ_TITULO",
+          "descricao": "Título da seção FAQ",
+          "padrao": "Dúvidas Frequentes"
+        },
+        {
+          "nome": "FOOTER_BRAND",
+          "descricao": "Nome da marca no footer",
+          "padrao": "INGLÊS FLUÊNCIA TOTAL"
+        },
+        {
+          "nome": "FOOTER_TEXTO",
+          "descricao": "Texto do footer",
+          "padrao": "© 2024 Todos os direitos reservados."
+        },
+        {
+          "nome": "FOOTER_LINKS",
+          "descricao": "Links do footer",
+          "padrao": "Termos de Uso | Privacidade | Contato"
+        }
+      ]
+    },
+    {
+      "id": "guião-receitas",
+      "nome": "Guião das Receitas",
+      "descricao": "Template elegante para livro de receitas culinárias com galeria de imagens, design clean e foco em gastronomia",
+      "arquivo": "guião-receitas.html",
+      "preview": "/templates/upsell/previews/guião-receitas-preview.png",
+      "categoria": "Ebook",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "O Guião das Receitas - Cozinhe com Amor"
+        },
+        {
+          "nome": "NAVBAR_BRAND",
+          "descricao": "Texto da marca na navbar",
+          "padrao": "O Guião."
+        },
+        {
+          "nome": "NAVBAR_CTA",
+          "descricao": "Texto do botão CTA na navbar",
+          "padrao": "Baixar Agora"
+        },
+        {
+          "nome": "HERO_BADGE",
+          "descricao": "Texto do badge no hero",
+          "padrao": "Nova Edição 2024"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Cozinhe como um Chef, no tempo que você tem."
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Mais de 100 receitas testadas, fotografadas e planejadas para transformar suas refeições diárias em experiências gastronômicas."
+        },
+        {
+          "nome": "BOTAO_VER_RECEITAS",
+          "descricao": "Texto do botão Ver Receitas",
+          "padrao": "Ver Receitas"
+        },
+        {
+          "nome": "BOTAO_QUERO_GUIÃO",
+          "descricao": "Texto do botão Quero o Guião",
+          "padrao": "Quero o Guião"
+        },
+        {
+          "nome": "BENEFICIOS_TITULO",
+          "descricao": "Título da seção de benefícios",
+          "padrao": "Não é só um livro de receitas."
+        },
+        {
+          "nome": "BENEFICIOS_SUBTITULO",
+          "descricao": "Subtítulo da seção de benefícios",
+          "padrao": "É um estilo de vida mais saboroso e prático."
+        },
+        {
+          "nome": "PRECO_TITULO",
+          "descricao": "Título da seção de preço",
+          "padrao": "Leve o Guião para sua Cozinha"
+        },
+        {
+          "nome": "PRECO_SUBTITULO",
+          "descricao": "Subtítulo da seção de preço",
+          "padrao": "Receba o livro digital (PDF Interativo) + Acesso ao aplicativo mobile + Planner de compras semanal."
+        },
+        {
+          "nome": "PRECO_BADGE",
+          "descricao": "Badge da oferta",
+          "padrao": "Oferta Limitada"
+        },
+        {
+          "nome": "PRECO_ANTIGO",
+          "descricao": "Preço antigo (riscado)",
+          "padrao": "MZN 149,90"
+        },
+        {
+          "nome": "PRECO_ATUAL",
+          "descricao": "Preço atual",
+          "padrao": "MZN 67,90"
+        },
+        {
+          "nome": "PRECO_BOTAO",
+          "descricao": "Texto do botão CTA de compra",
+          "padrao": "Comprar Agora"
+        },
+        {
+          "nome": "PRECO_GARANTIA",
+          "descricao": "Texto da garantia",
+          "padrao": "Pagamento único. Garantia de 7 dias."
+        },
+        {
+          "nome": "GALERIA_TITULO",
+          "descricao": "Título da seção de galeria",
+          "padrao": "Um gostinho do que vem por aí"
+        },
+        {
+          "nome": "FOOTER_BRAND",
+          "descricao": "Nome da marca no footer",
+          "padrao": "O Guião."
+        },
+        {
+          "nome": "FOOTER_TEXTO",
+          "descricao": "Texto do footer",
+          "padrao": "© 2024 O Guião das Receitas. Todos os direitos reservados."
+        }
+      ]
+    },
+    {
+      "id": "biopure-detox",
+      "nome": "BioPure Detox",
+      "descricao": "Template médico/wellness para produto de detox com foco em mau hálito e acne, design clean e científico",
+      "arquivo": "biopure-detox.html",
+      "preview": "/templates/upsell/previews/biopure-detox-preview.png",
+      "categoria": "Produto Físico",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "BioPure Detox - Pele Limpa e Hálito Fresco"
+        },
+        {
+          "nome": "ALERT_BAR",
+          "descricao": "Texto da barra de alerta no topo",
+          "padrao": "🚚 FRETE GRÁTIS PARA TODO O BRASIL HOJE"
+        },
+        {
+          "nome": "NAVBAR_BRAND",
+          "descricao": "Texto da marca na navbar",
+          "padrao": "BioPure Detox"
+        },
+        {
+          "nome": "NAVBAR_CTA",
+          "descricao": "Texto do botão CTA na navbar",
+          "padrao": "QUERO COMPRAR"
+        },
+        {
+          "nome": "HERO_BADGE",
+          "descricao": "Texto do badge no hero",
+          "padrao": "Nova Fórmula Americana 🇺🇸"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Você sofre com Mau Hálito e Espinhas sem saber o motivo?"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Descubra como limpar seu organismo das toxinas silenciosas que causam inflamação na pele e odores estomacais."
+        },
+        {
+          "nome": "VIDEO_CAPTION",
+          "descricao": "Legenda do vídeo",
+          "padrao": "Assista ao vídeo explicativo (2min)"
+        },
+        {
+          "nome": "COPY_TITULO",
+          "descricao": "Título da seção de copy",
+          "padrao": "O problema não é falta de higiene. É intoxicação."
+        },
+        {
+          "nome": "COPY_TEXTO",
+          "descricao": "Texto da seção de copy",
+          "padrao": "Cremes caros e enxaguantes bucais apenas mascaram o problema. O BioPure Detox age na raiz: no seu intestino e sistema linfático."
+        },
+        {
+          "nome": "HERO_CTA",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "Experimentar BioPure Agora"
+        },
+        {
+          "nome": "AGITATION_TITULO",
+          "descricao": "Título da seção de agitação",
+          "padrao": "Sinais de que seu corpo pede socorro"
+        },
+        {
+          "nome": "HOW_IT_WORKS_TITULO",
+          "descricao": "Título da seção Como Funciona",
+          "padrao": "A Ciência por trás do BioPure"
+        },
+        {
+          "nome": "HOW_IT_WORKS_DESCRICAO",
+          "descricao": "Descrição da seção Como Funciona",
+          "padrao": "O BioPure combina Clorofila Concentrada, Zinco Quelato e Probióticos. Essa tríade poderosa atua como um \"ímã\" de toxinas."
+        },
+        {
+          "nome": "PRECO_TITULO",
+          "descricao": "Título da seção de preço",
+          "padrao": "Escolha seu Kit de Tratamento"
+        },
+        {
+          "nome": "PRECO_SUBTITULO",
+          "descricao": "Subtítulo da seção de preço",
+          "padrao": "Resultados visíveis a partir de 14 dias de uso contínuo."
+        },
+        {
+          "nome": "GARANTIA_TITULO",
+          "descricao": "Título da seção de garantia",
+          "padrao": "Desafio 30 Dias BioPure"
+        },
+        {
+          "nome": "GARANTIA_TEXTO",
+          "descricao": "Texto da garantia",
+          "padrao": "Nós confiamos tanto na nossa fórmula que se você não notar melhora no hálito ou na pele em 30 dias, nós compramos os potes de volta de você. Risco Zero."
+        },
+        {
+          "nome": "FAQ_TITULO",
+          "descricao": "Título da seção FAQ",
+          "padrao": "Dúvidas Frequentes"
+        },
+        {
+          "nome": "FOOTER_TEXTO",
+          "descricao": "Texto do footer",
+          "padrao": "BioPure Detox © 2024. Todos os direitos reservados."
+        }
+      ]
+    },
+    {
+      "id": "metodo-liberdade-digital",
+      "nome": "Método Liberdade Digital",
+      "descricao": "Template dark/tech para curso de renda digital com foco em resultados, design moderno e social proof",
+      "arquivo": "metodo-liberdade-digital.html",
+      "preview": "/templates/upsell/previews/metodo-liberdade-digital-preview.png",
+      "categoria": "Curso",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "Método Liberdade Digital - Comece Hoje"
+        },
+        {
+          "nome": "NAVBAR_BRAND",
+          "descricao": "Texto da marca na navbar",
+          "padrao": "Método Lucro Digital"
+        },
+        {
+          "nome": "HERO_BADGE",
+          "descricao": "Texto do badge no hero",
+          "padrao": "Vagas Abertas Hoje"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Transforme seu celular em uma Máquina de Renda Diária"
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Sem aparecer, sem criar conteúdo e sem precisar de computador. Copie e cole o mesmo método que gerou mais de MZN 100.000,00 para nossos alunos mês passado."
+        },
+        {
+          "nome": "VIDEO_CAPTION",
+          "descricao": "Legenda do vídeo",
+          "padrao": "Ver vídeo explicativo"
+        },
+        {
+          "nome": "HERO_CTA",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "QUERO COMEÇAR A FATURAR"
+        },
+        {
+          "nome": "SOCIAL_PROOF_TITULO",
+          "descricao": "Título da seção de social proof",
+          "padrao": "Resultados de Pessoas Comuns"
+        },
+        {
+          "nome": "SOCIAL_PROOF_SUBTITULO",
+          "descricao": "Subtítulo da seção de social proof",
+          "padrao": "Eles apenas seguiram o passo a passo. Você é o próximo."
+        },
+        {
+          "nome": "HOW_IT_WORKS_TITULO",
+          "descricao": "Título da seção Como Funciona",
+          "padrao": "Como funciona o Protocolo?"
+        },
+        {
+          "nome": "OFERTA_BADGE",
+          "descricao": "Badge da oferta",
+          "padrao": "Oferta Relâmpago"
+        },
+        {
+          "nome": "OFERTA_TITULO",
+          "descricao": "Título da seção de oferta",
+          "padrao": "Acesso Vitalício ao Método"
+        },
+        {
+          "nome": "OFERTA_SUBTITULO",
+          "descricao": "Subtítulo da seção de oferta",
+          "padrao": "Tudo o que você precisa para sair do zero aos MZN 3.000 mensais."
+        },
+        {
+          "nome": "OFERTA_PRECO_ANTIGO",
+          "descricao": "Preço antigo (riscado)",
+          "padrao": "De MZN 297,00"
+        },
+        {
+          "nome": "OFERTA_PRECO_ATUAL",
+          "descricao": "Preço atual",
+          "padrao": "MZN 19,90"
+        },
+        {
+          "nome": "OFERTA_DESCONTO",
+          "descricao": "Texto do desconto",
+          "padrao": "Desconto de 93% aplicado"
+        },
+        {
+          "nome": "OFERTA_BOTAO",
+          "descricao": "Texto do botão CTA da oferta",
+          "padrao": "QUERO MINHA VAGA AGORA"
+        },
+        {
+          "nome": "FOOTER_TEXTO",
+          "descricao": "Texto do footer",
+          "padrao": "© 2024 Lucro Digital Ltda. Todos os direitos reservados."
+        }
+      ]
+    },
+    {
+      "id": "formula-mulher-irresistivel",
+      "nome": "A Fórmula da Mulher Irresistível",
+      "descricao": "Template elegante e feminino para ebook de relacionamentos, com design sofisticado e foco em autoconfiança",
+      "arquivo": "formula-mulher-irresistivel.html",
+      "preview": "/templates/upsell/previews/formula-mulher-irresistivel-preview.png",
+      "categoria": "Ebook",
+      "variaveis": [
+        {
+          "nome": "TITULO_PAGINA",
+          "descricao": "Título da página (meta title)",
+          "padrao": "A Fórmula da Mulher Irresistível - Conexão e Sedução"
+        },
+        {
+          "nome": "TOP_BAR",
+          "descricao": "Texto da barra superior",
+          "padrao": "✨ Acesso exclusivo para mulheres"
+        },
+        {
+          "nome": "HERO_BADGE",
+          "descricao": "Texto do badge no hero",
+          "padrao": "Relacionamento & Autoconfiança"
+        },
+        {
+          "nome": "TITULO_PRINCIPAL",
+          "descricao": "Título principal (headline)",
+          "padrao": "Pare de ser \"apenas a amiga\". Torne-se Inesquecível."
+        },
+        {
+          "nome": "SUBTITULO",
+          "descricao": "Subtítulo abaixo do título principal",
+          "padrao": "Descubra o segredo psicológico para despertar atração genuína, decifrar sinais e construir relacionamentos profundos e apaixonantes com outras mulheres."
+        },
+        {
+          "nome": "HERO_CTA",
+          "descricao": "Texto do botão CTA principal",
+          "padrao": "DESCOBRIR O SEGREDO"
+        },
+        {
+          "nome": "PAIN_POINTS_TITULO",
+          "descricao": "Título da seção de pontos de dor",
+          "padrao": "Você já se sentiu assim?"
+        },
+        {
+          "nome": "SOLUTION_TITULO",
+          "descricao": "Título da seção de solução",
+          "padrao": "Apresentando: A Fórmula da Mulher Irresistível"
+        },
+        {
+          "nome": "SOCIAL_PROOF_TITULO",
+          "descricao": "Título da seção de social proof",
+          "padrao": "Histórias de quem aplicou o método"
+        },
+        {
+          "nome": "OFERTA_TITULO",
+          "descricao": "Título da seção de oferta",
+          "padrao": "Comece sua transformação hoje"
+        },
+        {
+          "nome": "OFERTA_PRECO_ANTIGO",
+          "descricao": "Preço antigo (riscado)",
+          "padrao": "De MZN 197,00"
+        },
+        {
+          "nome": "OFERTA_PRECO_ATUAL",
+          "descricao": "Preço atual",
+          "padrao": "MZN 67,90"
+        },
+        {
+          "nome": "OFERTA_BOTAO",
+          "descricao": "Texto do botão CTA da oferta",
+          "padrao": "QUERO A FÓRMULA AGORA"
+        },
+        {
+          "nome": "GARANTIA_TITULO",
+          "descricao": "Título da seção de garantia",
+          "padrao": "Sua satisfação é garantida"
+        },
+        {
+          "nome": "FAQ_TITULO",
+          "descricao": "Título da seção FAQ",
+          "padrao": "Perguntas Frequentes"
+        },
+        {
+          "nome": "FOOTER_BRAND",
+          "descricao": "Nome da marca no footer",
+          "padrao": "A Fórmula da Mulher Irresistível"
+        }
+      ]
+    }
+  ]
+}
+

@@ -1,45 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
-const { Pagamento, Usuario, HistoricoSaques } = require('../config/database');
+const { Pagamento, Usuario, HistoricoSaques, Carteira } = require('../config/database');
 const ReceitaService = require('../services/receitaService'); // Novo serviço unificado
 
-// POST - Solicitar saque (usando ReceitaService)
+// POST - Solicitar saque (usando ReceitaService e dados da carteira única)
 router.post('/solicitar', authenticateToken, async (req, res) => {
     try {
-        const { valor, metodoPagamento, contaDestino, banco, observacoes, telefoneTitular } = req.body;
+        const { valor, metodoPagamento } = req.body;
         const vendedorId = req.user.id;
         
         console.log(`🔄 Processando solicitação de saque para vendedor ${vendedorId}...`);
-        console.log(`📋 Dados recebidos:`, { valor, metodoPagamento, contaDestino, banco, observacoes, telefoneTitular });
-        console.log(`🔍 Tipo dos dados:`, {
-            valor: typeof valor,
-            metodoPagamento: typeof metodoPagamento,
-            contaDestino: typeof contaDestino,
-            banco: typeof banco,
-            observacoes: typeof observacoes,
-            telefoneTitular: typeof telefoneTitular
-        });
         
         // Validar dados
         if (!valor || valor <= 0) {
-            console.log(`❌ Validação falhou: valor inválido - ${valor}`);
             return res.status(400).json({
                 success: false,
                 message: 'Valor do saque deve ser maior que zero'
             });
         }
         
-        if (!contaDestino) {
-            console.log(`❌ Validação falhou: contaDestino ausente`);
-            return res.status(400).json({
-                success: false,
-                message: 'Conta de destino é obrigatória'
-            });
-        }
-        
         if (!metodoPagamento) {
-            console.log(`❌ Validação falhou: metodoPagamento ausente`);
             return res.status(400).json({
                 success: false,
                 message: 'Método de pagamento é obrigatório'
@@ -47,27 +28,77 @@ router.post('/solicitar', authenticateToken, async (req, res) => {
         }
         
         if (!['Mpesa', 'Emola'].includes(metodoPagamento)) {
-            console.log(`❌ Validação falhou: metodoPagamento inválido - ${metodoPagamento}`);
             return res.status(400).json({
                 success: false,
                 message: `Método de pagamento deve ser Mpesa ou Emola. Recebido: ${metodoPagamento}`
             });
         }
         
-        console.log(`✅ Validações passaram com sucesso`);
+        // Buscar carteira única do usuário
+        const carteira = await Carteira.findOne({
+            where: {
+                vendedorId: vendedorId,
+                ativa: true
+            }
+        });
+        
+        if (!carteira) {
+            return res.status(400).json({
+                success: false,
+                message: 'Carteira não configurada. Por favor, configure sua carteira primeiro.'
+            });
+        }
+        
+        // Usar dados da carteira baseado no método escolhido
+        let contaDestino, nomeTitular, telefoneTitular;
+        
+        if (metodoPagamento === 'Mpesa') {
+            contaDestino = carteira.contactoMpesa || carteira.contacto_mpesa;
+            nomeTitular = carteira.nomeTitularMpesa || carteira.nome_titular_mpesa;
+            telefoneTitular = contaDestino;
+        } else if (metodoPagamento === 'Emola') {
+            contaDestino = carteira.contactoEmola || carteira.contacto_emola;
+            nomeTitular = carteira.nomeTitularEmola || carteira.nome_titular_emola;
+            telefoneTitular = contaDestino;
+        }
+        
+        // Dados completos da carteira para envio ao admin
+        const dadosCarteiraCompleta = {
+            // Dados Mpesa
+            mpesa: {
+                contacto: carteira.contactoMpesa || carteira.contacto_mpesa || 'N/A',
+                nomeTitular: carteira.nomeTitularMpesa || carteira.nome_titular_mpesa || 'N/A'
+            },
+            // Dados Emola
+            emola: {
+                contacto: carteira.contactoEmola || carteira.contacto_emola || 'N/A',
+                nomeTitular: carteira.nomeTitularEmola || carteira.nome_titular_emola || 'N/A'
+            },
+            // Email da carteira
+            email: carteira.email || 'N/A'
+        };
         
         // Dados para o serviço
         const dadosSaque = {
             metodoPagamento: metodoPagamento,
             contaDestino: contaDestino,
-            banco: banco,
-            observacoes: observacoes,
+            banco: metodoPagamento, // Mpesa ou Emola
+            observacoes: `Saque via ${metodoPagamento} - ${nomeTitular}`,
             telefoneTitular: telefoneTitular,
+            nomeTitular: nomeTitular,
+            email: carteira.email,
             ipSolicitacao: req.ip,
-            userAgent: req.get('User-Agent')
+            userAgent: req.get('User-Agent'),
+            // Incluir dados completos da carteira
+            dadosCarteiraCompleta: dadosCarteiraCompleta
         };
         
-        console.log(`📤 Dados do saque preparados:`, dadosSaque);
+        console.log(`📤 Dados do saque preparados (da carteira):`, {
+            metodoPagamento: dadosSaque.metodoPagamento,
+            contaDestino: dadosSaque.contaDestino,
+            nomeTitular: dadosSaque.nomeTitular,
+            email: dadosSaque.email
+        });
         
         // Processar saque usando ReceitaService
         const resultado = await ReceitaService.processarSolicitacaoSaque(
@@ -76,8 +107,7 @@ router.post('/solicitar', authenticateToken, async (req, res) => {
             dadosSaque
         );
         
-        console.log(`✅ Saque solicitado com sucesso: ID ${resultado.saqueId}`);
-        console.log(`📊 Resultado completo:`, resultado);
+        console.log(`✅ Saque solicitado com sucesso: ID ${resultado.saqueId}, Public ID: ${resultado.publicId}`);
         
         // Enviar notificação automática para o admin sobre nova solicitação
         try {
@@ -94,9 +124,13 @@ router.post('/solicitar', authenticateToken, async (req, res) => {
             success: true,
             message: 'Saque solicitado com sucesso',
             data: {
+                id: resultado.saqueId,
                 saqueId: resultado.saqueId,
                 publicId: resultado.publicId,
-                idSaque: resultado.idSaque,
+                idSaque: resultado.publicId || resultado.idSaque, // Usar publicId como idSaque
+                valor: parseFloat(resultado.saque?.valor || 0),
+                metodoPagamento: resultado.saque?.metodo || 'Mpesa',
+                status: resultado.saque?.status || 'pendente',
                 receitaAtualizada: resultado.receitaAtualizada
             }
         });
@@ -209,32 +243,32 @@ router.get('/vendedor', authenticateToken, async (req, res) => {
             where: { vendedor_id: vendedorId },
             order: [['data_solicitacao', 'DESC']],
             attributes: [
-                'id', 'valor',
+                'id', 'public_id', 'valor', 'valor_liquido', 'taxa',
                 'status', 'data_solicitacao', 'data_processamento', 'data_pagamento', 
-                'metodo', 'telefone_titular',
+                'metodo', 'telefone_titular', 'nome_titular',
                 'conta_destino', 'banco', 'observacoes', 'motivo_rejeicao'
             ]
         });
         
         console.log(`🔍 Saques encontrados no banco:`, saques.length);
         saques.forEach(saque => {
-            console.log(`  - ID: ${saque.id}, Status: ${saque.status}, Valor: ${saque.valor}, Data: ${saque.data_solicitacao}`);
+            console.log(`  - ID: ${saque.id}, Public ID: ${saque.public_id || 'N/A'}, Status: ${saque.status}, Valor: ${saque.valor}, Data: ${saque.data_solicitacao}`);
         });
         
         // Formatar dados dos saques
         const saquesFormatados = saques.map(saque => ({
             id: saque.id,
-            publicId: saque.id, // Usar id como publicId temporariamente
-            idSaque: saque.id,
+            publicId: saque.public_id || saque.id, // Usar public_id se disponível
+            idSaque: saque.public_id || saque.id, // Usar public_id para exibição
             valor: parseFloat(saque.valor),
-            valorLiquido: parseFloat(saque.valor), // Usar valor como valorLiquido
-            taxa: 0, // Taxa não existe no banco, usar 0
+            valorLiquido: parseFloat(saque.valor_liquido || saque.valor), // Usar valor_liquido se disponível
+            taxa: parseFloat(saque.taxa || 0),
             status: saque.status,
             dataSolicitacao: saque.data_solicitacao,
-            dataAprovacao: saque.data_processamento, // Usar data_processamento como dataAprovacao
+            dataAprovacao: saque.data_processamento,
             dataPagamento: saque.data_pagamento,
             metodoPagamento: saque.metodo,
-            nomeTitular: saque.telefone_titular || 'N/A', // Usar telefone como nome temporariamente
+            nomeTitular: saque.nome_titular || saque.telefone_titular || 'N/A',
             telefoneTitular: saque.telefone_titular,
             contaDestino: saque.conta_destino,
             banco: saque.banco,

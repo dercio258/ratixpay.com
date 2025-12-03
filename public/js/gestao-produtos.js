@@ -372,125 +372,23 @@ function criarCardProduto(produto) {
                     </div>
                 </div>
                 
-                <div class="utmfy-config-section" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <input type="checkbox" 
-                               id="utmfy-toggle-${produto.id}" 
-                               onchange="toggleUTMfySection('${produto.id}')"
-                               style="margin-right: 5px; transform: scale(1.2;">
-                        <i class="fas fa-chart-line" style="color: #007bff;"></i>
-                        <strong style="color: #333;">Utmify Campaign Manager</strong>
-                        ${produto.utmfy_api_key ? '<span style="color: #28a745; font-size: 12px;"><i class="fas fa-check-circle"></i> Configurado</span>' : '<span style="color: #dc3545; font-size: 12px;"><i class="fas fa-exclamation-circle"></i> Não configurado</span>'}
-                    </div>
-                    
-                    <div id="utmfy-content-${produto.id}" style="display: none;">
-                    
-                    <!-- API Key Input -->
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px;">API Key</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" 
-                                   id="utmfy-api-key-${produto.id}" 
-                                   value="${produto.utmfy_api_key || ''}" 
-                                   placeholder="Cole sua API Key do Utmify"
-                                   style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: 'Courier New', monospace;"
-                                   maxlength="200">
-                            <button onclick="colarUTMfyApiKey('${produto.id}')" 
-                                    style="background: #28a745; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-width: 40px;"
-                                    title="Colar API Key">
-                                <i class="fas fa-paste"></i>
-                            </button>
-                            <button onclick="copiarUTMfyApiKey('${produto.id}')" 
-                                    style="background: #007bff; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-width: 40px;"
-                                    title="Copiar API Key">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                        <small style="color: #6c757d; font-size: 11px; margin-top: 5px; display: block;">
-                            Encontre sua API Key no painel do Utmify
-                        </small>
-                    </div>
-                    
-                    
-                    <!-- Botão Salvar -->
-                    <div style="margin-bottom: 15px;">
-                        <button onclick="salvarUTMfy('${produto.id}')" 
-                                id="utmfy-save-btn-${produto.id}"
-                                class="action-btn success" 
-                                style="padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 4px; background: #007bff; border: none; color: white; cursor: pointer; transition: all 0.3s;"
-                                onmouseover="this.style.background='#0056b3'"
-                                onmouseout="this.style.background='#007bff'">
-                            <i class="fas fa-save"></i> Salvar Configuração
-                        </button>
-                    </div>
-                    
-                    </div>
-                </div>
-                
-                <div class="pixel-config-section" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                        <input type="checkbox" 
-                               id="pixel-toggle-${produto.id}" 
-                               onchange="togglePixelSection('${produto.id}')"
-                               style="margin-right: 5px; transform: scale(1.2;">
-                        <i class="fas fa-chart-line" style="color: #007bff;"></i>
-                        <strong style="color: #333;">Meta Pixel Configuration</strong>
-                        ${produto.pixel_id ? '<span style="color: #28a745; font-size: 12px;"><i class="fas fa-check-circle"></i> Configurado</span>' : '<span style="color: #dc3545; font-size: 12px;"><i class="fas fa-exclamation-circle"></i> Não configurado</span>'}
-                    </div>
-                    
-                    <div id="pixel-content-${produto.id}" style="display: none;">
-                    
-                    <!-- Pixel ID Input -->
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px;">Pixel ID</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" 
-                                   id="pixel-${produto.id}" 
-                                   value="${produto.pixel_id || ''}" 
-                                   placeholder="Ex: 123456789012345"
-                                   style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-                                   maxlength="16"
-                                   pattern="[0-9]{15,16}"
-                                   title="Pixel ID deve ter 15-16 dígitos">
-                            <button onclick="colarPixelId('${produto.id}')" 
-                                    style="background: #28a745; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-width: 40px;"
-                                    title="Colar Pixel ID">
-                                <i class="fas fa-paste"></i>
-                            </button>
-                            <button onclick="copiarPixelId('${produto.id}')" 
-                                    style="background: #007bff; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; min-width: 40px;"
-                                    title="Copiar Pixel ID">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Botão Salvar -->
-                    <div style="margin-bottom: 15px;">
-                        <button onclick="salvarPixelConfig('${produto.id}')" 
-                                id="pixel-save-btn-${produto.id}"
-                                class="action-btn success" 
-                                style="padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 4px; background: #007bff; border: none; color: white; cursor: pointer; transition: all 0.3s;"
-                                onmouseover="this.style.background='#0056b3'"
-                                onmouseout="this.style.background='#007bff'">
-                            <i class="fas fa-save"></i> Salvar Configuração
-                        </button>
-                    </div>
-                    
-                    <small style="color: #6c757d; font-size: 11px; margin-top: 5px; display: block;">
-                        Encontre o Pixel ID no Facebook Business Manager. Todos os eventos serão rastreados automaticamente.
-                    </small>
-                    </div>
-                </div>
-                
                 <div class="product-actions">
                     <div class="payment-actions">
-                        <button onclick="copiarLinkPagamento('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn success">
-                            <i class="fas fa-copy"></i> Copiar Link
-                        </button>
-                        <button onclick="compartilharProduto('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn info">
-                            <i class="fas fa-share"></i> Compartilhar
-                        </button>
+                        ${produto.status_aprovacao === 'aprovado' ? `
+                            <button onclick="copiarLinkPagamento('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn success">
+                                <i class="fas fa-copy"></i> Copiar Link
+                            </button>
+                            <button onclick="compartilharProduto('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn info">
+                                <i class="fas fa-share"></i> Compartilhar
+                            </button>
+                            <button onclick="adicionarUpsell('${produto.id}', '${produto.nome}')" class="action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <i class="fas fa-arrow-up"></i> Adicionar Upsell
+                            </button>
+                        ` : `
+                            <button disabled class="action-btn" style="background: #6c757d; color: white; cursor: not-allowed;" title="Produto aguardando aprovação - Link de checkout não disponível">
+                                <i class="fas fa-clock"></i> Aguardando Aprovação
+                            </button>
+                        `}
                     </div>
                     <a href="atualizar-produto.html?id=${produto.id}" class="action-btn warning">
                         <i class="fas fa-edit"></i> Atualizar Produto
@@ -507,6 +405,14 @@ function criarCardProduto(produto) {
 // Gerar badges de status com design moderno
 function gerarStatusBadges(produto) {
     const badges = [];
+    
+    // Badge de status de aprovação
+    // Não mostrar badge "Aprovado" - produtos aprovados mostrarão apenas "Ativo" se estiverem ativos
+    if (produto.status_aprovacao === 'rejeitado') {
+        badges.push('<span class="status-badge" style="background: #dc3545; color: white;">❌ Rejeitado</span>');
+    } else if (produto.status_aprovacao === 'pendente_aprovacao') {
+        badges.push('<span class="status-badge" style="background: #ffc107; color: #000;">⏳ Aguardando Aprovação</span>');
+    }
     
     if (produto.ativo) {
         badges.push('<span class="status-badge active">Ativo</span>');
@@ -653,6 +559,174 @@ function formatarPreco(preco) {
     
     // Substituir MTn por MZN se necessário
     return formatted.replace('MTn', 'MZN');
+}
+
+// Adicionar upsell para um produto
+async function adicionarUpsell(produtoId, produtoNome) {
+    try {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            mostrarErro('Usuário não autenticado');
+            return;
+        }
+
+        // Verificar se já existe uma página de upsell relacionada
+        const checkResponse = await fetch(`${window.API_BASE || '/api'}/upsell/produtos/${produtoId}/pagina`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const checkData = await checkResponse.json();
+        let paginaAtualId = null;
+        
+        if (checkData.success && checkData.hasUpsell && checkData.page) {
+            paginaAtualId = checkData.page.id;
+        }
+
+        // Buscar todas as páginas de upsell disponíveis
+        const pagesResponse = await fetch(`${window.API_BASE || '/api'}/upsell/pages`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const pagesData = await pagesResponse.json();
+        
+        if (!pagesData.success || !pagesData.pages || pagesData.pages.length === 0) {
+            // Não há páginas, oferecer criar uma nova
+            if (confirm(`Não há páginas de upsell criadas. Deseja criar uma nova página para "${produtoNome}"?`)) {
+                window.location.href = `upsell-config-add-page.html?produto_id=${produtoId}&produto_nome=${encodeURIComponent(produtoNome)}`;
+            }
+            return;
+        }
+
+        // Mostrar modal para selecionar página
+        mostrarModalSelecionarUpsell(produtoId, produtoNome, pagesData.pages, paginaAtualId);
+    } catch (error) {
+        console.error('Erro ao carregar páginas de upsell:', error);
+        mostrarErro('Erro ao carregar páginas de upsell');
+    }
+}
+
+// Mostrar modal para selecionar página de upsell
+function mostrarModalSelecionarUpsell(produtoId, produtoNome, paginas, paginaAtualId) {
+    // Criar modal se não existir
+    let modal = document.getElementById('modal-selecionar-upsell');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-selecionar-upsell';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Selecionar Página de Upsell</h2>
+                    <button class="close-modal" onclick="fecharModalSelecionarUpsell()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                </div>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Escolha qual página de upsell será exibida após o pagamento de <strong>${escapeHtml(produtoNome)}</strong>
+                </p>
+                <div id="upsell-pages-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                    <!-- Lista de páginas será inserida aqui -->
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="fecharModalSelecionarUpsell()" class="btn btn-secondary">Cancelar</button>
+                    <button onclick="criarNovaPaginaUpsell()" class="btn btn-info" style="background: #17a2b8;">
+                        <i class="fas fa-plus"></i> Criar Nova Página
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // Preencher lista de páginas
+    const listContainer = document.getElementById('upsell-pages-list');
+    listContainer.innerHTML = paginas.map(pagina => {
+        const isSelected = paginaAtualId === pagina.id;
+        return `
+            <div class="upsell-page-item" style="border: 2px solid ${isSelected ? '#667eea' : '#e9ecef'}; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; ${isSelected ? 'background: #f0f4ff;' : ''}" 
+                 onclick="selecionarPaginaUpsell('${produtoId}', '${pagina.id}', '${escapeHtml(pagina.titulo)}')"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.background='#f0f4ff';"
+                 onmouseout="this.style.borderColor='${isSelected ? '#667eea' : '#e9ecef'}'; this.style.background='${isSelected ? '#f0f4ff' : 'white'}';">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: #333;">${escapeHtml(pagina.titulo)}</h4>
+                        <p style="margin: 0; color: #666; font-size: 0.9rem;">${escapeHtml(pagina.nome_produto)}</p>
+                        ${isSelected ? '<span style="color: #667eea; font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Página atual</span>' : ''}
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #999;"></i>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Armazenar dados para uso posterior
+    window.currentProdutoUpsell = { produtoId, produtoNome };
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+}
+
+// Selecionar página de upsell
+async function selecionarPaginaUpsell(produtoId, upsellPageId, paginaTitulo) {
+    try {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+        
+        const response = await fetch(`${window.API_BASE || '/api'}/upsell/produtos/${produtoId}/pagina`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                upsell_page_id: upsellPageId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarSucesso(`Página "${paginaTitulo}" relacionada com sucesso!`);
+            fecharModalSelecionarUpsell();
+            // Recarregar produtos para atualizar visualização
+            carregarProdutos();
+        } else {
+            mostrarErro(data.message || 'Erro ao relacionar página de upsell');
+        }
+    } catch (error) {
+        console.error('Erro ao relacionar página de upsell:', error);
+        mostrarErro('Erro ao relacionar página de upsell');
+    }
+}
+
+// Criar nova página de upsell
+function criarNovaPaginaUpsell() {
+    const { produtoId, produtoNome } = window.currentProdutoUpsell || {};
+    if (produtoId && produtoNome) {
+        window.location.href = `upsell-config-add-page.html?produto_id=${produtoId}&produto_nome=${encodeURIComponent(produtoNome)}`;
+    } else {
+        window.location.href = 'upsell-config-add-page.html';
+    }
+}
+
+// Fechar modal
+function fecharModalSelecionarUpsell() {
+    const modal = document.getElementById('modal-selecionar-upsell');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    window.currentProdutoUpsell = null;
+}
+
+// Função auxiliar para escapar HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Confirmar exclusão
@@ -872,374 +946,6 @@ function mostrarLoading(mostrar) {
 }
 
 // Salvar configurações Utmify do produto com feedback visual aprimorado
-async function salvarUTMfy(produtoId) {
-    const saveBtn = document.getElementById(`utmfy-save-btn-${produtoId}`);
-    const originalBtnContent = saveBtn ? saveBtn.innerHTML : '';
-    
-    try {
-        // Feedback visual: botão de loading
-        if (saveBtn) {
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-            saveBtn.style.opacity = '0.7';
-        }
-        
-        const apiKeyInput = document.getElementById(`utmfy-api-key-${produtoId}`);
-        
-        if (!apiKeyInput) {
-            mostrarErro('Campo de API Key Utmify não encontrado');
-            return;
-        }
-        
-        const apiKey = apiKeyInput.value.trim();
-        
-        // Valores pré-definidos: sempre ativo, tipo utmify, todos os eventos
-        const tokenType = 'utmify';
-        const active = true; // Sempre ativo quando salvar
-        const events = ['page_view', 'purchase_completed', 'cart_abandoned', 'checkout_started']; // Todos os eventos ativos
-        
-        // Validar API Key (obrigatória)
-        if (!apiKey) {
-            mostrarErroToast('⚠️ API Key é obrigatória', 'warning');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        // Validar formato básico da API Key (se fornecida)
-        if (apiKey && apiKey.length < 10) {
-            mostrarErroToast('⚠️ API Key parece estar incompleta. Verifique se copiou corretamente.', 'warning');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-        if (!token) {
-            mostrarErroToast('❌ Usuário não autenticado. Faça login novamente.', 'error');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        
-        const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/utmfy`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                apiKey: apiKey, 
-                tokenType: tokenType, 
-                events: events, 
-                active: active 
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
-            throw new Error(errorData.message || 'Erro ao salvar configurações Utmify');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Atualizar o produto na lista local
-            const produtoIndex = produtos.findIndex(p => p.id === produtoId);
-            if (produtoIndex !== -1) {
-                produtos[produtoIndex].utmfy_api_key = apiKey;
-                produtos[produtoIndex].utmfy_token_type = tokenType; // Sempre 'utmify'
-                produtos[produtoIndex].utmfy_events = events; // Todos os eventos
-                produtos[produtoIndex].utmfy_active = active; // Sempre true
-            }
-            
-            // Feedback visual de sucesso
-            if (saveBtn) {
-                saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                saveBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                setTimeout(() => {
-                    saveBtn.innerHTML = originalBtnContent;
-                    saveBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    saveBtn.disabled = false;
-                    saveBtn.style.opacity = '1';
-                }, 2000);
-            }
-            
-            // Re-renderizar os produtos para atualizar o status
-            renderizarProdutos();
-            
-            mostrarSucessoToast('✅ Configurações Utmify salvas com sucesso!', 'success');
-        } else {
-            throw new Error(data.message || 'Erro ao salvar configurações Utmify');
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro ao salvar configurações Utmify:', error);
-        mostrarErroToast('❌ Erro ao salvar: ' + error.message, 'error');
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = originalBtnContent;
-            saveBtn.style.opacity = '1';
-        }
-    }
-}
-
-// Colar API Key do Utmify da área de transferência
-async function colarUTMfyApiKey(produtoId) {
-    try {
-        const apiKeyInput = document.getElementById(`utmfy-api-key-${produtoId}`);
-        if (!apiKeyInput) {
-            mostrarErroToast('Campo de API Key não encontrado', 'error');
-            return;
-        }
-        
-        // Usar Clipboard API
-        if (navigator.clipboard && window.isSecureContext) {
-            const texto = await navigator.clipboard.readText();
-            apiKeyInput.value = texto.trim();
-            apiKeyInput.focus();
-            mostrarSucessoToast('API Key colada com sucesso!', 'success');
-        } else {
-            // Fallback: usar prompt ou tentar colar via evento
-            mostrarErroToast('Funcionalidade de colar não disponível neste navegador. Use Ctrl+V', 'warning');
-            apiKeyInput.focus();
-        }
-    } catch (error) {
-        console.error('Erro ao colar API Key:', error);
-        if (error.name === 'NotAllowedError') {
-            mostrarErroToast('Permissão negada. Use Ctrl+V para colar manualmente', 'warning');
-        } else {
-            mostrarErroToast('Erro ao colar API Key. Use Ctrl+V para colar manualmente', 'error');
-        }
-    }
-}
-
-// Copiar API Key para área de transferência
-async function copiarUTMfyApiKey(produtoId) {
-    try {
-        const apiKeyInput = document.getElementById(`utmfy-api-key-${produtoId}`);
-        if (!apiKeyInput || !apiKeyInput.value.trim()) {
-            mostrarErroToast('Nenhuma API Key para copiar', 'warning');
-            return;
-        }
-        
-        const apiKey = apiKeyInput.value.trim();
-        
-        // Usar Clipboard API
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(apiKey);
-            mostrarSucessoToast('API Key copiada para a área de transferência!', 'success');
-        } else {
-            // Fallback
-            const textArea = document.createElement('textarea');
-            textArea.value = apiKey;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            mostrarSucessoToast('API Key copiada!', 'success');
-        }
-    } catch (error) {
-        console.error('Erro ao copiar API Key:', error);
-        mostrarErroToast('Erro ao copiar API Key', 'error');
-    }
-}
-
-// Colar Pixel ID da área de transferência
-async function colarPixelId(produtoId) {
-    try {
-        const pixelIdInput = document.getElementById(`pixel-${produtoId}`);
-        if (!pixelIdInput) {
-            mostrarErroToast('Campo de Pixel ID não encontrado', 'error');
-            return;
-        }
-        
-        // Usar Clipboard API
-        if (navigator.clipboard && window.isSecureContext) {
-            const texto = await navigator.clipboard.readText();
-            // Limpar apenas números do texto colado
-            const pixelIdLimpo = texto.trim().replace(/\D/g, '');
-            pixelIdInput.value = pixelIdLimpo;
-            pixelIdInput.focus();
-            mostrarSucessoToast('Pixel ID colado com sucesso!', 'success');
-        } else {
-            // Fallback: usar prompt ou tentar colar via evento
-            mostrarErroToast('Funcionalidade de colar não disponível neste navegador. Use Ctrl+V', 'warning');
-            pixelIdInput.focus();
-        }
-    } catch (error) {
-        console.error('Erro ao colar Pixel ID:', error);
-        if (error.name === 'NotAllowedError') {
-            mostrarErroToast('Permissão negada. Use Ctrl+V para colar manualmente', 'warning');
-        } else {
-            mostrarErroToast('Erro ao colar Pixel ID. Use Ctrl+V para colar manualmente', 'error');
-        }
-    }
-}
-
-// Copiar Pixel ID para área de transferência
-async function copiarPixelId(produtoId) {
-    try {
-        const pixelIdInput = document.getElementById(`pixel-${produtoId}`);
-        if (!pixelIdInput || !pixelIdInput.value.trim()) {
-            mostrarErroToast('Nenhum Pixel ID para copiar', 'warning');
-            return;
-        }
-        
-        const pixelId = pixelIdInput.value.trim();
-        
-        // Usar Clipboard API
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(pixelId);
-            mostrarSucessoToast('Pixel ID copiado para a área de transferência!', 'success');
-        } else {
-            // Fallback
-            const textArea = document.createElement('textarea');
-            textArea.value = pixelId;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            mostrarSucessoToast('Pixel ID copiado!', 'success');
-        }
-    } catch (error) {
-        console.error('Erro ao copiar Pixel ID:', error);
-        mostrarErroToast('Erro ao copiar Pixel ID', 'error');
-    }
-}
-
-// Salvar configuração completa do Pixel (ID + Eventos)
-async function salvarPixelConfig(produtoId) {
-    const saveBtn = document.getElementById(`pixel-save-btn-${produtoId}`);
-    const originalBtnContent = saveBtn ? saveBtn.innerHTML : '';
-    
-    try {
-        // Feedback visual: botão de loading
-        if (saveBtn) {
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-            saveBtn.style.opacity = '0.7';
-        }
-        
-        const pixelIdInput = document.getElementById(`pixel-${produtoId}`);
-        if (!pixelIdInput) {
-            mostrarErro('Campo de Pixel ID não encontrado');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        const pixelId = pixelIdInput.value.trim();
-        
-        // Validar Pixel ID (deve ter 15-16 dígitos)
-        if (pixelId && !/^\d{15,16}$/.test(pixelId)) {
-            mostrarErroToast('⚠️ Pixel ID deve ter 15-16 dígitos numéricos', 'warning');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        // Valores pré-definidos: todos os eventos ativos quando há Pixel ID
-        const eventosDisponiveis = ['Purchase', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Lead'];
-        const eventosSelecionados = pixelId ? eventosDisponiveis : null; // Todos os eventos quando há Pixel ID
-        
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-        if (!token) {
-            mostrarErroToast('❌ Usuário não autenticado. Faça login novamente.', 'error');
-            if (saveBtn) {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnContent;
-                saveBtn.style.opacity = '1';
-            }
-            return;
-        }
-        
-        const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/pixel`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                pixelId: pixelId || null,
-                pixelEvents: eventosSelecionados
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
-            throw new Error(errorData.message || 'Erro ao salvar configuração do Pixel');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Atualizar o produto na lista local
-            const produtoIndex = produtos.findIndex(p => p.id === produtoId);
-            if (produtoIndex !== -1) {
-                produtos[produtoIndex].pixel_id = pixelId;
-                produtos[produtoIndex].pixel_events = eventosSelecionados; // Todos os eventos
-            }
-            
-            // Feedback visual de sucesso
-            if (saveBtn) {
-                saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                saveBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                setTimeout(() => {
-                    saveBtn.innerHTML = originalBtnContent;
-                    saveBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    saveBtn.disabled = false;
-                    saveBtn.style.opacity = '1';
-                }, 2000);
-            }
-            
-            // Re-renderizar os produtos para atualizar o status
-            renderizarProdutos();
-            
-            const mensagem = pixelId 
-                ? `✅ Configuração do Pixel salva com sucesso! Todos os eventos serão rastreados.`
-                : '✅ Configuração do Pixel removida com sucesso!';
-            
-            mostrarSucessoToast(mensagem, 'success');
-        } else {
-            throw new Error(data.message || 'Erro ao salvar configuração do Pixel');
-        }
-        
-    } catch (error) {
-        console.error('❌ Erro ao salvar configuração do Pixel:', error);
-        mostrarErroToast('❌ Erro ao salvar: ' + error.message, 'error');
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = originalBtnContent;
-            saveBtn.style.opacity = '1';
-        }
-    }
-}
-
-// Manter função antiga para compatibilidade
-async function salvarPixel(produtoId) {
-    return salvarPixelConfig(produtoId);
-}
 
 // Mostrar mensagem de sucesso
 function mostrarSucesso(mensagem) {
@@ -1409,31 +1115,4 @@ async function compartilharProduto(produtoId, nomeProduto) {
     }
 }
 
-// Função para alternar visibilidade da seção Utmify
-function toggleUTMfySection(produtoId) {
-    const checkbox = document.getElementById(`utmfy-toggle-${produtoId}`);
-    const content = document.getElementById(`utmfy-content-${produtoId}`);
-    
-    if (checkbox && content) {
-        if (checkbox.checked) {
-            content.style.display = 'block';
-        } else {
-            content.style.display = 'none';
-        }
-    }
-}
-
-// Função para alternar visibilidade da seção Meta Pixel
-function togglePixelSection(produtoId) {
-    const checkbox = document.getElementById(`pixel-toggle-${produtoId}`);
-    const content = document.getElementById(`pixel-content-${produtoId}`);
-    
-    if (checkbox && content) {
-        if (checkbox.checked) {
-            content.style.display = 'block';
-        } else {
-            content.style.display = 'none';
-        }
-    }
-}
 

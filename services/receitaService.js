@@ -247,19 +247,27 @@ class ReceitaService {
                 throw new Error('Vendedor não encontrado');
             }
             
-            // Gerar ID único
-            let publicId = Math.random().toString().slice(2, 8); // 6 dígitos
+            // Gerar ID público memorável (formato: apenas números de 6 dígitos, ex: 606734)
+            function gerarPublicId() {
+                const numero = Math.floor(100000 + Math.random() * 900000); // 6 dígitos (100000-999999)
+                return numero.toString(); // Retornar apenas o número como string
+            }
+            
+            let publicId = gerarPublicId();
             
             // Verificar se o ID já existe (evitar conflitos)
             let publicIdExists = await Pagamento.findOne({ where: { public_id: publicId } });
             
-            // Se existir, gerar novo ID
-            while (publicIdExists) {
-                const newPublicId = Math.random().toString().slice(2, 8);
-                publicIdExists = await Pagamento.findOne({ where: { public_id: newPublicId } });
-                if (!publicIdExists) {
-                    publicId = newPublicId;
-                }
+            // Se existir, gerar novo ID (máximo 10 tentativas)
+            let tentativas = 0;
+            while (publicIdExists && tentativas < 10) {
+                publicId = gerarPublicId();
+                publicIdExists = await Pagamento.findOne({ where: { public_id: publicId } });
+                tentativas++;
+            }
+            
+            if (tentativas >= 10) {
+                throw new Error('Erro ao gerar ID público único. Tente novamente.');
             }
             
             // Calcular taxa e valor líquido (exemplo: 5% de taxa)
@@ -273,6 +281,24 @@ class ReceitaService {
             console.log(`🔍 Observações: ${dadosSaque.observacoes}`);
             console.log(`🔍 Telefone titular: ${dadosSaque.telefoneTitular}`);
             
+            // Preparar observações com dados completos da carteira
+            let observacoesCompletas = dadosSaque.observacoes || '';
+            
+            // Adicionar dados completos da carteira nas observações para o admin
+            if (dadosSaque.dadosCarteiraCompleta) {
+                const dadosCarteira = dadosSaque.dadosCarteiraCompleta;
+                observacoesCompletas += `\n\n=== DADOS COMPLETOS DA CARTEIRA ===\n`;
+                observacoesCompletas += `\n📱 MPESA:\n`;
+                observacoesCompletas += `   Contacto: ${dadosCarteira.mpesa.contacto}\n`;
+                observacoesCompletas += `   Nome Titular: ${dadosCarteira.mpesa.nomeTitular}\n`;
+                observacoesCompletas += `\n📱 EMOLA:\n`;
+                observacoesCompletas += `   Contacto: ${dadosCarteira.emola.contacto}\n`;
+                observacoesCompletas += `   Nome Titular: ${dadosCarteira.emola.nomeTitular}\n`;
+                observacoesCompletas += `\n📧 Email: ${dadosCarteira.email}\n`;
+                observacoesCompletas += `\n⏰ Data/Hora Solicitação: ${new Date().toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}\n`;
+                observacoesCompletas += `🆔 ID Público: ${publicId}\n`;
+            }
+            
             // Criar registro de saque com todos os campos obrigatórios
             const saque = await Pagamento.create({
                 public_id: publicId,
@@ -280,22 +306,26 @@ class ReceitaService {
                 valor: valorSolicitado,
                 valor_liquido: valorLiquido,
                 taxa: taxa,
-                nome_titular: vendedor.nome_completo || 'Nome não informado',
-                telefone_titular: vendedor.telefone || dadosSaque.telefoneTitular || 'Telefone não informado',
+                nome_titular: dadosSaque.nomeTitular || vendedor.nome_completo || 'Nome não informado',
+                telefone_titular: dadosSaque.telefoneTitular || vendedor.telefone || 'Telefone não informado',
                 metodo: dadosSaque.metodoPagamento || 'Mpesa',
                 status: 'pendente',
                 data_solicitacao: new Date(),
                 conta_destino: dadosSaque.contaDestino,
                 banco: dadosSaque.banco,
-                observacoes: dadosSaque.observacoes,
+                observacoes: observacoesCompletas,
                 ip_solicitacao: dadosSaque.ipSolicitacao,
                 user_agent: dadosSaque.userAgent
             });
             
             console.log(`✅ Saque criado com sucesso: ID ${saque.id}, Public ID: ${publicId}`);
+            console.log(`💰 Valor solicitado: MZN ${valorSolicitado.toFixed(2)}`);
+            console.log(`📅 Data/Hora: ${new Date().toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}`);
             
-            // Atualizar receita disponível
+            // IMPORTANTE: Subtrair saldo IMEDIATAMENTE ao criar o saque (independente de aprovação/recusa)
+            // Isso garante que o saldo seja bloqueado assim que o saque é solicitado
             await this.atualizarReceitaTotal(vendedorId);
+            console.log(`✅ Saldo subtraído imediatamente da receita disponível`);
             
             // Enviar notificações de saque pendente
             try {
@@ -308,10 +338,12 @@ class ReceitaService {
             
             console.log(`✅ Solicitação de saque processada com sucesso: ID ${saque.id}`);
             
+            // Retornar saque completo para notificações
             return {
                 success: true,
                 saqueId: saque.id,
                 publicId: publicId,
+                saque: saque, // Incluir objeto saque completo para notificações
                 receitaAtualizada: await this.buscarReceitaTotal(vendedorId)
             };
             

@@ -59,19 +59,13 @@ self.addEventListener('activate', (event) => {
             // Notificar TODOS os clientes sobre atualização e forçar reload
             self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
                 clients.forEach((client) => {
+                    // Enviar mensagem para forçar reload
                     client.postMessage({
                         type: 'SW_ACTIVATED',
                         version: '2.0.6',
                         message: 'Service Worker atualizado - Cache completamente desabilitado',
                         forceReload: true
                     });
-                    
-                    // Forçar reload se o cliente não responder
-                    setTimeout(() => {
-                        if (client && 'navigate' in client) {
-                            client.navigate(client.url);
-                        }
-                    }, 1000);
                 });
             });
         })

@@ -2,7 +2,7 @@
  * Serviço para detectar fraudes em cliques de afiliados
  */
 
-const { CliqueValidoAfiliado } = require('../config/database');
+const { CliqueValidoAfiliado, sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 const crypto = require('crypto');
 
@@ -280,6 +280,102 @@ class FraudeDetectionService {
             dispositivo,
             fingerprint
         };
+    }
+
+    /**
+     * Verificar se dados do cliente (nome, contato, email) já foram usados anteriormente
+     * @param {string} nomeCliente - Nome do cliente
+     * @param {string} contatoCliente - Contato do cliente
+     * @param {string} emailCliente - Email do cliente
+     * @param {string} ipAddress - IP do cliente
+     * @param {string} userAgent - User agent do cliente
+     * @returns {Promise<Object>} Resultado da validação
+     */
+    async verificarDuplicatasCliente(nomeCliente, contatoCliente, emailCliente, ipAddress, userAgent) {
+        try {
+            const { Venda } = require('../config/database');
+            
+            // Normalizar dados para comparação
+            const nomeNormalizado = (nomeCliente || '').toLowerCase().trim();
+            const contatoNormalizado = (contatoCliente || '').replace(/\D/g, ''); // Apenas números
+            const emailNormalizado = (emailCliente || '').toLowerCase().trim();
+            
+            // Verificar se nome já foi usado
+            if (nomeNormalizado) {
+                const vendaComMesmoNome = await Venda.findOne({
+                    where: sequelize.where(
+                        sequelize.fn('LOWER', sequelize.fn('TRIM', sequelize.col('cliente_nome'))),
+                        nomeNormalizado
+                    ),
+                    limit: 1
+                });
+                
+                if (vendaComMesmoNome) {
+                    return {
+                        valido: false,
+                        motivo: 'Nome do cliente já foi registrado anteriormente em outra venda'
+                    };
+                }
+            }
+            
+            // Verificar se contato já foi usado
+            if (contatoNormalizado && contatoNormalizado.length >= 9) {
+                const vendaComMesmoContato = await Venda.findOne({
+                    where: sequelize.literal(`REPLACE(REPLACE(REPLACE(REPLACE(cliente_telefone, ' ', ''), '-', ''), '(', ''), ')', '') LIKE '%${contatoNormalizado}%'`),
+                    limit: 1
+                });
+                
+                if (vendaComMesmoContato) {
+                    return {
+                        valido: false,
+                        motivo: 'Contato do cliente já foi registrado anteriormente em outra venda'
+                    };
+                }
+            }
+            
+            // Verificar se email já foi usado
+            if (emailNormalizado) {
+                const vendaComMesmoEmail = await Venda.findOne({
+                    where: sequelize.where(
+                        sequelize.fn('LOWER', sequelize.fn('TRIM', sequelize.col('cliente_email'))),
+                        emailNormalizado
+                    ),
+                    limit: 1
+                });
+                
+                if (vendaComMesmoEmail) {
+                    return {
+                        valido: false,
+                        motivo: 'Email do cliente já foi registrado anteriormente em outra venda'
+                    };
+                }
+            }
+            
+            // Verificar se IP já foi usado (com user agent diferente pode ser válido, mas mesmo IP+user agent é suspeito)
+            if (ipAddress && userAgent) {
+                const vendaComMesmoIP = await Venda.findOne({
+                    where: sequelize.literal(`tracking_data::text LIKE '%"ip":"${ipAddress}"%'`),
+                    limit: 1
+                });
+                
+                if (vendaComMesmoIP) {
+                    // Verificar se o user agent também é o mesmo
+                    const trackingData = vendaComMesmoIP.tracking_data;
+                    if (trackingData && trackingData.user_agent === userAgent) {
+                        return {
+                            valido: false,
+                            motivo: 'Combinação de IP e navegador já foi registrada anteriormente'
+                        };
+                    }
+                }
+            }
+            
+            return { valido: true };
+        } catch (error) {
+            console.error('❌ Erro ao verificar duplicatas do cliente:', error);
+            // Em caso de erro, retornar válido para não bloquear vendas legítimas
+            return { valido: true };
+        }
     }
 
     /**

@@ -579,21 +579,33 @@ function renderizarVendasPagina(vendas) {
         const clienteNome = venda.cliente_nome || venda.cliente?.nome || 'Cliente não identificado';
         const clienteEmail = venda.cliente_email || venda.cliente?.email || '-';
         const clienteTelefone = venda.cliente_telefone || venda.cliente?.telefone || '-';
+        // Buscar WhatsApp de múltiplas fontes possíveis
         const clienteWhatsapp = venda.cliente_whatsapp || venda.cliente?.whatsapp || null;
         
-        // Formatar contato com emojis e links clicáveis - CORRIGIDO
+        // Formatar contato - mostrar botão WhatsApp se disponível
         let contatoFormatado = '-';
-        if (clienteTelefone && clienteTelefone !== '-') {
-            contatoFormatado = `📞 ${clienteTelefone}`;
-            if (clienteWhatsapp && clienteWhatsapp !== '-') {
-                // Criar link do WhatsApp
-                const whatsappLink = `https://wa.me/258${clienteWhatsapp.replace(/\D/g, '')}`;
-                contatoFormatado += `<br>📲 <a href="${whatsappLink}" target="_blank" style="color: #25D366; text-decoration: none;">${clienteWhatsapp}</a>`;
+        
+        // Verificar se tem WhatsApp válido (não vazio, não null, não undefined, não '-')
+        const hasWhatsapp = clienteWhatsapp && 
+                           clienteWhatsapp !== '-' && 
+                           clienteWhatsapp !== null && 
+                           clienteWhatsapp !== undefined && 
+                           clienteWhatsapp.toString().trim() !== '';
+        
+        let whatsappNumber = '';
+        if (hasWhatsapp) {
+            // Criar botão do WhatsApp
+            whatsappNumber = clienteWhatsapp.toString().replace(/\D/g, '');
+            if (whatsappNumber && whatsappNumber.length > 0) {
+                const whatsappLink = `https://wa.me/258${whatsappNumber}`;
+                contatoFormatado = `<a href="${whatsappLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background-color: #25D366; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; transition: background-color 0.2s; white-space: nowrap;" onmouseover="this.style.backgroundColor='#20BA5A'" onmouseout="this.style.backgroundColor='#25D366'"><i class="fab fa-whatsapp" style="font-size: 18px;"></i><span>Conversar com cliente</span></a>`;
+            } else if (clienteTelefone && clienteTelefone !== '-') {
+                // Se o WhatsApp não tem número válido, mostrar telefone
+                contatoFormatado = `📞 ${clienteTelefone}`;
             }
-        } else if (clienteWhatsapp && clienteWhatsapp !== '-') {
-            // Se não tem telefone mas tem WhatsApp
-            const whatsappLink = `https://wa.me/258${clienteWhatsapp.replace(/\D/g, '')}`;
-            contatoFormatado = `📲 <a href="${whatsappLink}" target="_blank" style="color: #25D366; text-decoration: none;">${clienteWhatsapp}</a>`;
+        } else if (clienteTelefone && clienteTelefone !== '-') {
+            // Se não tem WhatsApp mas tem telefone, mostrar apenas telefone
+            contatoFormatado = `📞 ${clienteTelefone}`;
         }
         
         // Extrair dados do pagamento com segurança - CORRIGIDO
@@ -786,6 +798,17 @@ function renderizarVendasPagina(vendas) {
             <td>${sanitizeHTML(valorFinalFormatado)}</td>
             <td class="data-hora">${dataHoraFinal}</td>
         `;
+        
+        // Debug: Log para primeira venda com WhatsApp (apenas para debug)
+        if (index === 0) {
+            console.log('🔍 Debug Contato - Primeira venda:', {
+                clienteWhatsapp: clienteWhatsapp,
+                hasWhatsapp: hasWhatsapp,
+                whatsappNumber: whatsappNumber || 'N/A',
+                clienteTelefone: clienteTelefone,
+                contatoFormatado: contatoFormatado.includes('whatsapp') ? 'Botão WhatsApp criado' : contatoFormatado
+            });
+        }
         
         tbody.appendChild(row);
         

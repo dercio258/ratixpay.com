@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meta Pixel - Configuração Avançada</title>
+    <title>Meta Pixel - Configuraï¿½ï¿½o Avanï¿½ada</title>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
         
 <style>
@@ -168,7 +168,7 @@
         
         .integration-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
@@ -283,28 +283,28 @@
     <div class="container">
         <div class="header">
             <h1><i class="fab fa-facebook"></i> Meta Pixel</h1>
-            <p>Configuração Avançada de Rastreamento</p>
+            <p>Configuraï¿½ï¿½o Avanï¿½ada de Rastreamento</p>
         </div>
         
         <div class="content">
             <div class="tabs">
                 <div class="tab active" onclick="showTab('config')">
-                    <i class="fas fa-cog"></i> Configuração
+                    <i class="fas fa-cog"></i> Configuraï¿½ï¿½o
                 </div>
                 <div class="tab" onclick="showTab('integrations')">
-                    <i class="fas fa-link"></i> Integrações
+                    <i class="fas fa-link"></i> Integraï¿½ï¿½es
                 </div>
                 <div class="tab" onclick="showTab('stats')">
-                    <i class="fas fa-chart-bar"></i> Estatísticas
+                    <i class="fas fa-chart-bar"></i> Estatï¿½sticas
                 </div>
                 <div class="tab" onclick="showTab('test')">
                     <i class="fas fa-vial"></i> Testes
                 </div>
             </div>
             
-            <!-- Tab Configuração -->
+            <!-- Tab Configuraï¿½ï¿½o -->
             <div id="config" class="tab-content active">
-                <h2>Configuração Principal</h2>
+                <h2>Configuraï¿½ï¿½o Principal</h2>
                 
                 <div class="form-group">
                     <label for="mainPixelId">Pixel ID Principal</label>
@@ -313,7 +313,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Configurações Avançadas</label>
+                    <label>Configuraï¿½ï¿½es Avanï¿½adas</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" id="debugMode" checked>
@@ -321,7 +321,7 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="autoTrack" checked>
-                            <label for="autoTrack">Rastreamento Automático</label>
+                            <label for="autoTrack">Rastreamento Automï¿½tico</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="enhancedEcommerce" checked>
@@ -336,7 +336,7 @@
                 
                 <div class="btn-group">
                     <button class="btn" onclick="saveConfig()">
-                        <i class="fas fa-save"></i> Salvar Configuração
+                        <i class="fas fa-save"></i> Salvar Configuraï¿½ï¿½o
                     </button>
                     <button class="btn btn-secondary" onclick="loadConfig()">
                         <i class="fas fa-sync"></i> Recarregar
@@ -344,10 +344,10 @@
                 </div>
             </div>
             
-            <!-- Tab Integrações -->
+            <!-- Tab Integraï¿½ï¿½es -->
             <div id="integrations" class="tab-content">
                 <div class="form-group">
-                    <h2>Nova Integração</h2>
+                    <h2>Nova Integraï¿½ï¿½o</h2>
                     
                     <div class="form-group">
                         <label for="pixelId">Pixel ID</label>
@@ -396,7 +396,7 @@
                     
                     <div class="btn-group">
                         <button class="btn btn-success" onclick="addIntegration()">
-                            <i class="fas fa-plus"></i> Adicionar Integração
+                            <i class="fas fa-plus"></i> Adicionar Integraï¿½ï¿½o
                         </button>
                         <button class="btn btn-secondary" onclick="loadIntegrations()">
                             <i class="fas fa-sync"></i> Recarregar
@@ -405,34 +405,34 @@
                 </div>
                 
                 <div id="integrationsList">
-                    <!-- Lista de integrações será carregada aqui -->
+                    <!-- Lista de integraï¿½ï¿½es serï¿½ carregada aqui -->
                 </div>
             </div>
             
-            <!-- Tab Estatísticas -->
+            <!-- Tab Estatï¿½sticas -->
             <div id="stats" class="tab-content">
-                <h2>Estatísticas do Meta Pixel</h2>
+                <h2>Estatï¿½sticas do Meta Pixel</h2>
                 
                 <div class="stats-grid" id="statsGrid">
-                    <!-- Estatísticas serão carregadas aqui -->
+                    <!-- Estatï¿½sticas serï¿½o carregadas aqui -->
                 </div>
                 
                 <div class="btn-group">
                     <button class="btn" onclick="refreshStats()">
-                        <i class="fas fa-sync"></i> Atualizar Estatísticas
+                        <i class="fas fa-sync"></i> Atualizar Estatï¿½sticas
                     </button>
                     <button class="btn btn-secondary" onclick="exportConfig()">
-                        <i class="fas fa-download"></i> Exportar Configuração
+                        <i class="fas fa-download"></i> Exportar Configuraï¿½ï¿½o
                     </button>
                 </div>
             </div>
             
             <!-- Tab Testes -->
             <div id="test" class="tab-content">
-                <h2>Teste de Configuração</h2>
+                <h2>Teste de Configuraï¿½ï¿½o</h2>
                 
                 <div id="testResults">
-                    <!-- Resultados dos testes serão exibidos aqui -->
+                    <!-- Resultados dos testes serï¿½o exibidos aqui -->
                 </div>
                 
                 <div class="btn-group">
@@ -440,7 +440,7 @@
                         <i class="fas fa-play"></i> Executar Testes
                     </button>
                     <button class="btn btn-secondary" onclick="validateConfig()">
-                        <i class="fas fa-check"></i> Validar Configuração
+                        <i class="fas fa-check"></i> Validar Configuraï¿½ï¿½o
                     </button>
                 </div>
             </div>
@@ -451,7 +451,7 @@
     <script src="js/meta-pixel-config.js"></script>
     <script src="js/meta-pixel-tester.js"></script>
     <script>
-        // Funções da interface
+        // Funï¿½ï¿½es da interface
         function showTab(tabName) {
             // Esconder todas as tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -466,7 +466,7 @@
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
             
-            // Carregar conteúdo específico da tab
+            // Carregar conteï¿½do especï¿½fico da tab
             switch(tabName) {
                 case 'integrations':
                     loadIntegrations();
@@ -488,7 +488,7 @@
             document.getElementById('autoTrack').checked = config.autoTrack;
             document.getElementById('enhancedEcommerce').checked = config.enhancedEcommerce;
             
-            showAlert('Configuração carregada com sucesso!', 'success');
+            showAlert('Configuraï¿½ï¿½o carregada com sucesso!', 'success');
         }
         
         function saveConfig() {
@@ -502,9 +502,9 @@
             window.MetaPixelConfig.config = { ...window.MetaPixelConfig.config, ...config };
             
             if (window.MetaPixelConfig.saveConfig()) {
-                showAlert('Configuração salva com sucesso!', 'success');
+                showAlert('Configuraï¿½ï¿½o salva com sucesso!', 'success');
             } else {
-                showAlert('Erro ao salvar configuração!', 'danger');
+                showAlert('Erro ao salvar configuraï¿½ï¿½o!', 'danger');
             }
         }
         
@@ -515,7 +515,7 @@
             const eventos = Array.from(document.querySelectorAll('input[name="eventos"]:checked')).map(cb => cb.value);
             
             if (!pixelId || !produtoId || !produtoNome || eventos.length === 0) {
-                showAlert('Preencha todos os campos obrigatórios!', 'warning');
+                showAlert('Preencha todos os campos obrigatï¿½rios!', 'warning');
                 return;
             }
             
@@ -529,13 +529,13 @@
             window.MetaPixelConfig.addIntegration(integration);
             loadIntegrations();
             
-            // Limpar formulário
+            // Limpar formulï¿½rio
             document.getElementById('pixelId').value = '';
             document.getElementById('produtoId').value = '';
             document.getElementById('produtoNome').value = '';
             document.querySelectorAll('input[name="eventos"]').forEach(cb => cb.checked = false);
             
-            showAlert('Integração adicionada com sucesso!', 'success');
+            showAlert('Integraï¿½ï¿½o adicionada com sucesso!', 'success');
         }
         
         function loadIntegrations() {
@@ -543,7 +543,7 @@
             const container = document.getElementById('integrationsList');
             
             if (integrations.length === 0) {
-                container.innerHTML = '<p>Nenhuma integração configurada.</p>';
+                container.innerHTML = '<p>Nenhuma integraï¿½ï¿½o configurada.</p>';
                 return;
             }
             
@@ -568,10 +568,10 @@
         }
         
         function removeIntegration(integrationId) {
-            if (confirm('Tem certeza que deseja remover esta integração?')) {
+            if (confirm('Tem certeza que deseja remover esta integraï¿½ï¿½o?')) {
                 window.MetaPixelConfig.removeIntegration(integrationId);
                 loadIntegrations();
-                showAlert('Integração removida com sucesso!', 'success');
+                showAlert('Integraï¿½ï¿½o removida com sucesso!', 'success');
             }
         }
         
@@ -582,19 +582,19 @@
             container.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-number">${stats.totalIntegrations}</div>
-                    <div class="stat-label">Total de Integrações</div>
+                    <div class="stat-label">Total de Integraï¿½ï¿½es</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${stats.activeIntegrations}</div>
-                    <div class="stat-label">Integrações Ativas</div>
+                    <div class="stat-label">Integraï¿½ï¿½es Ativas</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${stats.uniquePixels}</div>
-                    <div class="stat-label">Pixels Únicos</div>
+                    <div class="stat-label">Pixels ï¿½nicos</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${stats.uniqueProducts}</div>
-                    <div class="stat-label">Produtos Únicos</div>
+                    <div class="stat-label">Produtos ï¿½nicos</div>
                 </div>
             `;
         }
@@ -607,14 +607,14 @@
                 container.innerHTML = `
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
-                        <strong>Configuração Válida!</strong> Todas as integrações estão corretamente configuradas.
+                        <strong>Configuraï¿½ï¿½o Vï¿½lida!</strong> Todas as integraï¿½ï¿½es estï¿½o corretamente configuradas.
                     </div>
                 `;
             } else {
                 container.innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Configuração Inválida!</strong>
+                        <strong>Configuraï¿½ï¿½o Invï¿½lida!</strong>
                         <ul>
                             ${validation.errors.map(error => `<li>${error}</li>`).join('')}
                         </ul>
@@ -674,7 +674,7 @@
             a.click();
             
             URL.revokeObjectURL(url);
-            showAlert('Configuração exportada com sucesso!', 'success');
+            showAlert('Configuraï¿½ï¿½o exportada com sucesso!', 'success');
         }
         
         function showAlert(message, type) {
@@ -690,7 +690,7 @@
             }, 5000);
         }
         
-        // Carregar configuração inicial
+        // Carregar configuraï¿½ï¿½o inicial
         document.addEventListener('DOMContentLoaded', function() {
             loadConfig();
             loadIntegrations();

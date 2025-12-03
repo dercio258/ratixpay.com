@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Liberdade Digital - Comece Hoje</title>
+    <meta name="description" content="Aprenda o passo a passo para gerar renda diária usando apenas o seu celular e conexão com a internet.">
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-base: #0B0E14;
+            --color-card: #151A25;
+            --color-accent: #00E676;
+            --color-glow: #6366F1;
+            --color-text: #E2E8F0;
+        }
+        
+        body {
+            background-color: var(--color-base);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        .font-heading {
+            font-family: 'Sora', sans-serif;
+        }
+        
+        /* Gradientes */
+        .bg-gradient-radial {
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(to right, #00E676, #4ADE80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Notificação de Venda */
+        .sales-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-card);
+            border: 1px solid #2d3748;
+            border-left: 4px solid var(--color-accent);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        .sales-notification.show {
+            transform: translateX(0);
+        }
+        
+        /* Navbar */
+        .navbar {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(11, 14, 20, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .navbar-brand i {
+            color: var(--color-accent);
+            font-size: 24px;
+        }
+        
+        .navbar-brand span {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        
+        .navbar-brand .highlight {
+            color: var(--color-accent);
+        }
+        
+        .navbar-info {
+            display: none;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+        
+        .navbar-info i {
+            font-size: 12px;
+            margin-right: 4px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            padding: 48px 0 80px;
+            overflow: hidden;
+        }
+        
+        .hero-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 600px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            color: var(--color-accent);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .hero-badge span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-accent);
+        }
+        
+        .hero-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(28px, 5vw, 60px);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: #9CA3AF;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        .hero-video-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 48px;
+            aspect-ratio: 16/9;
+            background: var(--color-card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0, 230, 118, 0.15);
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .hero-video-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            transition: transform 0.7s ease;
+        }
+        
+        .hero-video-container:hover .hero-video-image {
+            transform: scale(1.05);
+        }
+        
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .hero-play-button {
+            width: 80px;
+            height: 80px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.6);
+            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .hero-play-button i {
+            font-size: 32px;
+            color: #000000;
+            margin-left: 4px;
+        }
+        
+        .hero-video-caption {
+            margin-top: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 14px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-sound-warning {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 20;
+        }
+        
+        .hero-sound-warning i {
+            font-size: 12px;
+        }
+        
+        .hero-cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to right, #10B981, #059669);
+            color: #ffffff;
+            font-family: 'Sora', sans-serif;
+            font-weight: 800;
+            font-size: clamp(16px, 2vw, 20px);
+            padding: 20px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .hero-cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+        }
+        
+        .hero-cta-button i {
+            margin-left: 12px;
+            font-size: 24px;
+        }
+        
+        .hero-features {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .hero-features span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .hero-features i {
+            font-size: 12px;
+        }
+        
+        /* Social Proof Section */
+        .social-proof-section {
+            padding: 64px 0;
+            background: rgba(21, 26, 37, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .social-proof-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .social-proof-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .social-proof-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .social-proof-subtitle {
+            color: #9CA3AF;
+        }
+        
+        .social-proof-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .social-proof-card {
+            background: var(--color-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .social-proof-card:hover {
+            border-color: rgba(0, 230, 118, 0.3);
+        }
+        
+        .social-proof-card.highlight {
+            transform: translateY(-16px);
+        }
+        
+        .social-proof-header-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .social-proof-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .social-proof-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .social-proof-role {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .social-proof-balance {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .social-proof-balance-label {
+            font-size: 12px;
+            color: #6B7280;
+            text-transform: uppercase;
+        }
+        
+        .social-proof-balance-value {
+            font-size: 24px;
+            font-family: monospace;
+            color: var(--color-accent);
+            font-weight: 700;
+        }
+        
+        .social-proof-testimonial {
+            font-size: 14px;
+            color: #9CA3AF;
+            font-style: italic;
+        }
+        
+        /* How it Works Section */
+        .how-it-works-section {
+            padding: 80px 0;
+            background: var(--color-base);
+        }
+        
+        .how-it-works-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .how-it-works-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .how-it-works-title .highlight {
+            color: var(--color-accent);
+        }
+        
+        .how-it-works-steps {
+            position: relative;
+            list-style: none;
+        }
+        
+        .how-it-works-connector {
+            position: absolute;
+            left: 27px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--color-accent), #A855F7, transparent);
+            display: none;
+        }
+        
+        .how-it-works-step {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            margin-bottom: 48px;
+            position: relative;
+        }
+        
+        .how-it-works-step-number {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .how-it-works-step-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--color-card);
+            border: 2px solid var(--color-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-accent);
+            z-index: 10;
+            box-shadow: 0 0 15px var(--color-accent);
+        }
+        
+        .how-it-works-step-circle.purple {
+            border-color: #A855F7;
+            color: #A855F7;
+            box-shadow: 0 0 15px #A855F7;
+        }
+        
+        .how-it-works-step-content {
+            background: var(--color-card);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex: 1;
+            transition: background 0.3s ease;
+        }
+        
+        .how-it-works-step-content:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .how-it-works-step-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .how-it-works-step-number-mobile {
+            background: var(--color-accent);
+            color: #000000;
+            font-weight: 700;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .how-it-works-step-number-mobile.purple {
+            background: #A855F7;
+            color: #ffffff;
+        }
+        
+        .how-it-works-step-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .how-it-works-step-text {
+            color: #9CA3AF;
+        }
+        
+        /* Offer Section */
+        .offer-section {
+            padding: 96px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offer-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, var(--color-base), var(--color-card));
+        }
+        
+        .offer-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 50%;
+            background: rgba(0, 230, 118, 0.05);
+            filter: blur(100px);
+            pointer-events: none;
+        }
+        
+        .offer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+        }
+        
+        .offer-card {
+            background: #1A202C;
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 24px;
+            padding: 48px 32px;
+            box-shadow: 0 0 60px rgba(0, 230, 118, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .offer-badge {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--color-accent);
+            color: #000000;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 8px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4);
+            font-size: 12px;
+        }
+        
+        .offer-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(20px, 3vw, 32px);
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            margin-top: 16px;
+        }
+        
+        .offer-subtitle {
+            color: #9CA3AF;
+            margin-bottom: 32px;
+        }
+        
+        .offer-pricing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        
+        .offer-price-old {
+            color: #6B7280;
+            text-decoration: line-through;
+            font-size: 20px;
+        }
+        
+        .offer-price-container {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        
+        .offer-price-label {
+            color: #9CA3AF;
+            font-size: 18px;
+        }
+        
+        .offer-price-new {
+            font-size: 64px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -2px;
+        }
+        
+        .offer-price-discount {
+            color: var(--color-accent);
+            font-weight: 700;
+            font-size: 14px;
+            background: rgba(0, 230, 118, 0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+        
+        .offer-features {
+            list-style: none;
+            text-align: left;
+            max-width: 400px;
+            margin: 0 auto 40px;
+        }
+        
+        .offer-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: #D1D5DB;
+        }
+        
+        .offer-feature i {
+            color: var(--color-accent);
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .offer-button {
+            width: 100%;
+            background: var(--color-accent);
+            color: #000000;
+            font-weight: 900;
+            font-size: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .offer-button:hover {
+            background: #00D96A;
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px var(--color-accent);
+        }
+        
+        .offer-guarantee {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        /* Footer */
+        .footer-section {
+            padding: 40px 0;
+            text-align: center;
+            color: #6B7280;
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-text {
+            margin-bottom: 8px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .footer-links a {
+            color: #6B7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #9CA3AF;
+        }
+        
+        .footer-disclaimer {
+            margin-top: 32px;
+            font-size: 12px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.5;
+        }
+        
+        /* Animações */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 20px var(--color-accent);
+            }
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 10px var(--color-accent);
+            }
+        }
+        
+        /* Responsividade */
+        @media (min-width: 768px) {
+            .navbar-content {
+                justify-content: space-between;
+            }
+            
+            .navbar-info {
+                display: flex;
+            }
+            
+            .hero-cta-button {
+                width: auto;
+            }
+            
+            .how-it-works-connector {
+                display: block;
+            }
+            
+            .how-it-works-step {
+                flex-direction: row;
+            }
+            
+            .how-it-works-step-number {
+                display: flex;
+            }
+            
+            .how-it-works-step-number-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Notificação de Venda -->
+    <div id="notification" class="sales-notification">
+        <div style="background: rgba(16, 185, 129, 0.2); padding: 8px; border-radius: 50%; color: var(--color-accent);">
+            <i class="ph-fill ph-currency-dollar"></i>
+        </div>
+        <div>
+            <p style="font-size: 12px; color: #9CA3AF;">Novo aluno inscrito</p>
+            <p style="font-weight: 700; font-size: 14px; color: #ffffff;">
+                <span id="notif-name">Mariana S.</span> ganhou 
+                <span style="color: var(--color-accent);">MZN 147,00</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand" data-editable="text" data-field="navbar_brand" contenteditable="false">
+                <i class="ph-fill ph-lightning"></i>
+                <span>Método <span class="highlight">Lucro Digital</span></span>
+            </div>
+            <div class="navbar-info" data-editable="text" data-field="navbar_info" contenteditable="false">
+                <span><i class="ph-fill ph-shield-check"></i> Compra Segura</span>
+                <span><i class="ph-fill ph-users"></i> +12k Alunos</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-glow bg-gradient-radial"></div>
+        <div class="hero-content">
+            <div class="hero-badge" data-editable="text" data-field="hero_badge" contenteditable="false">
+                <span></span>
+                Vagas Abertas Hoje
+            </div>
+            
+            <h1 class="hero-title" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                Transforme seu celular em uma <br>
+                <span class="text-gradient">Máquina de Renda Diária</span>
+            </h1>
+            
+            <p class="hero-subtitle" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Sem aparecer, sem criar conteúdo e sem precisar de computador. Copie e cole o mesmo método que gerou mais de MZN 100.000,00 para nossos alunos mês passado.
+            </p>
+            
+            <!-- VSL Container -->
+            <div class="hero-video-container" data-editable="media" data-field="hero_video" data-media-type="video" contenteditable="false">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80" alt="Dashboard de Ganhos" class="hero-video-image">
+                <div class="hero-video-overlay">
+                    <div class="hero-play-button">
+                        <i class="ph-fill ph-play"></i>
+                    </div>
+                    <p class="hero-video-caption" data-editable="text" data-field="video_caption" contenteditable="false">Ver vídeo explicativo</p>
+                </div>
+                <div class="hero-sound-warning" data-editable="text" data-field="video_sound_warning" contenteditable="false">
+                    <i class="ph-fill ph-speaker-high"></i>
+                    <span>Verifique seu som</span>
+                </div>
+            </div>
+            
+            <!-- CTA Button -->
+            <a href="#oferta" onclick="triggerPurchase(); return false;" class="hero-cta-button" data-editable="button-text" data-field="hero_cta" contenteditable="false">
+                QUERO COMEÇAR A FATURAR
+                <i class="ph-fill ph-arrow-right"></i>
+            </a>
+            
+            <div class="hero-features" data-editable="text" data-field="hero_features" contenteditable="false">
+                <span><i class="ph-fill ph-lock"></i> Acesso Imediato</span>
+                <span><i class="ph-fill ph-check-circle"></i> Satisfação Garantida</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof-section">
+        <div class="social-proof-content">
+            <div class="social-proof-header">
+                <h2 class="social-proof-title" data-editable="text" data-field="social_proof_titulo" contenteditable="false">Resultados de Pessoas Comuns</h2>
+                <p class="social-proof-subtitle" data-editable="text" data-field="social_proof_subtitulo" contenteditable="false">Eles apenas seguiram o passo a passo. Você é o próximo.</p>
+            </div>
+            
+            <div class="social-proof-grid" data-editable="text" data-field="social_proof_cards" contenteditable="false">
+                <!-- Card 1 -->
+                <div class="social-proof-card" data-editable="text" data-field="social_proof_card_1" contenteditable="false">
+                    <div class="social-proof-header-card">
+                        <div class="social-proof-avatar" data-editable="text" data-field="social_proof_avatar_1" contenteditable="false">👨🏻</div>
+                        <div>
+                            <p class="social-proof-name" data-editable="text" data-field="social_proof_nome_1" contenteditable="false">Carlos M.</p>
+                            <p class="social-proof-role" data-editable="text" data-field="social_proof_role_1" contenteditable="false">Ex-Motorista de App</p>
+                        </div>
+                    </div>
+                    <div class="social-proof-balance">
+                        <p class="social-proof-balance-label" data-editable="text" data-field="social_proof_label_1" contenteditable="false">Saldo Disponível</p>
+                        <p class="social-proof-balance-value" data-editable="text" data-field="social_proof_valor_1" contenteditable="false">MZN 2.450,00</p>
+                    </div>
+                    <p class="social-proof-testimonial" data-editable="text" data-field="social_proof_depoimento_1" contenteditable="false">"Fiz isso em 2 semanas aplicando o módulo 3. Surreal!"</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="social-proof-card highlight" data-editable="text" data-field="social_proof_card_2" contenteditable="false">
+                    <div class="social-proof-header-card">
+                        <div class="social-proof-avatar" data-editable="text" data-field="social_proof_avatar_2" contenteditable="false">👩🏼</div>
+                        <div>
+                            <p class="social-proof-name" data-editable="text" data-field="social_proof_nome_2" contenteditable="false">Ana Clara</p>
+                            <p class="social-proof-role" data-editable="text" data-field="social_proof_role_2" contenteditable="false">Mãe de 2 filhos</p>
+                        </div>
+                    </div>
+                    <div class="social-proof-balance">
+                        <p class="social-proof-balance-label" data-editable="text" data-field="social_proof_label_2" contenteditable="false">Saldo Disponível</p>
+                        <p class="social-proof-balance-value" data-editable="text" data-field="social_proof_valor_2" contenteditable="false">MZN 5.120,50</p>
+                    </div>
+                    <p class="social-proof-testimonial" data-editable="text" data-field="social_proof_depoimento_2" contenteditable="false">"Poder trabalhar de casa com meus filhos não tem preço. Obrigada!"</p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="social-proof-card" data-editable="text" data-field="social_proof_card_3" contenteditable="false">
+                    <div class="social-proof-header-card">
+                        <div class="social-proof-avatar" data-editable="text" data-field="social_proof_avatar_3" contenteditable="false">🧑🏾</div>
+                        <div>
+                            <p class="social-proof-name" data-editable="text" data-field="social_proof_nome_3" contenteditable="false">Felipe J.</p>
+                            <p class="social-proof-role" data-editable="text" data-field="social_proof_role_3" contenteditable="false">Estudante</p>
+                        </div>
+                    </div>
+                    <div class="social-proof-balance">
+                        <p class="social-proof-balance-label" data-editable="text" data-field="social_proof_label_3" contenteditable="false">Saldo Disponível</p>
+                        <p class="social-proof-balance-value" data-editable="text" data-field="social_proof_valor_3" contenteditable="false">MZN 890,00</p>
+                    </div>
+                    <p class="social-proof-testimonial" data-editable="text" data-field="social_proof_depoimento_3" contenteditable="false">"Primeiro saque feito! Nunca imaginei que fosse tão rápido."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works Section -->
+    <section class="how-it-works-section">
+        <div class="how-it-works-content">
+            <h2 class="how-it-works-title" data-editable="text" data-field="how_it_works_titulo" contenteditable="false">
+                Como funciona o <span class="highlight">Protocolo</span>?
+            </h2>
+            
+            <ul class="how-it-works-steps" data-editable="text" data-field="how_it_works_steps" contenteditable="false">
+                <div class="how-it-works-connector"></div>
+                
+                <!-- Step 1 -->
+                <li class="how-it-works-step">
+                    <div class="how-it-works-step-number">
+                        <div class="how-it-works-step-circle">1</div>
+                    </div>
+                    <div class="how-it-works-step-content">
+                        <div class="how-it-works-step-header">
+                            <span class="how-it-works-step-number-mobile">1</span>
+                            <h3 class="how-it-works-step-title" data-editable="text" data-field="step_1_titulo" contenteditable="false">Copie as Estratégias Prontas</h3>
+                        </div>
+                        <p class="how-it-works-step-text" data-editable="text" data-field="step_1_texto" contenteditable="false">Você não precisa criar nada. Nós te damos os modelos de mensagens, anúncios e produtos que já estão vendendo. É só copiar.</p>
+                    </div>
+                </li>
+                
+                <!-- Step 2 -->
+                <li class="how-it-works-step">
+                    <div class="how-it-works-step-number">
+                        <div class="how-it-works-step-circle purple">2</div>
+                    </div>
+                    <div class="how-it-works-step-content">
+                        <div class="how-it-works-step-header">
+                            <span class="how-it-works-step-number-mobile purple">2</span>
+                            <h3 class="how-it-works-step-title" data-editable="text" data-field="step_2_titulo" contenteditable="false">Configure a Automação</h3>
+                        </div>
+                        <p class="how-it-works-step-text" data-editable="text" data-field="step_2_texto" contenteditable="false">Aprenda a usar ferramentas gratuitas que trabalham 24h por dia para você, respondendo clientes e fechando vendas enquanto você dorme.</p>
+                    </div>
+                </li>
+                
+                <!-- Step 3 -->
+                <li class="how-it-works-step">
+                    <div class="how-it-works-step-number">
+                        <div class="how-it-works-step-circle">3</div>
+                    </div>
+                    <div class="how-it-works-step-content">
+                        <div class="how-it-works-step-header">
+                            <span class="how-it-works-step-number-mobile">3</span>
+                            <h3 class="how-it-works-step-title" data-editable="text" data-field="step_3_titulo" contenteditable="false">Receba as Comissões</h3>
+                        </div>
+                        <p class="how-it-works-step-text" data-editable="text" data-field="step_3_texto" contenteditable="false">O dinheiro cai direto na sua conta bancária. Pix, transferência ou saque. Simples, rápido e seguro.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Offer Section -->
+    <section id="oferta" class="offer-section">
+        <div class="offer-bg"></div>
+        <div class="offer-glow"></div>
+        <div class="offer-content">
+            <div class="offer-card">
+                <div class="offer-badge" data-editable="text" data-field="oferta_badge" contenteditable="false">Oferta Relâmpago</div>
+                
+                <h3 class="offer-title" data-editable="text" data-field="oferta_titulo" contenteditable="false">Acesso Vitalício ao Método</h3>
+                <p class="offer-subtitle" data-editable="text" data-field="oferta_subtitulo" contenteditable="false">Tudo o que você precisa para sair do zero aos MZN 3.000 mensais.</p>
+                
+                <div class="offer-pricing" data-editable="text" data-field="oferta_preco" contenteditable="false">
+                    <span class="offer-price-old" data-editable="text" data-field="oferta_preco_antigo" contenteditable="false">De MZN 297,00</span>
+                    <div class="offer-price-container">
+                        <span class="offer-price-label">Por apenas</span>
+                        <span class="offer-price-new" data-editable="text" data-field="oferta_preco_atual" contenteditable="false">MZN 19,90</span>
+                    </div>
+                    <span class="offer-price-discount" data-editable="text" data-field="oferta_desconto" contenteditable="false">Desconto de 93% aplicado</span>
+                </div>
+                
+                <ul class="offer-features" data-editable="text" data-field="oferta_beneficios" contenteditable="false">
+                    <li class="offer-feature">
+                        <i class="ph-fill ph-check"></i>
+                        <span data-editable="text" data-field="beneficio_1" contenteditable="false">Acesso ao App Exclusivo</span>
+                    </li>
+                    <li class="offer-feature">
+                        <i class="ph-fill ph-check"></i>
+                        <span data-editable="text" data-field="beneficio_2" contenteditable="false">Módulo: Vendas Rápidas</span>
+                    </li>
+                    <li class="offer-feature">
+                        <i class="ph-fill ph-check"></i>
+                        <span data-editable="text" data-field="beneficio_3" contenteditable="false">Suporte no WhatsApp VIP</span>
+                    </li>
+                    <li class="offer-feature">
+                        <i class="ph-fill ph-check"></i>
+                        <span data-editable="text" data-field="beneficio_4" contenteditable="false">7 Dias de Garantia Total</span>
+                    </li>
+                </ul>
+                
+                <button onclick="triggerPurchase()" class="offer-button" data-editable="button-text" data-field="oferta_botao" contenteditable="false">
+                    QUERO MINHA VAGA AGORA
+                </button>
+                
+                <p class="offer-guarantee" data-editable="text" data-field="oferta_garantia" contenteditable="false">Pagamento único. Sem mensalidades.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <p class="footer-text" data-editable="text" data-field="footer_texto" contenteditable="false">&copy; 2024 Lucro Digital Ltda. Todos os direitos reservados.</p>
+            <div class="footer-links" data-editable="text" data-field="footer_links" contenteditable="false">
+                <a href="#">Termos de Uso</a>
+                <a href="#">Política de Privacidade</a>
+            </div>
+            <p class="footer-disclaimer" data-editable="text" data-field="footer_disclaimer" contenteditable="false">
+                Os resultados podem variar de pessoa para pessoa. Este produto não garante a obtenção de resultados. Qualquer referência ao desempenho de uma estratégia não deve ser interpretada como uma garantia de resultados.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+
+        // Script de Simulação de Vendas (Social Proof)
+        const names = ["João P.", "Maria S.", "Pedro H.", "Ana L.", "Carlos E.", "Fernanda M."];
+        const values = ["47,00", "97,00", "19,90", "147,00"];
+        
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            const nameEl = document.getElementById('notif-name');
+            const randName = names[Math.floor(Math.random() * names.length)];
+            const randVal = values[Math.floor(Math.random() * values.length)];
+            
+            if (nameEl) {
+                nameEl.textContent = randName;
+            }
+            
+            if (notification) {
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+        }
+        
+        function loopNotifications() {
+            const randomTime = Math.floor(Math.random() * (15000 - 8000 + 1) + 8000);
+            setTimeout(() => {
+                showNotification();
+                loopNotifications();
+            }, randomTime);
+        }
+        
+        // Start loop after 3 seconds
+        setTimeout(loopNotifications, 3000);
+    </script>
+</body>
+</html>
+

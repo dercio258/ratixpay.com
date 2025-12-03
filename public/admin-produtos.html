@@ -436,6 +436,16 @@
                     <input type="text" class="form-control" id="filtroBusca" placeholder="Nome do produto..." onkeyup="buscarEmTempoReal()">
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="filtroOrdenar" class="form-label">Ordenar por</label>
+                    <select class="form-select" id="filtroOrdenar">
+                        <option value="data">Data de Criação</option>
+                        <option value="vendas">Mais Vendidos</option>
+                        <option value="nome">Nome (A-Z)</option>
+                    </select>
+                </div>
+            </div>
             <div class="row mt-3">
                 <div class="col-12">
                     <button class="btn btn-primary btn-custom" onclick="aplicarFiltros()">
@@ -586,27 +596,47 @@
 
         async function carregarProdutos() {
             try {
-                console.log('?? Carregando produtos...');
+                console.log('🔄 Carregando produtos...');
                 
-                const response = await fetch('/api/produtos/public', {
+                // Obter parâmetros de filtro
+                const token = localStorage.getItem('ratixpay_token') || localStorage.getItem('authToken') || localStorage.getItem('token');
+                const statusFiltro = document.getElementById('filtroStatus')?.value || '';
+                const vendedorFiltro = document.getElementById('filtroVendedor')?.value || '';
+                const categoriaFiltro = document.getElementById('filtroCategoria')?.value || '';
+                const buscaFiltro = document.getElementById('filtroBusca')?.value || '';
+                const ordenarFiltro = document.getElementById('filtroOrdenar')?.value || 'data';
+                
+                // Construir query string
+                const params = new URLSearchParams();
+                if (statusFiltro) params.append('status', statusFiltro);
+                if (vendedorFiltro) params.append('vendedor', vendedorFiltro);
+                if (categoriaFiltro) params.append('categoria', categoriaFiltro);
+                if (buscaFiltro) params.append('busca', buscaFiltro);
+                if (ordenarFiltro) params.append('ordenar', ordenarFiltro);
+                
+                const queryString = params.toString();
+                const url = `/api/admin/produtos${queryString ? '?' + queryString : ''}`;
+                
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
-                    produtos = data.data || [];
-                    console.log(`? ${produtos.length} produtos carregados`);
+                    produtos = data.data?.produtos || [];
+                    console.log(`✅ ${produtos.length} produtos carregados`);
                     renderizarTabelaProdutos();
                 } else {
-                    console.error('? Erro ao carregar produtos:', response.status);
+                    console.error('❌ Erro ao carregar produtos:', response.status);
                     produtos = [];
                     renderizarTabelaProdutos();
                 }
             } catch (error) {
-                console.error('? Erro ao carregar produtos:', error);
+                console.error('❌ Erro ao carregar produtos:', error);
                 produtos = [];
                 renderizarTabelaProdutos();
             }
@@ -650,6 +680,11 @@
                             <td><strong>${produtoNome}</strong></td>
                             <td><strong>${vendedorNome}</strong></td>
                             <td><strong class="text-primary">${precoFormatado}</strong></td>
+                            <td>
+                                <span class="badge bg-info" style="font-size: 1rem; padding: 6px 12px;">
+                                    <i class="fas fa-shopping-cart"></i> ${produto.total_vendas || 0}
+                                </span>
+                            </td>
                             <td>
                                 <span class="badge ${produto.ativo ? 'bg-success' : 'bg-danger'} mb-2 d-block">
                                     ${produto.ativo ? 'Ativo' : 'Inativo'}
@@ -986,7 +1021,8 @@
             document.getElementById('filtroVendedor').value = '';
             document.getElementById('filtroCategoria').value = '';
             document.getElementById('filtroBusca').value = '';
-            renderizarTabelaProdutos();
+            document.getElementById('filtroOrdenar').value = 'data';
+            carregarProdutos();
             mostrarNotificacao('Filtros limpos', 'info');
         }
 
@@ -1112,7 +1148,6 @@
                 <ul>
                     <li><a href="/dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
                     <li><a href="/criar-produto.html" class="nav-link"><i class="fas fa-plus"></i> Criar Produto</a></li>
-                    <li><a href="/marketing-avancado.html" class="nav-link"><i class="fas fa-chart-line"></i> Marketing</a></li>
                     <li><a href="/checkout.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Checkout</a></li>
                     <li><a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-cog"></i> Admin</a></li>
                 </ul>

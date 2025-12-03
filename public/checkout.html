@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Loader Inline - Aparece imediatamente -->
-  <script>
-    (function(){var p=window.location.pathname.split('/').pop()||'index.html';if(['payment-success.html'].some(e=>p.includes(e)))return;var u='/assets/images/icons/loader-icon-120.png';var h='<div id="loaderContainer" class="loader-container" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;"><img src="'+u+'" alt="RatixPay" class="loader-logo" style="width:120px;height:auto;margin-bottom:30px;opacity:0.9;" onerror="this.style.display=\'none\';"><div class="loader-spinner" style="width:60px;height:60px;border:4px solid rgba(246,76,0,0.1);border-top-color:#F64C00;border-radius:50%;animation:loader-spin 1s linear infinite;margin-bottom:20px;"></div><div class="loader-text" style="font-family:\'Poppins\',\'Segoe UI\',\'Roboto\',Arial,sans-serif;font-size:18px;font-weight:500;color:#333333;letter-spacing:0.5px;animation:loader-pulse 1.5s ease-in-out infinite;">Carregando...</div></div>';document.documentElement.insertAdjacentHTML('afterbegin',h);document.documentElement.classList.add('loading');if(!document.getElementById('loader-critical-styles')){var s=document.createElement('style');s.id='loader-critical-styles';s.textContent='@keyframes loader-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes loader-pulse{0%,100%{opacity:1}50%{opacity:0.6}}html.loading,body.loading{overflow:hidden;height:100%}html.loading>body{opacity:0}';document.head.appendChild(s);}})();
-  </script>
+  <!-- Loader removido para melhorar performance -->
   <title>RatixPay - Checkout</title>
   <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -2349,6 +2346,7 @@
     // Verificar se API_BASE foi definido corretamente pelo config.js
     </script>
   <script src="js/checkout-new.js?v=20241225"></script>
+  <script src="js/afiliado-tracking.js"></script>
   <script>
     // Esconder loader quando as informações do produto forem carregadas
     (function() {

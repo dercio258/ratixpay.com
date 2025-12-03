@@ -205,8 +205,15 @@ class VendaNotificationService {
             }
 
             // Buscar vendas relacionadas (order bump)
-            const vendasRelacionadas = await this.buscarVendasRelacionadas(venda);
-            console.log(`🔍 Vendas relacionadas para cliente: ${vendasRelacionadas.length}`);
+            let vendasRelacionadas = [];
+            try {
+                vendasRelacionadas = await this.buscarVendasRelacionadas(venda);
+                console.log(`🔍 Vendas relacionadas para cliente: ${vendasRelacionadas.length}`);
+            } catch (error) {
+                console.error('❌ Erro ao buscar vendas relacionadas (não crítico):', error.message);
+                // Continuar sem vendas relacionadas
+                vendasRelacionadas = [];
+            }
 
             // Preparar dados da notificação
             const dadosNotificacao = {
@@ -379,45 +386,107 @@ class VendaNotificationService {
      */
     async buscarVendasRelacionadas(venda) {
         try {
-            // Buscar vendas com a mesma referência de pagamento (sem filtrar por tipo_venda que não existe)
-            const vendasRelacionadas = await Venda.findAll({
+            const { Op } = require('sequelize');
+            
+            // Buscar vendas relacionadas de duas formas:
+            // 1. Mesma referência de pagamento (order bumps)
+            // 2. Vendas upsell relacionadas ao mesmo cliente/pedido original
+            
+            // Primeiro, buscar por referência de pagamento (order bumps)
+            const vendasPorReferencia = await Venda.findAll({
                 where: {
                     referencia_pagamento: venda.referencia_pagamento,
                     vendedor_id: venda.vendedor_id,
-                    id: { [require('sequelize').Op.ne]: venda.id } // Excluir a venda atual
+                    id: { [Op.ne]: venda.id } // Excluir a venda atual
                 },
                 include: [{
                     model: Produto,
                     as: 'produto'
                 }],
-                order: [
-                    ['created_at', 'ASC'] // Ordem de criação (primeiro orderbump1, depois orderbump2...)
-                ]
+                order: [['created_at', 'ASC']]
             });
 
-            // Filtrar apenas as vendas que são order bumps (verificar nas observações)
-            const orderBumps = vendasRelacionadas.filter(v => 
+            // Buscar vendas upsell relacionadas (mesmo cliente, mesmo vendedor)
+            // Identificar upsells pelas observações contendo "Upsell" ou "upsell"
+            const vendasUpsell = await Venda.findAll({
+                where: {
+                    cliente_id: venda.cliente_id,
+                    vendedor_id: venda.vendedor_id,
+                    id: { [Op.ne]: venda.id },
+                    status: { [Op.in]: ['Pago', 'Aprovado', 'approved', 'success', 'completed'] },
+                    [Op.or]: [
+                        { observacoes: { [Op.iLike]: '%Upsell%' } },
+                        { observacoes: { [Op.iLike]: '%upsell%' } }
+                    ]
+                },
+                include: [{
+                    model: Produto,
+                    as: 'produto'
+                }],
+                order: [['created_at', 'ASC']]
+            });
+
+            // Combinar todas as vendas relacionadas
+            const todasVendasRelacionadas = [...vendasPorReferencia, ...vendasUpsell];
+            
+            // Remover duplicatas (mesmo ID)
+            const vendasUnicas = [];
+            const idsVistos = new Set();
+            todasVendasRelacionadas.forEach(v => {
+                if (!idsVistos.has(v.id)) {
+                    idsVistos.add(v.id);
+                    vendasUnicas.push(v);
+                }
+            });
+
+            // Separar order bumps e upsells para ordenação
+            const orderBumps = vendasUnicas.filter(v => 
                 v.observacoes && v.observacoes.includes('Order Bump')
             );
 
-            // Ordenar também por ordem extraída das observações (Order Bump 1, 2, 3...)
+            const upsells = vendasUnicas.filter(v => {
+                // Identificar upsells pelas observações
+                const observacoes = v.observacoes || '';
+                return observacoes.toLowerCase().includes('upsell') && 
+                       !observacoes.toLowerCase().includes('order bump');
+            });
+
+            // Ordenar order bumps por ordem extraída das observações
             orderBumps.sort((a, b) => {
                 const ordemA = this.extrairOrdemOrderBump(a.observacoes);
                 const ordemB = this.extrairOrdemOrderBump(b.observacoes);
                 if (ordemA !== null && ordemB !== null) {
                     return ordemA - ordemB;
                 }
-                // Se não conseguir extrair ordem, usar created_at
                 return new Date(a.created_at) - new Date(b.created_at);
             });
 
-            console.log(`🔍 Vendas relacionadas encontradas (ordenadas): ${orderBumps.length}`);
-            orderBumps.forEach((v, index) => {
-                console.log(`   📦 Order Bump ${index + 1}: ${v.produto?.nome || 'Produto'} - Link: ${v.produto?.link_conteudo || 'SEM LINK'}`);
+            // Ordenar upsells por data de criação
+            upsells.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+            // Combinar: order bumps primeiro, depois upsells
+            const vendasOrdenadas = [...orderBumps, ...upsells];
+
+            console.log(`🔍 Vendas relacionadas encontradas: ${vendasOrdenadas.length}`);
+            console.log(`   📦 Order Bumps: ${orderBumps.length}`);
+            console.log(`   🎯 Upsells: ${upsells.length}`);
+            
+            vendasOrdenadas.forEach((v, index) => {
+                const observacoes = v.observacoes || '';
+                const isUpsell = observacoes.toLowerCase().includes('upsell') && 
+                                !observacoes.toLowerCase().includes('order bump');
+                const tipo = isUpsell ? 'Upsell' : `Order Bump ${index + 1}`;
+                console.log(`   ${tipo}: ${v.produto?.nome || 'Produto'} - Link: ${v.produto?.link_conteudo || 'SEM LINK'}`);
             });
-            return orderBumps;
+            
+            return vendasOrdenadas;
         } catch (error) {
             console.error('❌ Erro ao buscar vendas relacionadas:', error);
+            // Retornar array vazio em caso de erro para não quebrar o fluxo
+            // Log adicional apenas se for erro de coluna não encontrada
+            if (error.message && error.message.includes('não existe')) {
+                console.warn('⚠️ Coluna não encontrada na tabela. Verifique a estrutura do banco de dados.');
+            }
             return [];
         }
     }
@@ -1111,11 +1180,22 @@ class VendaNotificationService {
                             as: 'produto'
                         }]
                     });
-                    if (venda) {
-                        vendasRelacionadas = await this.buscarVendasRelacionadas(venda);
+                    
+                    if (!venda) {
+                        console.warn('⚠️ Venda não encontrada para buscar vendas relacionadas');
+                        vendasRelacionadas = [];
+                    } else {
+                        try {
+                            vendasRelacionadas = await this.buscarVendasRelacionadas(venda);
+                        } catch (buscarError) {
+                            console.error('❌ Erro ao buscar vendas relacionadas (não crítico):', buscarError.message);
+                            vendasRelacionadas = [];
+                        }
                     }
                 } catch (error) {
-                    console.error('❌ Erro ao buscar vendas relacionadas para email:', error);
+                    console.error('❌ Erro ao buscar venda para email:', error);
+                    // Continuar sem vendas relacionadas
+                    vendasRelacionadas = [];
                 }
             }
             
@@ -1170,19 +1250,10 @@ class VendaNotificationService {
                 // Texto para detalhes de compra (+bonus {nome})
                 produtosBonusDetalhesCompra = produtosComLinks.map(p => `+bonus ${p.nome}`).join(', ');
                 
-                // Botões de download para cada produto bônus
-                botoesBonusHtml = produtosComLinks.map((produto, index) => {
-                    if (produto.link_conteudo && produto.link_conteudo.trim() !== '') {
-                        return `
-                            <div class="button-container" style="margin-bottom: 15px;">
-                                <a href="${produto.link_conteudo}" class="cta-button" style="background: #f59e0b;">
-                                    📥 Baixar Produto Bônus: ${produto.nome}
-                                </a>
-                            </div>
-                        `;
-                    }
-                    return '';
-                }).filter(html => html !== '').join('');
+                // NÃO incluir botões de download no email do vendedor
+                // Os links de acesso devem ser enviados APENAS para o cliente
+                // O vendedor recebe apenas informações sobre a venda, não os links de acesso
+                botoesBonusHtml = '';
                 
                 // Texto para incluir na descrição da transação
                 const nomesBonus = produtosComLinks.map(p => p.nome).join(', ');
@@ -2726,30 +2797,10 @@ RatixPay`;
                 </div>`
             ).join('');
             
-            // Botões de download para cada produto bônus (se tiver link)
-            // Buscar links de conteúdo das vendas relacionadas se disponível
-            botoesBonusHtml = dadosNotificacao.produtosOrderBump.map((produto, index) => {
-                // Tentar obter link do produto
-                let linkConteudo = produto.link_conteudo || '';
-                
-                // Se não tiver link, tentar buscar do produto original pelo ID
-                if (!linkConteudo && produto.id) {
-                    // O link será buscado na função enviarEmailVendedor antes de chamar este template
-                    // Por enquanto, usar o que veio no produto
-                    linkConteudo = produto.link_conteudo || '';
-                }
-                
-                if (linkConteudo && linkConteudo.trim() !== '') {
-                    return `
-                        <div class="button-container" style="margin-bottom: 15px;">
-                            <a href="${linkConteudo}" class="cta-button" style="background: #f59e0b; border: none;">
-                                📥 Baixar Produto Bônus: ${produto.nome}
-                            </a>
-                        </div>
-                    `;
-                }
-                return '';
-            }).filter(html => html !== '').join('');
+            // NÃO incluir botões de download no email do vendedor
+            // Os links de acesso devem ser enviados APENAS para o cliente
+            // O vendedor recebe apenas informações sobre a venda, não os links de acesso
+            botoesBonusHtml = '';
         }
         
         return `

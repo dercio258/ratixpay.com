@@ -291,8 +291,9 @@ function gerarLinkSeguroSucesso(pedidoNumero, productId, clientName, amount) {
     const isIdPedido = /^\d{6}$/.test(pedidoNumero);
     const pedidoParam = isIdPedido ? `idpedido=${pedidoNumero}` : `pedido=${pedidoNumero}`;
     
-    // Construir URL base
-    let url = `/payment-success.html?${pedidoParam}&productId=${productId || ''}&clientName=${encodeURIComponent(clientName || '')}&amount=${amount || ''}`;
+    // Redirecionar diretamente para upsell-page.html se houver upsell
+    // A página verificará automaticamente se há upsell e redirecionará se não houver
+    let url = `/upsell-page.html?${pedidoParam}&productId=${productId || ''}&clientName=${encodeURIComponent(clientName || '')}&amount=${amount || ''}`;
     
     // Sempre incluir parâmetros UTM do localStorage se disponíveis
     try {
@@ -2560,6 +2561,12 @@ async function processPayment(customerData) {
             console.warn('⚠️ Erro ao carregar parâmetros UTM do localStorage:', error);
         }
         
+        // Capturar código de afiliado da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codigoAfiliado = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('afiliado');
+        
+        console.log('🔗 Código de afiliado capturado:', codigoAfiliado);
+        
         const paymentData = {
             produtoPublicId: currentProduct.public_id || currentProduct.id || currentProduct.customId,
             numeroCelular: numeroCelular,
@@ -2580,6 +2587,9 @@ async function processPayment(customerData) {
             customerPhone: numeroCelular,
             // Incluir produtos do Order Bump
             orderBumpProducts: orderBumpProducts,
+            // Código de afiliado para rastreamento
+            ref: codigoAfiliado || null,
+            afiliadoCodigo: codigoAfiliado || null,
             // Parâmetros UTM para rastreamento
             utm_source: utmTrackingParams.utm_source || null,
             utm_medium: utmTrackingParams.utm_medium || null,
@@ -3000,10 +3010,21 @@ async function processPayment(customerData) {
                     hideLoadingSpinner();
                     showTransactionStatus('pending', 'Processado', null);
                 
-                // Redirecionar para página de sucesso genérica após 3 segundos
-                setTimeout(() => {
-                    window.location.href = '/payment-success.html';
-                }, 3000);
+                    // Redirecionar para página de sucesso genérica após 3 segundos
+                    setTimeout(() => {
+                        // Redirecionar para upsell-page com parâmetros necessários
+                        const productId = currentProduct?.id || currentProduct?.customId || '';
+                        const clientName = orderData.customer?.nome || 'Cliente';
+                        const amount = currentProduct?.preco || 0;
+                        const transactionId = orderData?.transactionId || orderData?.id || '';
+                        
+                        if (transactionId) {
+                            window.location.href = gerarLinkSeguroSucesso(transactionId, productId, clientName, amount);
+                        } else {
+                            // Fallback se não houver transactionId
+                            window.location.href = gerarLinkSeguroSucesso('', productId, clientName, amount);
+                        }
+                    }, 3000);
                 }
             }
         } else {
@@ -3358,7 +3379,8 @@ async function startStatusCheck(transactionId) {
                             const clientName = orderData.customer?.nome || 'Cliente';
                             const amount = currentProduct?.produto?.preco || currentProduct?.preco || 0;
                             
-                            const successUrl = `/payment-success.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                            // Redirecionar diretamente para upsell-page
+                            const successUrl = `/upsell-page.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
                             window.location.href = successUrl;
                         }, 2000);
                     } else if (isErrorResponse) {
@@ -3506,7 +3528,8 @@ async function startStatusCheck(transactionId) {
                             const clientName = orderData.customer?.nome || 'Cliente';
                             const amount = currentProduct?.produto?.preco || currentProduct?.preco || 0;
                             
-                            const successUrl = `/payment-success.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                            // Redirecionar diretamente para upsell-page
+                            const successUrl = `/upsell-page.html?pedido=${transactionId}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
                             window.location.href = successUrl;
                         }, 2000);
                     } else {
@@ -3642,6 +3665,62 @@ function updateTransactionStatusUI(status, transactionId, falhaId = '', falhaMot
 }
 
 /**
+ * Função para registrar clique simples (apenas contabilizar acesso ao link)
+ * Executada quando a página é carregada com parâmetro ref
+ */
+async function registrarCliqueSimples() {
+    try {
+        // Verificar se há código de afiliado na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codigoAfiliado = urlParams.get('ref');
+        
+        if (!codigoAfiliado) {
+            return;
+        }
+
+        // Obter informações do produto
+        const produtoId = window.currentProduct?.id || null;
+        const produtoCustomId = window.currentProduct?.custom_id || urlParams.get('produto') || null;
+
+        if (!produtoId && !produtoCustomId) {
+            return;
+        }
+
+        // Criar chave única para este clique simples
+        const cliqueKey = `afiliado_clique_simples_${codigoAfiliado}_${produtoId || produtoCustomId}`;
+        
+        // Verificar se já foi processado um clique simples para este afiliado/produto na sessão
+        const cliqueProcessado = sessionStorage.getItem(cliqueKey);
+        if (cliqueProcessado) {
+            return; // Já foi contabilizado nesta sessão
+        }
+
+        // Registrar clique simples (sem validação de fraude - apenas contabilizar acesso)
+        const apiBase = window.API_BASE || window.location.origin + '/api';
+        const response = await fetch(`${apiBase}/afiliados/registrar-clique-simples`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                codigo_afiliado: codigoAfiliado,
+                produto_id: produtoId,
+                produto_custom_id: produtoCustomId
+            })
+        });
+
+        if (response.ok) {
+            // Marcar como processado na sessão
+            sessionStorage.setItem(cliqueKey, 'true');
+        }
+    } catch (error) {
+        // Não bloquear o carregamento da página por erro no tracking
+        console.warn('⚠️ Erro ao registrar clique simples:', error);
+    }
+}
+
+/**
  * Função melhorada para registrar clique válido de afiliado
  * Executada apenas quando o cliente clica em "Pagar Agora"
  * Inclui: verificação de localStorage, IP, detecção de fraudes
@@ -3739,7 +3818,26 @@ async function registrarCliqueValidoAfiliado() {
             body: JSON.stringify(dadosClique)
         });
 
+        // Verificar se a resposta é JSON antes de fazer parse
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('❌ Resposta não é JSON:', text.substring(0, 200));
+            return { 
+                registrado: false, 
+                motivo: `Erro ${response.status}: ${response.statusText}` 
+            };
+        }
+
         const data = await response.json();
+        
+        if (!response.ok) {
+            console.error('❌ Erro HTTP ao registrar clique:', data);
+            return { 
+                registrado: false, 
+                motivo: data.message || data.error || `Erro ${response.status}` 
+            };
+        }
         
         if (data.success) {
             // Salvar no localStorage para evitar reprocessamento
@@ -4004,5 +4102,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Carregar produto
-    loadProduct();
+    loadProduct().then(() => {
+        // Após carregar o produto, registrar clique simples se houver código de afiliado
+        registrarCliqueSimples();
+    });
 });

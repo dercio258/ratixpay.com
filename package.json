@@ -121,7 +121,13 @@
     "setup:production": "npm install --production && npm start",
     "setup:development": "npm install && npm run dev",
     "icons:generate": "node scripts/generate-notification-icons.js",
-    "migrate:push": "node scripts/migrate-push-notifications.js"
+    "migrate:push": "node scripts/migrate-push-notifications.js",
+    "db:sync-usuario": "node scripts/sync-usuario-schema.js",
+    "db:fix-whatsapp-types": "node scripts/fix-whatsapp-notification-types-column.js",
+    "db:test-schema": "node scripts/test-usuario-schema.js",
+    "db:test-upsell-webhooks": "node scripts/test-upsell-webhooks-schema.js",
+    "db:check-fks": "node scripts/check-foreign-keys.js",
+    "db:migrate": "node scripts/migrate-database-columns.js"
   },
   "keywords": [
     "e-commerce",

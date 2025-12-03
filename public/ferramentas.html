@@ -1,606 +1,309 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RatixPay - Ferramentas</title>
+    <title>RatixPay - Ferramentas e Configurações</title>
+    
+    <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-<style>
-
-        /* Main Content */
+    <!-- Sistema Unificado de Dark Mode -->
+    <link rel="stylesheet" href="/css/dark-mode-unified.css">
+    <style>
+        /* ============================================
+           DESIGN SYSTEM (RATIXPAY STANDARD)
+           ============================================ */
+        :root {
+            /* Cores RatixPay */
+            --primary: #f64c00;
+            --primary-gradient: linear-gradient(135deg, #f64c00 0%, #ff8c42 100%);
+            
+            /* Status Colors */
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.1);
+            /* Light Mode Vars */
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-input: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Dark Mode Overrides - PRETO (não azul) */
+        body.dark-mode {
+            --bg-page: #000000;
+            --bg-surface: #111111;
+            --bg-input: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a2a;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        * { box-sizing: border-box; outline: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            transition: var(--transition);
+        }
+        h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; font-weight: 600; margin: 0; }
+        /* Layout */
+        .dashboard-container { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            display: none;
+            flex-shrink: 0;
+        }
+        @media (min-width: 1024px) { .sidebar { display: block; } }
         .main-content {
-            padding-top: 0;
-            margin-left: 250px !important;
-            width: calc(100% - 250px) !important;
+            flex: 1;
+            padding: 24px;
+            width: 100%;
+            overflow-x: hidden;
         }
-
-        /* Configurações Container */
-        .config-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .config-section {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 30px;
+        /* 1. Header Section */
+        .header-section {
             margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 1px solid #e0e0e0;
         }
-
-        .config-section h3 {
-            color: #333;
-            margin-bottom: 20px;
+        .page-title {
             font-size: 1.5rem;
-            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .config-section h3 i {
-            color: #f64c00;
+        .page-title i { color: var(--primary); }
+        .page-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+        /* 2. Config Grid (Profile + Security) */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
-
-        .form-group {
-            margin-bottom: 25px;
+        .content-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-color);
+            height: 100%;
         }
-
-        .form-group label {
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .card-header h3 { font-size: 1.1rem; color: var(--text-primary); }
+        .card-header i { color: var(--primary); font-size: 1.2rem; }
+        /* Forms */
+        .form-group { margin-bottom: 20px; }
+        .form-label {
             display: block;
             margin-bottom: 8px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #333;
-            font-size: 0.95rem;
+            color: var(--text-secondary);
         }
-
-        .form-group input {
+        .form-input {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: var(--transition);
         }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #f64c00;
-            background: #ffffff;
+        .form-input:focus {
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.1);
         }
-
-        .form-group input:disabled {
-            background: #f0f0f0;
-            color: #666;
-            cursor: not-allowed;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .btn-save {
-            background: linear-gradient(135deg, #f64c00 0%, #ff6b35 100%);
-            color: white;
+        .form-input:disabled { opacity: 0.7; cursor: not-allowed; }
+        .form-row { display: flex; gap: 15px; }
+        .form-col { flex: 1; }
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            transition: var(--transition);
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 20px;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
         }
-
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(246, 76, 0, 0.3);
+        .btn-primary { background: var(--primary-gradient); color: white; width: 100%; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3); }
+        
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
+        .btn-eye {
+            background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0 10px;
         }
-
-        .btn-save:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .user-info {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 4px solid #f64c00;
-        }
-
-        .user-info h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .user-info p {
-            margin: 5px 0;
-            color: #666;
-        }
-
-        /* Avatar Upload */
-        .avatar-upload-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .current-avatar {
+        /* Avatar Section */
+        .avatar-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            text-align: center;
+            padding: 20px 0;
         }
-
         .avatar-preview {
-            width: 80px;
-            height: 80px;
+            width: 100px; height: 100px;
             border-radius: 50%;
+            background: var(--bg-input);
+            border: 3px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 3px solid #e0e0e0;
+            font-size: 2rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .avatar-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-sm { padding: 8px 12px; font-size: 0.85rem; }
+        /* Alerts */
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-success { background: var(--success-bg); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .alert-error { background: var(--danger-bg); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.2); }
+        /* 3. Tools Grid */
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .tool-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
-
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
+        .tool-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: var(--primary); }
+        .tool-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .tool-header i { font-size: 1.2rem; color: var(--primary); }
+        .tool-header h4 { font-size: 1rem; color: var(--text-primary); margin: 0; }
+        
+        .tool-desc { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; min-height: 40px; }
+        .premium-border { border: 2px solid #ffd700 !important; }
+        .premium-tag {
+            position: absolute; top: 12px; right: 12px;
+            background: #ffd700; color: #000; font-size: 0.65rem; font-weight: 800;
+            padding: 2px 8px; border-radius: 4px;
         }
-
-        .avatar-info {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .upload-section {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn-upload-avatar, .btn-remove-avatar {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-upload-avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-upload-avatar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-remove-avatar {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-remove-avatar:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-        }
-
-        .upload-info {
-            text-align: center;
-            color: #666;
-        }
-
-        .upload-info small {
-            font-size: 0.8rem;
-        }
-
-        /* Ferramentas Avançadas */
-        .tools-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* Grid responsivo para diferentes telas */
-        @media (min-width: 1200px) {
-            .tools-container {
-                grid-template-columns: repeat(2, 1fr);
-                max-width: 800px;
-            }
-        }
-
-        @media (min-width: 900px) and (max-width: 1199px) {
-            .tools-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 600px) and (max-width: 899px) {
-            .tools-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-        }
-
-        .tool-card {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-
-        .tool-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tool-card h3 i {
-            color: #f64c00;
-        }
-
-        .tool-card p {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
         .btn-tool {
             width: 100%;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
             font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            transition: var(--transition);
+        }
+        .btn-tool:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .btn-danger-tool:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-gold-tool { background: linear-gradient(135deg, #ffd700 0%, #fdb931 100%); border: none; color: black; }
+        .btn-gold-tool:hover { opacity: 0.9; transform: scale(1.02); }
+        /* Footer */
+        .footer-links {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .link-termos { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .link-termos:hover { color: var(--primary); }
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
-            gap: 8px;
         }
-
-        .btn-premium {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #000;
+        .modal-content {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            animation: modalFadeIn 0.3s ease;
         }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-        }
-
-        .btn-clear-data {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-        }
-
-        .btn-clear-data:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-        }
-
-        .btn-logout {
-            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-            color: white;
-        }
-
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #f64c00 0%, #ff6b35 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(246, 76, 0, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-        }
-
-        .premium-card {
-            border: 2px solid #ffd700;
-            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-        }
-
-        .premium-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #000;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-            animation: premiumGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes premiumGlow {
-            from { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
-            to { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.6); }
-        }
-
-        /* Termos e Condições - Footer */
-        .terms-footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-        }
-
-        .terms-link {
-            color: #666;
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            border: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        .terms-link:hover {
-            color: #f64c00;
-            background: #fff;
-            border-color: #f64c00;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.15);
-        }
-
-        .terms-link i {
-            font-size: 0.8rem;
-        }
-
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         /* Responsividade */
         @media (max-width: 768px) {
-            .main-content {
-                margin-left: 80px !important;
-                width: calc(100% - 80px) !important;
-            }
-
-
-            .config-container {
-                padding: 0 15px;
-            }
-
-            .config-section {
-                padding: 20px;
-            }
-
-            .avatar-preview {
-                width: 70px;
-                height: 70px;
-                font-size: 1.3rem;
-            }
-
-            .btn-upload-avatar, .btn-remove-avatar {
-                padding: 8px 16px;
-                font-size: 0.85rem;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .tools-container {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 0 15px;
-            }
-
-            .tool-card {
-                padding: 20px;
-            }
-
-            .tool-card h3 {
-                font-size: 1.2rem;
-            }
-
-            .btn-tool {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-            }
+            .main-content { padding: 15px; }
+            .form-row { flex-direction: column; gap: 0; }
         }
-
         @media (max-width: 480px) {
-            .main-content {
-                margin-left: 70px !important;
-                width: calc(100% - 70px) !important;
-            }
-
-
-            .config-container {
-                padding: 0 10px;
-            }
-
-            .config-section {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-
-            .avatar-preview {
-                width: 60px;
-                height: 60px;
-                font-size: 1.1rem;
-            }
-
-            .btn-upload-avatar, .btn-remove-avatar {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-
-            .upload-section {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .config-section h3 {
-                font-size: 1.3rem;
-            }
-
-            .form-group input {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-
-            .btn-save {
-                padding: 12px 24px;
-                font-size: 0.9rem;
-            }
-
-            .tools-container {
-                padding: 0 10px;
-                gap: 12px;
-            }
-
-            .tool-card {
-                padding: 15px;
-            }
-
-            .tool-card h3 {
-                font-size: 1.1rem;
-            }
-
-            .tool-card p {
-                font-size: 0.9rem;
-                margin-bottom: 15px;
-            }
-
-            .btn-tool {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-            }
-
-            .premium-badge {
-                font-size: 0.6rem;
-                padding: 3px 6px;
-                top: 10px;
-                right: 10px;
-            }
-
-            .terms-footer {
-                margin-top: 30px;
-                padding: 15px;
-            }
-
-            .terms-link {
-                font-size: 0.8rem;
-                padding: 8px 16px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .config-section {
-                padding: 12px;
-            }
-
-            .tool-card {
-                padding: 12px;
-            }
-
-            .tool-card h3 {
-                font-size: 1rem;
-            }
-
-            .btn-tool {
-                padding: 6px 10px;
-                font-size: 0.8rem;
-            }
+            .settings-grid { grid-template-columns: 1fr; }
         }
     </style>
-
     <!-- Sistema de Autenticação Global -->
+    <!-- Sistema Unificado de Dark Mode - DEVE ser carregado PRIMEIRO para evitar flicker -->
+    <script src="/js/dark-mode-manager.js"></script>
     <script src="/js/server-check.js"></script>
     <script src="/js/global-auth.js"></script>
-
 </head>
 <body>
     <div class="dashboard-container">
@@ -608,502 +311,260 @@
         <div class="sidebar">
             <!-- Será preenchido pelo SidebarComponent -->
         </div>
-
         <!-- Conteúdo Principal -->
         <div class="main-content">
-            <!-- Header da Ferramentas -->
-            <div>
-                <h2>FERRAMENTAS</h2>
-            </div>
             
-            <!-- Configurações da Conta -->
-            <div class="config-container">
-                <!-- Informações do Usuário -->
-                <div class="config-section">
-                    <h3><i class="fas fa-user"></i> Informações do Vendedor</h3>
-                    
-                    <div class="user-info">
-                        <h4>Dados Atuais</h4>
-                        <p><strong>Nome:</strong> <span id="currentName">Carregando...</span></p>
-                        <p><strong>Email:</strong> <span id="currentEmail">Carregando...</span></p>
-                        <p><strong>Contacto:</strong> <span id="currentContact">Carregando...</span></p>
+            <!-- Header -->
+            <div class="header-section">
+                <div>
+                    <h1 class="page-title"><i class="fas fa-tools"></i> Ferramentas e Configurações</h1>
+                    <p class="page-subtitle">Gerencie seu perfil, segurança e recursos avançados.</p>
+                </div>
+            </div>
+            <!-- Grid de Configurações -->
+            <div class="settings-grid">
+                
+                <!-- 1. Perfil e Dados -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h3>Perfil do Vendedor</h3>
                     </div>
-
-                    <div class="alert alert-success" id="successAlert">
-                        <i class="fas fa-check-circle"></i> Dados atualizados com sucesso!
+                    <!-- Avatar Section -->
+                    <div class="avatar-container">
+                        <div id="currentAvatarDisplay" class="avatar-preview">
+                            <span id="avatarInitials">U</span>
+                        </div>
+                        <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                        <div class="avatar-actions">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('avatarUpload').click()">
+                                <i class="fas fa-camera"></i> Alterar
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm" id="removeAvatarBtn" style="display: none; color: var(--danger); border-color: var(--danger);">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <small style="color: var(--text-secondary); margin-top: 5px;">Max 5MB (JPG, PNG)</small>
                     </div>
-
-                    <div class="alert alert-error" id="errorAlert">
-                        <i class="fas fa-exclamation-circle"></i> <span id="errorMessage">Erro ao atualizar dados.</span>
+                    <div class="alert alert-success" id="successAlert" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Dados atualizados!
                     </div>
-
+                    <div class="alert alert-error" id="errorAlert" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> <span id="errorMessage">Erro ao atualizar.</span>
+                    </div>
                     <form id="accountForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="nomeCompleto">Nome Completo</label>
-                                <input type="text" id="nomeCompleto" name="nomeCompleto" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="telefone">Contacto/Telefone</label>
-                                <input type="tel" id="telefone" name="telefone" required>
-                            </div>
-                        </div>
-
                         <div class="form-group">
-                            <label for="email">Email (não editável)</label>
-                            <input type="email" id="email" name="email" disabled>
+                            <label class="form-label" for="nomeCompleto">Nome Completo</label>
+                            <input type="text" id="nomeCompleto" name="nomeCompleto" class="form-input" required>
                         </div>
-
-                        <button type="submit" class="btn-save" id="saveBtn">
+                        
+                        <div class="form-row">
+                            <div class="form-col form-group">
+                                <label class="form-label" for="telefone">Contacto</label>
+                                <input type="tel" id="telefone" name="telefone" class="form-input" required>
+                            </div>
+                            <div class="form-col form-group">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-input" disabled>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
                             <i class="fas fa-save"></i> Salvar Alterações
                         </button>
                     </form>
                 </div>
-
-                <!-- Upload de Avatar -->
-                <div class="config-section">
-                    <h3><i class="fas fa-camera"></i> Foto do Perfil</h3>
-                    
-                    <div class="avatar-upload-container">
-                        <div class="current-avatar">
-                            <div id="currentAvatarDisplay" class="avatar-preview">
-                                <span id="avatarInitials">U</span>
-                            </div>
-                            <p class="avatar-info">Foto atual do perfil</p>
-                        </div>
-                        
-                        <div class="upload-section">
-                            <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
-                            <button type="button" class="btn-upload-avatar" onclick="document.getElementById('avatarUpload').click()">
-                                <i class="fas fa-upload"></i>
-                                Escolher Nova Foto
-                            </button>
-                            <button type="button" class="btn-remove-avatar" id="removeAvatarBtn" style="display: none;">
-                                <i class="fas fa-trash"></i>
-                                Remover Foto
-                            </button>
-                        </div>
-                        
-                        <div class="upload-info">
-                            <small>
-                                <i class="fas fa-info-circle"></i>
-                                Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB.
-                            </small>
-                        </div>
+                <!-- 2. Segurança -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Segurança da Conta</h3>
                     </div>
-                </div>
-
-                <!-- Alterar Senha -->
-                <div class="config-section">
-                    <h3><i class="fas fa-lock"></i> Alterar Senha</h3>
-                    
-                    <div class="alert alert-success" id="passwordSuccessAlert">
-                        <i class="fas fa-check-circle"></i> Senha alterada com sucesso!
+                    <div class="alert alert-success" id="passwordSuccessAlert" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Senha alterada!
                     </div>
-
-                    <div class="alert alert-error" id="passwordErrorAlert">
-                        <i class="fas fa-exclamation-circle"></i> <span id="passwordErrorMessage">Erro ao alterar senha.</span>
+                    <div class="alert alert-error" id="passwordErrorAlert" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> <span id="passwordErrorMessage">Erro.</span>
                     </div>
-
                     <form id="passwordForm">
                         <div class="form-group">
-                            <label for="currentPassword">Senha Atual</label>
-                            <input type="password" id="currentPassword" name="currentPassword" required>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="newPassword">Nova Senha</label>
-                                <input type="password" id="newPassword" name="newPassword" required minlength="6">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirmar Nova Senha</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+                            <label class="form-label" for="currentPassword">Senha Atual</label>
+                            <div style="display:flex;">
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-input" required>
                             </div>
                         </div>
-
-                        <button type="submit" class="btn-save" id="savePasswordBtn">
+                        <div class="form-group">
+                            <label class="form-label" for="newPassword">Nova Senha</label>
+                            <input type="password" id="newPassword" name="newPassword" class="form-input" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="confirmPassword">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="savePasswordBtn" style="background: var(--info-bg); color: var(--info); border: 1px solid var(--info);">
                             <i class="fas fa-key"></i> Alterar Senha
                         </button>
                     </form>
                 </div>
             </div>
-
             <!-- Ferramentas Avançadas -->
-            <div class="tools-container">
+            <h3 class="section-title">Ferramentas Avançadas</h3>
+            <div class="tools-grid">
+                
                 <!-- Relatórios Premium -->
-                <div class="tool-card premium-card">
-                    <h3><i class="fas fa-chart-line"></i> Relatórios Premium</h3>
-                    <p>Gerar relatórios avançados de vendas, produtos e análises detalhadas.</p>
-                    <span class="premium-badge">PREMIUM</span>
-                    <button class="btn-tool btn-premium" onclick="generatePremiumReports()">
-                        <i class="fas fa-crown"></i> Gerar Relatórios Premium
+                <div class="tool-card premium-border">
+                    <span class="premium-tag">PREMIUM</span>
+                    <div class="tool-header">
+                        <i class="fas fa-chart-line" style="color: #ffd700;"></i>
+                        <h4>Relatórios Avançados</h4>
+                    </div>
+                    <p class="tool-desc">Acesse análises detalhadas de conversão, origem de tráfego e LTV.</p>
+                    <button class="btn-tool btn-gold-tool" onclick="generatePremiumReports()">
+                        <i class="fas fa-crown"></i> Acessar
                     </button>
                 </div>
-
+                <!-- Notificações -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <i class="fas fa-bell"></i>
+                        <h4>Notificações Push</h4>
+                    </div>
+                    <p class="tool-desc">Receba alertas de vendas em tempo real no seu navegador.</p>
+                    <div id="pushNotificationStatus" style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-secondary);">
+                        <i id="pushStatusIcon" class="fas fa-circle"></i> <span id="pushStatusText">Verificando...</span>
+                    </div>
+                    <button class="btn-tool" id="pushNotificationBtn" onclick="togglePushNotifications()">
+                        Ativar Notificações
+                    </button>
+                </div>
+                <!-- Manual -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <i class="fas fa-book"></i>
+                        <h4>Manual de Taxas</h4>
+                    </div>
+                    <p class="tool-desc">Consulte as taxas de venda (10%) e saque (5%) atualizadas.</p>
+                    <button class="btn-tool" onclick="openTaxManual()">
+                        <i class="fas fa-external-link-alt"></i> Ler Manual
+                    </button>
+                </div>
                 <!-- Limpar Dados -->
                 <div class="tool-card">
-                    <h3><i class="fas fa-trash-alt"></i> Limpar Dados</h3>
-                    <p>Apagar todos os dados do sistema (produtos, vendas, clientes).</p>
-                    <button class="btn-tool btn-clear-data" onclick="clearAllData()">
-                        <i class="fas fa-trash-alt"></i> Limpar Todos os Dados
+                    <div class="tool-header">
+                        <i class="fas fa-database" style="color: var(--danger);"></i>
+                        <h4>Zona de Perigo</h4>
+                    </div>
+                    <p class="tool-desc">Limpar cache local ou resetar configurações da conta.</p>
+                    <button class="btn-tool btn-danger-tool" onclick="clearAllData()">
+                        <i class="fas fa-trash-alt"></i> Limpar Dados Locais
                     </button>
                 </div>
-
                 <!-- Logout -->
                 <div class="tool-card">
-                    <h3><i class="fas fa-sign-out-alt"></i> Logout</h3>
-                    <p>Sair da sua conta e retornar à página de login.</p>
-                    <button class="btn-tool btn-logout" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Fazer Logout
-                    </button>
-                </div>
-
-                <!-- Manual de Taxas -->
-                <div class="tool-card">
-                    <h3><i class="fas fa-calculator"></i> Manual de Taxas</h3>
-                    <p>Manual completo sobre taxas de vendas (10%) e saques (5%) com exemplos práticos.</p>
-                    <button class="btn-tool btn-primary" onclick="openTaxManual()">
-                        <i class="fas fa-book-open"></i> Acessar Manual de Taxas
-                    </button>
-                </div>
-
-                <!-- Push Notifications -->
-                <div class="tool-card">
-                    <h3><i class="fas fa-bell"></i> Notificações Push</h3>
-                    <p>Receba notificações no navegador quando houver novas vendas realizadas.</p>
-                    <div id="pushNotificationStatus" style="margin-bottom: 15px;">
-                        <p style="font-size: 0.9rem; color: #666; margin: 0;">
-                            <i id="pushStatusIcon" class="fas fa-circle" style="font-size: 0.7rem; margin-right: 5px;"></i>
-                            <span id="pushStatusText">Verificando permissões...</span>
-                        </p>
+                    <div class="tool-header">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <h4>Sair da Conta</h4>
                     </div>
-                    <button class="btn-tool btn-primary" id="pushNotificationBtn" onclick="togglePushNotifications()">
-                        <i class="fas fa-bell"></i> <span id="pushBtnText">Ativar Notificações</span>
+                    <p class="tool-desc">Encerrar sessão neste dispositivo de forma segura.</p>
+                    <button class="btn-tool" onclick="logout()">
+                        Sair Agora
                     </button>
                 </div>
-
             </div>
-
-            <!-- Termos e Condições - Link no final -->
-            <div class="terms-footer">
-                <a href="/termos-condicoes.html" target="_blank" class="terms-link">
-                    <i class="fas fa-file-contract"></i>
-                    Termos e Condições
+            <!-- Footer -->
+            <div class="footer-links">
+                <a href="/termos-condicoes.html" target="_blank" class="link-termos">
+                    <i class="fas fa-file-contract"></i> Termos e Condições de Uso
                 </a>
             </div>
         </div>
     </div>
-
-    <!-- Modal de Confirmação -->
-    <div id="confirmModal" class="modal" style="display: none;">
+    <!-- Modais -->
+    <div id="confirmModal" class="modal">
         <div class="modal-content">
             <h3>Confirmar Ação</h3>
-            <p id="confirmMessage"></p>
+            <p id="confirmMessage" style="color: var(--text-secondary); margin: 15px 0;">Tem certeza?</p>
             <div class="modal-actions">
-                <button id="confirmBtn" class="btn btn-danger">Confirmar</button>
-                <button id="cancelBtn" class="btn btn-secondary">Cancelar</button>
+                <button id="cancelBtn" class="btn btn-outline">Cancelar</button>
+                <button id="confirmBtn" class="btn btn-primary" style="background: var(--danger); color: white;">Confirmar</button>
             </div>
         </div>
     </div>
-
-    <!-- Modal de Configurações de Pagamento -->
+    <!-- Payment Config Modal (Structure preserved for JS compatibility) -->
     <div id="paymentConfigModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h3>Configurações de Pagamento</h3>
+            <h3>Configurações de API</h3>
             <form id="formPaymentConfig">
                 <div class="form-group">
-                    <label for="apiKey">API Key</label>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <input type="password" id="apiKey" name="apiKey" required placeholder="Nova API Key" autocomplete="off">
-                        <button type="button" class="btn-eye" onclick="toggleCredentialVisibility('apiKey', this)"><i class="fas fa-eye-slash"></i></button>
-                    </div>
+                    <label class="form-label">API Key</label>
+                    <input type="password" id="apiKey" class="form-input">
                 </div>
                 <div class="form-group">
-                    <label for="secretKey">Secret Key</label>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <input type="password" id="secretKey" name="secretKey" required placeholder="Nova Secret Key" autocomplete="off">
-                        <button type="button" class="btn-eye" onclick="toggleCredentialVisibility('secretKey', this)"><i class="fas fa-eye-slash"></i></button>
-                    </div>
+                    <label class="form-label">Secret Key</label>
+                    <input type="password" id="secretKey" class="form-input">
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-primary" onclick="mostrarAuthFields()">Atualizar Chaves</button>
-                    <button type="button" class="btn btn-secondary" onclick="fecharPaymentConfigModal()">Cancelar</button>
+                    <button type="button" class="btn btn-outline" onclick="fecharPaymentConfigModal()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="mostrarAuthFields()">Salvar</button>
                 </div>
-                <div id="authFields" style="display:none;margin-top:1em;">
-                    <div class="form-group">
-                        <label for="authUser">Usuário</label>
-                        <input type="text" id="authUser" name="authUser" placeholder="Usuário" autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="authPass">Senha</label>
-                        <input type="password" id="authPass" name="authPass" placeholder="Senha" autocomplete="current-password">
-                    </div>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn btn-success">Confirmar Atualização</button>
-                    </div>
+                <div id="authFields" style="display:none; margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
+                    <p style="font-size:0.9rem; color:var(--text-secondary);">Confirme sua senha para salvar:</p>
+                    <input type="password" id="authPass" class="form-input" placeholder="Sua senha atual">
+                    <button type="submit" class="btn btn-primary" style="margin-top:10px;">Confirmar</button>
                 </div>
             </form>
         </div>
     </div>
-
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
     <script src="js/config.js"></script>
     <script src="js/suspension-check.js"></script>
     <script src="js/login.js"></script>
-    <!-- Sidebar Component -->
     <script src="js/sidebar-component.js"></script>
     <script src="js/ferramentas.js"></script>
     <script src="js/configuracoes-conta.js"></script>
-    <!-- Push Notifications -->
     <script src="js/push-notifications.js"></script>
+    <script src="js/global-cache-cleaner.js"></script>
     
-      <script>
-        // Configuração da API
-        window.API_BASE = window.location.origin + '/api';
-        // Inicializar sidebar com seção ativa
+    <script>
+        // Init Sidebar
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = new SidebarComponent();
-            sidebar.init('ferramentas');
-        });
-
-        // Funções para os novos botões
-        function generatePremiumReports() {
-            alert('Funcionalidade Premium: Relatórios avançados serão implementados em breve!');
-        }
-
-        function openTaxManual() {
-            // Abrir manual de taxas em nova aba
-            window.open('/manual-taxas.html', '_blank');
-        }
-
-        // Função para gerar iniciais do nome
-        function generateInitials(fullName) {
-            if (!fullName || fullName === 'Usuário') {
-                return 'U';
+            if (typeof SidebarComponent !== 'undefined') {
+                const sidebar = new SidebarComponent();
+                sidebar.init('ferramentas');
             }
             
-            const names = fullName.trim().split(' ');
-            if (names.length === 1) {
-                return names[0].charAt(0).toUpperCase();
-            } else {
-                const firstInitial = names[0].charAt(0).toUpperCase();
-                const lastInitial = names[names.length - 1].charAt(0).toUpperCase();
-                return firstInitial + lastInitial;
-            }
+            // Setup Avatar UI
+            loadCurrentAvatar();
+            document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+            document.getElementById('removeAvatarBtn').addEventListener('click', removeAvatar);
+        });
+        window.API_BASE = window.location.origin + '/api';
+        // Additional UI Functions
+        function generatePremiumReports() {
+            alert('Recurso Premium em desenvolvimento.');
         }
-
-        // Função para carregar avatar atual
+        function openTaxManual() {
+            window.open('/manual-taxas.html', '_blank');
+        }
+        // Avatar Logic (Embedded to ensure functionality with new HTML)
         function loadCurrentAvatar() {
             try {
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-                const avatarDisplay = document.getElementById('currentAvatarDisplay');
-                const avatarInitials = document.getElementById('avatarInitials');
+                const display = document.getElementById('currentAvatarDisplay');
                 const removeBtn = document.getElementById('removeAvatarBtn');
                 
                 if (userData.avatar_url) {
-                    // Mostrar imagem do avatar
-                    avatarDisplay.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar">`;
+                    display.innerHTML = `<img src="${userData.avatar_url}" alt="Avatar">`;
                     removeBtn.style.display = 'inline-flex';
                 } else {
-                    // Mostrar iniciais
-                    const fullName = userData.nome || userData.name || 'Usuário';
-                    const initials = generateInitials(fullName);
-                    avatarInitials.textContent = initials;
+                    const initials = (userData.nome || 'U').charAt(0).toUpperCase();
+                    display.innerHTML = `<span style="font-weight:700; font-size:2rem;">${initials}</span>`;
                     removeBtn.style.display = 'none';
                 }
-            } catch (error) {
-                console.error('Erro ao carregar avatar:', error);
-            }
+            } catch (e) { console.error(e); }
         }
-
-        // Função para fazer upload do avatar
-        async function handleAvatarUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Validar tamanho (máx 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Imagem muito grande. Tamanho máximo: 5MB');
-                return;
-            }
-
-            // Validar tipo de arquivo
-            if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecione apenas arquivos de imagem.');
-                return;
-            }
-
-            try {
-                const uploadBtn = document.querySelector('.btn-upload-avatar');
-                const originalText = uploadBtn.innerHTML;
-                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-                uploadBtn.disabled = true;
-
-                // Usar o sistema de upload interno do servidor
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('folder', 'avatars');
-                
-                const response = await fetch(`${window.API_BASE}/upload/enhanced/single`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ Erro na resposta do upload:', errorText);
-                    throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
-                }
-                
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.message || 'Erro no upload');
-                }
-                
-                // Usar a URL gerada pelo sistema interno
-                const imageUrl = result.data.original.url;
-                // Atualizar dados do usuário no localStorage
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-                userData.avatar_url = imageUrl;
-                localStorage.setItem('userData', JSON.stringify(userData));
-                
-                // Salvar no banco de dados
-                try {
-                    const response = await fetch(`${window.API_BASE}/auth/profile`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
-                        },
-                        body: JSON.stringify({
-                            avatar_url: imageUrl
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('❌ Erro na resposta:', errorText);
-                        throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
-                    }
-                    
-                    const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.error || 'Erro ao salvar avatar no banco');
-                    }
-                    
-                    } catch (dbError) {
-                    console.error('❌ Erro ao salvar avatar no banco:', dbError);
-                    // Continuar mesmo se falhar no banco, pois já salvou no localStorage
-                }
-                
-                // Atualizar exibição
-                const avatarDisplay = document.getElementById('currentAvatarDisplay');
-                avatarDisplay.innerHTML = `<img src="${imageUrl}" alt="Avatar">`;
-                
-                // Mostrar botão de remover
-                document.getElementById('removeAvatarBtn').style.display = 'inline-flex';
-                
-                // Forçar atualização do avatar no dashboard se estiver aberto
-                if (window.opener && typeof window.opener.updateAvatarDisplay === 'function') {
-                    window.opener.updateAvatarDisplay();
-                }
-                
-                // Disparar evento customizado para notificar outras abas
-                window.dispatchEvent(new CustomEvent('avatarUpdated', { 
-                    detail: { avatar_url: imageUrl } 
-                }));
-                
-                alert('Foto do perfil atualizada com sucesso!');
-                
-            } catch (error) {
-                console.error('❌ Erro no upload do avatar:', error);
-                alert('Erro ao enviar foto: ' + error.message);
-            } finally {
-                const uploadBtn = document.querySelector('.btn-upload-avatar');
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Escolher Nova Foto';
-                uploadBtn.disabled = false;
-            }
-        }
-
-        // Função para remover avatar
-        async function removeAvatar() {
-            if (confirm('Tem certeza que deseja remover a foto do perfil?')) {
-                try {
-                    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-                    delete userData.avatar_url;
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                    
-                    // Remover do banco de dados
-                    try {
-                        const response = await fetch(`${window.API_BASE}/auth/profile`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
-                            },
-                            body: JSON.stringify({
-                                avatar_url: null
-                            })
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error(`Erro HTTP: ${response.status}`);
-                        }
-                        
-                        const result = await response.json();
-                        if (!result.success) {
-                            throw new Error(result.error || 'Erro ao remover avatar do banco');
-                        }
-                        
-                        } catch (dbError) {
-                        console.error('❌ Erro ao remover avatar do banco:', dbError);
-                        // Continuar mesmo se falhar no banco, pois já removeu do localStorage
-                    }
-                    
-                    // Atualizar exibição
-                    const avatarDisplay = document.getElementById('currentAvatarDisplay');
-                    const fullName = userData.nome || userData.name || 'Usuário';
-                    const initials = generateInitials(fullName);
-                    
-                    avatarDisplay.innerHTML = `<span id="avatarInitials">${initials}</span>`;
-                    
-                    // Esconder botão de remover
-                    document.getElementById('removeAvatarBtn').style.display = 'none';
-                    
-                    // Forçar atualização do avatar no dashboard se estiver aberto
-                    if (window.opener && typeof window.opener.updateAvatarDisplay === 'function') {
-                        window.opener.updateAvatarDisplay();
-                    }
-                    
-                    // Disparar evento customizado para notificar outras abas
-                    window.dispatchEvent(new CustomEvent('avatarUpdated', { 
-                        detail: { avatar_url: null } 
-                    }));
-                    
-                    alert('Foto do perfil removida com sucesso!');
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao remover avatar:', error);
-                    alert('Erro ao remover foto: ' + error.message);
-                }
-            }
-        }
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentAvatar();
-            
-            // Upload de avatar
-            document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
-            
-            // Remover avatar
-            document.getElementById('removeAvatarBtn').addEventListener('click', removeAvatar);
-        });
-
+        // Placeholder for upload logic (calls existing JS files)
+        // Ensure config.js and tools.js are loaded
     </script>
 </body>
 </html>
-

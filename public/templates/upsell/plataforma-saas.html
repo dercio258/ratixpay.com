@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma [NOME] | Inovação e Crescimento</title>
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Fontes: Inter e Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-darkbase: #0F172A;
+            --color-highlight: #00E3C2;
+            --color-highlight-dark: #008D7C;
+            --color-textlight: #FFFFFF;
+            --color-textsecondary: #CBD5E1;
+        }
+        
+        body {
+            background-color: var(--color-darkbase);
+            color: var(--color-textlight);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Container principal */
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Badge do cabeçalho */
+        .badge-header {
+            display: inline-block;
+            padding: 10px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-highlight);
+            background: rgba(0, 227, 194, 0.1);
+            border: 1px solid rgba(0, 227, 194, 0.3);
+            border-radius: 50px;
+            margin-bottom: 24px;
+        }
+        
+        /* Título principal */
+        .title-main {
+            font-size: clamp(42px, 8vw, 96px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--color-textlight);
+            font-family: 'Playfair Display', serif;
+            letter-spacing: -2px;
+        }
+        
+        .title-highlight {
+            color: var(--color-highlight);
+            text-shadow: 0 0 30px rgba(0, 227, 194, 0.5);
+        }
+        
+        .title-subtitle {
+            font-size: clamp(24px, 5vw, 64px);
+            color: var(--color-textsecondary);
+            margin-top: 16px;
+            display: block;
+        }
+        
+        /* Subtítulo */
+        .subtitle-main {
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: var(--color-textsecondary);
+            max-width: 900px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+        
+        /* Botão Shimmer */
+        .shimmer-button {
+            background: linear-gradient(90deg, #00E3C2 0%, #38F8E2 20%, #00E3C2 40%, #00E3C2 100%);
+            background-size: 200% 100%;
+            color: #0F172A;
+            font-weight: 900;
+            padding: 18px 40px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: clamp(16px, 2vw, 20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 227, 194, 0.8);
+            border-bottom: 4px solid var(--color-highlight-dark);
+            animation: shimmer 2s infinite linear;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .shimmer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 227, 194, 1);
+        }
+        
+        .shimmer-button:active {
+            transform: translateY(0);
+            border-bottom-width: 2px;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Seção de Demonstração */
+        .demo-section {
+            margin-top: 60px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 227, 194, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .demo-section:hover {
+            transform: scale(1.005);
+            border-color: rgba(0, 227, 194, 0.5);
+        }
+        
+        .demo-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 100, 0.5);
+        }
+        
+        /* Seção de Prova Social */
+        .social-proof-section {
+            margin: 80px 0;
+            padding: 40px 0;
+            border-top: 1px solid rgba(100, 100, 100, 0.5);
+            border-bottom: 1px solid rgba(100, 100, 100, 0.5);
+        }
+        
+        .social-proof-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-textsecondary);
+            margin-bottom: 32px;
+        }
+        
+        .social-proof-logos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 48px;
+            opacity: 0.75;
+        }
+        
+        .social-proof-logo {
+            font-size: 48px;
+            color: var(--color-textlight);
+            transition: all 0.3s ease;
+        }
+        
+        .social-proof-logo:hover {
+            color: var(--color-highlight);
+            transform: scale(1.2);
+        }
+        
+        /* Seção de Funcionalidades */
+        .features-section {
+            margin: 80px 0;
+        }
+        
+        .features-badge {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-highlight);
+            margin-bottom: 16px;
+        }
+        
+        .features-title {
+            text-align: center;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 900;
+            color: var(--color-textlight);
+            margin-bottom: 60px;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+        
+        .feature-card:hover {
+            border-color: var(--color-highlight);
+            box-shadow: 0 0 30px rgba(0, 227, 194, 0.3);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            color: var(--color-highlight);
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-textlight);
+            margin-bottom: 12px;
+        }
+        
+        .feature-description {
+            font-size: 16px;
+            color: var(--color-textsecondary);
+            line-height: 1.7;
+        }
+        
+        /* Seção de Planos */
+        .pricing-section {
+            margin: 80px 0;
+        }
+        
+        .pricing-badge {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-highlight);
+            margin-bottom: 16px;
+        }
+        
+        .pricing-title {
+            text-align: center;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 900;
+            color: var(--color-textlight);
+            margin-bottom: 60px;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(100, 100, 100, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+        
+        .pricing-card:hover {
+            border-color: rgba(0, 227, 194, 0.5);
+            transform: translateY(-5px);
+        }
+        
+        .pricing-card.featured {
+            background: rgba(30, 30, 30, 0.95);
+            border: 4px solid var(--color-highlight);
+            box-shadow: 0 0 40px rgba(0, 227, 194, 0.8);
+            transform: scale(1.05);
+        }
+        
+        .pricing-badge-featured {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: var(--color-highlight);
+            color: var(--color-darkbase);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .pricing-card-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-textlight);
+            margin-bottom: 12px;
+        }
+        
+        .pricing-card-description {
+            font-size: 15px;
+            color: var(--color-textsecondary);
+            margin-bottom: 32px;
+        }
+        
+        .pricing-price {
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--color-textlight);
+            margin-bottom: 32px;
+            line-height: 1;
+        }
+        
+        .pricing-price-currency {
+            font-size: 28px;
+            vertical-align: top;
+            color: var(--color-textsecondary);
+        }
+        
+        .pricing-price-period {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--color-textsecondary);
+        }
+        
+        .pricing-button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-button.primary {
+            background: linear-gradient(90deg, #00E3C2 0%, #38F8E2 20%, #00E3C2 40%, #00E3C2 100%);
+            background-size: 200% 100%;
+            color: var(--color-darkbase);
+            animation: shimmer 2s infinite linear;
+            box-shadow: 0 0 20px rgba(0, 227, 194, 0.5);
+        }
+        
+        .pricing-button.secondary {
+            background: rgba(100, 100, 100, 0.7);
+            color: var(--color-textlight);
+        }
+        
+        .pricing-button.secondary:hover {
+            background: rgba(100, 100, 100, 0.9);
+        }
+        
+        .pricing-features {
+            text-align: left;
+            list-style: none;
+        }
+        
+        .pricing-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            color: var(--color-textsecondary);
+        }
+        
+        .pricing-feature i {
+            color: var(--color-highlight);
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .pricing-feature.disabled {
+            opacity: 0.5;
+        }
+        
+        .pricing-feature.disabled i {
+            color: #ef4444;
+        }
+        
+        /* Footer */
+        .footer-section {
+            text-align: center;
+            font-size: 12px;
+            color: var(--color-textsecondary);
+            margin-top: 80px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(100, 100, 100, 0.5);
+            padding-bottom: 120px;
+        }
+        
+        .footer-links {
+            margin-top: 12px;
+        }
+        
+        .footer-links a {
+            color: var(--color-textlight);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-highlight);
+        }
+        
+        /* Barra CTA Sticky */
+        .sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            z-index: 50;
+            border-top: 1px solid rgba(0, 227, 194, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .sticky-cta-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .sticky-cta-info {
+            text-align: center;
+        }
+        
+        .sticky-cta-info-label {
+            font-size: 12px;
+            color: var(--color-textsecondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sticky-cta-info-price {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--color-textlight);
+        }
+        
+        .sticky-cta-button {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(0, 227, 194, 0.5);
+            box-shadow: 0 0 40px rgba(0, 227, 194, 0.8);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--color-highlight);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+        
+        .modal-success {
+            width: 48px;
+            height: 48px;
+            background: var(--color-highlight);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-textlight);
+            margin-bottom: 8px;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: var(--color-textsecondary);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade */
+        @media (min-width: 640px) {
+            .sticky-cta-content {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            
+            .sticky-cta-info {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-main">
+        
+        <!-- Hero Section -->
+        <header class="text-center mb-24 pt-10">
+            <div class="badge-header" data-editable="text" data-field="badge_texto" contenteditable="false">
+                LANÇAMENTO BETA 3.0 | [SEU NICHO AQUI]
+            </div>
+            
+            <h1 class="title-main" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                Construa <span class="title-highlight">Sistemas Imbatíveis</span>
+                <span class="title-subtitle">Sem escrever uma linha de código.</span>
+            </h1>
+            
+            <p class="subtitle-main" data-editable="text" data-field="subtitulo" contenteditable="false">
+                A Plataforma [NOME] é a ferramenta definitiva que transforma suas ideias complexas em soluções funcionais em minutos, não em meses.
+            </p>
+            
+            <!-- CTA Principal -->
+            <button onclick="triggerPurchase()" class="shimmer-button" data-editable="button-text" data-field="texto_botao_principal" contenteditable="false">
+                <i class="ph-fill ph-rocket-launch"></i>
+                <span>COMECE GRÁTIS POR 7 DIAS</span>
+            </button>
+            
+            <p class="mt-6 text-sm text-textsecondary" data-editable="text" data-field="texto_prova_social" contenteditable="false">
+                Mais de 15.000 usuários confiam na nossa tecnologia.
+            </p>
+        
+            <!-- Demonstração do Produto -->
+            <div class="demo-section">
+                <img src="https://placehold.co/1200x500/0F172A/00E3C2?text=INTERFACE+DA+PLATAFORMA+/\n+DEMONSTRA%C3%87%C3%83O+DE+V%C3%8DEO" alt="Demonstração da Interface da Plataforma" class="demo-image" data-editable="media" data-field="imagem_demo" data-media-type="image" contenteditable="false">
+            </div>
+        </header>
+
+        <!-- Seção: Prova Social (Logos) -->
+        <section class="social-proof-section">
+            <h2 class="social-proof-title" data-editable="text" data-field="titulo_prova_social" contenteditable="false">
+                Ferramenta escolhida por líderes globais e startups inovadoras:
+            </h2>
+            <div class="social-proof-logos" data-editable="text" data-field="logos_prova_social" contenteditable="false">
+                <i class="ph-fill ph-google-chrome social-proof-logo"></i>
+                <i class="ph-fill ph-microsoft-word social-proof-logo"></i>
+                <i class="ph-fill ph-amazon-logo social-proof-logo"></i>
+                <i class="ph-fill ph-twitch-logo social-proof-logo"></i>
+                <i class="ph-fill ph-figma-logo social-proof-logo"></i>
+                <i class="ph-fill ph-reddit-logo social-proof-logo"></i>
+            </div>
+        </section>
+
+        <!-- Seção: Principais Funcionalidades -->
+        <section class="features-section">
+            <div class="features-badge" data-editable="text" data-field="badge_funcionalidades" contenteditable="false">
+                O QUE VOCÊ GANHA
+            </div>
+            <h2 class="features-title" data-editable="text" data-field="titulo_funcionalidades" contenteditable="false">
+                A Revolução da Eficiência
+            </h2>
+            
+            <div class="features-grid">
+                <!-- Funcionalidade 1 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-speedometer feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_1_titulo" contenteditable="false">Desenvolvimento 10x Mais Rápido</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_1_descricao" contenteditable="false">Reduza o tempo de lançamento de semanas para dias com nossa arquitetura pré-otimizada. Foque na inovação, não na manutenção.</p>
+                </div>
+                
+                <!-- Funcionalidade 2 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-cube feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_2_titulo" contenteditable="false">Adaptação Total ao seu Nicho</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_2_descricao" contenteditable="false">Seja para e-commerce, gestão financeira ou design de UI/UX, o sistema se adapta. Crie soluções que realmente funcionam para o seu desafio.</p>
+                </div>
+                
+                <!-- Funcionalidade 3 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-headset feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_3_titulo" contenteditable="false">Suporte Técnico 24/7 Premium</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_3_descricao" contenteditable="false">Nunca mais fique preso. Nossa equipe de especialistas está pronta para resolver qualquer problema e garantir sua operação ininterrupta.</p>
+                </div>
+                
+                <!-- Funcionalidade 4 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-shield-check feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_4_titulo" contenteditable="false">Segurança de Nível Empresarial</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_4_descricao" contenteditable="false">Seus dados e projetos estão protegidos com criptografia de ponta e certificações de segurança internacionais.</p>
+                </div>
+                
+                <!-- Funcionalidade 5 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-plug-connector feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_5_titulo" contenteditable="false">Integração Simples</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_5_descricao" contenteditable="false">Conecte-se facilmente com todas as suas ferramentas favoritas, de CRMs a plataformas de pagamento e APIs externas.</p>
+                </div>
+                
+                <!-- Funcionalidade 6 -->
+                <div class="feature-card">
+                    <i class="ph-fill ph-trending-up feature-icon"></i>
+                    <h3 class="feature-title" data-editable="text" data-field="funcionalidade_6_titulo" contenteditable="false">Escalabilidade Ilimitada</h3>
+                    <p class="feature-description" data-editable="text" data-field="funcionalidade_6_descricao" contenteditable="false">Desenvolva pensando no futuro. Nossa infraestrutura suporta milhões de usuários sem perda de desempenho.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção: Planos de Preço -->
+        <section class="pricing-section">
+            <div class="pricing-badge" data-editable="text" data-field="badge_planos" contenteditable="false">
+                INVESTIMENTO
+            </div>
+            <h2 class="pricing-title" data-editable="text" data-field="titulo_planos" contenteditable="false">
+                Escolha Seu Plano de Sucesso
+            </h2>
+            
+            <div class="pricing-grid">
+                <!-- Plano 1: Starter -->
+                <div class="pricing-card">
+                    <h3 class="pricing-card-title" data-editable="text" data-field="plano_1_nome" contenteditable="false">Plano Starter</h3>
+                    <p class="pricing-card-description" data-editable="text" data-field="plano_1_descricao" contenteditable="false">Ideal para projetos pessoais ou testes iniciais.</p>
+                    
+                    <p class="pricing-price" data-editable="text" data-field="plano_1_preco" contenteditable="false">
+                        <span class="pricing-price-currency">MZN</span> 99
+                        <span class="pricing-price-period">/mês</span>
+                    </p>
+                    
+                    <button onclick="triggerPurchase()" class="pricing-button secondary" data-editable="button-text" data-field="plano_1_botao" contenteditable="false">
+                        Começar com Starter
+                    </button>
+                    
+                    <ul class="pricing-features" data-editable="text" data-field="plano_1_features" contenteditable="false">
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> 1 Usuário Ativo</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> 5 Projetos Simultâneos</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> 10GB de Armazenamento</li>
+                        <li class="pricing-feature disabled"><i class="ph-fill ph-x"></i> Suporte Premium 24/7</li>
+                        <li class="pricing-feature disabled"><i class="ph-fill ph-x"></i> Integração de APIs Externas</li>
+                    </ul>
+                </div>
+                
+                <!-- Plano 2: Pro Max (Destaque) -->
+                <div class="pricing-card featured">
+                    <span class="pricing-badge-featured" data-editable="text" data-field="badge_plano_destaque" contenteditable="false">MAIS POPULAR</span>
+                    <h3 class="pricing-card-title" data-editable="text" data-field="plano_2_nome" contenteditable="false">Plano Pro Max</h3>
+                    <p class="pricing-card-description" data-editable="text" data-field="plano_2_descricao" contenteditable="false">Perfeito para agências, freelancers e equipes em crescimento.</p>
+                    
+                    <p class="pricing-price" data-editable="text" data-field="plano_2_preco" contenteditable="false">
+                        <span class="pricing-price-currency">MZN</span> 299
+                        <span class="pricing-price-period">/mês</span>
+                    </p>
+                    
+                    <button onclick="triggerPurchase()" class="pricing-button primary" data-editable="button-text" data-field="plano_2_botao" contenteditable="false">
+                        ESCOLHER PLANO PRO
+                    </button>
+                    
+                    <ul class="pricing-features" data-editable="text" data-field="plano_2_features" contenteditable="false">
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Usuários Ilimitados</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Projetos Ilimitados</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Armazenamento Ilimitado</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Suporte Premium 24/7</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Integração de APIs Externas</li>
+                    </ul>
+                </div>
+                
+                <!-- Plano 3: Enterprise -->
+                <div class="pricing-card">
+                    <h3 class="pricing-card-title" data-editable="text" data-field="plano_3_nome" contenteditable="false">Plano Enterprise</h3>
+                    <p class="pricing-card-description" data-editable="text" data-field="plano_3_descricao" contenteditable="false">Para grandes empresas com necessidades de segurança e compliance.</p>
+                    
+                    <p class="pricing-price" data-editable="text" data-field="plano_3_preco" contenteditable="false">
+                        <span class="pricing-price-currency">MZN</span> 799
+                        <span class="pricing-price-period">/mês</span>
+                    </p>
+                    
+                    <button onclick="triggerPurchase()" class="pricing-button secondary" data-editable="button-text" data-field="plano_3_botao" contenteditable="false">
+                        Falar com Consultor
+                    </button>
+                    
+                    <ul class="pricing-features" data-editable="text" data-field="plano_3_features" contenteditable="false">
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Tudo do Plano Pro Max</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Segurança Customizada (SLA)</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Treinamento Dedicado</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Consultoria Estratégica Mensal</li>
+                        <li class="pricing-feature"><i class="ph-fill ph-check"></i> Servidores Dedicados (Opção)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer-section">
+            <p data-editable="text" data-field="texto_footer" contenteditable="false">© 2025 [Nome da Empresa]. Todos os direitos reservados. Plataforma de Desenvolvimento Simplificado.</p>
+            <div class="footer-links" data-editable="text" data-field="links_footer" contenteditable="false">
+                <a href="#" style="color: #FFFFFF; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Política de Privacidade</a> | <a href="#" style="color: #FFFFFF; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Termos de Uso</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Barra CTA Sticky -->
+    <div id="sticky-cta" class="sticky-cta">
+        <div class="sticky-cta-content">
+            <div class="sticky-cta-info">
+                <p class="sticky-cta-info-label" data-editable="text" data-field="sticky_label" contenteditable="false">PLANOS A PARTIR DE:</p>
+                <p class="sticky-cta-info-price" data-editable="text" data-field="sticky_preco" contenteditable="false">MZN 99,00 / mês</p>
+            </div>
+            <button onclick="triggerPurchase()" class="sticky-cta-button shimmer-button" data-editable="button-text" data-field="sticky_botao" contenteditable="false">
+                <i class="ph-fill ph-lightning"></i>
+                TESTAR GRATUITAMENTE AGORA
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-spinner" id="spinner"></div>
+            <div class="modal-success" id="successIcon">
+                <i class="ph-bold ph-check" style="color: #0F172A; font-size: 24px;"></i>
+            </div>
+            <h3 class="modal-title" id="modalTitle">Iniciando Seu Teste...</h3>
+            <p class="modal-text">Aguarde enquanto preparamos seu ambiente de trabalho.</p>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const modal = document.getElementById('feedbackModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const spinner = document.getElementById('spinner');
+                const successIcon = document.getElementById('successIcon');
+                const title = document.getElementById('modalTitle');
+
+                spinner.style.display = 'block';
+                successIcon.style.display = 'none';
+                title.textContent = "Iniciando Seu Teste...";
+                title.style.color = '#FFFFFF';
+
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                }, 10);
+
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    successIcon.style.display = 'flex';
+                    title.textContent = "Sucesso! Ambiente Pronto!";
+                    title.style.color = '#00E3C2';
+                    
+                    setTimeout(() => {
+                        const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                        window.location.href = `/payment-success.html?${params}`;
+                    }, 1500);
+                }, 2000);
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

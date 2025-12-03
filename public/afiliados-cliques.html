@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Cliques - RatixPay</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        /* Navbar de Navegação */
+        .affiliate-navbar {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        .navbar-brand:hover {
+            color: #9b59b6;
+        }
+        .navbar-brand i {
+            color: #9b59b6;
+        }
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-item {
+            position: relative;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .nav-link:hover {
+            background: #f8f9fa;
+            color: #9b59b6;
+            transform: translateY(-2px);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+        .nav-link i {
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .affiliate-navbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .navbar-nav {
+                width: 100%;
+                justify-content: center;
+            }
+            .nav-link {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+        }
+        @media (max-width: 576px) {
+            .navbar-nav {
+                flex-direction: column;
+            }
+            .nav-link {
+                width: 100%;
+            }
+        }
+        .cliques-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        /* Cards de Métricas - Estilo igual ao dashboard */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 992px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #E67E22;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+            min-height: 75px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.geral {
+            border-left-color: #17a2b8;
+        }
+
+        .stat-card.geral .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #17a2b8;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .stat-card.geral .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.pagos {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.pagos .stat-number {
+            color: #28a745;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .stat-card.pagos .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.pendentes {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.pendentes .stat-number {
+            color: #ffc107;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .stat-card.pendentes .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .stat-card.cancelados {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.cancelados .stat-number {
+            color: #dc3545;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0;
+            white-space: nowrap;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .stat-card.cancelados .stat-label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+        .filters-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .table-cliques {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .table-cliques th {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .table-cliques td {
+            background-color: #ffffff;
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .table-cliques tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+        .status-pago {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-pendente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-cancelado {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .product-name {
+            font-weight: 600;
+            color: #343a40;
+        }
+        .info-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            margin: 2px;
+            color: #495057;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-filter {
+            background: linear-gradient(135deg, #E67E22, #fd7e14);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(230, 126, 34, 0.2);
+        }
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+        }
+        .btn-filter.active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-mouse-pointer"></i> Gestão de Cliques</h1>
+                    <p>Histórico e gestão de cliques válidos, pagos e cancelados</p>
+                </div>
+            </div>
+
+
+            <!-- Conteúdo -->
+            <div class="container-fluid mb-5">
+                <div class="cliques-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-list-alt"></i> Histórico de Cliques
+                        </h2>
+                        <button class="btn btn-primary" onclick="window.location.href='afiliados-painel.html'">
+                            <i class="fas fa-arrow-left"></i> Voltar ao Painel
+                        </button>
+                    </div>
+
+                    <!-- Cards de Estatísticas -->
+                    <div class="stats-cards" id="statsCards">
+                        <div class="stat-card geral">
+                            <div class="stat-number" id="totalGeral">0</div>
+                            <div class="stat-label">Total de Cliques</div>
+                        </div>
+                        <div class="stat-card pagos">
+                            <div class="stat-number" id="totalPagos">0</div>
+                            <div class="stat-label">Cliques Pagos</div>
+                        </div>
+                        <div class="stat-card pendentes">
+                            <div class="stat-number" id="totalPendentes">0</div>
+                            <div class="stat-label">Cliques Pendentes</div>
+                        </div>
+                        <div class="stat-card cancelados">
+                            <div class="stat-number" id="totalCancelados">0</div>
+                            <div class="stat-label">Cliques Cancelados</div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="filters-section">
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label>Status</label>
+                                <select class="form-select" id="filterStatus">
+                                    <option value="">Todos</option>
+                                    <option value="pendente">Pendentes (Válidos)</option>
+                                    <option value="pago">Pagos</option>
+                                    <option value="cancelado">Cancelados (Inválidos)</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Produto</label>
+                                <select class="form-select" id="filterProduto">
+                                    <option value="">Todos os produtos</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <button class="btn btn-filter" onclick="aplicarFiltros()">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                                <button class="btn btn-secondary" onclick="limparFiltros()" style="margin-left: 10px;">
+                                    <i class="fas fa-times"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="loadingCliques" class="loading" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-3">Carregando cliques...</p>
+                    </div>
+
+                    <div id="cliquesTableContainer" class="table-responsive">
+                        <table class="table table-cliques">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Data/Hora</th>
+                                    <th>Status</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cliquesTableBody">
+                                <!-- Cliques serão carregados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <h3>Nenhum clique encontrado</h3>
+                        <p>Seus cliques aparecerão aqui quando houver vendas processadas.</p>
+                    </div>
+
+                    <!-- Paginação -->
+                    <div class="pagination" id="paginationContainer" style="display: none;">
+                        <button class="btn btn-sm btn-outline-primary" id="btnPrev" onclick="mudarPagina(-1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="paginationInfo" class="mx-3"></span>
+                        <button class="btn btn-sm btn-outline-primary" id="btnNext" onclick="mudarPagina(1)">
+                            Próxima <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+    <script src="/js/sidebar-component.js"></script>
+    <script>
+        const API_BASE = window.location.origin.includes('localhost') 
+            ? 'http://localhost:4000/api' 
+            : `${window.location.origin}/api`;
+
+        let user = null;
+        let currentPage = 1;
+        let currentFilters = { status: '', produto_id: '' };
+        let produtosList = [];
+
+        // Função para fazer requisições autenticadas
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken') || sessionStorage.getItem('token');
+            
+            if (!token || token.trim() === '') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Não autenticado');
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Sessão expirada');
+            }
+
+            return response;
+        }
+
+        // Formatação
+        const Formatters = {
+            dataHora(data) {
+                if (!data) return 'N/A';
+                const d = new Date(data);
+                return d.toLocaleString('pt-BR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            },
+            numero(valor) {
+                return parseInt(valor || 0).toLocaleString('pt-BR');
+            }
+        };
+
+        // Notificações
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            const alertClass = {
+                success: 'alert-success',
+                error: 'alert-danger',
+                warning: 'alert-warning',
+                info: 'alert-info'
+            }[tipo] || 'alert-info';
+
+            const notification = document.createElement('div');
+            notification.className = `alert ${alertClass} alert-dismissible fade show`;
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Verificar autenticação
+        async function verificarAutenticacao() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || sessionStorage.getItem('token');
+                if (!token || token.trim() === '') {
+                    window.location.href = '/login.html';
+                    return false;
+                }
+
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('authToken');
+                        sessionStorage.removeItem('token');
+                        window.location.href = '/login.html';
+                        return false;
+                    }
+                    throw new Error('Erro ao verificar autenticação');
+                }
+
+                const data = await response.json();
+                if (!data.success || !data.user) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('authToken');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+
+                if (data.user.ativo === false || data.user.suspenso === true) {
+                    window.location.href = '/login.html?error=conta-restrita';
+                    return false;
+                }
+
+                user = data.user;
+                return true;
+
+            } catch (error) {
+                console.error('Erro na verificação de autenticação:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+
+        // Carregar produtos para filtro
+        async function carregarProdutos() {
+            try {
+                const response = await authenticatedFetch(`${API_BASE}/vendedor/afiliados/meus-produtos`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                if (data.success && data.data) {
+                    produtosList = data.data;
+                    const select = document.getElementById('filterProduto');
+                    select.innerHTML = '<option value="">Todos os produtos</option>';
+                    produtosList.forEach(produto => {
+                        const option = document.createElement('option');
+                        option.value = produto.id;
+                        option.textContent = produto.nome;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+            }
+        }
+
+        // Carregar cliques
+        async function carregarCliques() {
+            try {
+                document.getElementById('loadingCliques').style.display = 'block';
+                document.getElementById('cliquesTableBody').innerHTML = '';
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('paginationContainer').style.display = 'none';
+
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: 50,
+                    ...currentFilters
+                });
+                if (!currentFilters.produto_id) params.delete('produto_id');
+                if (!currentFilters.status) params.delete('status');
+
+                const response = await authenticatedFetch(`${API_BASE}/vendedor/afiliados/cliques?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Resposta não é JSON:', text.substring(0, 200));
+                    throw new Error('Resposta do servidor não é JSON');
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('loadingCliques').style.display = 'none';
+
+                if (data.success && data.data) {
+                    // Atualizar estatísticas
+                    document.getElementById('totalGeral').textContent = Formatters.numero(data.data.totais.geral);
+                    document.getElementById('totalPagos').textContent = Formatters.numero(data.data.totais.pagos);
+                    document.getElementById('totalPendentes').textContent = Formatters.numero(data.data.totais.pendentes);
+                    document.getElementById('totalCancelados').textContent = Formatters.numero(data.data.totais.cancelados);
+
+                    if (data.data.cliques && data.data.cliques.length > 0) {
+                        renderizarCliques(data.data.cliques);
+                        
+                        // Mostrar paginação se necessário
+                        if (data.data.pagination.totalPages > 1) {
+                            document.getElementById('paginationContainer').style.display = 'flex';
+                            document.getElementById('paginationInfo').textContent = 
+                                `Página ${data.data.pagination.page} de ${data.data.pagination.totalPages} (${data.data.pagination.total} cliques)`;
+                            document.getElementById('btnPrev').disabled = data.data.pagination.page === 1;
+                            document.getElementById('btnNext').disabled = data.data.pagination.page === data.data.pagination.totalPages;
+                        }
+                    } else {
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cliques:', error);
+                document.getElementById('loadingCliques').style.display = 'none';
+                mostrarNotificacao('Erro ao carregar cliques: ' + error.message, 'error');
+            }
+        }
+
+        // Renderizar cliques
+        function renderizarCliques(cliques) {
+            const tbody = document.getElementById('cliquesTableBody');
+            tbody.innerHTML = cliques.map(clique => {
+                const statusClass = `status-${clique.status}`;
+                const statusText = {
+                    'pago': 'Pago',
+                    'pendente': 'Pendente',
+                    'cancelado': 'Cancelado'
+                }[clique.status] || clique.status;
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="product-info">
+                                <img src="${clique.produto_imagem}" 
+                                     alt="${clique.produto_nome}" 
+                                     class="product-image"
+                                     onerror="this.src='/assets/images/placeholder-product.png'">
+                                <span class="product-name">${clique.produto_nome}</span>
+                            </div>
+                        </td>
+                        <td>${Formatters.dataHora(clique.data_hora)}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td>
+                            ${clique.motivo_rejeicao ? `<small class="text-muted">${clique.motivo_rejeicao}</small>` : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Aplicar filtros
+        function aplicarFiltros() {
+            currentFilters.status = document.getElementById('filterStatus').value;
+            currentFilters.produto_id = document.getElementById('filterProduto').value;
+            currentPage = 1;
+            carregarCliques();
+        }
+
+        // Limpar filtros
+        function limparFiltros() {
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterProduto').value = '';
+            currentFilters = { status: '', produto_id: '' };
+            currentPage = 1;
+            carregarCliques();
+        }
+
+        // Mudar página
+        function mudarPagina(direction) {
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            carregarCliques();
+        }
+
+        // Inicializar página
+        async function init() {
+            try {
+                const autenticado = await verificarAutenticacao();
+                if (!autenticado) {
+                    return;
+                }
+
+                if (typeof SidebarComponent !== 'undefined') {
+                    const sidebar = new SidebarComponent();
+                    sidebar.applyToPage('afiliados');
+                }
+
+                await carregarProdutos();
+                await carregarCliques();
+            } catch (error) {
+                console.error('Erro ao inicializar:', error);
+                mostrarNotificacao('Erro ao carregar dados', 'error');
+            }
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+

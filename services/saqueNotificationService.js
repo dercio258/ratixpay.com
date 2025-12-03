@@ -242,15 +242,37 @@ RatixPay`;
      */
     static async enviarEmailAdminSaquePendente(saque, vendedor) {
         try {
-            // Gerar ID amigável (últimos 6 caracteres do UUID)
-            const idSaqueAmigavel = saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id;
+            // Obter ID público (preferir public_id, senão usar últimos 6 caracteres do UUID)
+            const idSaqueAmigavel = saque.public_id || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id);
             
             // Obter dados do saque (valores podem estar em diferentes campos)
             const valorSolicitado = parseFloat(saque.valor || saque.valor_solicitado || 0);
-            const nomeTitular = saque.conta_destino || saque.nome_titular || 'N/A';
+            const nomeTitular = saque.nome_titular || saque.conta_destino || 'N/A';
             const contacto = saque.telefone_titular || 'N/A';
             const metodo = saque.metodo || saque.metodo_pagamento || 'N/A';
             const dataSolicitacao = saque.data_solicitacao || saque.createdAt || new Date();
+            
+            // Extrair dados completos da carteira das observações
+            let dadosMpesa = { contacto: 'N/A', nomeTitular: 'N/A' };
+            let dadosEmola = { contacto: 'N/A', nomeTitular: 'N/A' };
+            let emailCarteira = 'N/A';
+            
+            if (saque.observacoes) {
+                // Tentar extrair dados da carteira das observações
+                const mpesaMatch = saque.observacoes.match(/MPESA:[\s\S]*?Contacto: ([^\n]+)[\s\S]*?Nome Titular: ([^\n]+)/i);
+                const emolaMatch = saque.observacoes.match(/EMOLA:[\s\S]*?Contacto: ([^\n]+)[\s\S]*?Nome Titular: ([^\n]+)/i);
+                const emailMatch = saque.observacoes.match(/Email: ([^\n]+)/i);
+                
+                if (mpesaMatch) {
+                    dadosMpesa = { contacto: mpesaMatch[1].trim(), nomeTitular: mpesaMatch[2].trim() };
+                }
+                if (emolaMatch) {
+                    dadosEmola = { contacto: emolaMatch[1].trim(), nomeTitular: emolaMatch[2].trim() };
+                }
+                if (emailMatch) {
+                    emailCarteira = emailMatch[1].trim();
+                }
+            }
             
             const assunto = `Pedido de saque pendente ID ${idSaqueAmigavel}`;
             
@@ -286,28 +308,62 @@ RatixPay`;
                         <div class="info-box">
                             <h3 style="margin-top: 0; color: #F64C00;">📋 Informações do Pedido</h3>
                             <div class="info-row">
-                                <span class="label">ID do Pedido:</span>
+                                <span class="label">🆔 ID Público:</span>
                                 <span class="value"><strong>${idSaqueAmigavel}</strong></span>
                             </div>
                             <div class="info-row">
-                                <span class="label">Nome do Titular:</span>
+                                <span class="label">💰 Valor Solicitado:</span>
+                                <span class="value"><strong style="color: #F64C00; font-size: 18px;">MZN ${valorSolicitado.toFixed(2)}</strong></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">📅 Data/Hora Solicitação:</span>
+                                <span class="value">${new Date(dataSolicitacao).toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">💳 Método Escolhido:</span>
+                                <span class="value"><strong>${metodo}</strong></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">👤 Nome do Titular (${metodo}):</span>
                                 <span class="value">${nomeTitular}</span>
                             </div>
                             <div class="info-row">
-                                <span class="label">Contacto do Titular:</span>
+                                <span class="label">📱 Contacto (${metodo}):</span>
                                 <span class="value">${contacto}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Valor Solicitado:</span>
-                                <span class="value"><strong>MZN ${valorSolicitado.toFixed(2)}</strong></span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">Método:</span>
-                                <span class="value">${metodo}</span>
                             </div>
                             <div class="info-row">
                                 <span class="label">Status:</span>
                                 <span class="value"><span class="status">PENDENTE</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box" style="background: #e7f3ff; border-left-color: #0066cc;">
+                            <h3 style="margin-top: 0; color: #0066cc;">📱 DADOS COMPLETOS DA CARTEIRA</h3>
+                            <div style="margin-bottom: 15px;">
+                                <h4 style="color: #0066cc; margin-bottom: 8px;">📱 MPESA:</h4>
+                                <div class="info-row">
+                                    <span class="label">Contacto:</span>
+                                    <span class="value">${dadosMpesa.contacto}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Nome Titular:</span>
+                                    <span class="value">${dadosMpesa.nomeTitular}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="color: #0066cc; margin-bottom: 8px;">📱 EMOLA:</h4>
+                                <div class="info-row">
+                                    <span class="label">Contacto:</span>
+                                    <span class="value">${dadosEmola.contacto}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Nome Titular:</span>
+                                    <span class="value">${dadosEmola.nomeTitular}</span>
+                                </div>
+                            </div>
+                            <div class="info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #b3d9ff;">
+                                <span class="label">📧 Email:</span>
+                                <span class="value">${emailCarteira}</span>
                             </div>
                         </div>
                         
@@ -487,20 +543,50 @@ RatixPay`;
      */
     static async enviarWhatsAppAdminSaquePendente(saque, vendedor) {
         try {
-            // Gerar ID amigável (últimos 6 caracteres do UUID)
-            const idSaqueAmigavel = saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id;
+            // Obter ID público (preferir public_id)
+            const idSaqueAmigavel = saque.public_id || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id);
             
             // Obter dados do saque (valores podem estar em diferentes campos)
             const valorSolicitado = parseFloat(saque.valor || saque.valor_solicitado || 0);
-            const nomeTitular = saque.conta_destino || saque.nome_titular || 'N/A';
+            const nomeTitular = saque.nome_titular || saque.conta_destino || 'N/A';
             const contacto = saque.telefone_titular || 'N/A';
             const metodo = saque.metodo || saque.metodo_pagamento || 'N/A';
             const dataSolicitacao = saque.data_solicitacao || saque.createdAt || new Date();
             
-            const mensagem = `💰 *Novo Saque*
+            // Extrair dados completos da carteira das observações
+            let dadosMpesa = { contacto: 'N/A', nomeTitular: 'N/A' };
+            let dadosEmola = { contacto: 'N/A', nomeTitular: 'N/A' };
+            
+            if (saque.observacoes) {
+                const mpesaMatch = saque.observacoes.match(/MPESA:[\s\S]*?Contacto: ([^\n]+)[\s\S]*?Nome Titular: ([^\n]+)/i);
+                const emolaMatch = saque.observacoes.match(/EMOLA:[\s\S]*?Contacto: ([^\n]+)[\s\S]*?Nome Titular: ([^\n]+)/i);
+                
+                if (mpesaMatch) {
+                    dadosMpesa = { contacto: mpesaMatch[1].trim(), nomeTitular: mpesaMatch[2].trim() };
+                }
+                if (emolaMatch) {
+                    dadosEmola = { contacto: emolaMatch[1].trim(), nomeTitular: emolaMatch[2].trim() };
+                }
+            }
+            
+            const mensagem = `💰 *NOVO SAQUE SOLICITADO*
 
-👤 ${vendedor.nome_completo}
-💰 MZN ${valorSolicitado.toFixed(2)}
+🆔 *ID:* ${idSaqueAmigavel}
+👤 *Vendedor:* ${vendedor.nome_completo}
+💰 *Valor:* MZN ${valorSolicitado.toFixed(2)}
+📅 *Data/Hora:* ${new Date(dataSolicitacao).toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}
+💳 *Método Escolhido:* ${metodo}
+
+📱 *DADOS DA CARTEIRA:*
+*MPESA:*
+   📞 ${dadosMpesa.contacto}
+   👤 ${dadosMpesa.nomeTitular}
+
+*EMOLA:*
+   📞 ${dadosEmola.contacto}
+   👤 ${dadosEmola.nomeTitular}
+
+⏳ *Status:* PENDENTE
 
 RatixPay`;
             
@@ -625,6 +711,154 @@ RatixPay`;
             
         } catch (error) {
             console.error('❌ Erro ao enviar WhatsApp de saque cancelado:', error);
+        }
+    }
+    
+    /**
+     * Notificar vendedor sobre saque rejeitado com motivo
+     */
+    static async notificarVendedorSaqueRejeitado(saque, vendedor, motivo) {
+        try {
+            console.log(`🔔 Enviando notificação de saque rejeitado para vendedor...`);
+            
+            // Enviar email
+            await this.enviarEmailVendedorSaqueRejeitado(saque, vendedor, motivo);
+            
+            // Enviar WhatsApp
+            await this.enviarWhatsAppVendedorSaqueRejeitado(saque, vendedor, motivo);
+            
+            console.log(`✅ Notificações de saque rejeitado enviadas para vendedor`);
+            
+        } catch (error) {
+            console.error('❌ Erro ao enviar notificação de saque rejeitado:', error);
+        }
+    }
+    
+    /**
+     * Enviar email para vendedor sobre saque rejeitado
+     */
+    static async enviarEmailVendedorSaqueRejeitado(saque, vendedor, motivo) {
+        try {
+            const idSaqueAmigavel = saque.public_id || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id);
+            const valorSolicitado = parseFloat(saque.valor || saque.valor_solicitado || 0);
+            const metodo = saque.metodo || saque.metodo_pagamento || 'N/A';
+            const dataRejeicao = saque.data_processamento || new Date();
+            
+            const assunto = `❌ Saque Rejeitado - ID ${idSaqueAmigavel}`;
+            
+            const conteudoHTML = `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Saque Rejeitado</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px; }
+                        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                        .header { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; margin: -30px -30px 20px -30px; }
+                        .header h1 { margin: 0; font-size: 24px; }
+                        .info-box { background: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 4px; }
+                        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e0e0e0; }
+                        .info-row:last-child { border-bottom: none; }
+                        .label { font-weight: bold; color: #555; }
+                        .value { color: #333; }
+                        .motivo-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 4px; }
+                        .motivo-box h3 { margin-top: 0; color: #856404; }
+                        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>❌ Saque Rejeitado</h1>
+                        </div>
+                        
+                        <p>Olá <strong>${vendedor.nome_completo}</strong>,</p>
+                        
+                        <p>Infelizmente, seu pedido de saque foi <strong>rejeitado</strong> pelo administrador.</p>
+                        
+                        <div class="info-box">
+                            <h3 style="margin-top: 0; color: #dc3545;">📋 Detalhes do Saque</h3>
+                            <div class="info-row">
+                                <span class="label">ID do Pedido:</span>
+                                <span class="value"><strong>${idSaqueAmigavel}</strong></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Valor Solicitado:</span>
+                                <span class="value">MZN ${valorSolicitado.toFixed(2)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Método:</span>
+                                <span class="value">${metodo}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Data da Rejeição:</span>
+                                <span class="value">${new Date(dataRejeicao).toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="motivo-box">
+                            <h3>📝 Motivo da Rejeição</h3>
+                            <p style="margin: 0; font-size: 16px; color: #856404;">
+                                ${motivo}
+                            </p>
+                        </div>
+                        
+                        <p style="background: #d1ecf1; padding: 15px; border-radius: 4px; border-left: 4px solid #0c5460;">
+                            <strong>ℹ️ Importante:</strong><br>
+                            O valor do saque foi subtraído da sua receita disponível. Se você acredita que houve um erro, entre em contato com o suporte RatixPay.
+                        </p>
+                        
+                        <div class="footer">
+                            <p>RatixPay - Sistema de Pagamentos</p>
+                            <p>Este é um email automático, não responda.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            if (vendedor.email) {
+                await professionalEmailService.enviarEmailVendas(vendedor.email, assunto, conteudoHTML, 'saque_rejeitado');
+                console.log(`📧 Email de saque rejeitado enviado para vendedor: ${vendedor.email}`);
+            }
+            
+        } catch (error) {
+            console.error('❌ Erro ao enviar email de saque rejeitado:', error);
+        }
+    }
+    
+    /**
+     * Enviar WhatsApp para vendedor sobre saque rejeitado
+     */
+    static async enviarWhatsAppVendedorSaqueRejeitado(saque, vendedor, motivo) {
+        try {
+            if (!vendedor.telefone) {
+                console.log('⚠️ Vendedor não tem telefone configurado para WhatsApp');
+                return;
+            }
+            
+            const idSaqueAmigavel = saque.public_id || (saque.id ? saque.id.substring(saque.id.length - 6).toUpperCase() : saque.id);
+            const valorSolicitado = parseFloat(saque.valor || saque.valor_solicitado || 0);
+            
+            const mensagem = `❌ *SAQUE REJEITADO*
+
+🆔 *ID:* ${idSaqueAmigavel}
+💰 *Valor:* MZN ${valorSolicitado.toFixed(2)}
+
+📝 *MOTIVO:*
+${motivo}
+
+ℹ️ O valor foi subtraído da sua receita disponível.
+
+RatixPay`;
+            
+            await whatsappManager.sendNotificationSafely(vendedor.telefone, mensagem);
+            console.log(`📱 WhatsApp de saque rejeitado enviado para vendedor: ${vendedor.telefone}`);
+            
+        } catch (error) {
+            console.error('❌ Erro ao enviar WhatsApp de saque rejeitado:', error);
         }
     }
 }

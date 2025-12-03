@@ -29,11 +29,11 @@ const PERIOD_LABELS = {
 
 const SALES_LEVELS = {
     0: { name: 'Sem placa', icon: '⚪', threshold: 0, color: 'default' },
-    1: { name: 'Bronze', icon: '🥉', threshold: 25000, color: 'bronze' },
-    2: { name: 'Prata', icon: '🥈', threshold: 50000, color: 'silver' },
-    3: { name: 'Ouro', icon: '🥇', threshold: 100000, color: 'gold' },
-    4: { name: 'Diamante', icon: '💎', threshold: 500000, color: 'diamond' },
-    5: { name: 'Platina', icon: '💠', threshold: 1000000, color: 'platinum' }
+    1: { name: 'Bronze', icon: '🥉', threshold: 100000, color: 'bronze' },      // 100K
+    2: { name: 'Prata', icon: '🥈', threshold: 500000, color: 'silver' },        // 500K
+    3: { name: 'Ouro', icon: '🥇', threshold: 1000000, color: 'gold' },          // 1000K (1M)
+    4: { name: 'Diamante', icon: '💎', threshold: 5000000, color: 'diamond' },  // 5000K (5M)
+    5: { name: 'Platina', icon: '💠', threshold: 10000000, color: 'platinum' }   // 10000K (10M)
 };
 
 const APPROVED_STATUSES = ['aprovado', 'pago', 'approved', 'paid', 'completed', 'success'];
@@ -1114,7 +1114,7 @@ function setupAutoUpdate() {
     startAutoUpdate();
 }
 
-// ===== INICIALIZAÇÃO =====
+// ===== INICIALIZAÇÃO OTIMIZADA =====
 async function initializeDashboard() {
     try {
         currentPage = detectarPaginaAtual();
@@ -1132,20 +1132,34 @@ async function initializeDashboard() {
             });
         }
         
-        await Promise.all([
-            carregarDadosUsuario(),
-            carregarEstatisticas(),
-            carregarVendas()
-        ]);
-        
-        setTimeout(() => {
-            forcarRenderizacaoGrafico();
-        }, 500);
-        
+        // Configurar UI primeiro (sem esperar dados)
         setupPeriodFilters();
         setupLogoutButton();
         setupProfileToggle();
         setupNotifications();
+        
+        // Carregar dados em paralelo de forma otimizada
+        // Priorizar dados do usuário (mais rápido) e depois estatísticas/vendas
+        const userDataPromise = carregarDadosUsuario();
+        
+        // Carregar estatísticas e vendas em paralelo após usuário
+        userDataPromise.then(() => {
+            // Carregar dados pesados em paralelo
+            Promise.all([
+                carregarEstatisticas(),
+                carregarVendas()
+            ]).then(() => {
+                // Renderizar gráfico apenas após todos os dados estarem prontos
+                requestAnimationFrame(() => {
+                    forcarRenderizacaoGrafico();
+                });
+            }).catch(error => {
+                console.error('Erro ao carregar estatísticas/vendas:', error);
+            });
+        }).catch(error => {
+            console.error('Erro ao carregar dados do usuário:', error);
+        });
+        
     } catch (error) {
         console.error('Erro ao inicializar dashboard:', error);
         showNotification('Erro ao carregar dashboard', 'error');

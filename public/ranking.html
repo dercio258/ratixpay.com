@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ranking Top 10 Vendedores — RATIX PAY</title>
+  
+  <!-- Fonte Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Sistema de Autenticação Global -->
+  <script src="/js/server-check.js"></script>
+  <script src="/js/global-auth.js"></script>
+  
+  <!-- Sidebar Component -->
+  <script src="/js/sidebar-component.js"></script>
+  
+  <style>
+    :root {
+      --bg-core: #020202;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #020202 100%);
+      --surface-1: rgba(255, 255, 255, 0.03);
+      --surface-2: rgba(255, 255, 255, 0.06);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(255, 255, 255, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --text-tertiary: #6b7280;
+      --brand-accent: #ff7a00;
+      --brand-glow: rgba(255, 122, 0, 0.4);
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    
+    body.theme-light {
+      --bg-core: #f8fafc;
+      --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      --surface-1: #ffffff;
+      --surface-2: #f1f5f9;
+      --border-subtle: rgba(0, 0, 0, 0.06);
+      --border-highlight: rgba(0, 0, 0, 0.1);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-core);
+      background-image: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(2, 2, 2, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 18px 0;
+      transition: background 0.3s ease, margin-left 0.3s ease, width 0.3s ease;
+    }
+    
+    body.theme-light .site-header {
+      background: rgba(255, 255, 255, 0.85);
+    }
+    
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .header-title i {
+      color: var(--brand-accent);
+    }
+    
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--surface-2);
+      border-color: var(--brand-accent);
+      color: var(--brand-accent);
+    }
+    
+    .hero-section {
+      padding: 120px 0 80px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-title span {
+      background: var(--brand-accent);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    
+    .main-content {
+      margin-top: -40px;
+      padding-bottom: 80px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .ranking-container {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .ranking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border-subtle);
+    }
+    
+    .ranking-title {
+      font-size: 2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .ranking-title i {
+      color: var(--brand-accent);
+      font-size: 1.5rem;
+    }
+    
+    .refresh-btn {
+      padding: 12px 24px;
+      background: var(--brand-accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .refresh-btn:hover {
+      background: #ff9500;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 122, 0, 0.3);
+    }
+    
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 24px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ranking-item:hover {
+      background: var(--surface-1);
+      border-color: var(--brand-accent);
+      transform: translateX(8px);
+      box-shadow: 0 8px 24px rgba(255, 122, 0, 0.15);
+    }
+    
+    .ranking-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--brand-accent);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .ranking-item:hover::before {
+      transform: scaleY(1);
+    }
+    
+    .ranking-position {
+      font-size: 2rem;
+      font-weight: 800;
+      min-width: 60px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--text-primary), var(--brand-accent));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .ranking-item.top-1 .ranking-position {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .ranking-item.top-2 .ranking-position {
+      background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .ranking-item.top-3 .ranking-position {
+      background: linear-gradient(135deg, #CD7F32, #8B4513);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .ranking-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .ranking-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .ranking-faturamento {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--brand-accent);
+    }
+    
+    .medal-icon {
+      font-size: 2rem;
+      min-width: 50px;
+      text-align: center;
+    }
+    
+    .ranking-item.top-1 .medal-icon {
+      color: #FFD700;
+    }
+    
+    .ranking-item.top-2 .medal-icon {
+      color: #C0C0C0;
+    }
+    
+    .ranking-item.top-3 .medal-icon {
+      color: #CD7F32;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .loading-state i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .error-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .error-state i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #ef4444;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    
+    .site-header,
+    .hero-section {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+      .main-content,
+      .site-header,
+      .hero-section {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+      }
+      
+      .ranking-container {
+        padding: 24px;
+      }
+      
+      .ranking-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+      
+      .ranking-position {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <!-- Sidebar será inserido aqui -->
+  <div class="sidebar"></div>
+  
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="header-title">
+        <i class="fas fa-trophy"></i>
+        <span>Ranking Top 10</span>
+      </div>
+      <button id="themeToggle" class="theme-toggle" aria-label="Mudar Tema">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </header>
+  
+  <section class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">Top 10 <span>Vendedores</span></h1>
+      <p class="hero-subtitle">Ranking profissional dos maiores faturamentos da plataforma RatixPay</p>
+    </div>
+  </section>
+  
+  <main class="container main-content">
+    <div class="ranking-container">
+      <div class="ranking-header">
+        <h2 class="ranking-title">
+          <i class="fas fa-medal"></i>
+          Ranking de Faturamento
+        </h2>
+        <button class="refresh-btn" onclick="carregarRanking()">
+          <i class="fas fa-sync-alt"></i>
+          Atualizar
+        </button>
+      </div>
+      
+      <div id="rankingList" class="ranking-list">
+        <div class="loading-state">
+          <i class="fas fa-spinner"></i>
+          <p>Carregando ranking...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script>
+    // Função para mesclar nome (ex: J Si*** ou J Si*** Santos)
+    function mesclarNome(nomeCompleto) {
+      if (!nomeCompleto || nomeCompleto.trim() === '') {
+        return 'Vendedor';
+      }
+      
+      const partes = nomeCompleto.trim().split(' ').filter(p => p.length > 0);
+      
+      if (partes.length === 1) {
+        // Se só tem um nome: primeira letra + ***
+        return partes[0].charAt(0) + '***';
+      }
+      
+      if (partes.length === 2) {
+        // Se tem dois nomes: 1 letra do primeiro + 2 letras do segundo + ***
+        const primeiraLetra = partes[0].charAt(0);
+        const duasLetrasSegundo = partes[1].substring(0, 2);
+        return primeiraLetra + ' ' + duasLetrasSegundo + '***';
+      }
+      
+      // Se tem 3+ nomes: 1 letra do primeiro + 2 letras do segundo + *** + último
+      const primeiraLetra = partes[0].charAt(0);
+      const duasLetrasSegundo = partes[1].substring(0, 2);
+      const ultimo = partes[partes.length - 1];
+      
+      return primeiraLetra + ' ' + duasLetrasSegundo + '*** ' + ultimo;
+    }
+    
+    // Função para formatar valor monetário
+    function formatarValor(valor) {
+      return new Intl.NumberFormat('pt-MZ', {
+        style: 'currency',
+        currency: 'MZN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(valor).replace(/MTn/gi, 'MZN');
+    }
+    
+    // Função para carregar ranking
+    async function carregarRanking() {
+      const rankingList = document.getElementById('rankingList');
+      rankingList.innerHTML = `
+        <div class="loading-state">
+          <i class="fas fa-spinner"></i>
+          <p>Carregando ranking...</p>
+        </div>
+      `;
+      
+      try {
+        // Construir URL corretamente - sempre usar caminho relativo para evitar duplicação
+        const apiUrl = '/api/dashboard/ranking-top-vendedores';
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          },
+          cache: 'no-store'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar ranking');
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success || !result.data || result.data.length === 0) {
+          rankingList.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <p>Nenhum vendedor encontrado no ranking.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Renderizar ranking
+        console.log('📊 Dados recebidos:', result.data);
+        
+        rankingList.innerHTML = result.data.map((vendedor, index) => {
+          // Garantir que sempre tenha um ID válido
+          let vendedorId = vendedor.public_id;
+          
+          if (!vendedorId || vendedorId === 'N/A' || vendedorId === null || vendedorId === undefined) {
+            // Se não tiver public_id, gerar um baseado no vendedor_id
+            const vendedorIdStr = String(vendedor.vendedor_id || '');
+            const numeros = vendedorIdStr.replace(/\D/g, '');
+            if (numeros.length >= 6) {
+              vendedorId = numeros.slice(-6);
+            } else if (numeros.length > 0) {
+              vendedorId = numeros.padStart(6, '0').slice(-6);
+            } else {
+              // Hash do vendedor_id
+              const hash = vendedorIdStr.split('').reduce((acc, char) => {
+                return ((acc << 5) - acc) + char.charCodeAt(0);
+              }, 0);
+              vendedorId = Math.abs(hash).toString().slice(-6).padStart(6, '0');
+            }
+          }
+          
+          const faturamentoFormatado = formatarValor(vendedor.faturamento);
+          const topClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
+          const medalIcon = index === 0 ? 'fa-medal' : index === 1 ? 'fa-medal' : index === 2 ? 'fa-medal' : 'fa-circle';
+          
+          return `
+            <div class="ranking-item ${topClass}">
+              <div class="ranking-position">${vendedor.posicao}º</div>
+              <div class="medal-icon">
+                <i class="fas ${medalIcon}"></i>
+              </div>
+              <div class="ranking-info">
+                <div class="ranking-name">
+                  <span class="badge bg-secondary" style="font-size: 1.1rem; padding: 8px 16px; font-weight: 600;">
+                    ID: ${vendedorId}
+                  </span>
+                </div>
+                <div class="ranking-faturamento">${faturamentoFormatado}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Erro ao carregar ranking:', error);
+        rankingList.innerHTML = `
+          <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Erro ao carregar ranking. Tente novamente.</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Theme Toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inicializar Sidebar
+      if (window.SidebarComponent) {
+        const sidebar = new SidebarComponent();
+        sidebar.init('ranking');
+      }
+      
+      // Carregar ranking inicial
+      carregarRanking();
+      
+      // Theme Toggle
+      const themeToggle = document.getElementById('themeToggle');
+      const body = document.body;
+      const icon = themeToggle.querySelector('i');
+      
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        body.classList.add('theme-light');
+        icon.classList.replace('fa-moon', 'fa-sun');
+        document.querySelector('.site-header').style.background = 'rgba(255, 255, 255, 0.85)';
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        body.classList.toggle('theme-light');
+        const isLight = body.classList.contains('theme-light');
+        
+        if (isLight) {
+          icon.classList.replace('fa-moon', 'fa-sun');
+          localStorage.setItem('theme', 'light');
+          document.querySelector('.site-header').style.background = 'rgba(255, 255, 255, 0.85)';
+        } else {
+          icon.classList.replace('fa-sun', 'fa-moon');
+          localStorage.setItem('theme', 'dark');
+          document.querySelector('.site-header').style.background = 'rgba(2, 2, 2, 0.75)';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

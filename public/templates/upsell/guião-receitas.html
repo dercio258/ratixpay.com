@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Guião das Receitas - Cozinhe com Amor</title>
+    <meta name="description" content="Transforme sua cozinha com receitas práticas, saudáveis e deliciosas.">
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-green: #2F5233;
+            --color-sage: #94C973;
+            --color-cream: #F9F7F2;
+            --color-orange: #D97706;
+            --color-text: #2C2C2C;
+        }
+        
+        body {
+            background-color: var(--color-cream);
+            color: var(--color-text);
+            font-family: 'Lato', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 16px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .navbar-brand i {
+            font-size: 32px;
+            color: var(--color-green);
+        }
+        
+        .navbar-brand span {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-green);
+            letter-spacing: -0.5px;
+        }
+        
+        .navbar-cta {
+            background: var(--color-green);
+            color: #ffffff;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(47, 82, 51, 0.3);
+            display: none;
+        }
+        
+        .navbar-cta:hover {
+            background: #1e3a21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(47, 82, 51, 0.4);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 85vh;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1556910103-1c02745a30bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 0 20px;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+            color: #ffffff;
+        }
+        
+        .hero-badge {
+            background: rgba(217, 119, 6, 0.9);
+            color: #ffffff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(40px, 7vw, 96px);
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-title-italic {
+            font-style: italic;
+            color: var(--color-sage);
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(16px, 2.5vw, 24px);
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+            padding-top: 32px;
+        }
+        
+        .hero-button {
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .hero-button.primary {
+            background: #ffffff;
+            color: var(--color-green);
+        }
+        
+        .hero-button.primary:hover {
+            background: #f3f4f6;
+            transform: translateY(-2px);
+        }
+        
+        .hero-button.secondary {
+            background: var(--color-orange);
+            color: #ffffff;
+        }
+        
+        .hero-button.secondary:hover {
+            background: #b45309;
+            transform: translateY(-2px);
+        }
+        
+        /* Visual Benefit Grid */
+        .benefits-section {
+            padding: 80px 0;
+        }
+        
+        .benefits-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .benefits-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 5vw, 48px);
+            color: var(--color-green);
+            margin-bottom: 16px;
+        }
+        
+        .benefits-divider {
+            width: 96px;
+            height: 4px;
+            background: var(--color-orange);
+            border-radius: 50px;
+            margin: 0 auto 16px;
+        }
+        
+        .benefits-subtitle {
+            color: #4B5563;
+            margin-top: 16px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        
+        .benefit-card {
+            cursor: pointer;
+        }
+        
+        .benefit-card.offset {
+            margin-top: -48px;
+        }
+        
+        .benefit-image-container {
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 24px;
+            height: 256px;
+            position: relative;
+        }
+        
+        .benefit-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        
+        .benefit-card:hover .benefit-image {
+            transform: scale(1.1);
+        }
+        
+        .benefit-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+        }
+        
+        .benefit-image-title {
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+        }
+        
+        .benefit-description {
+            color: #4B5563;
+            line-height: 1.7;
+            padding: 0 8px;
+        }
+        
+        /* Inside Section */
+        .inside-section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        
+        .inside-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 48px;
+            margin-bottom: 80px;
+        }
+        
+        .inside-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .inside-image-wrapper {
+            width: 100%;
+            position: relative;
+        }
+        
+        .inside-image-border {
+            position: absolute;
+            border: 2px solid var(--color-sage);
+            border-radius: 16px;
+            z-index: 0;
+        }
+        
+        .inside-image-border.orange {
+            border-color: var(--color-orange);
+        }
+        
+        .inside-image-border.top-left {
+            top: -16px;
+            left: -16px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .inside-image-border.bottom-right {
+            bottom: -16px;
+            right: -16px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .inside-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .inside-content {
+            width: 100%;
+        }
+        
+        .inside-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .inside-badge-icon {
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 20px;
+        }
+        
+        .inside-badge-icon.green {
+            background: rgba(148, 201, 115, 0.2);
+            color: var(--color-green);
+        }
+        
+        .inside-badge-icon.orange {
+            background: rgba(217, 119, 6, 0.2);
+            color: var(--color-orange);
+        }
+        
+        .inside-badge-label {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 700;
+        }
+        
+        .inside-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 4vw, 36px);
+            color: var(--color-green);
+            margin-bottom: 24px;
+        }
+        
+        .inside-description {
+            font-size: 18px;
+            color: #4B5563;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        
+        .inside-list {
+            list-style: none;
+        }
+        
+        .inside-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+        
+        .inside-list-item i {
+            font-size: 20px;
+            color: var(--color-orange);
+        }
+        
+        .inside-link {
+            color: var(--color-orange);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .inside-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Gallery Section */
+        .gallery-section {
+            padding: 80px 0;
+            background: var(--color-cream);
+        }
+        
+        .gallery-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 4vw, 40px);
+            text-align: center;
+            color: var(--color-green);
+            margin-bottom: 48px;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            grid-auto-rows: 200px;
+        }
+        
+        .gallery-item {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .gallery-item.large {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        
+        .gallery-item.tall {
+            grid-row: span 2;
+        }
+        
+        .gallery-item.wide {
+            grid-column: span 2;
+        }
+        
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        
+        .gallery-item:hover .gallery-image {
+            transform: scale(1.1);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        .gallery-overlay-text {
+            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+        }
+        
+        /* Pricing Section */
+        .pricing-section {
+            padding: 96px 0;
+            background: var(--color-green);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-decoration {
+            position: absolute;
+            width: 256px;
+            height: 256px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+        
+        .pricing-decoration.top-right {
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+        }
+        
+        .pricing-decoration.bottom-left {
+            bottom: 0;
+            left: 0;
+            transform: translate(-50%, 50%);
+        }
+        
+        .pricing-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .pricing-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 5vw, 48px);
+            margin-bottom: 24px;
+        }
+        
+        .pricing-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .pricing-card {
+            background: #ffffff;
+            color: var(--color-text);
+            max-width: 448px;
+            margin: 0 auto;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .pricing-badge {
+            background: var(--color-orange);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        
+        .pricing-price-container {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .pricing-price-old {
+            color: #9CA3AF;
+            text-decoration: line-through;
+            font-size: 20px;
+        }
+        
+        .pricing-price-new {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--color-green);
+        }
+        
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #4B5563;
+        }
+        
+        .pricing-feature i {
+            font-size: 20px;
+            color: var(--color-green);
+        }
+        
+        .pricing-button {
+            width: 100%;
+            background: var(--color-green);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(47, 82, 51, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .pricing-button:hover {
+            background: #1e3a21;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(47, 82, 51, 0.4);
+        }
+        
+        .pricing-guarantee {
+            font-size: 12px;
+            color: #9CA3AF;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        /* Footer */
+        .footer-section {
+            background: var(--color-text);
+            color: #ffffff;
+            padding: 48px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-brand i {
+            font-size: 24px;
+            color: #9CA3AF;
+        }
+        
+        .footer-brand span {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .footer-text {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .footer-social a {
+            color: #9CA3AF;
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-social a:hover {
+            color: #ffffff;
+        }
+        
+        /* Responsividade */
+        @media (min-width: 768px) {
+            .navbar-cta {
+                display: inline-flex;
+            }
+            
+            .hero-buttons {
+                flex-direction: row;
+            }
+            
+            .hero-button {
+                width: auto;
+            }
+            
+            .inside-row {
+                flex-direction: row;
+            }
+            
+            .inside-row.reverse {
+                flex-direction: row-reverse;
+            }
+            
+            .inside-image-wrapper {
+                width: 50%;
+            }
+            
+            .inside-content {
+                width: 50%;
+                padding: 0 40px;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .footer-content {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand" data-editable="text" data-field="navbar_brand" contenteditable="false">
+                <i class="ph-fill ph-chef-hat"></i>
+                <span>O Guião.</span>
+            </div>
+            <a href="#comprar" onclick="triggerPurchase(); return false;" class="navbar-cta" data-editable="button-text" data-field="navbar_cta" contenteditable="false">
+                Baixar Agora
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section" data-editable="media" data-field="hero_background" data-media-type="image" contenteditable="false">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="hero-badge" data-editable="text" data-field="hero_badge" contenteditable="false">Nova Edição 2024</span>
+            
+            <h1 class="hero-title" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                Cozinhe como um Chef,<br>
+                <span class="hero-title-italic">no tempo que você tem.</span>
+            </h1>
+            
+            <p class="hero-subtitle" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Mais de 100 receitas testadas, fotografadas e planejadas para transformar suas refeições diárias em experiências gastronômicas.
+            </p>
+            
+            <div class="hero-buttons">
+                <a href="#galeria" class="hero-button primary" data-editable="button-text" data-field="botao_ver_receitas" contenteditable="false">
+                    Ver Receitas
+                </a>
+                <a href="#comprar" onclick="triggerPurchase(); return false;" class="hero-button secondary" data-editable="button-text" data-field="botao_quero_guião" contenteditable="false">
+                    Quero o Guião
+                    <i class="ph-fill ph-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Visual Benefit Grid -->
+    <section class="benefits-section">
+        <div class="container-main" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <div class="benefits-header">
+                <h2 class="benefits-title" data-editable="text" data-field="beneficios_titulo" contenteditable="false">Não é só um livro de receitas.</h2>
+                <div class="benefits-divider"></div>
+                <p class="benefits-subtitle" data-editable="text" data-field="beneficios_subtitulo" contenteditable="false">É um estilo de vida mais saboroso e prático.</p>
+            </div>
+            
+            <div class="benefits-grid">
+                <!-- Card 1 -->
+                <div class="benefit-card" data-editable="media" data-field="beneficio_1" data-media-type="image" contenteditable="false">
+                    <div class="benefit-image-container">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Salad" class="benefit-image">
+                        <div class="benefit-image-overlay">
+                            <h3 class="benefit-image-title" data-editable="text" data-field="beneficio_1_titulo" contenteditable="false">Saudável & Fresco</h3>
+                        </div>
+                    </div>
+                    <p class="benefit-description" data-editable="text" data-field="beneficio_1_descricao" contenteditable="false">
+                        Esqueça dietas sem graça. Nossas receitas equilibram nutrição com explosão de sabores usando ingredientes naturais.
+                    </p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="benefit-card offset" data-editable="media" data-field="beneficio_2" data-media-type="image" contenteditable="false">
+                    <div class="benefit-image-container">
+                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Dinner" class="benefit-image">
+                        <div class="benefit-image-overlay">
+                            <h3 class="benefit-image-title" data-editable="text" data-field="beneficio_2_titulo" contenteditable="false">Jantares em 30min</h3>
+                        </div>
+                    </div>
+                    <p class="benefit-description" data-editable="text" data-field="beneficio_2_descricao" contenteditable="false">
+                        Cronometrado. Receitas otimizadas para quem tem uma rotina corrida mas não abre mão de comer bem.
+                    </p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="benefit-card" data-editable="media" data-field="beneficio_3" data-media-type="image" contenteditable="false">
+                    <div class="benefit-image-container">
+                        <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Dessert" class="benefit-image">
+                        <div class="benefit-image-overlay">
+                            <h3 class="benefit-image-title" data-editable="text" data-field="beneficio_3_titulo" contenteditable="false">Sobremesas Leves</h3>
+                        </div>
+                    </div>
+                    <p class="benefit-description" data-editable="text" data-field="beneficio_3_descricao" contenteditable="false">
+                        Doces que abraçam a alma sem pesar na consciência. Opções low-carb e sem açúcar refinado inclusas.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inside Section -->
+    <section class="inside-section">
+        <div class="container-main" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <!-- Row 1 -->
+            <div class="inside-row">
+                <div class="inside-image-wrapper" data-editable="media" data-field="inside_imagem_1" data-media-type="image" contenteditable="false">
+                    <div class="inside-image-border top-left"></div>
+                    <img src="https://images.unsplash.com/photo-1556911220-bff31c812dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Cooking process" class="inside-image">
+                </div>
+                <div class="inside-content">
+                    <div class="inside-badge">
+                        <span class="inside-badge-icon green"><i class="ph-fill ph-book-open"></i></span>
+                        <span class="inside-badge-label" data-editable="text" data-field="inside_badge_1" contenteditable="false">Passo a Passo Visual</span>
+                    </div>
+                    <h3 class="inside-title" data-editable="text" data-field="inside_titulo_1" contenteditable="false">Nunca mais erre o ponto.</h3>
+                    <p class="inside-description" data-editable="text" data-field="inside_descricao_1" contenteditable="false">
+                        Cada receita vem acompanhada de fotos do processo e dicas de "Chef" para salvar aquele molho que talhou ou aquele arroz que grudou. O Guião é praticamente um curso de culinária disfarçado de livro.
+                    </p>
+                    <ul class="inside-list" data-editable="text" data-field="inside_lista_1" contenteditable="false">
+                        <li class="inside-list-item">
+                            <i class="ph-fill ph-check"></i>
+                            <span>Medidas simples (xícaras e colheres)</span>
+                        </li>
+                        <li class="inside-list-item">
+                            <i class="ph-fill ph-check"></i>
+                            <span>Lista de substituições inteligentes</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Row 2 -->
+            <div class="inside-row reverse">
+                <div class="inside-image-wrapper" data-editable="media" data-field="inside_imagem_2" data-media-type="image" contenteditable="false">
+                    <div class="inside-image-border bottom-right orange"></div>
+                    <img src="https://images.unsplash.com/photo-1495521821758-ee18ece6d438?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Organization" class="inside-image">
+                </div>
+                <div class="inside-content">
+                    <div class="inside-badge">
+                        <span class="inside-badge-icon orange"><i class="ph-fill ph-shopping-cart"></i></span>
+                        <span class="inside-badge-label" data-editable="text" data-field="inside_badge_2" contenteditable="false">Economia Real</span>
+                    </div>
+                    <h3 class="inside-title" data-editable="text" data-field="inside_titulo_2" contenteditable="false">Listas de Compras Otimizadas.</h3>
+                    <p class="inside-description" data-editable="text" data-field="inside_descricao_2" contenteditable="false">
+                        Pare de jogar comida fora. O Guião inclui planejamentos semanais onde os ingredientes se repetem em receitas diferentes, garantindo desperdício zero e economia no mercado.
+                    </p>
+                    <a href="#comprar" onclick="triggerPurchase(); return false;" class="inside-link" data-editable="text" data-field="inside_link" contenteditable="false">
+                        Ver exemplo de lista
+                        <i class="ph-fill ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="galeria" class="gallery-section">
+        <div class="container-main" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+            <h2 class="gallery-title" data-editable="text" data-field="galeria_titulo" contenteditable="false">Um gostinho do que vem por aí</h2>
+            
+            <div class="gallery-grid" data-editable="media" data-field="galeria_imagens" data-media-type="image" contenteditable="false">
+                <!-- Large Item -->
+                <div class="gallery-item large" data-editable="media" data-field="galeria_1" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="gallery-image" alt="Pizza">
+                    <div class="gallery-overlay">
+                        <span class="gallery-overlay-text" data-editable="text" data-field="galeria_1_texto" contenteditable="false">Jantares Especiais</span>
+                    </div>
+                </div>
+                
+                <!-- Standard Items -->
+                <div class="gallery-item" data-editable="media" data-field="galeria_2" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-image" alt="Toast">
+                </div>
+                
+                <div class="gallery-item" data-editable="media" data-field="galeria_3" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-image" alt="Pancakes">
+                </div>
+                
+                <div class="gallery-item tall" data-editable="media" data-field="galeria_4" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-image" alt="Pasta">
+                </div>
+                
+                <div class="gallery-item" data-editable="media" data-field="galeria_5" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="gallery-image" alt="Bowl">
+                </div>
+                
+                <div class="gallery-item wide" data-editable="media" data-field="galeria_6" data-media-type="image" contenteditable="false">
+                    <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="gallery-image" alt="Salad Landscape">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="comprar" class="pricing-section">
+        <div class="pricing-decoration top-right"></div>
+        <div class="pricing-decoration bottom-left"></div>
+        <div class="pricing-content">
+            <h2 class="pricing-title" data-editable="text" data-field="preco_titulo" contenteditable="false">Leve o Guião para sua Cozinha</h2>
+            <p class="pricing-subtitle" data-editable="text" data-field="preco_subtitulo" contenteditable="false">
+                Receba o livro digital (PDF Interativo) + Acesso ao aplicativo mobile + Planner de compras semanal.
+            </p>
+            
+            <div class="pricing-card">
+                <span class="pricing-badge" data-editable="text" data-field="preco_badge" contenteditable="false">Oferta Limitada</span>
+                
+                <div class="pricing-price-container">
+                    <span class="pricing-price-old" data-editable="text" data-field="preco_antigo" contenteditable="false">MZN 149,90</span>
+                    <span class="pricing-price-new" data-editable="text" data-field="preco_atual" contenteditable="false">MZN 67,90</span>
+                </div>
+                
+                <ul class="pricing-features" data-editable="text" data-field="preco_beneficios" contenteditable="false">
+                    <li class="pricing-feature">
+                        <i class="ph-fill ph-check-circle"></i>
+                        <span>100+ Receitas Exclusivas</span>
+                    </li>
+                    <li class="pricing-feature">
+                        <i class="ph-fill ph-check-circle"></i>
+                        <span>Planner de Cardápio Semanal (PDF)</span>
+                    </li>
+                    <li class="pricing-feature">
+                        <i class="ph-fill ph-check-circle"></i>
+                        <span>Guia de Temperos e Harmonização</span>
+                    </li>
+                    <li class="pricing-feature">
+                        <i class="ph-fill ph-check-circle"></i>
+                        <span>Acesso Vitalício e Atualizações</span>
+                    </li>
+                </ul>
+                
+                <button onclick="triggerPurchase()" class="pricing-button" data-editable="button-text" data-field="preco_botao" contenteditable="false">
+                    <span>Comprar Agora</span>
+                    <i class="ph-fill ph-arrow-right"></i>
+                </button>
+                
+                <p class="pricing-guarantee" data-editable="text" data-field="preco_garantia" contenteditable="false">Pagamento único. Garantia de 7 dias.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <div class="footer-brand" data-editable="text" data-field="footer_brand" contenteditable="false">
+                <i class="ph-fill ph-chef-hat"></i>
+                <span>O Guião.</span>
+            </div>
+            <div class="footer-text" data-editable="text" data-field="footer_texto" contenteditable="false">
+                &copy; 2024 O Guião das Receitas. Todos os direitos reservados.
+            </div>
+            <div class="footer-social" data-editable="text" data-field="footer_social" contenteditable="false">
+                <a href="#"><i class="ph-fill ph-instagram-logo"></i></a>
+                <a href="#"><i class="ph-fill ph-facebook-logo"></i></a>
+                <a href="#"><i class="ph-fill ph-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

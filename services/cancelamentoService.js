@@ -164,6 +164,43 @@ class CancelamentoService {
                 falha_id: falhaId
             });
 
+            // Enviar webhook para venda cancelada
+            try {
+                const { enviarWebhook } = require('../routes/webhooks');
+                const { Produto } = require('../config/database');
+                
+                // Buscar produto para obter vendedor_id
+                const produto = await Produto.findByPk(venda.produto_id);
+                
+                if (produto && produto.vendedor_id) {
+                    await enviarWebhook('venda_cancelada', {
+                        venda_id: venda.id,
+                        produto_id: venda.produto_id,
+                        vendedor_id: produto.vendedor_id,
+                        valor: venda.pagamento_valor || venda.valor,
+                        cliente_nome: venda.cliente_nome,
+                        cliente_email: venda.cliente_email,
+                        cliente_telefone: venda.cliente_telefone,
+                        cliente_whatsapp: venda.cliente_whatsapp,
+                        status_anterior: 'Pendente',
+                        motivo: motivo,
+                        data_cancelamento: new Date().toISOString()
+                    }, produto.vendedor_id);
+                    console.log(`🔔 [CANCELAMENTO DEBUG] Webhook de venda cancelada processado`);
+                    console.log(`🔔 [CANCELAMENTO DEBUG] ===== FIM DO DISPARO =====\n`);
+                } else {
+                    console.log(`⚠️ [CANCELAMENTO DEBUG] Produto ou vendedor_id não encontrado`);
+                    console.log(`⚠️ [CANCELAMENTO DEBUG] Produto:`, produto ? 'Encontrado' : 'Não encontrado');
+                    console.log(`⚠️ [CANCELAMENTO DEBUG] Vendedor ID:`, produto ? produto.vendedor_id : 'N/A');
+                    console.log(`🔔 [CANCELAMENTO DEBUG] ===== FIM DO DISPARO (SEM WEBHOOK) =====\n`);
+                }
+            } catch (webhookError) {
+                console.error(`\n❌ [CANCELAMENTO DEBUG] ===== ERRO AO DISPARAR WEBHOOK =====`);
+                console.error('❌ [CANCELAMENTO DEBUG] Erro ao enviar webhook de venda cancelada:', webhookError);
+                console.error('❌ [CANCELAMENTO DEBUG] Stack:', webhookError.stack);
+                console.error(`❌ [CANCELAMENTO DEBUG] ===== FIM DO ERRO =====\n`);
+            }
+
             // Adicionar à fila de remarketing (se configurado)
             try {
                 const remarketingService = require('./remarketingService');
@@ -179,7 +216,8 @@ class CancelamentoService {
                         produto_id: venda.produto_id,
                         produto_nome: produto.nome,
                         email: venda.cliente_email,
-                        telefone: venda.cliente_telefone || venda.cliente_whatsapp
+                        telefone: venda.cliente_telefone || venda.cliente_whatsapp,
+                        venda_cancelada_id: venda.id
                     });
                 }
             } catch (remarketingError) {
@@ -223,6 +261,42 @@ class CancelamentoService {
                 tipo_erro: tipoErro,
                 falha_id: falhaId
             });
+
+            // Enviar webhook para venda cancelada
+            try {
+                const { enviarWebhook } = require('../routes/webhooks');
+                const { Produto } = require('../config/database');
+                
+                // Buscar produto para obter vendedor_id
+                const produto = await Produto.findByPk(venda.produto_id);
+                
+                if (produto && produto.vendedor_id) {
+                    await enviarWebhook('venda_cancelada', {
+                        venda_id: venda.id,
+                        produto_id: venda.produto_id,
+                        vendedor_id: produto.vendedor_id,
+                        valor: venda.pagamento_valor || venda.valor,
+                        cliente_nome: venda.cliente_nome,
+                        cliente_email: venda.cliente_email,
+                        cliente_telefone: venda.cliente_telefone,
+                        cliente_whatsapp: venda.cliente_whatsapp,
+                        status_anterior: venda.status || 'Pendente',
+                        motivo: motivo,
+                        tipo_erro: tipoErro,
+                        data_cancelamento: new Date().toISOString()
+                    }, produto.vendedor_id);
+                    console.log(`🔔 [CANCELAMENTO TIMEOUT DEBUG] Webhook de venda cancelada processado`);
+                    console.log(`🔔 [CANCELAMENTO TIMEOUT DEBUG] ===== FIM DO DISPARO =====\n`);
+                } else {
+                    console.log(`⚠️ [CANCELAMENTO TIMEOUT DEBUG] Produto ou vendedor_id não encontrado`);
+                    console.log(`🔔 [CANCELAMENTO TIMEOUT DEBUG] ===== FIM DO DISPARO (SEM WEBHOOK) =====\n`);
+                }
+            } catch (webhookError) {
+                console.error(`\n❌ [CANCELAMENTO TIMEOUT DEBUG] ===== ERRO AO DISPARAR WEBHOOK =====`);
+                console.error('❌ [CANCELAMENTO TIMEOUT DEBUG] Erro ao enviar webhook de venda cancelada:', webhookError);
+                console.error('❌ [CANCELAMENTO TIMEOUT DEBUG] Stack:', webhookError.stack);
+                console.error(`❌ [CANCELAMENTO TIMEOUT DEBUG] ===== FIM DO ERRO =====\n`);
+            }
 
             // Notificar frontend em tempo real sobre o cancelamento
             if (global.emitUpdate) {

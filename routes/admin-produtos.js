@@ -89,7 +89,7 @@ router.get('/produtos', authenticateToken, isAdmin, async (req, res) => {
     try {
         console.log('🔄 Carregando lista de produtos...');
         
-        const { page = 1, limit = 50, status, vendedor, categoria, busca } = req.query;
+        const { page = 1, limit = 50, status, vendedor, categoria, busca, ordenar = 'data' } = req.query;
         const offset = (page - 1) * limit;
         
         // Construir condições de busca
@@ -114,6 +114,10 @@ router.get('/produtos', authenticateToken, isAdmin, async (req, res) => {
             ];
         }
         
+        // Status que indicam aprovação
+        const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+        
+        // Buscar todos os produtos (sem limite para calcular vendas corretamente)
         const produtos = await Produto.findAll({
             where: whereClause,
             include: [{
@@ -121,10 +125,7 @@ router.get('/produtos', authenticateToken, isAdmin, async (req, res) => {
                 as: 'vendedorProduto',
                 attributes: ['id', 'nome_completo', 'email', 'telefone'],
                 required: false // LEFT JOIN para não falhar se não houver vendedor
-            }],
-            order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            }]
         });
         
         // Para cada produto, calcular total de vendas
@@ -133,7 +134,9 @@ router.get('/produtos', authenticateToken, isAdmin, async (req, res) => {
                 const totalVendas = await Venda.count({
                     where: {
                         produto_id: produto.id,
-                        status: 'Aprovado'
+                        status: {
+                            [Op.in]: statusAprovados
+                        }
                     }
                 });
                 
@@ -144,12 +147,24 @@ router.get('/produtos', authenticateToken, isAdmin, async (req, res) => {
             })
         );
         
-        const totalProdutos = await Produto.count({ where: whereClause });
+        // Ordenar produtos baseado no parâmetro
+        if (ordenar === 'vendas') {
+            produtosComVendas.sort((a, b) => b.total_vendas - a.total_vendas);
+        } else if (ordenar === 'nome') {
+            produtosComVendas.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        } else {
+            // Ordenar por data (padrão)
+            produtosComVendas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        }
+        
+        // Aplicar paginação após ordenação
+        const totalProdutos = produtosComVendas.length;
+        const produtosPaginados = produtosComVendas.slice(offset, offset + parseInt(limit));
         
         res.json({
             success: true,
             data: {
-                produtos: produtosComVendas,
+                produtos: produtosPaginados,
                 totalProdutos,
                 currentPage: parseInt(page),
                 totalPages: Math.ceil(totalProdutos / limit)

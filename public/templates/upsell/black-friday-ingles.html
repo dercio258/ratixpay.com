@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Friday - Inglês Fluência Total</title>
+    <meta name="description" content="Oferta Exclusiva de Black Friday: Domine o Inglês com 70% de Desconto.">
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-gold: #F59E0B;
+            --color-gold-light: #FBBF24;
+            --color-black: #0A0A0A;
+            --color-dark: #171717;
+            --color-gray: #262626;
+        }
+        
+        body {
+            background-color: var(--color-black);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Top Sticky Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: var(--color-gold);
+            color: var(--color-black);
+            padding: 12px;
+            font-weight: 700;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Gold Gradient Text */
+        .gold-gradient-text {
+            background: linear-gradient(90deg, #F59E0B, #FCD34D, #F59E0B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
+        
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+        
+        /* Gold Button */
+        .gold-button {
+            background: linear-gradient(45deg, #d97706, #F59E0B, #fbbf24);
+            color: var(--color-black);
+            font-weight: 900;
+            padding: 16px 40px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: clamp(16px, 2vw, 20px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .gold-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+            filter: brightness(1.1);
+        }
+        
+        .gold-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Glass Panel */
+        .glass-panel {
+            background: rgba(23, 23, 23, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Container */
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            padding-top: 100px;
+            padding-bottom: 80px;
+            overflow: hidden;
+        }
+        
+        .hero-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 500px;
+            background: rgba(245, 158, 11, 0.1);
+            filter: blur(120px);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .badge-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--color-gold);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+        
+        .title-hero {
+            font-size: clamp(36px, 7vw, 72px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+        
+        .subtitle-hero {
+            font-size: clamp(16px, 2.5vw, 20px);
+            color: #9CA3AF;
+            max-width: 700px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
+        }
+        
+        /* Countdown */
+        .countdown-container {
+            background: rgba(23, 23, 23, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.1);
+        }
+        
+        .countdown-label {
+            font-size: 12px;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        
+        .countdown-display {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .countdown-value {
+            font-size: clamp(32px, 6vw, 64px);
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .countdown-label-item {
+            font-size: 10px;
+            color: var(--color-gold);
+            margin-top: 8px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .countdown-separator {
+            font-size: clamp(24px, 5vw, 48px);
+            font-weight: 700;
+            color: #4B5563;
+            margin-top: 16px;
+        }
+        
+        /* Social Proof Strip */
+        .social-proof-strip {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--color-dark);
+            padding: 32px 0;
+        }
+        
+        .social-proof-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            opacity: 0.7;
+            transition: all 0.5s ease;
+        }
+        
+        .social-proof-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .social-proof-item i {
+            font-size: 24px;
+            color: var(--color-gold);
+        }
+        
+        .social-proof-item span {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        /* Problem/Solution Section */
+        .problem-section {
+            padding: 80px 0;
+            background: var(--color-black);
+        }
+        
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 48px;
+            align-items: center;
+        }
+        
+        .problem-title {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+        
+        .problem-list {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        
+        .problem-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #D1D5DB;
+        }
+        
+        .problem-item i {
+            font-size: 24px;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+        
+        .solution-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: 16px;
+        }
+        
+        .solution-list {
+            list-style: none;
+        }
+        
+        .solution-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .solution-item i {
+            font-size: 24px;
+            color: var(--color-gold);
+            flex-shrink: 0;
+        }
+        
+        .visual-card {
+            position: relative;
+        }
+        
+        .visual-glow {
+            position: absolute;
+            inset: 0;
+            background: var(--color-gold);
+            filter: blur(80px);
+            opacity: 0.2;
+        }
+        
+        .visual-content {
+            position: relative;
+            background: rgba(23, 23, 23, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .visual-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .visual-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--color-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-black);
+            font-weight: 700;
+        }
+        
+        .visual-progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .visual-progress-bar {
+            height: 100%;
+            background: var(--color-gold);
+            border-radius: 50px;
+            width: 70%;
+        }
+        
+        /* Offer Section */
+        .offer-section {
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offer-decoration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1) 0%, var(--color-black) 100%);
+            pointer-events: none;
+        }
+        
+        .offer-content {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .offer-title {
+            text-align: center;
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .offer-subtitle {
+            text-align: center;
+            color: #9CA3AF;
+            margin-bottom: 40px;
+        }
+        
+        .pricing-card {
+            background: var(--color-dark);
+            border: 1px solid var(--color-gold);
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .pricing-ribbon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--color-gold);
+            color: var(--color-black);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-bottom-left-radius: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .pricing-benefits {
+            padding: 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pricing-benefits-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-benefits-desc {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-bottom: 24px;
+        }
+        
+        .benefits-list {
+            list-style: none;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #D1D5DB;
+            font-size: 15px;
+        }
+        
+        .benefit-item i {
+            font-size: 20px;
+            color: var(--color-gold);
+            flex-shrink: 0;
+        }
+        
+        .pricing-side {
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .pricing-old {
+            color: #6B7280;
+            text-decoration: line-through;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .pricing-discount {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .pricing-price {
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--color-gold);
+            margin-bottom: 8px;
+        }
+        
+        .pricing-installments {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .payment-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .payment-icon {
+            height: 20px;
+            opacity: 0.5;
+            background: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        
+        /* FAQ Section */
+        .faq-section {
+            padding: 64px 0;
+            background: var(--color-black);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .faq-title {
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffffff;
+        }
+        
+        .faq-list {
+            list-style: none;
+        }
+        
+        .faq-item {
+            background: var(--color-dark);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .faq-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            font-weight: 500;
+            font-size: 18px;
+            color: #ffffff;
+            cursor: pointer;
+            list-style: none;
+            transition: color 0.3s ease;
+        }
+        
+        .faq-item[open] .faq-summary {
+            color: var(--color-gold);
+        }
+        
+        .faq-summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .faq-content {
+            color: #9CA3AF;
+            padding: 0 24px 24px;
+            line-height: 1.7;
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item[open] .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Footer */
+        .footer-section {
+            background: var(--color-black);
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .footer-brand {
+            color: var(--color-gold);
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-text {
+            color: #6B7280;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            font-size: 12px;
+        }
+        
+        .footer-links a {
+            color: #4B5563;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+        
+        /* Break responsivo no título */
+        .title-hero br {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .title-hero br {
+                display: block;
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-benefits {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                border-right: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Sticky Bar -->
+    <div class="top-bar" data-editable="text" data-field="top_bar_texto" contenteditable="false">
+        <span style="animation: pulse 2s infinite;">⚠️ ATENÇÃO:</span> Oferta de Black Friday expira em breve!
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-glow"></div>
+        <div class="container-main">
+            <div class="hero-content">
+                <!-- Badge -->
+                <div class="badge-hero">
+                    <i class="ph-fill ph-lightning"></i>
+                    <span data-editable="text" data-field="badge_hero" contenteditable="false">Black Friday Deal</span>
+                </div>
+                
+                <!-- Headline -->
+                <h1 class="title-hero" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                    Fale Inglês com <br />
+                    <span class="gold-gradient-text">Confiança Absoluta</span>
+                </h1>
+                
+                <p class="subtitle-hero" data-editable="text" data-field="subtitulo" contenteditable="false">
+                    O método validado por mais de 15.000 alunos. Desbloqueie sua carreira e viagens com o <span class="text-white font-semibold">Plano Fluência Total</span>.
+                </p>
+                
+                <!-- Countdown Container -->
+                <div class="countdown-container">
+                    <p class="countdown-label" data-editable="text" data-field="countdown_label" contenteditable="false">A oferta encerra em:</p>
+                    <div class="countdown-display" id="countdown">
+                        <!-- Timer será injetado via JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- CTA Button -->
+                <a href="#oferta" onclick="triggerPurchase(); return false;" class="gold-button" data-editable="button-text" data-field="texto_botao_hero" contenteditable="false">
+                    <span>GARANTIR MEU DESCONTO AGORA</span>
+                    <i class="ph-fill ph-arrow-right"></i>
+                </a>
+                
+                <p class="mt-6 text-sm text-gray-500 flex items-center justify-center gap-2" data-editable="text" data-field="texto_garantia" contenteditable="false">
+                    <i class="ph-fill ph-shield-check" style="color: var(--color-gold); font-size: 16px;"></i>
+                    Garantia de 30 dias ou seu dinheiro de volta
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Strip -->
+    <section class="social-proof-strip">
+        <div class="container-main">
+            <div class="social-proof-content" data-editable="text" data-field="prova_social" contenteditable="false">
+                <div class="social-proof-item">
+                    <i class="ph-fill ph-users"></i>
+                    <span>+15.000 Alunos</span>
+                </div>
+                <div class="social-proof-item">
+                    <i class="ph-fill ph-star"></i>
+                    <span>4.9/5 Avaliação</span>
+                </div>
+                <div class="social-proof-item">
+                    <i class="ph-fill ph-award"></i>
+                    <span>Certificado MEC</span>
+                </div>
+                <div class="social-proof-item">
+                    <i class="ph-fill ph-globe"></i>
+                    <span>100% Online</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem/Solution Section -->
+    <section class="problem-section">
+        <div class="container-main">
+            <div class="problem-grid">
+                <div>
+                    <h2 class="problem-title" data-editable="text" data-field="problema_titulo" contenteditable="false">Cansado de cursos que não funcionam?</h2>
+                    
+                    <ul class="problem-list" data-editable="text" data-field="problemas_lista" contenteditable="false">
+                        <li class="problem-item">
+                            <i class="ph-fill ph-x-circle"></i>
+                            <span>Você estuda gramática, mas trava na hora de falar?</span>
+                        </li>
+                        <li class="problem-item">
+                            <i class="ph-fill ph-x-circle"></i>
+                            <span>Métodos tradicionais levam anos para ensinar o básico.</span>
+                        </li>
+                        <li class="problem-item">
+                            <i class="ph-fill ph-x-circle"></i>
+                            <span>Mensalidades caras que pesam no bolso.</span>
+                        </li>
+                    </ul>
+                    
+                    <div style="height: 1px; width: 100%; background: rgba(255, 255, 255, 0.1); margin: 24px 0;"></div>
+                    
+                    <h3 class="solution-title" data-editable="text" data-field="solucao_titulo" contenteditable="false">A Solução Fluência Total:</h3>
+                    
+                    <ul class="solution-list" data-editable="text" data-field="solucoes_lista" contenteditable="false">
+                        <li class="solution-item">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span><strong>Foco em conversação</strong> desde a primeira aula.</span>
+                        </li>
+                        <li class="solution-item">
+                            <i class="ph-fill ph-check-circle"></i>
+                            <span>Aprenda 3x mais rápido com nosso método imersivo.</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Visual Element -->
+                <div class="visual-card">
+                    <div class="visual-glow"></div>
+                    <div class="visual-content" data-editable="text" data-field="visual_card" contenteditable="false">
+                        <div class="visual-header">
+                            <div class="visual-avatar">BF</div>
+                            <div>
+                                <p class="text-sm text-gray-400">Oferta Especial</p>
+                                <p class="font-bold">Acesso Vitalício Liberado</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="visual-progress">
+                                <div class="visual-progress-bar"></div>
+                            </div>
+                            <p class="text-xs text-right" style="color: var(--color-gold);">70% OFF aplicado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Offer Section -->
+    <section id="oferta" class="offer-section">
+        <div class="offer-decoration"></div>
+        <div class="container-main">
+            <div class="offer-content">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h2 class="offer-title" data-editable="text" data-field="oferta_titulo" contenteditable="false">PREÇO DE BLACK FRIDAY</h2>
+                    <p class="offer-subtitle" data-editable="text" data-field="oferta_subtitulo" contenteditable="false">Esta oferta desaparecerá quando o cronômetro zerar.</p>
+                </div>
+                
+                <!-- Pricing Card -->
+                <div class="pricing-card">
+                    <div class="pricing-ribbon" data-editable="text" data-field="ribbon_texto" contenteditable="false">Mais Vendido</div>
+                    
+                    <div class="pricing-grid">
+                        <!-- Left Side (Benefits) -->
+                        <div class="pricing-benefits">
+                            <h3 class="pricing-benefits-title" data-editable="text" data-field="plano_nome" contenteditable="false">Plano Fluência Total</h3>
+                            <p class="pricing-benefits-desc" data-editable="text" data-field="plano_descricao" contenteditable="false">Tudo o que você precisa para ir do Zero ao Avançado.</p>
+                            
+                            <ul class="benefits-list" data-editable="text" data-field="beneficios_lista" contenteditable="false">
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span>Curso Completo (Básico ao Avançado)</span>
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span>Acesso <strong class="text-white">VITALÍCIO</strong> (Só hoje)</span>
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span>Certificado de Conclusão Oficial</span>
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span>App exclusivo para estudar offline</span>
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span style="color: var(--color-gold);">Bônus:</span> Inglês para Viagens
+                                </li>
+                                <li class="benefit-item">
+                                    <i class="ph-fill ph-check"></i>
+                                    <span style="color: var(--color-gold);">Bônus:</span> Aulas de Conversação em Grupo
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Right Side (Price & CTA) -->
+                        <div class="pricing-side">
+                            <div class="pricing-old" data-editable="text" data-field="preco_antigo" contenteditable="false">De MZN 997,00</div>
+                            
+                            <div class="pricing-discount" data-editable="text" data-field="desconto_texto" contenteditable="false">ECONOMIZE MZN 700</div>
+                            
+                            <div class="pricing-price" data-editable="text" data-field="preco_atual" contenteditable="false">MZN 297</div>
+                            <div class="pricing-installments" data-editable="text" data-field="parcelas" contenteditable="false">ou 12x de MZN 29,70</div>
+                            
+                            <button onclick="triggerPurchase()" class="gold-button" style="width: 100%; padding: 16px; border-radius: 12px; margin-bottom: 16px;" data-editable="button-text" data-field="texto_botao_oferta" contenteditable="false">
+                                <span>QUERO FLUÊNCIA AGORA</span>
+                            </button>
+                            
+                            <div class="payment-icons" data-editable="text" data-field="icones_pagamento" contenteditable="false">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" class="payment-icon" alt="Paypal">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Visa.svg" class="payment-icon" alt="Visa">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" class="payment-icon" alt="Mastercard">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container-main">
+            <h2 class="faq-title" data-editable="text" data-field="faq_titulo" contenteditable="false">Dúvidas Frequentes</h2>
+            
+            <div class="faq-list">
+                <!-- FAQ Item 1 -->
+                <details class="faq-item" data-editable="text" data-field="faq_1" contenteditable="false">
+                    <summary class="faq-summary">
+                        <span data-editable="text" data-field="faq_1_pergunta" contenteditable="false">Por quanto tempo terei acesso?</span>
+                        <i class="ph-fill ph-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-content" data-editable="text" data-field="faq_1_resposta" contenteditable="false">
+                        Nesta oferta de Black Friday, o acesso é vitalício! Você paga uma única vez e pode estudar no seu ritmo para sempre, incluindo todas as atualizações futuras.
+                    </div>
+                </details>
+                
+                <!-- FAQ Item 2 -->
+                <details class="faq-item" data-editable="text" data-field="faq_2" contenteditable="false">
+                    <summary class="faq-summary">
+                        <span data-editable="text" data-field="faq_2_pergunta" contenteditable="false">Serve para iniciantes absolutos?</span>
+                        <i class="ph-fill ph-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-content" data-editable="text" data-field="faq_2_resposta" contenteditable="false">
+                        Sim! O Plano Fluência Total começa do zero absoluto e guia você passo a passo até a conversação avançada.
+                    </div>
+                </details>
+                
+                <!-- FAQ Item 3 -->
+                <details class="faq-item" data-editable="text" data-field="faq_3" contenteditable="false">
+                    <summary class="faq-summary">
+                        <span data-editable="text" data-field="faq_3_pergunta" contenteditable="false">E se eu não gostar do curso?</span>
+                        <i class="ph-fill ph-chevron-down faq-icon"></i>
+                    </summary>
+                    <div class="faq-content" data-editable="text" data-field="faq_3_resposta" contenteditable="false">
+                        Você tem garantia incondicional de 30 dias. Se não gostar, basta enviar um e-mail e devolvemos 100% do seu investimento. Sem perguntas.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="container-main">
+            <p class="footer-brand" data-editable="text" data-field="footer_brand" contenteditable="false">INGLÊS FLUÊNCIA TOTAL</p>
+            <p class="footer-text" data-editable="text" data-field="footer_texto" contenteditable="false">© 2024 Todos os direitos reservados.</p>
+            <div class="footer-links" data-editable="text" data-field="footer_links" contenteditable="false">
+                <a href="#" style="color: #4B5563; text-decoration: none; transition: color 0.3s ease;">Termos de Uso</a>
+                <a href="#" style="color: #4B5563; text-decoration: none; transition: color 0.3s ease;">Privacidade</a>
+                <a href="#" style="color: #4B5563; text-decoration: none; transition: color 0.3s ease;">Contato</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Countdown Logic
+        function startTimer() {
+            // Set end time to 24 hours from now
+            const endTime = new Date();
+            endTime.setHours(endTime.getHours() + 11);
+            endTime.setMinutes(endTime.getMinutes() + 45);
+            
+            const container = document.getElementById('countdown');
+            
+            function update() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                
+                if (distance < 0) {
+                    container.innerHTML = '<div style="color: #ef4444; font-weight: 700; font-size: 20px;">OFERTA ENCERRADA</div>';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % 1000) / 1000);
+                
+                const timeBlocks = [
+                    { val: hours, label: 'HORAS' },
+                    { val: minutes, label: 'MINUTOS' },
+                    { val: seconds, label: 'SEGUNDOS' }
+                ];
+                
+                let html = '';
+                timeBlocks.forEach((block, index) => {
+                    html += `
+                        <div class="countdown-item">
+                            <div class="countdown-value">${block.val < 10 ? '0' + block.val : block.val}</div>
+                            <span class="countdown-label-item">${block.label}</span>
+                        </div>
+                    `;
+                    if (index < timeBlocks.length - 1) {
+                        html += '<div class="countdown-separator">:</div>';
+                    }
+                });
+                
+                container.innerHTML = html;
+            }
+            
+            setInterval(update, 1000);
+            update();
+        }
+        
+        startTimer();
+
+        // Função de compra (todos os botões chamam a mesma função)
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                window.location.href = `/payment-success.html?${params}`;
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

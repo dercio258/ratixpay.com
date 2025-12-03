@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentoria Elite: Acelerador de Lucros Online</title>
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Fonte: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            background-color: #0a0a0a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        /* Garantir visibilidade de todos os textos */
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        
+        p, span, div, li {
+            color: inherit;
+        }
+        
+        /* Container principal minimalista */
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Barra de alerta minimalista */
+        .alert-bar {
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Cabeçalho minimalista */
+        .header-section {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+        
+        .badge-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(147, 51, 234, 0.15);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #FCD34D;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .title-main {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        
+        .title-highlight {
+            color: #FCD34D;
+        }
+        
+        .subtitle-main {
+            font-size: clamp(16px, 2.5vw, 20px);
+            color: #d1d5db;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Container de vídeo responsivo e de alta qualidade */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 60px rgba(147, 51, 234, 0.3);
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Placeholder de vídeo */
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.5);
+        }
+        
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .play-button i {
+            color: #ffffff;
+            font-size: 32px;
+            margin-left: 4px;
+        }
+        
+        /* Seção de oferta minimalista */
+        .offer-section {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(24, 24, 27, 0.8);
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .price-label {
+            font-size: 16px;
+            color: #a1a1aa;
+            margin-bottom: 12px;
+        }
+        
+        .price-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .price-original {
+            font-size: 20px;
+            color: #71717a;
+            text-decoration: line-through;
+        }
+        
+        .price-offer {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 900;
+            color: #FCD34D;
+            line-height: 1;
+        }
+        
+        .discount-badge {
+            background: rgba(147, 51, 234, 0.2);
+            border: 1px solid rgba(147, 51, 234, 0.4);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #9333ea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .guarantee-text {
+            font-size: clamp(18px, 2.5vw, 24px);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        
+        /* Botão CTA destacado e claro */
+        .cta-button {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+            color: #ffffff;
+            font-size: clamp(18px, 2.5vw, 22px);
+            font-weight: 700;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(147, 51, 234, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(147, 51, 234, 0.6);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0);
+        }
+        
+        .cta-button span {
+            color: #ffffff;
+            font-weight: 700;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .cta-button i {
+            color: #FCD34D;
+            font-size: 24px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .cta-urgency {
+            display: block;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Link de recusa minimalista */
+        .refusal-link {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(63, 63, 70, 0.5);
+        }
+        
+        .refusal-button {
+            background: none;
+            border: none;
+            color: #71717a;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .refusal-button:hover {
+            color: #d1d5db;
+        }
+        
+        /* Benefícios minimalistas */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 50px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .benefit-card {
+            background: rgba(24, 24, 27, 0.6);
+            border: 1px solid rgba(63, 63, 70, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            border-color: rgba(147, 51, 234, 0.5);
+            transform: translateY(-4px);
+        }
+        
+        .benefit-icon {
+            font-size: 40px;
+            color: #FCD34D;
+            margin-bottom: 12px;
+        }
+        
+        .benefit-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-desc {
+            font-size: 14px;
+            color: #a1a1aa;
+        }
+        
+        /* Footer minimalista */
+        .security-footer {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(63, 63, 70, 0.3);
+            opacity: 0.6;
+        }
+        
+        .security-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #71717a;
+            font-weight: 500;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container-main {
+                padding: 15px;
+            }
+            
+            .header-section {
+                padding: 30px 15px;
+            }
+            
+            .offer-section {
+                padding: 30px 20px;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .security-footer {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        /* Classes customizadas para cores */
+        .bg-brand-main { background-color: #9333ea; }
+        .bg-brand-accent { background-color: #FCD34D; }
+        .bg-brand-subtle { background-color: #27272A; }
+        .text-brand-main { color: #9333ea; }
+        .text-brand-accent { color: #FCD34D; }
+        .border-brand-main { border-color: #9333ea; }
+        .bg-zinc-900 { background-color: #18181b; }
+        .bg-zinc-800 { background-color: #27272a; }
+        .text-zinc-400 { color: #a1a1aa; }
+        .text-zinc-500 { color: #71717a; }
+        .border-zinc-700 { border-color: #3f3f46; }
+        .border-zinc-800 { border-color: #27272a; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Alerta Minimalista -->
+    <div class="alert-bar" data-editable="text" data-field="texto_alerta" contenteditable="false">
+        <i class="ph-fill ph-rocket-launch" style="color: #FCD34D; margin-right: 8px;"></i>
+        APENAS 27 VAGAS RESTANTES NA TURMA DE MENTORIA 2.0
+    </div>
+
+    <div class="container-main">
+        
+        <!-- Cabeçalho Minimalista -->
+        <header class="header-section">
+            <div class="badge-header" data-editable="text" data-field="badge_texto" contenteditable="false">
+                <i class="ph-fill ph-crown" style="color: #FCD34D;"></i>
+                Mentoria Elite (Alto Nível)
+            </div>
+            
+            <h1 class="title-main" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                Como Faturar seus Primeiros <span class="title-highlight">MZN 10.000 Online</span>
+            </h1>
+            
+            <p class="subtitle-main" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Descubra a Estratégia Secreta de Tráfego e Vendas que Gere MZN 10K/Mês com Apenas 2 Horas de Trabalho por Dia.
+            </p>
+        </header>
+
+        <!-- Container de Vídeo Responsivo e de Alta Qualidade -->
+        <div class="video-container" data-editable="media" data-field="video" data-media-type="video" contenteditable="false">
+            <div class="video-wrapper">
+                {{VIDEO_CONTENT}}
+                
+                <!-- Placeholder quando não há vídeo -->
+                <div id="video-placeholder" class="video-placeholder">
+                    <div class="play-button">
+                        <i class="ph-fill ph-play"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Badge de Acesso Restrito -->
+            <div style="position: absolute; top: 16px; right: 16px; background: rgba(24, 24, 27, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(147, 51, 234, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: #FCD34D; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; z-index: 10;">
+                <i class="ph-fill ph-lock" style="color: #FCD34D; font-size: 14px;"></i>
+                ACESSO RESTRITO
+            </div>
+        </div>
+
+        <!-- Seção de Oferta Minimalista -->
+        <div class="offer-section" id="offer-section">
+            
+            <p class="price-label" data-editable="text" data-field="texto_preco_label" contenteditable="false">Valor de Mercado da Mentoria (12 meses):</p>
+            
+            <div class="price-container">
+                <span class="price-original" data-editable="text" data-field="preco_original" contenteditable="false">MZN 5.000,00</span>
+                <span class="price-offer" data-editable="text" data-field="preco_oferta" contenteditable="false">MZN 1.997,00</span>
+                <span class="discount-badge" data-editable="text" data-field="desconto_badge" contenteditable="false">60% OFF EXCLUSIVO</span>
+            </div>
+            
+            <h3 class="guarantee-text" data-editable="text" data-field="texto_garantia" contenteditable="false">
+                Garanta Sua Vaga Agora e Receba 1 Ano de Acesso Ilimitado.
+            </h3>
+            
+            <!-- Botão CTA Destacado -->
+            <button id="ctaButton" onclick="triggerPurchase()" class="cta-button" data-editable="button-text" data-field="texto_botao_aceitar" contenteditable="false">
+                <i class="ph-fill ph-trend-up"></i>
+                <span>QUERO LUCRAR ONLINE (GARANTIR MINHA VAGA)</span>
+            </button>
+            
+            <span class="cta-urgency" data-editable="text" data-field="texto_urgencia" contenteditable="false">
+                Última Chamada: A Mentoria Começa na Próxima Segunda.
+            </span>
+            
+            <!-- Link de Recusa Minimalista -->
+            <div class="refusal-link">
+                <button onclick="handleRefusal()" class="refusal-button" data-editable="text" data-field="texto_botao_recusar" contenteditable="false">
+                    <span style="display: block; margin-bottom: 4px;">Não, obrigado. Prefiro continuar tentando sozinho.</span>
+                    <span style="display: block; font-size: 11px; color: #52525b;" data-editable="text" data-field="texto_recusar_subtitulo" contenteditable="false">Compreendo que perderei esta oportunidade de ser mentorado por especialistas.</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Benefícios Minimalistas -->
+        <div class="benefits-grid" data-editable="text" data-field="beneficios" contenteditable="false">
+            {{BENEFICIOS}}
+        </div>
+
+        <!-- Footer de Segurança Minimalista -->
+        <div class="security-footer">
+            <div class="security-item">
+                <i class="ph-fill ph-lock-key" style="color: #71717a; font-size: 16px;"></i>
+                PAGAMENTO SEGURO
+            </div>
+            <div class="security-item">
+                <i class="ph-fill ph-receipt" style="color: #71717a; font-size: 16px;"></i>
+                NOTA FISCAL INCLUÍDA
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="feedbackModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+        <div style="background: #18181b; border: 1px solid #3f3f46; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; text-align: center; position: relative; z-index: 10; transform: scale(0.95); transition: transform 0.3s;">
+            <div id="spinner" style="width: 48px; height: 48px; border: 4px solid #9333ea; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+            <div id="successIcon" style="width: 48px; height: 48px; background: #10b981; border-radius: 50%; display: none; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <i class="ph-bold ph-check" style="color: #ffffff; font-size: 24px;"></i>
+            </div>
+            <h3 id="modalTitle" style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Validando Compra...</h3>
+            <p style="color: #a1a1aa; font-size: 14px;">Preparando seu acesso à Mentoria Elite.</p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const modal = document.getElementById('feedbackModal');
+                const modalContent = modal.querySelector('div[style*="background"]');
+                const spinner = document.getElementById('spinner');
+                const successIcon = document.getElementById('successIcon');
+                const title = document.getElementById('modalTitle');
+
+                spinner.style.display = 'block';
+                successIcon.style.display = 'none';
+                title.textContent = "Validando Compra...";
+                title.style.color = '#ffffff';
+
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                }, 10);
+
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    successIcon.style.display = 'flex';
+                    title.textContent = "Parabéns! Vaga Garantida!";
+                    title.style.color = '#10b981';
+                    
+                    setTimeout(() => {
+                        const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                        window.location.href = `/payment-success.html?${params}`;
+                    }, 1500);
+                }, 2000);
+            }
+        }
+
+        function handleRefusal() {
+            if (typeof window.handleRefusal === 'function') {
+                window.handleRefusal();
+            } else {
+                if (confirm('Tem certeza? Esta oferta nunca mais aparecerá!')) {
+                    const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                    window.location.href = `/payment-success.html?${params}`;
+                }
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+        
+        // Ocultar placeholder quando houver vídeo
+        window.addEventListener('load', () => {
+            const videoWrapper = document.querySelector('.video-wrapper');
+            const placeholder = document.getElementById('video-placeholder');
+            if (videoWrapper && placeholder) {
+                const hasVideo = videoWrapper.querySelector('iframe, video');
+                if (hasVideo) {
+                    placeholder.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

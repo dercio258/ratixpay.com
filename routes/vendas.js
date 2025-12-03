@@ -332,6 +332,7 @@ router.get('/vendedor', authenticateToken, async (req, res) => {
           cliente_nome: vendaData.cliente_nome || '',
           cliente_email: vendaData.cliente_email || '',
           cliente_telefone: vendaData.cliente_telefone || '',
+          cliente_whatsapp: vendaData.cliente_whatsapp || null, // Adicionar campo WhatsApp
           status: vendaData.status || 'Pendente',
           valor: parseFloat(vendaData.valor || 0), // Valor que o vendedor recebe (90%)
           valor_total_pago: valorTotalPago, // Valor total pago pelo cliente (com desconto)

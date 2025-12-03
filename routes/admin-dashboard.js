@@ -169,8 +169,16 @@ router.get('/estatisticas', authenticateToken, isAdmin, async (req, res) => {
       
       // Buscar saldo do administrador
       console.log('🔍 Buscando saldo do administrador...');
-      const { SaldoAdmin } = require('../config/database');
-      const saldoAdmin = await SaldoAdmin.findOne();
+      const { SaldoAdmin, sequelize } = require('../config/database');
+      // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+      const [saldoAdminResult] = await sequelize.query(
+        `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+         valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+         ultima_atualizacao, observacoes 
+         FROM saldo_admin LIMIT 1`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      const saldoAdmin = saldoAdminResult;
       console.log(`✅ Saldo admin encontrado:`, saldoAdmin ? 'Sim' : 'Não');
       
       if (saldoAdmin) {
@@ -805,7 +813,15 @@ router.get('/vendedores/estatisticas', authenticateToken, isAdmin, async (req, r
     // Buscar saldo do administrador (com tratamento de erro)
     let saldoAdmin = null;
     try {
-      saldoAdmin = await SaldoAdmin.findOne();
+      // Usar SQL direto para evitar problema com coluna vendedor_id inexistente
+      const [saldoAdminResult] = await sequelize.query(
+        `SELECT id, saldo_total, comissao_percentual, total_vendas_aprovadas, 
+         valor_total_vendas, total_comissoes, total_saques_pagos, taxas, taxas_saques, 
+         ultima_atualizacao, observacoes 
+         FROM saldo_admin LIMIT 1`,
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      saldoAdmin = saldoAdminResult;
     } catch (saldoError) {
       console.warn('⚠️ Erro ao buscar saldo do administrador:', saldoError.message);
       // Continuar sem falhar se a tabela não existir

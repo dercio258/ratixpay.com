@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RatixPay - Configuração Upsell</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Sistema de Autenticação Global -->
+    <script src="/js/server-check.js"></script>
+    <script src="/js/global-auth.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #f64c00;
+            --secondary-color: #E67E22;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --dark-bg: #1e293b;
+            --light-bg: #f8f9fa;
+            --border-color: #e9ecef;
+            --upsell-purple: #667eea;
+        }
+
+        .upsell-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .upsell-header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .upsell-header h1 {
+            font-size: 2.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upsell-header h1 i {
+            color: var(--upsell-purple);
+        }
+
+        .upsell-header p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--upsell-purple) 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .page-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .page-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .page-card-title {
+            flex: 1;
+        }
+
+        .page-card-title h3 {
+            font-size: 1.3rem;
+            color: var(--dark-bg);
+            margin: 0 0 5px 0;
+        }
+
+        .page-card-title p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .page-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .page-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .page-status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-action.edit {
+            background: var(--light-bg);
+            color: var(--dark-bg);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-action.edit:hover {
+            background: #e9ecef;
+            border-color: var(--upsell-purple);
+        }
+
+        .btn-action.products {
+            background: linear-gradient(135deg, var(--upsell-purple) 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-action.products:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-action.delete {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .btn-action.delete:hover {
+            background: #f5c6cb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--dark-bg);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark-bg);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .close-modal:hover {
+            color: var(--dark-bg);
+        }
+
+        .product-checkbox-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .product-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-checkbox-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .product-checkbox-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--dark-bg);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--upsell-purple);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upsell-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <!-- Será preenchido pelo SidebarComponent -->
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <div class="upsell-container">
+                <!-- Header -->
+                <div class="upsell-header">
+                    <div>
+                        <h1>
+                            <i class="fas fa-arrow-up"></i>
+                            Configuração Upsell
+                        </h1>
+                        <p>Crie e gerencie páginas de upsell para oferecer produtos complementares aos seus clientes</p>
+                    </div>
+                    <a href="upsell-config-add-page.html" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Nova Página
+                    </a>
+                </div>
+
+                <!-- Lista de Páginas -->
+                <div id="pages-container">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Carregando páginas...</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Relacionar Produtos -->
+    <div id="products-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Relacionar Produtos</h2>
+                <button class="close-modal" onclick="fecharModalProdutos()">&times;</button>
+            </div>
+            <div id="products-list" class="product-checkbox-list">
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Carregando produtos...</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn-action products" onclick="salvarRelacionamentoProdutos()" style="flex: 1;">
+                    <i class="fas fa-save"></i>
+                    Salvar
+                </button>
+                <button class="btn-action edit" onclick="fecharModalProdutos()" style="flex: 1;">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/sidebar-component.js"></script>
+    
+    <script>
+        let pages = [];
+        let produtos = [];
+        let currentPageId = null;
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = new SidebarComponent();
+            sidebar.init('integracoes');
+            
+            carregarPaginas();
+            carregarProdutos();
+        });
+
+        async function carregarPaginas(showLoading = false) {
+            try {
+                if (showLoading) {
+                    const container = document.getElementById('pages-container');
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <h3>Carregando páginas...</h3>
+                        </div>
+                    `;
+                }
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE || '/api'}/upsell/pages`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar páginas');
+                }
+
+                const data = await response.json();
+                pages = data.pages || [];
+                console.log('📄 Páginas carregadas:', pages.length, 'página(s)');
+                renderizarPaginas();
+            } catch (error) {
+                console.error('Erro ao carregar páginas:', error);
+                mostrarToast('Erro ao carregar páginas: ' + error.message, 'error');
+                document.getElementById('pages-container').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar</h3>
+                        <p>Não foi possível carregar as páginas de upsell</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function carregarProdutos() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE || '/api'}/upsell/produtos`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar produtos');
+                }
+
+                const data = await response.json();
+                produtos = data.produtos || [];
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+            }
+        }
+
+        function renderizarPaginas() {
+            const container = document.getElementById('pages-container');
+            
+            if (pages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-arrow-up"></i>
+                        <h3>Nenhuma página criada</h3>
+                        <p>Crie sua primeira página de upsell para começar a oferecer produtos complementares aos seus clientes</p>
+                        <a href="upsell-config-add-page.html" class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Criar Primeira Página
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            console.log('🎨 Renderizando páginas:', pages.length);
+            pages.forEach(page => {
+                const produtosRelacionados = page.produtos_relacionados || [];
+                console.log(`  - Página ${page.titulo}: ${produtosRelacionados.length} produto(s) relacionado(s)`);
+            });
+
+            container.innerHTML = `
+                <div class="pages-grid">
+                    ${pages.map(page => {
+                        // Usar quantidade de produtos da API ou calcular do array
+                        const produtosRelacionados = page.produtos_relacionados || [];
+                        const quantidadeProdutos = page.quantidade_produtos !== undefined 
+                            ? page.quantidade_produtos 
+                            : produtosRelacionados.length;
+                        
+                        return `
+                        <div class="page-card" data-page-id="${page.id}">
+                            <div class="page-card-header">
+                                <div class="page-card-title">
+                                    <h3>${escapeHtml(page.titulo)}</h3>
+                                    <p>${escapeHtml(page.nome_produto)}</p>
+                                </div>
+                                <span class="page-status ${page.ativo ? 'active' : 'inactive'}">
+                                    <i class="fas fa-${page.ativo ? 'check' : 'times'}-circle"></i>
+                                    ${page.ativo ? 'Ativa' : 'Inativa'}
+                                </span>
+                            </div>
+                            ${page.video_embed ? `
+                                <div style="margin: 15px 0;">
+                                    <div style="width: 100%; border-radius: 8px; overflow: hidden;">
+                                        ${page.video_embed}
+                                    </div>
+                                </div>
+                            ` : page.video_url ? `
+                                <div style="margin: 15px 0;">
+                                    <video width="100%" controls style="border-radius: 8px;">
+                                        <source src="${page.video_url}" type="video/mp4">
+                                    </video>
+                                </div>
+                            ` : ''}
+                            <div style="padding: 10px 15px; background: #f8f9fa; border-radius: 8px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-box" style="color: var(--primary-color);"></i>
+                                    <span style="font-size: 0.9rem; color: #666;">
+                                        Produtos relacionados: <strong>${quantidadeProdutos}</strong>
+                                    </span>
+                                </div>
+                                ${quantidadeProdutos > 0 ? `
+                                    <span style="font-size: 0.8rem; color: var(--success-color);">
+                                        <i class="fas fa-check-circle"></i> Configurado
+                                    </span>
+                                ` : `
+                                    <span style="font-size: 0.8rem; color: #999;">
+                                        <i class="fas fa-exclamation-circle"></i> Nenhum produto
+                                    </span>
+                                `}
+                            </div>
+                            <div class="page-actions">
+                                <button class="btn-action edit" onclick="editarPagina('${page.id}')">
+                                    <i class="fas fa-edit"></i>
+                                    Editar
+                                </button>
+                                <button class="btn-action products" onclick="abrirModalProdutos('${page.id}')">
+                                    <i class="fas fa-link"></i>
+                                    ${quantidadeProdutos > 0 ? 'Alterar Produtos' : 'Relacionar Produtos'}
+                                </button>
+                                <button class="btn-action delete" onclick="excluirPagina('${page.id}')">
+                                    <i class="fas fa-trash"></i>
+                                    Excluir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function editarPagina(pageId) {
+            window.location.href = `upsell-config-add-page.html?id=${pageId}`;
+        }
+
+        function abrirModalProdutos(pageId) {
+            currentPageId = pageId;
+            const page = pages.find(p => p.id === pageId);
+            
+            // Buscar produtos relacionados
+            carregarProdutosRelacionados(pageId).then(produtosRelacionados => {
+                // Garantir que produtosRelacionados é um array
+                if (!Array.isArray(produtosRelacionados)) {
+                    produtosRelacionados = [];
+                }
+                // Converter IDs para string para comparação correta
+                const produtosIds = produtosRelacionados.map(p => String(p.produto_id || p.id || ''));
+                
+                const listContainer = document.getElementById('products-list');
+                
+                if (!produtos || produtos.length === 0) {
+                    listContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Nenhum produto disponível para relacionar</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                listContainer.innerHTML = produtos.map(produto => {
+                    const produtoIdStr = String(produto.id || '');
+                    const isChecked = produtosIds.includes(produtoIdStr);
+                    
+                    return `
+                    <div class="product-checkbox-item">
+                        <input 
+                            type="checkbox" 
+                            id="produto-${produto.id}" 
+                            value="${produto.id}"
+                            ${isChecked ? 'checked' : ''}
+                        />
+                        <label for="produto-${produto.id}">
+                            ${escapeHtml(produto.nome)} - ${produto.custom_id}
+                        </label>
+                    </div>
+                `;
+                }).join('');
+            });
+            
+            document.getElementById('products-modal').classList.add('active');
+        }
+
+        async function carregarProdutosRelacionados(pageId) {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE || '/api'}/upsell/pages/${pageId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    return [];
+                }
+
+                const data = await response.json();
+                const produtosRelacionados = data.page?.produtos_relacionados;
+                
+                // Garantir que sempre retorna um array
+                return Array.isArray(produtosRelacionados) ? produtosRelacionados : [];
+            } catch (error) {
+                console.error('Erro ao carregar produtos relacionados:', error);
+                return [];
+            }
+        }
+
+        function fecharModalProdutos() {
+            document.getElementById('products-modal').classList.remove('active');
+            currentPageId = null;
+        }
+
+        async function salvarRelacionamentoProdutos() {
+            if (!currentPageId) {
+                mostrarToast('Erro: ID da página não encontrado', 'error');
+                return;
+            }
+
+            // Obter botão de salvar e desabilitar durante o processo
+            const saveButton = document.querySelector('#products-modal button[onclick="salvarRelacionamentoProdutos()"]');
+            if (!saveButton) {
+                mostrarToast('Erro: Botão de salvar não encontrado', 'error');
+                return;
+            }
+            
+            const originalButtonContent = saveButton.innerHTML;
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+            try {
+                const checkboxes = document.querySelectorAll('#products-list input[type="checkbox"]:checked');
+                const produtoIds = Array.from(checkboxes)
+                    .map(cb => cb.value)
+                    .filter(id => id && id.trim() !== ''); // Filtrar valores vazios
+
+                console.log('💾 Salvando relacionamento de produtos:', {
+                    pageId: currentPageId,
+                    produtoIds: produtoIds,
+                    quantidade: produtoIds.length
+                });
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                
+                if (!token) {
+                    throw new Error('Usuário não autenticado');
+                }
+
+                const response = await fetch(`${window.API_BASE || '/api'}/upsell/pages/${currentPageId}/produtos`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        produto_ids: produtoIds
+                    })
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(responseData.message || 'Erro ao salvar relacionamento');
+                }
+
+                console.log('✅ Produtos relacionados com sucesso:', responseData);
+
+                // Mostrar mensagem de sucesso
+                const quantidade = produtoIds.length;
+                const mensagem = quantidade > 0 
+                    ? `${quantidade} produto${quantidade > 1 ? 's' : ''} relacionado${quantidade > 1 ? 's' : ''} com sucesso!`
+                    : 'Configuração salva! (Nenhum produto selecionado)';
+                
+                mostrarToast(mensagem, 'success');
+
+                // Fechar modal
+                fecharModalProdutos();
+
+                // Recarregar páginas para atualizar a visualização
+                await carregarPaginas(true);
+
+            } catch (error) {
+                console.error('❌ Erro ao salvar relacionamento:', error);
+                mostrarToast(error.message || 'Erro ao salvar relacionamento', 'error');
+            } finally {
+                // Restaurar botão
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalButtonContent;
+            }
+        }
+
+        async function excluirPagina(pageId) {
+            if (!confirm('Tem certeza que deseja excluir esta página de upsell?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE || '/api'}/upsell/pages/${pageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao excluir página');
+                }
+
+                mostrarToast('Página excluída com sucesso!', 'success');
+                carregarPaginas();
+            } catch (error) {
+                console.error('Erro ao excluir página:', error);
+                mostrarToast('Erro ao excluir: ' + error.message, 'error');
+            }
+        }
+
+        function mostrarToast(mensagem, tipo = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check' : 'exclamation'}-circle"></i>
+                <span>${mensagem}</span>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+
+

@@ -181,7 +181,7 @@ router.get('/vendedores', authenticateToken, checkAdminAccess, async (req, res) 
                 'id', 'public_id', 'nome', 'nome_completo', 'email', 'telefone', 
                 'whatsapp_contact', 'whatsapp_enabled', 'google_user', 'google_id',
                 'role', 'status', 'ativo', 'suspenso', 'motivo_suspensao',
-                'ultimo_login', 'created_at', 'updated_at', 'plano_premium', 'premium_key'
+                'ultimo_login', 'created_at', 'updated_at'
             ],
             order: [['created_at', 'DESC']]
         });
@@ -214,8 +214,6 @@ router.get('/vendedores', authenticateToken, checkAdminAccess, async (req, res) 
                     ultimo_login: vendedor.ultimo_login,
                     created_at: vendedor.created_at,
                     updated_at: vendedor.updated_at,
-                    plano_premium: vendedor.plano_premium,
-                    premium_key: vendedor.premium_key,
                     
                     // Campos de receita calculados
                     receitaTotal: receita.receitaTotal,
@@ -248,8 +246,6 @@ router.get('/vendedores', authenticateToken, checkAdminAccess, async (req, res) 
                     ultimo_login: vendedor.ultimo_login,
                     created_at: vendedor.created_at,
                     updated_at: vendedor.updated_at,
-                    plano_premium: vendedor.plano_premium,
-                    premium_key: vendedor.premium_key,
                     
                     // Campos de receita com valores padrão
                     receitaTotal: 0,
@@ -812,22 +808,54 @@ router.post('/saques/:id/rejeitar', authenticateToken, checkAdminAccess, async (
             });
         }
         
-        // Rejeitar saque
+        // Validar que motivo foi fornecido
+        if (!motivo || motivo.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'Motivo da rejeição é obrigatório'
+            });
+        }
+        
+        // Rejeitar saque com motivo
         await saque.update({
             status: 'rejeitado',
-            observacoes: motivo ? `${saque.observacoes || ''}\n\nRejeitado em: ${new Date().toLocaleString('pt-BR')}\nMotivo: ${motivo}`.trim() : saque.observacoes
+            motivo_rejeicao: motivo.trim(),
+            data_processamento: new Date(),
+            processado_por: req.user.id,
+            observacoes: `${saque.observacoes || ''}\n\n=== REJEITADO ===\nData: ${new Date().toLocaleString('pt-BR', { timeZone: 'Africa/Maputo' })}\nMotivo: ${motivo.trim()}\nProcessado por: ${req.user.nome_completo || req.user.email}`.trim()
         });
         
-        console.log(`✅ Saque ${id} rejeitado com sucesso`);
+        // Recarregar saque para obter dados atualizados
+        await saque.reload();
+        
+        // Buscar vendedor para notificação
+        const vendedor = await Usuario.findByPk(saque.vendedor_id, {
+            attributes: ['id', 'nome_completo', 'email', 'telefone']
+        });
+        
+        // Enviar notificação ao vendedor sobre a rejeição
+        try {
+            const SaqueNotificationService = require('../services/saqueNotificationService');
+            await SaqueNotificationService.notificarVendedorSaqueRejeitado(saque, vendedor, motivo.trim());
+            console.log(`✅ Notificação de rejeição enviada para vendedor: ${vendedor.email}`);
+        } catch (notificationError) {
+            console.error('❌ Erro ao enviar notificação de rejeição:', notificationError);
+            // Não falhar a operação por erro de notificação
+        }
+        
+        // IMPORTANTE: O saldo já foi subtraído quando o saque foi criado
+        // Não precisa reverter, pois o saldo deve permanecer subtraído mesmo quando recusado
+        console.log(`✅ Saque ${id} rejeitado com sucesso. Saldo permanece subtraído.`);
         
         res.json({
             success: true,
             message: 'Saque rejeitado com sucesso',
             saque: {
                 id: saque.id,
-                id_saque: saque.id_saque,
+                public_id: saque.public_id,
                 status: saque.status,
-                vendedor_nome: saque.vendedor?.nome_completo
+                motivo_rejeicao: saque.motivo_rejeicao,
+                vendedor_nome: vendedor?.nome_completo
             }
         });
         

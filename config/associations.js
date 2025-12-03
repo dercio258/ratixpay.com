@@ -188,15 +188,9 @@ function setupAssociations() {
             as: 'vendedorConfiguracao'
         });
 
-        // 17. Usuario ↔ SaldoAdmin (relacionamento para saldos administrativos)
-        Usuario.hasMany(SaldoAdmin, {
-            foreignKey: 'vendedor_id',
-            as: 'saldosAdmin'
-        });
-        SaldoAdmin.belongsTo(Usuario, {
-            foreignKey: 'vendedor_id',
-            as: 'vendedorSaldo'
-        });
+        // 17. Usuario ↔ SaldoAdmin (relacionamento removido - SaldoAdmin não tem vendedor_id)
+        // SaldoAdmin é uma tabela única para o administrador, não por vendedor
+        // Removido relacionamento para evitar erro de coluna inexistente
 
         // 18. ProdutoComplementarVenda ↔ Venda (produtos complementares de uma venda)
         ProdutoComplementarVenda.belongsTo(Venda, {

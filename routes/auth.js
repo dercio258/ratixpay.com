@@ -977,6 +977,7 @@ router.get('/me', authenticateToken, async (req, res) => {
             telefone: user.telefone,
             whatsapp_contact: user.whatsapp_contact,
             whatsapp_enabled: user.whatsapp_enabled,
+            whatsapp_notification_types: user.whatsapp_notification_types || [],
             role: user.role,
             vendedor_id: user.vendedor_id,
             status: user.status,
@@ -1017,10 +1018,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
         const user = await Usuario.findByPk(userId, {
             attributes: [
                 'id', 'nome', 'nome_completo', 'email', 'telefone', 'whatsapp_contact', 
-                'whatsapp_enabled', 'avatar_url', 'role', 'ativo',
-                'marketing_avancado_ativo', 'marketing_avancado_data_inicio', 
-                'marketing_avancado_data_expiracao', 'marketing_avancado_dias_restantes',
-                'plano_premium', 'premium_key', 'premium_ativado_em', 'premium_validade',
+                'whatsapp_enabled', 'whatsapp_notification_types', 'avatar_url', 'role', 'ativo',
                 'created_at', 'updated_at'
             ]
         });
@@ -1030,40 +1028,6 @@ router.get('/profile', authenticateToken, async (req, res) => {
                 success: false,
                 error: 'Usuário não encontrado'
             });
-        }
-        
-        // Verificar se marketing avançado está ativo
-        const marketingAvancado = {
-            ativo: user.marketing_avancado_ativo || false,
-            data_inicio: user.marketing_avancado_data_inicio,
-            data_expiracao: user.marketing_avancado_data_expiracao,
-            dias_restantes: user.marketing_avancado_dias_restantes || 0
-        };
-        
-        // Verificar se não expirou
-        if (marketingAvancado.ativo && marketingAvancado.data_expiracao) {
-            const agora = new Date();
-            const dataExpiracao = new Date(marketingAvancado.data_expiracao);
-            
-            if (agora > dataExpiracao) {
-                marketingAvancado.ativo = false;
-                marketingAvancado.dias_restantes = 0;
-                
-                // Atualizar no banco
-                await user.update({
-                    marketing_avancado_ativo: false,
-                    marketing_avancado_dias_restantes: 0
-                });
-            } else {
-                // Calcular dias restantes
-                const diasRestantes = Math.ceil((dataExpiracao - agora) / (1000 * 60 * 60 * 24));
-                marketingAvancado.dias_restantes = diasRestantes;
-                
-                // Atualizar no banco
-                await user.update({
-                    marketing_avancado_dias_restantes: diasRestantes
-                });
-            }
         }
         
         res.json({
@@ -1076,16 +1040,10 @@ router.get('/profile', authenticateToken, async (req, res) => {
                 telefone: user.telefone,
                 whatsapp_contact: user.whatsapp_contact,
                 whatsapp_enabled: user.whatsapp_enabled,
+                whatsapp_notification_types: user.whatsapp_notification_types || [],
                 avatar_url: user.avatar_url,
                 role: user.role,
                 ativo: user.ativo,
-                marketing_avancado: marketingAvancado,
-                plano_premium: {
-                    ativo: user.plano_premium || false,
-                    key: user.premium_key,
-                    ativado_em: user.premium_ativado_em,
-                    validade: user.premium_validade
-                },
                 created_at: user.created_at,
                 updated_at: user.updated_at
             }
@@ -1105,10 +1063,10 @@ router.put('/profile', authenticateToken, async (req, res) => {
     console.log('🔍 Rota /profile acessada:', req.method, req.url);
     try {
         const userId = req.user.id;
-        const { nome, nome_completo, telefone, whatsapp_contact, whatsapp_enabled, avatar_url } = req.body;
+        const { nome, nome_completo, telefone, whatsapp_contact, whatsapp_enabled, whatsapp_notification_types, avatar_url } = req.body;
         
         console.log(`🔄 Atualizando perfil do usuário ${userId}...`);
-        console.log('📝 Dados recebidos:', { nome, nome_completo, telefone, whatsapp_contact, whatsapp_enabled, avatar_url });
+        console.log('📝 Dados recebidos:', { nome, nome_completo, telefone, whatsapp_contact, whatsapp_enabled, whatsapp_notification_types, avatar_url });
         
         // Buscar usuário
         const user = await Usuario.findByPk(userId);
@@ -1126,6 +1084,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
         if (telefone !== undefined) updateData.telefone = telefone;
         if (whatsapp_contact !== undefined) updateData.whatsapp_contact = whatsapp_contact;
         if (whatsapp_enabled !== undefined) updateData.whatsapp_enabled = whatsapp_enabled;
+        if (whatsapp_notification_types !== undefined) updateData.whatsapp_notification_types = whatsapp_notification_types;
         if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
         
         await user.update(updateData);
@@ -1142,6 +1101,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
                 telefone: user.telefone,
                 whatsapp_contact: user.whatsapp_contact,
                 whatsapp_enabled: user.whatsapp_enabled,
+                whatsapp_notification_types: user.whatsapp_notification_types || [],
                 avatar_url: user.avatar_url
             }
         });

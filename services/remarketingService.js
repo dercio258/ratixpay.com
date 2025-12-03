@@ -29,7 +29,8 @@ class RemarketingService {
             produto_id,
             produto_nome,
             email,
-            telefone
+            telefone,
+            venda_cancelada_id = null
         } = dados;
 
         try {
@@ -61,48 +62,54 @@ class RemarketingService {
                 return { ignorado: true, motivo: 'Remarketing não ativado para este produto' };
             }
 
-            // Verificar antispam (máximo 1 notificação por cliente/produto/dia)
-            // Se cliente_id for null, usar email ou telefone para verificação
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            const amanha = new Date(hoje);
-            amanha.setDate(amanha.getDate() + 1);
-
-            // Verificar antispam (máximo 1 notificação por cliente/produto/dia)
-            // Se cliente_id original for null, verificar por email ou telefone
+            // Verificar antispam:
+            // - Máximo 1 notificação pendente/enviada por cliente/produto (não repetir remarketing para o mesmo cliente)
+            // - Identificação por cliente_id, email ou telefone (fallback)
             let antispamCheck = [];
             if (cliente_id) {
-                // Verificar por cliente_id original
+                // Verificar por cliente_id (cliente "oficial" do sistema)
                 antispamCheck = await sequelize.query(
-                    `SELECT id FROM ${this.tableName} 
-                     WHERE cliente_id = :cliente_id 
-                       AND produto_id = :produto_id 
-                       AND DATE(data_cancelamento) = DATE(:hoje)
-                       AND status IN ('pendente', 'enviado')
-                     LIMIT 1`,
-                    {
-                        replacements: {
+                `SELECT id FROM ${this.tableName} 
+                 WHERE cliente_id = :cliente_id 
+                   AND produto_id = :produto_id 
+                   AND status IN ('pendente', 'enviado')
+                 LIMIT 1`,
+                {
+                    replacements: {
                             cliente_id: clienteIdFinal,
-                            produto_id,
-                            hoje: hoje.toISOString()
+                            produto_id
                         },
                         type: sequelize.QueryTypes.SELECT
                     }
                 );
             } else if (email) {
-                // Se não tiver cliente_id original, verificar por email
+                // Se não tiver cliente_id, verificar por email
                 antispamCheck = await sequelize.query(
                     `SELECT id FROM ${this.tableName} 
                      WHERE email = :email 
                        AND produto_id = :produto_id 
-                       AND DATE(data_cancelamento) = DATE(:hoje)
                        AND status IN ('pendente', 'enviado')
                      LIMIT 1`,
                     {
                         replacements: {
                             email,
-                            produto_id,
-                            hoje: hoje.toISOString()
+                        produto_id
+                    },
+                    type: sequelize.QueryTypes.SELECT
+                }
+            );
+            } else if (telefoneFinal) {
+                // Último fallback: verificar por telefone
+                antispamCheck = await sequelize.query(
+                    `SELECT id FROM ${this.tableName} 
+                     WHERE telefone = :telefone 
+                       AND produto_id = :produto_id 
+                       AND status IN ('pendente', 'enviado')
+                     LIMIT 1`,
+                    {
+                        replacements: {
+                            telefone: telefoneFinal,
+                            produto_id
                         },
                         type: sequelize.QueryTypes.SELECT
                     }
@@ -139,9 +146,9 @@ class RemarketingService {
             const [result] = await sequelize.query(
                 `INSERT INTO ${this.tableName} 
                  (cliente_id, cliente_nome, produto_id, produto_nome, email, telefone, 
-                  status, data_cancelamento, tempo_envio, data_agendada, created_at, updated_at)
+                  status, data_cancelamento, tempo_envio, data_agendada, venda_cancelada_id, created_at, updated_at)
                  VALUES (:cliente_id, :cliente_nome, :produto_id, :produto_nome, :email, :telefone,
-                         'pendente', :data_cancelamento, :tempo_envio, :data_agendada, NOW(), NOW())
+                         'pendente', :data_cancelamento, :tempo_envio, :data_agendada, :venda_cancelada_id, NOW(), NOW())
                  RETURNING *`,
                 {
                     replacements: {
@@ -153,13 +160,33 @@ class RemarketingService {
                         telefone: telefoneFinal,
                         data_cancelamento: dataCancelamento.toISOString(),
                         tempo_envio: tempoMinutos,
-                        data_agendada: dataAgendada.toISOString()
+                        data_agendada: dataAgendada.toISOString(),
+                        venda_cancelada_id: venda_cancelada_id || null
                     },
                     type: sequelize.QueryTypes.INSERT
                 }
             );
 
-            return { sucesso: true, item: result[0] };
+            const itemAdicionado = result[0];
+            
+            // Se o tempo de envio for 0 ou muito curto (menos de 1 minuto), processar imediatamente
+            if (tempoMinutos <= 1) {
+                console.log('⚡ Tempo de envio muito curto, processando remarketing imediatamente...');
+                try {
+                    const resultadoEnvio = await this.enviarNotificacao(itemAdicionado);
+                    if (resultadoEnvio.sucesso) {
+                        await this.marcarComoEnviado(itemAdicionado.id);
+                        console.log('✅ Remarketing enviado imediatamente com sucesso');
+                    } else {
+                        console.log(`⚠️ Falha ao enviar remarketing imediatamente: ${resultadoEnvio.motivo}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao processar remarketing imediatamente:', error);
+                    // Não falhar, deixar para o cron job processar depois
+                }
+            }
+
+            return { sucesso: true, item: itemAdicionado };
         } catch (error) {
             console.error('❌ Erro ao adicionar venda cancelada à fila:', error);
             throw error;
@@ -210,24 +237,64 @@ class RemarketingService {
                     const hoje = new Date(item.data_cancelamento);
                     hoje.setHours(0, 0, 0, 0);
 
-                    const antispamCheck = await sequelize.query(
-                        `SELECT id FROM ${this.tableName}
-                         WHERE cliente_id = :cliente_id
-                           AND produto_id = :produto_id
-                           AND DATE(data_cancelamento) = DATE(:hoje)
-                           AND status = 'enviado'
-                           AND id != :item_id
-                         LIMIT 1`,
-                        {
-                            replacements: {
-                                cliente_id: item.cliente_id,
-                                produto_id: item.produto_id,
-                                hoje: hoje.toISOString(),
-                                item_id: item.id
-                            },
-                            type: sequelize.QueryTypes.SELECT
+                    // Verificar antispam por cliente_id, email ou telefone
+                    let antispamCheck = [];
+                    
+                    if (item.cliente_id) {
+                        antispamCheck = await sequelize.query(
+                            `SELECT id FROM ${this.tableName}
+                             WHERE cliente_id = :cliente_id
+                               AND produto_id = :produto_id
+                               AND DATE(data_cancelamento) = DATE(:hoje)
+                               AND status = 'enviado'
+                               AND id != :item_id
+                             LIMIT 1`,
+                            {
+                                replacements: {
+                                    cliente_id: item.cliente_id,
+                                    produto_id: item.produto_id,
+                                    hoje: hoje.toISOString(),
+                                    item_id: item.id
+                                },
+                                type: sequelize.QueryTypes.SELECT
+                            }
+                        );
+                    }
+                    
+                    // Se não encontrou por cliente_id, verificar por email ou telefone
+                    if (antispamCheck.length === 0 && (item.email || item.telefone)) {
+                        const whereClause = [];
+                        const replacements = {
+                            produto_id: item.produto_id,
+                            hoje: hoje.toISOString(),
+                            item_id: item.id
+                        };
+                        
+                        if (item.email) {
+                            whereClause.push('email = :email');
+                            replacements.email = item.email;
                         }
-                    );
+                        if (item.telefone) {
+                            whereClause.push('telefone = :telefone');
+                            replacements.telefone = item.telefone;
+                        }
+                        
+                        if (whereClause.length > 0) {
+                            antispamCheck = await sequelize.query(
+                                `SELECT id FROM ${this.tableName}
+                                 WHERE produto_id = :produto_id
+                                   AND DATE(data_cancelamento) = DATE(:hoje)
+                                   AND status = 'enviado'
+                                   AND id != :item_id
+                                   AND (${whereClause.join(' OR ')})
+                                 LIMIT 1`,
+                                {
+                                    replacements,
+                                    type: sequelize.QueryTypes.SELECT
+                                }
+                            );
+                        }
+                    }
 
                     if (antispamCheck.length > 0) {
                         await this.marcarComoIgnorado(item.id, 'Antispam: notificação já enviada hoje');
@@ -341,7 +408,7 @@ class RemarketingService {
                     );
                     
                     if (resultadoWhatsApp && resultadoWhatsApp.success !== false) {
-                        sucessoWhatsApp = true;
+                    sucessoWhatsApp = true;
                         console.log(`✅ WhatsApp de remarketing enviado com sucesso para cliente: ${telefoneFormatado}`);
                     } else {
                         console.log(`⚠️ Falha ao enviar WhatsApp de remarketing para cliente: ${telefoneFormatado}`);
@@ -540,7 +607,7 @@ Realizamos remarketing da venda do produto *"${item.produto_nome}"* no nosso sis
     prepararMensagem(nomeCliente, nomeProduto, linkCheckout) {
         // Número de suporte (apenas número, sem link)
         const numeroSuporte = '862177274';
-        
+
         // Mensagem conforme estrutura solicitada
         // O link do produto será automaticamente clicável no WhatsApp (URL completa)
         return `Olá ${nomeCliente}! Notamos que você demonstrou interesse em *${nomeProduto}* mas não finalizou a compra. Finalize a sua compra e aproveite, pois esta oferta pode não estar mais disponível, aproveite!

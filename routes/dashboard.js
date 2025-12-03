@@ -2646,5 +2646,152 @@ function getSemanaAno(data) {
   return Math.ceil((dias + inicioAno.getDay() + 1) / 7);
 }
 
+// GET - Ranking Top 10 Vendedores (público)
+router.get('/ranking-top-vendedores', async (req, res) => {
+  try {
+    const { Op } = require('sequelize');
+    
+    // Status que indicam aprovação
+    const statusAprovados = ['Pago', 'pago', 'PAGO', 'Aprovado', 'aprovado', 'APROVADO', 'Aprovada', 'aprovada', 'APROVADA', 'approved', 'paid'];
+    
+    // Buscar todas as vendas aprovadas
+    const vendasAprovadas = await Venda.findAll({
+      where: {
+        status: {
+          [Op.in]: statusAprovados
+        }
+      },
+      attributes: ['vendedor_id', 'valor'],
+      include: [{
+        model: Usuario,
+        as: 'vendedorVenda',
+        attributes: ['id', 'public_id'],
+        required: false
+      }]
+    });
+    
+    // Calcular faturamento por vendedor
+    const faturamentoPorVendedor = {};
+    const vendedorIdsUnicos = new Set();
+    
+    vendasAprovadas.forEach(venda => {
+      const vendedorId = venda.vendedor_id;
+      if (vendedorId) {
+        vendedorIdsUnicos.add(vendedorId);
+        if (!faturamentoPorVendedor[vendedorId]) {
+          faturamentoPorVendedor[vendedorId] = {
+            vendedor_id: vendedorId,
+            faturamento: 0
+          };
+        }
+        faturamentoPorVendedor[vendedorId].faturamento += parseFloat(venda.valor || 0);
+      }
+    });
+    
+    // Buscar todos os public_ids de uma vez para garantir que todos tenham
+    const vendedorIdsArray = Array.from(vendedorIdsUnicos);
+    const publicIdMap = {};
+    
+    if (vendedorIdsArray.length > 0) {
+      const { Op } = require('sequelize');
+      const usuarios = await Usuario.findAll({
+        where: {
+          id: {
+            [Op.in]: vendedorIdsArray
+          }
+        },
+        attributes: ['id', 'public_id']
+      });
+      
+      console.log(`📊 Buscando public_ids para ${vendedorIdsArray.length} vendedores, encontrados ${usuarios.length} usuários`);
+      
+      // Criar mapa de id -> public_id
+      usuarios.forEach(usuario => {
+        const usuarioData = usuario.toJSON ? usuario.toJSON() : usuario;
+        const userId = usuarioData.id;
+        const publicId = usuarioData.public_id;
+        
+        if (userId && publicId) {
+          publicIdMap[userId] = publicId;
+        }
+      });
+      
+      console.log(`✅ Mapa de public_ids criado com ${Object.keys(publicIdMap).length} entradas`);
+    }
+    
+    // Atribuir public_id a todos os vendedores
+    // Se não tiver public_id, gerar um ID baseado no UUID (últimos 6 dígitos)
+    Object.keys(faturamentoPorVendedor).forEach(vendedorId => {
+      if (publicIdMap[vendedorId]) {
+        faturamentoPorVendedor[vendedorId].public_id = publicIdMap[vendedorId];
+      } else {
+        // Gerar ID baseado no UUID (pegar últimos 6 caracteres numéricos)
+        const uuidNumeros = String(vendedorId).replace(/\D/g, ''); // Remove tudo que não é número
+        if (uuidNumeros.length >= 6) {
+          faturamentoPorVendedor[vendedorId].public_id = uuidNumeros.slice(-6);
+        } else if (uuidNumeros.length > 0) {
+          // Se não tiver números suficientes, preencher com zeros à esquerda
+          faturamentoPorVendedor[vendedorId].public_id = uuidNumeros.padStart(6, '0').slice(-6);
+        } else {
+          // Se não tiver números no UUID, usar hash do ID
+          const hash = String(vendedorId).split('').reduce((acc, char) => {
+            return ((acc << 5) - acc) + char.charCodeAt(0);
+          }, 0);
+          faturamentoPorVendedor[vendedorId].public_id = Math.abs(hash).toString().slice(-6).padStart(6, '0');
+        }
+      }
+    });
+    
+    // Converter para array, ordenar por faturamento e pegar top 10
+    const topVendedores = Object.values(faturamentoPorVendedor)
+      .sort((a, b) => b.faturamento - a.faturamento)
+      .slice(0, 10)
+      .map((vendedor, index) => {
+        // Garantir que sempre tenha um public_id válido
+        let publicId = vendedor.public_id;
+        
+        if (!publicId || publicId === null || publicId === undefined || publicId === 'N/A') {
+          // Fallback: gerar ID baseado no vendedor_id
+          const vendedorIdStr = String(vendedor.vendedor_id || '');
+          const numeros = vendedorIdStr.replace(/\D/g, '');
+          if (numeros.length >= 6) {
+            publicId = numeros.slice(-6);
+          } else if (numeros.length > 0) {
+            publicId = numeros.padStart(6, '0').slice(-6);
+          } else {
+            // Hash do vendedor_id
+            const hash = vendedorIdStr.split('').reduce((acc, char) => {
+              return ((acc << 5) - acc) + char.charCodeAt(0);
+            }, 0);
+            publicId = Math.abs(hash).toString().slice(-6).padStart(6, '0');
+          }
+        }
+        
+        return {
+          posicao: index + 1,
+          vendedor_id: vendedor.vendedor_id,
+          public_id: publicId,
+          faturamento: parseFloat(vendedor.faturamento.toFixed(2))
+        };
+      });
+    
+    console.log(`✅ Ranking gerado com ${topVendedores.length} vendedores`);
+    console.log('📊 Primeiros 3 vendedores:', topVendedores.slice(0, 3).map(v => ({ posicao: v.posicao, public_id: v.public_id, faturamento: v.faturamento })));
+    
+    res.json({
+      success: true,
+      data: topVendedores
+    });
+    
+  } catch (error) {
+    console.error('Erro ao carregar ranking de vendedores:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
 

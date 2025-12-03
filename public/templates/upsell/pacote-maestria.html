@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacote Maestria Pessoal | Coleção de eBooks</title>
+    
+    <!-- Tailwind CSS (CSS puro) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Phosphor Icons (CSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Font Awesome como fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    <!-- Fontes: Inter e Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #FFFFFF;
+            color: #1F2937;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Container principal */
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Badge do cabeçalho */
+        .badge-header {
+            display: inline-block;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #5B21B6;
+            background: rgba(91, 33, 182, 0.1);
+            border: 1px solid rgba(91, 33, 182, 0.3);
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+        
+        /* Título principal */
+        .title-main {
+            font-size: clamp(40px, 7vw, 72px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: #1F2937;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .title-highlight {
+            color: #FBBF24;
+        }
+        
+        /* Classe para compatibilidade com outros templates */
+        .text-brand-accent {
+            color: #FBBF24;
+        }
+        
+        /* Subtítulo */
+        .subtitle-main {
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: #4B5563;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Seção de ebooks */
+        .ebooks-section {
+            margin-bottom: 60px;
+        }
+        
+        .ebooks-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: relative;
+            padding-bottom: 60px;
+        }
+        
+        .ebook-card {
+            background: rgba(91, 33, 182, 0.05);
+            border: 1px solid rgba(91, 33, 182, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .ebook-card:hover {
+            border-color: rgba(91, 33, 182, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(91, 33, 182, 0.2);
+        }
+        
+        .ebook-card.ebook-central {
+            width: 33.333%;
+            min-width: 200px;
+        }
+        
+        .ebook-card.ebook-lateral {
+            width: 25%;
+            min-width: 150px;
+        }
+        
+        .ebook-cover {
+            width: 100%;
+            height: 0;
+            padding-bottom: 140%; /* Proporção de capa de livro */
+            background: #E5E7EB;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) rotateZ(-5deg);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .ebook-card:hover .ebook-cover {
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.05);
+            box-shadow: 0 10px 40px rgba(91, 33, 182, 0.4);
+        }
+        
+        .ebook-title {
+            margin-top: 12px;
+            font-weight: 700;
+            color: #1F2937;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .ebook-title.ebook-title-small {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .ebooks-bonus {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6B7280;
+            font-style: italic;
+        }
+        
+        /* Seção de valor */
+        .value-section {
+            background: linear-gradient(135deg, rgba(91, 33, 182, 0.08) 0%, rgba(91, 33, 182, 0.03) 100%);
+            padding: 50px 40px;
+            border-radius: 16px;
+            border: 2px solid rgba(91, 33, 182, 0.15);
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(91, 33, 182, 0.1);
+        }
+        
+        .value-title {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            text-align: center;
+            color: #1F2937;
+            margin-bottom: 40px;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: -0.5px;
+        }
+        
+        .value-list {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .value-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 2px solid #F3F4F6;
+            transition: all 0.3s ease;
+        }
+        
+        .value-item:hover {
+            background: rgba(91, 33, 182, 0.02);
+            margin: 0 -15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            border-radius: 8px;
+        }
+        
+        .value-item:last-child {
+            border-bottom: none;
+            padding-top: 25px;
+            padding-bottom: 10px;
+            border-top: 3px solid rgba(91, 33, 182, 0.2);
+            margin-top: 15px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+            border-radius: 12px;
+            padding-left: 20px;
+            padding-right: 20px;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+        
+        .value-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+        
+        .value-label.value-label-final {
+            font-weight: 900;
+            font-size: clamp(22px, 3.5vw, 28px);
+            color: #5B21B6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .value-label i {
+            color: #5B21B6;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .value-label.value-label-final i {
+            color: #FBBF24;
+            font-size: 28px;
+        }
+        
+        .value-price {
+            font-weight: 700;
+            font-size: 20px;
+            color: #9CA3AF;
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            text-decoration-color: #D1D5DB;
+        }
+        
+        .value-price.value-price-final {
+            font-weight: 900;
+            font-size: clamp(36px, 6vw, 56px);
+            color: #FBBF24;
+            text-decoration: none;
+            text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+            letter-spacing: -1px;
+        }
+        
+        .value-savings {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #5B21B6;
+            margin-top: 30px;
+            padding: 15px 25px;
+            background: rgba(91, 33, 182, 0.1);
+            border-radius: 50px;
+            display: inline-block;
+            border: 2px solid rgba(91, 33, 182, 0.2);
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Botão CTA principal */
+        .cta-main {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .cta-button {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            background: #5B21B6;
+            color: #ffffff;
+            font-size: clamp(18px, 2.5vw, 24px);
+            font-weight: 900;
+            padding: 20px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 40px -10px rgba(91, 33, 182, 0.5);
+            border-bottom: 4px solid #4C1D95;
+            animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .cta-button:hover {
+            background: #4C1D95;
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px -10px rgba(91, 33, 182, 0.6);
+        }
+        
+        .cta-button:active {
+            transform: translateY(0);
+            border-bottom-width: 2px;
+        }
+        
+        .cta-button i {
+            font-size: 28px;
+            color: #FBBF24;
+        }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Barra CTA Sticky */
+        .sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.15);
+            padding: 16px 20px;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        
+        .sticky-cta-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .sticky-cta-info {
+            display: none;
+        }
+        
+        .sticky-cta-info-label {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .sticky-cta-info-price {
+            font-size: 20px;
+            font-weight: 900;
+            color: #5B21B6;
+        }
+        
+        .sticky-cta-button {
+            flex: 1;
+            max-width: 400px;
+            background: #FBBF24;
+            color: #1F2937;
+            font-size: clamp(14px, 2vw, 18px);
+            font-weight: 900;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid #F59E0B;
+        }
+        
+        .sticky-cta-button:hover {
+            background: #F59E0B;
+            transform: translateY(-2px);
+        }
+        
+        .sticky-cta-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Footer */
+        .footer-section {
+            text-align: center;
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid #E5E7EB;
+            padding-bottom: 100px; /* Espaço para sticky CTA */
+        }
+        
+        .footer-links {
+            margin-top: 8px;
+        }
+        
+        .footer-links a {
+            color: #1F2937;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #5B21B6;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(91, 33, 182, 0.5);
+            box-shadow: 0 20px 40px -10px rgba(91, 33, 182, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #5B21B6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        .modal-success {
+            width: 48px;
+            height: 48px;
+            background: #10B981;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade */
+        @media (min-width: 640px) {
+            .sticky-cta-info {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .ebook-card.ebook-central {
+                width: 50%;
+            }
+            
+            .ebook-card.ebook-lateral {
+                width: 50%;
+            }
+            
+            .ebooks-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .ebook-card {
+                width: 80% !important;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-main">
+        
+        <!-- Cabeçalho -->
+        <header class="text-center mb-16" style="padding: 40px 20px;">
+            <div class="badge-header" data-editable="text" data-field="badge_texto" contenteditable="false">
+                A CHAVE PARA SUA MÁXIMA PERFORMANCE
+            </div>
+            
+            <h1 class="title-main" data-editable="text" data-field="titulo_principal" contenteditable="false">
+                O <span class="title-highlight">PACOTE MAESTRIA</span> que Transforma Seus Hábitos
+            </h1>
+            
+            <p class="subtitle-main" data-editable="text" data-field="subtitulo" contenteditable="false">
+                Adquira a Coleção Completa de 10 eBooks que destravam seu potencial, de produtividade a inteligência emocional.
+            </p>
+        </header>
+
+        <!-- Seção de eBooks -->
+        <section class="ebooks-section">
+            <div class="ebooks-container">
+                <!-- Ebook Central (Destaque) -->
+                <div class="ebook-card ebook-central" data-editable="media" data-field="ebook_1" data-media-type="image" contenteditable="false">
+                    <div class="ebook-cover" style="background-image: url('https://placehold.co/300x400/5B21B6/FFFFFF?text=EBOOK+1%0AH%C3%81BITOS');"></div>
+                    <p class="ebook-title">Ebook 1: O Poder dos Hábitos</p>
+                </div>
+                
+                <!-- Ebook Lateral 1 -->
+                <div class="ebook-card ebook-lateral" data-editable="media" data-field="ebook_2" data-media-type="image" contenteditable="false">
+                    <div class="ebook-cover" style="background-image: url('https://placehold.co/200x300/FBBF24/1F2937?text=EBOOK+2%0AFOCO');"></div>
+                    <p class="ebook-title ebook-title-small">Ebook 2: Foco Total</p>
+                </div>
+                
+                <!-- Ebook Lateral 2 -->
+                <div class="ebook-card ebook-lateral" data-editable="media" data-field="ebook_3" data-media-type="image" contenteditable="false">
+                    <div class="ebook-cover" style="background-image: url('https://placehold.co/200x300/FBBF24/1F2937?text=EBOOK+3%0AMENTALIDADE');"></div>
+                    <p class="ebook-title ebook-title-small">Ebook 3: Mentalidade de Sucesso</p>
+                </div>
+                
+                <!-- Texto de Bônus -->
+                <div class="ebooks-bonus">
+                    + 7 eBooks bônus: Produtividade, Finanças Pessoais, Liderança, etc.
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Valor e Economia -->
+        <section class="value-section">
+            <h2 class="value-title" data-editable="text" data-field="titulo_valor" contenteditable="false">
+                O Valor Desta Coleção
+            </h2>
+            
+            <div class="value-list" data-editable="text" data-field="lista_valores" contenteditable="false">
+                {{LISTA_VALORES}}
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <p class="value-savings" data-editable="text" data-field="texto_economia" contenteditable="false">
+                    Economia Imediata de mais de MZN 17.795,00.
+                </p>
+            </div>
+        </section>
+
+        <!-- CTA Principal -->
+        <div class="cta-main">
+            <button onclick="triggerPurchase()" id="ctaButton" class="cta-button" data-editable="button-text" data-field="texto_botao_principal" contenteditable="false">
+                <i class="ph-fill ph-download-simple"></i>
+                <span>BAIXAR O PACOTE COMPLETO POR MZN 97,00</span>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer-section">
+            <p data-editable="text" data-field="texto_footer" contenteditable="false">© 2025 Maestria Pessoal. Todos os direitos reservados. Material digital para download imediato.</p>
+            <div class="footer-links" data-editable="text" data-field="links_footer" contenteditable="false">
+                <a href="#" style="color: #1F2937; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Garantia de 7 Dias</a> | <a href="#" style="color: #1F2937; font-weight: 600; text-decoration: none; transition: color 0.3s ease;">Termos de Serviço</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Barra CTA Sticky -->
+    <div id="sticky-cta" class="sticky-cta">
+        <div class="sticky-cta-content">
+            <div class="sticky-cta-info">
+                <p class="sticky-cta-info-label">PACOTE MAESTRIA:</p>
+                <p class="sticky-cta-info-price">10 eBooks por MZN 97,00</p>
+            </div>
+            <button onclick="triggerPurchase()" id="ctaButtonSticky" class="sticky-cta-button" data-editable="button-text" data-field="texto_botao_sticky" contenteditable="false">
+                <i class="ph-fill ph-arrow-circle-down"></i>
+                GARANTIR ACESSO IMEDIATO
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-spinner" id="spinner"></div>
+            <div class="modal-success" id="successIcon">
+                <i class="ph-bold ph-check" style="color: #ffffff; font-size: 24px;"></i>
+            </div>
+            <h3 class="modal-title" id="modalTitle">Processando Pedido...</h3>
+            <p class="modal-text">Preparando seus 10 eBooks para download imediato.</p>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para integração
+        const API_BASE = window.location.origin + '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedido = urlParams.get('pedido') || urlParams.get('idpedido');
+        const productId = urlParams.get('productId') || urlParams.get('produto');
+        const clientName = urlParams.get('clientName') || 'Cliente';
+        const amount = urlParams.get('amount') || urlParams.get('valor') || '0';
+        let selectedProduct = null;
+        let upsellPage = null;
+
+        // Função de compra
+        function triggerPurchase() {
+            if (typeof processOneClickUpsell === 'function') {
+                processOneClickUpsell();
+            } else {
+                const modal = document.getElementById('feedbackModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const spinner = document.getElementById('spinner');
+                const successIcon = document.getElementById('successIcon');
+                const title = document.getElementById('modalTitle');
+
+                spinner.style.display = 'block';
+                successIcon.style.display = 'none';
+                title.textContent = "Processando Pedido...";
+                title.style.color = '#1F2937';
+
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                }, 10);
+
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    successIcon.style.display = 'flex';
+                    title.textContent = "Acesso Liberado!";
+                    title.style.color = '#10B981';
+                    
+                    setTimeout(() => {
+                        const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
+                        window.location.href = `/payment-success.html?${params}`;
+                    }, 1500);
+                }, 2000);
+            }
+        }
+
+        // Função para processar one-click upsell (será injetada pelo sistema)
+        async function processOneClickUpsell() {
+            console.log('Processando upsell...');
+        }
+    </script>
+</body>
+</html>
+

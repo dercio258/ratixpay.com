@@ -3,17 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RatixPay - Gestão de Produtos</title>
+    <title>RatixPay - Gestão de Produtos</title>
+    
     <link rel="icon" type="image/png" href="/assets/images/icons/favicon-32x32.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="shortcut icon" href="/favicon.ico">
+    
+    <!-- CSS Moderno (Sem Bootstrap) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-
+    <!-- Sistema Unificado de Dark Mode -->
+    <link rel="stylesheet" href="/css/dark-mode-unified.css">
+    <style>
+        /* ============================================
+           DESIGN SYSTEM (RATIXPAY STANDARD)
+           ============================================ */
+        :root {
+            /* Cores RatixPay */
+            --primary: #f64c00;
+            --primary-gradient: linear-gradient(135deg, #f64c00 0%, #ff8c42 100%);
+            
+            /* Status Colors */
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.1);
+            /* Light Mode Vars */
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-input: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Dark Mode Overrides - PRETO (não azul) */
+        body.dark-mode {
+            --bg-page: #000000;
+            --bg-surface: #111111;
+            --bg-input: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a2a;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        * { box-sizing: border-box; outline: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            transition: var(--transition);
+        }
+        h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; font-weight: 600; margin: 0; }
+        /* Layout */
+        .dashboard-container { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            display: none;
+            flex-shrink: 0;
+        }
+        @media (min-width: 1024px) { .sidebar { display: block; } }
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        /* 1. Header Section */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-title i { color: var(--primary); }
+        .page-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+        .btn-new-product {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(246, 76, 0, 0.3);
+        }
+        .btn-new-product:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(246, 76, 0, 0.4);
+            color: white;
+        }
+        /* 2. Products Grid/Container Styles */
+        /* Estilos genéricos caso o JS gere cards */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card);
+            transform: translateY(-3px);
+        }
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 2px dashed var(--border-color);
+            color: var(--text-secondary);
+        }
+        .empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { font-size: 1.5rem; color: var(--text-primary); margin-bottom: 10px; }
+        .empty-state .btn {
+            display: inline-flex;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--bg-input);
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .empty-state .btn:hover { background: var(--primary); color: white; }
+        /* 3. Modal de Confirmação */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal h3 { color: var(--danger); font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .modal h3::before { content: '\f071'; font-family: "Font Awesome 6 Free"; font-weight: 900; }
+        
+        .modal p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+        .confirmation-input-group {
+            background: var(--bg-input);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+        .confirmation-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .confirmation-text-display {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px dashed var(--danger);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--danger);
+            font-weight: bold;
+            user-select: none;
+        }
+        #confirmation-text {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        #confirmation-text:focus {
+            border-color: var(--danger);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--danger-bg);
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-secondary { background: var(--bg-input); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--border-color); }
+        .btn-danger { background: var(--danger); color: white; opacity: 0.5; cursor: not-allowed; }
+        .btn-danger:not(:disabled) { opacity: 1; cursor: pointer; box-shadow: 0 4px 12px var(--danger-bg); }
+        .btn-danger:not(:disabled):hover { background: #d32f2f; transform: translateY(-1px); }
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .main-content { padding: 15px; }
+            .products-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .header-section { flex-direction: column; align-items: stretch; }
+            .btn-new-product { justify-content: center; }
+        }
+    </style>
     <!-- Sistema de Autenticação Global -->
+    <script>
+        // Init Theme
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
     <script src="/js/server-check.js"></script>
     <script src="/js/global-auth.js"></script>
-
+    <!-- Sistema Unificado de Dark Mode -->
+    <script src="/js/dark-mode-manager.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -21,214 +303,76 @@
         <div class="sidebar">
             <!-- Será preenchido pelo SidebarComponent -->
         </div>
-
         <!-- Conteúdo Principal -->
         <div class="main-content">
-            <!-- Header -->
-            <div class="dashboard-header">
-                <h1>Gestão de Produtos</h1>
-            </div>
             
-        <div class="products-header">
-            <h1 class="products-title">Gestão de Produtos</h1>
-            <a href="criar-produto.html" class="new-product-btn">
-                <i class="fas fa-plus"></i> Novo Produto
-            </a>
-        </div>
-
-        <div id="loading" class="loading-state" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Carregando produtos...</p>
-        </div>
-
-        <div id="produtos-container">
-            <!-- Produtos serão carregados aqui -->
-        </div>
-
-        <div id="empty-state" class="empty-state" style="display: none;">
-            <h3>Nenhum produto encontrado</h3>
-            <p>Comece criando seu primeiro produto para venda.</p>
-            <a href="criar-produto.html" class="btn">
-                <i class="fas fa-plus"></i> Criar Primeiro Produto
-            </a>
+            <!-- Header -->
+            <div class="header-section">
+                <div>
+                    <h1 class="page-title"><i class="fas fa-boxes"></i> Gestão de Produtos</h1>
+                    <p class="page-subtitle" style="color: var(--text-secondary); margin-top: 5px;">Gerencie seu catálogo, ofertas e integrações.</p>
+                </div>
+                <a href="criar-produto.html" class="btn-new-product">
+                    <i class="fas fa-plus-circle"></i> Criar Novo Produto
+                </a>
+            </div>
+            <!-- Loading State -->
+            <div id="loading" class="loading-state" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Carregando seus produtos...</p>
+            </div>
+            <!-- Container de Produtos -->
+            <!-- A classe products-grid garante o layout correto se o JS adicionar itens diretos -->
+            <div id="produtos-container" class="products-grid">
+                <!-- Produtos serão injetados aqui pelo JS -->
+            </div>
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <h3>Nenhum produto encontrado</h3>
+                <p>Comece a vender criando seu primeiro produto digital ou físico.</p>
+                <a href="criar-produto.html" class="btn">
+                    Começar Agora
+                </a>
+            </div>
         </div>
     </div>
-
-    <!-- Modal de Confirmação -->
-    <div id="modal-confirmacao" class="modal" style="display: none;">
+    <!-- Modal de Confirmação de Exclusão (Seguro) -->
+    <div id="modal-confirmacao" class="modal">
         <div class="modal-content">
-            <h3>Confirmar Exclusão</h3>
-            <p id="modal-mensagem"></p>
+            <h3>Excluir Produto</h3>
+            <p id="modal-mensagem">Tem certeza que deseja excluir este produto? Esta ação é irreversível.</p>
             
             <div class="confirmation-input-group">
-                <label for="confirmation-text">Para confirmar a exclusão, digite:</label>
+                <label for="confirmation-text">Digite o código abaixo para confirmar:</label>
                 <div class="confirmation-text-display">
-                    <code id="confirmation-text-display">DELETE#{ID_Custom}</code>
+                    <code id="confirmation-text-display">DELETE#000</code>
                 </div>
-                <input type="text" id="confirmation-text" placeholder="Digite o texto de confirmação" autocomplete="off">
-                <small class="confirmation-help">Digite exatamente o texto mostrado acima para confirmar a exclusão</small>
+                <input type="text" id="confirmation-text" placeholder="Digite o código aqui..." autocomplete="off">
             </div>
             
             <div class="modal-actions">
-                <button id="btn-confirmar" class="btn btn-danger" disabled>Confirmar Exclusão</button>
                 <button id="btn-cancelar" class="btn btn-secondary">Cancelar</button>
+                <button id="btn-confirmar" class="btn btn-danger" disabled>
+                    <i class="fas fa-trash-alt"></i> Confirmar Exclusão
+                </button>
             </div>
         </div>
     </div>
-
-        </div>
-    </div>
-
-    <style>
-        /* Main Content - garantir posicionamento ao lado do sidebar */
-        .main-content {
-            margin-left: 250px !important;
-            width: calc(100% - 250px) !important;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 80px !important;
-                width: calc(100% - 80px) !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .main-content {
-                margin-left: 70px !important;
-                width: calc(100% - 70px) !important;
-            }
-        }
-
-        /* Estilos para o modal de confirmação */
-        .confirmation-input-group {
-            margin: 20px 0;
-        }
-
-        .confirmation-input-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .confirmation-text-display {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* Estilos para checkboxes do pixel */
-        .pixel-event-checkbox {
-            margin: 0;
-            transform: scale(1.1);
-            accent-color: #007bff;
-        }
-
-        .pixel-event-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .pixel-event-label:hover {
-            border-color: #007bff;
-            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
-        }
-
-        .pixel-event-label input[type="checkbox"]:checked + div {
-            color: #007bff;
-        }
-
-        .confirmation-text-display code {
-            font-size: 18px;
-            font-weight: bold;
-            color: #dc3545;
-            background: none;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            pointer-events: none;
-        }
-
-        #confirmation-text {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        #confirmation-text:focus {
-            outline: none;
-            border-color: #dc3545;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-        }
-
-        #confirmation-text.valid {
-            border-color: #28a745;
-            background-color: rgba(40, 167, 69, 0.05);
-        }
-
-        #confirmation-text.invalid {
-            border-color: #dc3545;
-            background-color: rgba(220, 53, 69, 0.05);
-        }
-
-        .confirmation-help {
-            display: block;
-            margin-top: 8px;
-            color: #6c757d;
-            font-size: 14px;
-        }
-
-        .modal-content {
-            max-width: 500px;
-            width: 90%;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 25px;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-    </style>
-
-    <script src="js/server-check.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/auth-check.js"></script>
-    <script src="js/login.js"></script>
-    <!-- Sidebar Component -->
+    <!-- Scripts -->
     <script src="js/sidebar-component.js"></script>
     <script src="js/gestao-produtos.js"></script>
     
     <script>
-        // Inicializar sidebar com seção ativa
+        // Inicializar Sidebar com segurança
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = new SidebarComponent();
-            sidebar.init('produtos');
+            if (typeof SidebarComponent !== 'undefined') {
+                const sidebar = new SidebarComponent();
+                sidebar.init('produtos');
+            } else {
+                console.warn('SidebarComponent não carregado.');
+            }
         });
     </script>
 </body>
 </html>
-

@@ -77,6 +77,10 @@ class EmailManagerService {
                     return await this.sistema.enviarSolicitacaoAprovacaoProduto(dados);
                 case 'notificacao_produto_aprovado_admin':
                     return await this.sistema.enviarNotificacaoProdutoAprovadoAdmin(dados);
+                case 'notificacao_produto_aprovado':
+                    return await this.sistema.enviarNotificacaoProdutoAprovado(dados);
+                case 'notificacao_produto_rejeitado':
+                    return await this.sistema.enviarNotificacaoProdutoRejeitado(dados);
                 default:
                     throw new Error(`Tipo de email de sistema inválido: ${tipo}`);
             }

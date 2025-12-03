@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Premiações Exclusivas — RATIX PAY</title>
+
+  <!-- Fonte Poppins -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Ícones -->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Sistema de Autenticação Global -->
+  <script src="/js/server-check.js"></script>
+  <script src="/js/global-auth.js"></script>
+
+  <!-- Sidebar Component -->
+  <script src="/js/sidebar-component.js"></script>
+
+  <style>
+
+    /* ============================
+
+       DESIGN SYSTEM & VARIÁVEIS
+
+       ============================ */
+
+    :root {
+
+      /* Dark Mode (Default) */
+
+      --bg-core: #020202;
+
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #020202 100%);
+
+      
+
+      --surface-1: rgba(255, 255, 255, 0.03);
+
+      --surface-2: rgba(255, 255, 255, 0.06);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+
+      --border-highlight: rgba(255, 255, 255, 0.15);
+
+      --text-primary: #ffffff;
+
+      --text-secondary: #9ca3af;
+
+      --text-tertiary: #6b7280;
+
+      --brand-accent: #ff7a00;
+
+      --brand-glow: rgba(255, 122, 0, 0.4);
+
+      
+
+      /* Metais e Texturas */
+
+      --metal-silver: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+
+      --metal-gold: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%);
+
+      --gold-gradient: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+
+      
+
+      --radius-sm: 8px;
+
+      --radius-md: 16px;
+
+      --radius-lg: 24px;
+
+      
+
+      --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+    }
+
+    body.theme-light {
+
+      --bg-core: #f8fafc;
+
+      --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+
+      --surface-1: #ffffff;
+
+      --surface-2: #f1f5f9;
+
+      --border-subtle: rgba(0, 0, 0, 0.06);
+
+      --border-highlight: rgba(0, 0, 0, 0.1);
+
+      
+
+      --text-primary: #0f172a;
+
+      --text-secondary: #475569;
+
+      --text-tertiary: #94a3b8;
+
+    }
+
+    /* Reset & Base */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    
+
+    body {
+
+      font-family: 'Poppins', sans-serif;
+
+      background-color: var(--bg-core);
+
+      background-image: var(--bg-gradient);
+
+      color: var(--text-primary);
+
+      min-height: 100vh;
+
+      overflow-x: hidden;
+
+      line-height: 1.5;
+
+      -webkit-font-smoothing: antialiased;
+
+    }
+
+    .container {
+
+      max-width: 1280px;
+
+      margin: 0 auto;
+
+      padding: 0 24px;
+
+    }
+
+    /* ============================
+
+       HEADER PREMIUM
+
+       ============================ */
+
+    .site-header {
+
+      position: sticky;
+
+      top: 0;
+
+      z-index: 50;
+
+      background: rgba(2, 2, 2, 0.75);
+
+      backdrop-filter: blur(20px);
+
+      -webkit-backdrop-filter: blur(20px);
+
+      border-bottom: 1px solid var(--border-subtle);
+
+      padding: 18px 0;
+
+      transition: background 0.3s ease, margin-left 0.3s ease, width 0.3s ease;
+
+    }
+    
+    body.theme-light .site-header {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .header-inner {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+    }
+
+    .header-motivation {
+
+      display: flex;
+
+      align-items: center;
+
+      flex: 1;
+
+    }
+
+    .motivation-text {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      font-size: 1rem;
+
+      font-weight: 600;
+
+      color: var(--text-primary);
+
+      margin: 0;
+
+      padding: 8px 20px;
+
+      background: rgba(255, 122, 0, 0.1);
+
+      border: 1px solid rgba(255, 122, 0, 0.2);
+
+      border-radius: 50px;
+
+      backdrop-filter: blur(8px);
+
+      -webkit-backdrop-filter: blur(8px);
+
+      transition: all 0.3s ease;
+
+    }
+
+    .motivation-text:hover {
+
+      background: rgba(255, 122, 0, 0.15);
+
+      border-color: rgba(255, 122, 0, 0.3);
+
+      transform: translateY(-2px);
+
+      box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2);
+
+    }
+
+    .motivation-text i {
+
+      color: var(--brand-accent);
+
+      font-size: 1.1rem;
+
+      animation: pulse 2s ease-in-out infinite;
+
+    }
+
+    @keyframes pulse {
+
+      0%, 100% { transform: scale(1); opacity: 1; }
+
+      50% { transform: scale(1.1); opacity: 0.8; }
+
+    }
+
+    .motivation-text span {
+
+      background: linear-gradient(135deg, var(--text-primary), var(--brand-accent));
+
+      background-clip: text;
+
+      -webkit-background-clip: text;
+
+      -webkit-text-fill-color: transparent;
+
+      font-weight: 700;
+
+    }
+
+    .theme-toggle {
+
+      width: 44px;
+
+      height: 44px;
+
+      border-radius: 50%;
+
+      border: 1px solid var(--border-subtle);
+
+      background: transparent;
+
+      color: var(--text-primary);
+
+      cursor: pointer;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      transition: all 0.3s ease;
+
+    }
+
+    .theme-toggle:hover {
+
+      background: var(--surface-2);
+
+      border-color: var(--brand-accent);
+
+      color: var(--brand-accent);
+
+    }
+
+    /* ============================
+
+       HERO CINEMATIC
+
+       ============================ */
+
+    .hero {
+
+      position: relative;
+
+      padding: 180px 0 140px;
+
+      text-align: center;
+
+      border-bottom: 1px solid var(--border-subtle);
+
+      overflow: hidden;
+
+      background: 
+
+        linear-gradient(to bottom, rgba(2,2,2,0.3) 0%, rgba(2,2,2,0.8) 60%, var(--bg-core) 100%),
+        
+        url('/assets/images/external/Banner_ratixpay.png');
+
+      background-size: cover;
+
+      background-position: center 30%;
+
+      background-attachment: fixed;
+
+    }
+
+    .hero-content {
+
+      position: relative;
+
+      z-index: 2;
+
+    }
+
+    .label-badge {
+
+      display: inline-block;
+
+      padding: 6px 16px;
+
+      background: rgba(255, 122, 0, 0.15);
+
+      border: 1px solid rgba(255, 122, 0, 0.3);
+
+      border-radius: 100px;
+
+      color: var(--brand-accent);
+
+      font-size: 0.85rem;
+
+      font-weight: 600;
+
+      letter-spacing: 1px;
+
+      text-transform: uppercase;
+
+      margin-bottom: 24px;
+
+      backdrop-filter: blur(4px);
+
+    }
+
+    .hero-title {
+
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+
+      font-weight: 800;
+
+      line-height: 1.1;
+
+      margin-bottom: 24px;
+
+      letter-spacing: -0.02em;
+
+      text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+
+    }
+
+    .hero-title span {
+
+      background: var(--brand-accent);
+
+      background-clip: text;
+
+      -webkit-background-clip: text;
+
+      -webkit-text-fill-color: transparent;
+
+      position: relative;
+
+    }
+
+    
+
+    .hero-title span::after {
+
+      content: '';
+
+      position: absolute;
+
+      top: 50%;
+
+      left: 50%;
+
+      transform: translate(-50%, -50%);
+
+      width: 120%;
+
+      height: 120%;
+
+      background: var(--brand-accent);
+
+      filter: blur(60px);
+
+      opacity: 0.25;
+
+      z-index: -1;
+
+    }
+
+    .hero-sub {
+
+      font-size: 1.25rem;
+
+      color: #d1d5db;
+
+      max-width: 640px;
+
+      margin: 0 auto;
+
+      font-weight: 400;
+
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+
+    }
+
+    /* ============================
+
+       GRID DE PLACAS PREMIUM
+
+       ============================ */
+
+    .main-content {
+
+      margin-top: -60px;
+
+      padding-bottom: 80px;
+
+      position: relative;
+
+      z-index: 10;
+
+    }
+
+    .premiacoes-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+      gap: 32px;
+
+      align-items: end;
+
+    }
+
+    /* CARD STRUCTURE */
+
+    .card {
+
+      perspective: 1200px;
+
+      cursor: default;
+
+      opacity: 0;
+
+      transform: translateY(40px);
+
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+
+    }
+
+    .card.in-view {
+
+      opacity: 1;
+
+      transform: translateY(0);
+
+    }
+
+    .card-inner {
+
+      position: relative;
+
+      background: var(--surface-1);
+
+      border: 1px solid var(--border-subtle);
+
+      border-radius: var(--radius-md);
+
+      padding: 20px;
+
+      transition: transform 0.1s linear, border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+
+      transform-style: preserve-3d;
+
+      backdrop-filter: blur(12px);
+
+      -webkit-backdrop-filter: blur(12px);
+
+    }
+
+    @media (hover: hover) {
+
+      .card:hover .card-inner {
+
+        transform: translateY(-10px);
+
+        background: var(--surface-2);
+
+        border-color: var(--border-highlight);
+
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+
+      }
+
+    }
+
+    .card-media {
+
+      position: relative;
+
+      aspect-ratio: 3.8/5;
+
+      background: linear-gradient(135deg, #0a0a0a 0%, #080808 100%);
+
+      border-radius: 12px;
+
+      margin-bottom: 24px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+
+      border: 1px solid rgba(255,255,255,0.03);
+
+      overflow: hidden;
+
+      padding: 8px;
+
+    }
+
+    .card-media img {
+
+      width: 96%;
+
+      height: 96%;
+
+      max-width: 100%;
+
+      max-height: 100%;
+
+      object-fit: contain;
+
+      border-radius: 10px;
+
+      transition: transform 0.5s var(--ease-out), filter 0.5s ease, box-shadow 0.5s ease;
+
+      filter: brightness(1) contrast(1.1) saturate(1.15);
+
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+    }
+
+    .card:hover .card-media img {
+
+      transform: scale(1.1) translateZ(25px);
+
+      filter: brightness(1.15) contrast(1.15) saturate(1.2);
+
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.15);
+
+    }
+
+    .tier-high .card-media img {
+
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 122, 0, 0.25), 0 0 25px rgba(255, 122, 0, 0.15);
+
+      filter: brightness(1.05) contrast(1.12) saturate(1.2);
+
+    }
+
+    .tier-high:hover .card-media img {
+
+      transform: scale(1.12) translateZ(30px);
+
+      filter: brightness(1.2) contrast(1.2) saturate(1.25);
+
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 122, 0, 0.5), 0 0 40px rgba(255, 122, 0, 0.3);
+
+    }
+
+    /* Placas CSS */
+
+    .placa-mockup {
+
+      width: 75%; height: 65%;
+
+      position: relative; display: flex; flex-direction: column;
+
+      align-items: center; justify-content: center;
+
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+
+      transition: transform 0.4s var(--ease-out);
+
+    }
+
+    .card:hover .placa-mockup { transform: scale(1.05) translateZ(20px); }
+
+    .placa-silver { background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 150%); border: 1px solid #999; }
+
+    .placa-inner-silver { width: 90%; height: 90%; border: 1px solid rgba(255,255,255,0.3); background: linear-gradient(to bottom right, #eef2f3, #8e9eab); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333; }
+
+    .placa-gold { background: linear-gradient(135deg, #FDC830 0%, #F37335 150%); border: 1px solid #d4af37; }
+
+    .placa-inner-gold { width: 92%; height: 92%; border: 2px solid rgba(255,255,255,0.4); background: var(--gold-gradient); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #4b3621; }
+
+    .placa-platinum { background: linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 100%); border: 1px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+    .placa-inner-platinum { width: 90%; height: 90%; background: linear-gradient(45deg, #1cb5e0 0%, #000851 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+    .placa-black { background: #111; border: 1px solid #333; }
+
+    .placa-inner-black { width: 94%; height: 94%; background: radial-gradient(circle at center, #333 0%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+
+    .placa-legendary { background: #000; border: 1px solid var(--brand-accent); box-shadow: 0 0 30px rgba(255, 122, 0, 0.3); }
+
+    .placa-inner-legendary { width: 94%; height: 94%; background: linear-gradient(180deg, #111 0%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--brand-accent); border: 1px solid var(--brand-accent); position: relative; overflow: hidden; }
+
+    .placa-inner-legendary::after { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff7a00' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+
+    .placa-content { text-align: center; z-index: 2; }
+
+    .placa-icon { font-size: 2rem; margin-bottom: 8px; }
+
+    .placa-title { font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    .card-info { text-align: center; padding: 0 10px; }
+
+    .goal-value { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.5px; }
+
+    .goal-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-tertiary); font-weight: 600; }
+
+    .tier-high .goal-value { color: var(--brand-accent); }
+
+    .tier-high .card-inner { border-color: rgba(255, 122, 0, 0.2); }
+
+    .tier-high:hover .card-inner { border-color: var(--brand-accent); box-shadow: 0 20px 50px -10px rgba(255, 122, 0, 0.15); }
+
+    .shine-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.15) 55%, transparent 60%); transform: translateX(-100%); transition: transform 0.6s; z-index: 5; pointer-events: none; mix-blend-mode: overlay; }
+
+    .card:hover .shine-overlay { transform: translateX(100%); transition: transform 1.2s ease-in-out; }
+
+    /* Seção: Suas Conquistas - Design Moderno e Chamativo */
+    .conquistas-section {
+      margin-top: 60px;
+      background: linear-gradient(135deg, rgba(255, 122, 0, 0.1) 0%, rgba(255, 122, 0, 0.05) 100%);
+      border: 2px solid rgba(255, 122, 0, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px -10px rgba(255, 122, 0, 0.2);
+      transition: all 0.4s ease;
+    }
+    
+    .conquistas-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 122, 0, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .conquistas-section:hover {
+      border-color: rgba(255, 122, 0, 0.5);
+      box-shadow: 0 25px 80px -10px rgba(255, 122, 0, 0.3);
+      transform: translateY(-5px);
+    }
+    
+    .conquistas-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 10px rgba(255, 122, 0, 0.3);
+    }
+    
+    .conquistas-title::before {
+      content: '\f091';
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      color: var(--brand-accent);
+      font-size: 1.5rem;
+      animation: trophy-rotate 2s ease-in-out infinite;
+    }
+    
+    @keyframes trophy-rotate {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(10deg) scale(1.1); }
+    }
+    
+    .conquistas-content {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .premio-image-container {
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, #0a0a0a 0%, #080808 100%);
+      padding: 15px;
+      border: 2px solid rgba(255, 122, 0, 0.3);
+      transition: all 0.4s ease;
+    }
+    
+    .premio-image-container:hover {
+      transform: scale(1.05) rotate(2deg);
+      border-color: rgba(255, 122, 0, 0.6);
+      box-shadow: 0 20px 50px rgba(255, 122, 0, 0.4);
+    }
+    
+    .premio-image-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 122, 0, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .premio-image {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+      filter: brightness(1.05) contrast(1.1);
+      transition: filter 0.3s ease;
+    }
+    
+    .premio-image-container:hover .premio-image {
+      filter: brightness(1.15) contrast(1.15);
+    }
+    
+    .premio-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--brand-accent);
+      color: #000;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 3;
+      box-shadow: 0 4px 15px rgba(255, 122, 0, 0.5);
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes badge-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 122, 0, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255, 122, 0, 0.7); }
+    }
+    
+    .conquistas-info {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 25px;
+      background: var(--surface-2);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .info-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--brand-accent);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .info-item:hover {
+      background: var(--surface-1);
+      border-color: rgba(255, 122, 0, 0.3);
+      transform: translateX(5px);
+    }
+    
+    .info-item:hover::before {
+      transform: scaleY(1);
+    }
+    
+    .info-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+    }
+    
+    .info-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--text-primary), var(--brand-accent));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nivel-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--brand-accent) 0%, #ff9500 100%);
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      width: fit-content;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 8px 25px rgba(255, 122, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .nivel-badge::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    @media (max-width: 992px) {
+      .conquistas-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      
+      .premio-image-container {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .conquistas-section {
+        padding: 25px;
+      }
+      
+      .conquistas-title {
+        font-size: 1.5rem;
+      }
+      
+      .info-value {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* ============================
+
+       TIPS SECTION (ANIMADA)
+
+       ============================ */
+
+    .tips-section {
+
+      display: none; 
+
+      opacity: 0;
+
+      padding: 100px 0 60px;
+
+      border-top: 1px solid var(--border-subtle);
+
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+
+      transition: opacity 0.8s ease;
+
+    }
+
+    .tips-section.visible { display: block; }
+
+    .tips-section.fade-in { opacity: 1; }
+
+    .tips-header { text-align: center; margin-bottom: 60px; }
+
+    .tips-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; }
+
+    .tips-title span { color: var(--brand-accent); }
+
+    .tips-subtitle { color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+    .tips-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+      gap: 24px;
+
+    }
+
+    /* CARD DE DICA - Inicialmente Oculto para Animação */
+
+    .tip-card {
+
+      background: var(--surface-1);
+
+      border: 1px solid var(--border-subtle);
+
+      padding: 30px;
+
+      border-radius: var(--radius-md);
+
+      position: relative;
+
+      overflow: hidden;
+
+      
+
+      /* Preparação da Animação */
+
+      opacity: 0;
+
+      transform: translateY(40px);
+
+      transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out), background 0.3s, border-color 0.3s;
+
+    }
+
+    /* Estado Revelado */
+
+    .tip-card.revealed {
+
+      opacity: 1;
+
+      transform: translateY(0);
+
+    }
+
+    /* Hover só funciona bem após revelado */
+
+    .tip-card.revealed:hover {
+
+      background: var(--surface-2);
+
+      border-color: var(--brand-accent);
+
+      transform: translateY(-8px); /* Lift adicional no hover */
+
+    }
+
+    .tip-icon {
+
+      width: 50px; height: 50px;
+
+      background: rgba(255, 122, 0, 0.1);
+
+      color: var(--brand-accent);
+
+      border-radius: 12px;
+
+      display: flex; align-items: center; justify-content: center;
+
+      font-size: 1.5rem;
+
+      margin-bottom: 20px;
+
+    }
+
+    .tip-card h3 { font-size: 1.25rem; margin-bottom: 12px; font-weight: 600; }
+
+    .tip-card p { color: var(--text-tertiary); font-size: 0.95rem; line-height: 1.6; }
+
+    /* FOOTER */
+
+    .site-footer { border-top: 1px solid var(--border-subtle); padding: 60px 0; background: #000; color: var(--text-tertiary); font-size: 0.9rem; text-align: center; }
+
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
+
+    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+
+    .footer-links a:hover { color: var(--brand-accent); }
+
+    /* Ajustes para integração com sidebar */
+
+    body.sidebar-hidden .main-content,
+    body.sidebar-hidden .site-header,
+    body.sidebar-hidden .hero,
+    body.sidebar-hidden .tips-section,
+    body.sidebar-hidden .site-footer {
+
+      margin-left: 0 !important;
+
+      width: 100% !important;
+
+    }
+
+    .main-content {
+
+      margin-left: 250px;
+
+      transition: margin-left 0.3s ease, width 0.3s ease;
+
+    }
+    
+    .site-header,
+    .hero,
+    .tips-section,
+    .site-footer {
+
+      margin-left: 250px;
+
+      width: calc(100% - 250px);
+
+      transition: margin-left 0.3s ease, width 0.3s ease;
+
+    }
+
+    @media (max-width: 768px) {
+
+      .main-content {
+
+        margin-left: 80px;
+
+      }
+      
+      .site-header,
+      .hero,
+      .tips-section,
+      .site-footer {
+
+        margin-left: 80px;
+
+        width: calc(100% - 80px);
+
+      }
+
+      .hero { padding: 140px 0 100px; }
+
+      .hero-title { font-size: 2.5rem; }
+
+      .premiacoes-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+      .tips-grid { grid-template-columns: 1fr; }
+      
+      .motivation-text {
+        font-size: 0.9rem;
+        padding: 6px 16px;
+      }
+      
+      .motivation-text span {
+        display: none;
+      }
+
+    }
+
+    @media (max-width: 480px) {
+
+      .main-content {
+
+        margin-left: 70px;
+
+      }
+      
+      .site-header,
+      .hero,
+      .tips-section,
+      .site-footer {
+
+        margin-left: 70px;
+
+        width: calc(100% - 70px);
+
+      }
+
+      .premiacoes-grid { grid-template-columns: 1fr; }
+      
+      .motivation-text {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+      }
+      
+      .motivation-text span {
+        display: none;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body class="theme-dark">
+
+  <!-- Sidebar será inserido aqui -->
+  <div class="sidebar"></div>
+
+  <header class="site-header">
+
+    <div class="container header-inner">
+
+      <div class="header-motivation">
+
+        <p class="motivation-text">
+
+          <i class="fas fa-fire"></i>
+
+          <span>Transforme seu faturamento em conquistas extraordinárias</span>
+
+        </p>
+
+      </div>
+
+      <button id="themeToggle" class="theme-toggle" aria-label="Mudar Tema">
+
+        <i class="fas fa-moon"></i>
+
+      </button>
+
+    </div>
+
+  </header>
+
+  <section class="hero">
+
+    <div class="container hero-content">
+
+      <span class="label-badge">Programa de Reconhecimento</span>
+
+      <h1 class="hero-title">Acelere rumo<br>ao <span>Extraordinário</span></h1>
+
+      <p class="hero-sub">Cada marco do seu faturamento merece ser celebrado. Conheça as placas exclusivas Ratix Pay Edição 2025.</p>
+
+    </div>
+
+  </section>
+
+  <main class="container main-content">
+
+    <div class="premiacoes-grid">
+
+      <!-- Cards de Placas (Mesmos de antes) -->
+
+      <article class="card in-view" data-tilt>
+
+        <div class="card-inner">
+
+          <div class="card-media">
+
+            <div class="shine-overlay"></div>
+
+            <img src="/assets/images/Premios/1_Placa_bronze.jpeg" alt="Placa Bronze">
+
+          </div>
+
+          <div class="card-info">
+
+            <div class="goal-value">100 MIL</div>
+
+            <div class="goal-label">Faturamento</div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+      <article class="card in-view" data-tilt>
+
+        <div class="card-inner">
+
+          <div class="card-media">
+
+            <div class="shine-overlay"></div>
+
+            <img src="/assets/images/Premios/2_Placa_Prata.jpeg" alt="Placa Prata">
+
+          </div>
+
+          <div class="card-info">
+
+            <div class="goal-value">500 MIL</div>
+
+            <div class="goal-label">Faturamento</div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+      <article class="card in-view" data-tilt>
+
+        <div class="card-inner">
+
+          <div class="card-media">
+
+            <div class="shine-overlay"></div>
+
+            <img src="/assets/images/Premios/3_Placa_ouro.jpeg" alt="Placa Ouro">
+
+          </div>
+
+          <div class="card-info">
+
+            <div class="goal-value">1 MILHÃO</div>
+
+            <div class="goal-label">Faturamento</div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+      <article class="card in-view tier-high" data-tilt>
+
+        <div class="card-inner">
+
+          <div class="card-media">
+
+            <div class="shine-overlay"></div>
+
+            <img src="/assets/images/Premios/4_Placa_platina.jpeg" alt="Placa Platina">
+
+          </div>
+
+          <div class="card-info">
+
+            <div class="goal-value">5 MILHÕES</div>
+
+            <div class="goal-label">Faturamento</div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+      <article class="card in-view tier-high" data-tilt>
+
+        <div class="card-inner">
+
+          <div class="card-media">
+
+            <div class="shine-overlay"></div>
+
+            <img src="/assets/images/Premios/5_Placa_Diamante.jpeg" alt="Placa Diamante">
+
+          </div>
+
+          <div class="card-info">
+
+            <div class="goal-value">10 MILHÕES</div>
+
+            <div class="goal-label">Faturamento</div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+    <!-- Botão para Ranking -->
+    <div style="text-align: center; margin-bottom: 40px; margin-top: 20px;">
+      <a href="/ranking.html" class="ranking-btn" style="display: inline-flex; align-items: center; gap: 12px; padding: 18px 36px; background: linear-gradient(135deg, var(--brand-accent) 0%, #ff9500 100%); color: #000; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; font-size: 1.15rem; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(255, 122, 0, 0.3); position: relative; overflow: hidden;">
+        <i class="fas fa-trophy" style="font-size: 1.3rem;"></i>
+        <span>Ver Ranking Top 10 Vendedores</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+    
+    <style>
+      .ranking-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(255, 122, 0, 0.4) !important;
+      }
+      
+      .ranking-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+        transform: rotate(45deg);
+        transition: transform 0.6s;
+      }
+      
+      .ranking-btn:hover::before {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+      }
+    </style>
+    
+    <!-- Seção: Suas Conquistas -->
+    <div class="conquistas-section">
+      <h3 class="conquistas-title">Suas conquistas</h3>
+      <div class="conquistas-content">
+        <!-- Imagem do Prêmio Primeiro Nível -->
+        <div class="premio-image-container">
+          <span class="premio-badge">Prêmio Especial</span>
+          <img src="/assets/images/Premios/Premiação PULSEIRA e Notebook 1.png" 
+               alt="Prêmio Primeiro Nível - Pulseira e Notebook" 
+               class="premio-image">
+        </div>
+        
+        <!-- Informações de Conquistas -->
+        <div class="conquistas-info">
+          <div class="info-item">
+            <span class="info-label">Total de faturamento</span>
+            <span class="info-value" id="totalFaturamento">MZN 0,00</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Nível:</span>
+            <span class="info-value nivel-badge" id="nivelAtual">Iniciante</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SEÇÃO: DICAS (COM ANIMAÇÃO STAGGERED) -->
+
+  <section class="tips-section" id="tipsSection">
+
+    <div class="container">
+
+      <div class="tips-header">
+
+        <h2 class="tips-title">Estratégias de <span>Alta Performance</span></h2>
+
+        <p class="tips-subtitle">Nossos maiores parceiros utilizam estas táticas no dia a dia. Aplique agora e acelere rumo à sua placa.</p>
+
+      </div>
+
+      <div class="tips-grid">
+
+        <div class="tip-card">
+
+          <div class="tip-icon"><i class="fas fa-chart-line"></i></div>
+
+          <h3>Checkout de Alta Conversão</h3>
+
+          <p>Utilize o Order Bump e o One-Click Upsell da Ratix. Dados mostram que essas ferramentas aumentam o LTV em até 35% imediatamente.</p>
+
+        </div>
+
+        <div class="tip-card">
+
+          <div class="tip-icon"><i class="fas fa-envelope-open-text"></i></div>
+
+          <h3>Recuperação Inteligente</h3>
+
+          <p>Não deixe dinheiro na mesa. Ative nossa automação de recuperação de carrinhos via WhatsApp e e-mail para converter até 20% das vendas perdidas.</p>
+
+        </div>
+
+        <div class="tip-card">
+
+          <div class="tip-icon"><i class="fas fa-bullseye"></i></div>
+
+          <h3>Tráfego Qualificado</h3>
+
+          <p>Acompanhe suas métricas em tempo real no dashboard. Identifique quais criativos trazem o melhor ROI e escale com segurança.</p>
+
+        </div>
+
+        <div class="tip-card">
+
+          <div class="tip-icon"><i class="fas fa-handshake"></i></div>
+
+          <h3>Suporte Dedicado</h3>
+
+          <p>Conte com nossa equipe. Players que utilizam a consultoria estratégica da Ratix atingem o nível "Diamond" 2x mais rápido.</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <footer class="site-footer">
+
+    <div class="container">
+
+      <div class="footer-links">
+
+        <a href="#">Regulamento</a>
+
+        <a href="#">Privacidade</a>
+
+        <a href="#">Suporte</a>
+
+      </div>
+
+      <p>© <span id="year"></span> RATIX PAY. Todos os direitos reservados.</p>
+
+    </div>
+
+  </footer>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Inicializar Sidebar
+      if (window.SidebarComponent) {
+        const sidebar = new SidebarComponent();
+        sidebar.init('premiacoes');
+      }
+
+      // 1. Footer Year
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Listener para mensagens do Service Worker (evitar cache)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'SW_ACTIVATED' && event.data.forceReload) {
+            console.log('🔄 Service Worker atualizado, recarregando...');
+        setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        });
+      }
+      
+      // Carregar dados de conquistas
+      carregarConquistas();
+
+      // 3. Theme Logic
+
+      const themeToggle = document.getElementById('themeToggle');
+
+      const body = document.body;
+
+      const icon = themeToggle.querySelector('i');
+
+      
+
+      const savedTheme = localStorage.getItem('theme');
+
+      if (savedTheme === 'light') {
+
+        body.classList.add('theme-light');
+
+        icon.classList.replace('fa-moon', 'fa-sun');
+
+        document.querySelector('.site-header').style.background = 'rgba(255, 255, 255, 0.85)';
+
+      }
+
+      themeToggle.addEventListener('click', () => {
+
+        body.classList.toggle('theme-light');
+
+        const isLight = body.classList.contains('theme-light');
+
+        
+
+        if (isLight) {
+
+          icon.classList.replace('fa-moon', 'fa-sun');
+
+          localStorage.setItem('theme', 'light');
+
+          document.querySelector('.site-header').style.background = 'rgba(255, 255, 255, 0.85)';
+
+        } else {
+
+          icon.classList.replace('fa-sun', 'fa-moon');
+
+          localStorage.setItem('theme', 'dark');
+
+          document.querySelector('.site-header').style.background = 'rgba(2, 2, 2, 0.75)';
+
+        }
+
+      });
+
+      // 4. Smooth Reveal Animation (Initial Load - Placas)
+
+      const cards = document.querySelectorAll('.card');
+
+      const observer = new IntersectionObserver((entries) => {
+
+        entries.forEach((entry) => {
+
+          if (entry.isIntersecting) {
+
+            const index = Array.from(cards).indexOf(entry.target);
+
+            setTimeout(() => {
+
+              entry.target.classList.add('in-view');
+
+            }, index * 120); 
+
+            observer.unobserve(entry.target);
+
+          }
+
+        });
+
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+      cards.forEach(c => observer.observe(c));
+
+      // 5. Subtle 3D Tilt (Mouse Only)
+
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
+      if (isDesktop) {
+
+        cards.forEach(card => {
+
+          const inner = card.querySelector('.card-inner');
+
+          
+
+          card.addEventListener('mousemove', (e) => {
+
+            const rect = card.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+
+            const y = e.clientY - rect.top;
+
+            
+
+            const cx = rect.width / 2;
+
+            const cy = rect.height / 2;
+
+            
+
+            const dx = (x - cx) / cx;
+
+            const dy = (y - cy) / cy;
+
+            
+
+            inner.style.transform = `perspective(1000px) rotateX(${dy * -5}deg) rotateY(${dx * 5}deg)`;
+
+          });
+
+          card.addEventListener('mouseleave', () => {
+
+            inner.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+
+          });
+
+        });
+
+      }
+      
+      // Carregar dados de conquistas
+      carregarConquistas();
+
+    });
+    
+    // Função para carregar conquistas
+    async function carregarConquistas() {
+      try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        if (!token) return;
+        
+        let apiUrl;
+        if (window.API_BASE) {
+          const endpoint = '/dashboard/vendedor/receita-unificada';
+          apiUrl = window.API_BASE.endsWith('/') 
+            ? `${window.API_BASE.slice(0, -1)}${endpoint}`
+            : `${window.API_BASE}${endpoint}`;
+        } else {
+          apiUrl = '/api/dashboard/vendedor/receita-unificada';
+        }
+        
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          },
+          cache: 'no-store'
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            const receitaTotal = parseFloat(result.data.receitaTotal || 0);
+            const totalFaturamentoEl = document.getElementById('totalFaturamento');
+            const nivelAtualEl = document.getElementById('nivelAtual');
+            
+            // Formatar valor monetário
+            const valorFormatado = new Intl.NumberFormat('pt-MZ', {
+              style: 'currency',
+              currency: 'MZN',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(receitaTotal);
+            
+            if (totalFaturamentoEl) {
+              totalFaturamentoEl.textContent = valorFormatado.replace(/MTn/gi, 'MZN');
+            }
+            
+            // Calcular nível baseado no faturamento
+            let nivel = 'Iniciante';
+            if (receitaTotal >= 10000000) {
+              nivel = 'Lendário';
+            } else if (receitaTotal >= 5000000) {
+              nivel = 'Diamante';
+            } else if (receitaTotal >= 1000000) {
+              nivel = 'Ouro';
+            } else if (receitaTotal >= 500000) {
+              nivel = 'Prata';
+            } else if (receitaTotal >= 100000) {
+              nivel = 'Bronze';
+            }
+            
+            if (nivelAtualEl) {
+              nivelAtualEl.textContent = nivel;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar conquistas:', error);
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>
+
