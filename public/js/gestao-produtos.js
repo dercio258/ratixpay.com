@@ -374,7 +374,7 @@ function criarCardProduto(produto) {
                 
                 <div class="product-actions">
                     <div class="payment-actions">
-                        ${produto.status_aprovacao === 'aprovado' ? `
+                        ${(produto.status_aprovacao === 'aprovado' || (produto.ativo && produto.status_aprovacao !== 'rejeitado')) ? `
                             <button onclick="copiarLinkPagamento('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn success">
                                 <i class="fas fa-copy"></i> Copiar Link
                             </button>
