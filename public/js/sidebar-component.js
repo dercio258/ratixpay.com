@@ -27,10 +27,16 @@ class SidebarComponent {
                 section: 'vendas'
             },
             {
-                href: 'afiliados-painel.html',
-                icon: 'fas fa-handshake',
-                text: 'Afiliados',
-                section: 'afiliados'
+                href: 'pagamentos.html',
+                icon: 'fas fa-wallet',
+                text: 'Pagamentos',
+                section: 'pagamentos'
+            },
+            {
+                href: 'ferramentas.html',
+                icon: 'fas fa-tools',
+                text: 'Ferramentas',
+                section: 'ferramentas'
             },
             {
                 href: 'integracoes.html',
@@ -39,10 +45,10 @@ class SidebarComponent {
                 section: 'integracoes'
             },
             {
-                href: 'pagamentos.html',
-                icon: 'fas fa-wallet',
-                text: 'Pagamentos',
-                section: 'pagamentos'
+                href: 'afiliados-painel.html',
+                icon: 'fas fa-handshake',
+                text: 'Afiliados',
+                section: 'afiliados'
             },
             {
                 href: 'premiacoes.html',
