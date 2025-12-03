@@ -203,8 +203,16 @@ async function carregarProdutos() {
                 return pertenceAoUsuario;
             });
             
-            produtos = produtosDoUsuario;
-            
+            // NORMALIZAÇÃO CRÍTICA: Produtos ATIVOS devem estar APROVADOS
+            produtos = produtosDoUsuario.map(produto => {
+                // Se o produto está ativo mas não está aprovado, normalizar para aprovado
+                if (produto.ativo === true && produto.status_aprovacao !== 'aprovado') {
+                    console.warn('⚠️ Produto ativo não aprovado detectado, normalizando:', produto.custom_id || produto.id);
+                    produto.status_aprovacao = 'aprovado';
+                    produto.motivo_rejeicao = null;
+                }
+                return produto;
+            });
             
             renderizarProdutos();
         } else {
