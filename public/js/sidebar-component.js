@@ -1,6 +1,7 @@
 /**
  * Componente de Sidebar Reutilizável para RATIXPAY
  * Garante consistência visual em todas as páginas
+ * VERSION: 2.0.0 - Inclui Ferramentas no menu
  */
 
 class SidebarComponent {
@@ -712,6 +713,33 @@ class SidebarComponent {
         
         // Aplicar sidebar
         this.applyToPage(activeSection);
+    }
+
+    /**
+     * Força a atualização do sidebar (útil para quebrar cache)
+     */
+    forceUpdate(activeSection = '') {
+        console.log('🔄 Forçando atualização do sidebar...');
+        
+        // Limpar cache do localStorage relacionado ao sidebar
+        localStorage.removeItem('sidebarHidden');
+        localStorage.removeItem('sidebar-open');
+        
+        // Remover sidebar atual completamente
+        const sidebarContainer = document.querySelector('.sidebar');
+        if (sidebarContainer) {
+            sidebarContainer.remove();
+        }
+        
+        // Criar novo container
+        const newContainer = document.createElement('div');
+        newContainer.className = 'sidebar';
+        document.querySelector('.dashboard-container')?.insertBefore(newContainer, document.querySelector('.main-content'));
+        
+        // Reaplicar sidebar
+        this.init(activeSection);
+        
+        console.log('✅ Sidebar forçado a atualizar');
     }
 }
 
