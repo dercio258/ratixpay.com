@@ -39,6 +39,10 @@ database.sqlite
 database.sqlite3
 *.dump
 *.sql
+# Exceções: scripts SQL de migração e configuração devem ser rastreados
+!scripts/*.sql
+!migrations/*.sql
+!config/*.sql
 
 # ========================================
 # UPLOADS & MEDIA
