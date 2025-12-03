@@ -757,6 +757,282 @@ const migrations = [
                 END IF;
             END $$;
         `
+    },
+    {
+        name: 'add_status_aprovacao_to_produtos',
+        sql: `
+            -- Adicionar campos de aprovação à tabela produtos
+            DO $$ 
+            BEGIN
+                -- Adicionar coluna status_aprovacao se não existir
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'produtos' 
+                    AND column_name = 'status_aprovacao'
+                ) THEN
+                    ALTER TABLE produtos ADD COLUMN status_aprovacao VARCHAR(50) DEFAULT 'aprovado' 
+                        CHECK (status_aprovacao IN ('aprovado', 'rejeitado', 'pendente_aprovacao'));
+                    COMMENT ON COLUMN produtos.status_aprovacao IS 'Status de aprovação do produto: aprovado (automático), rejeitado, pendente_aprovacao (aguardando admin)';
+                    RAISE NOTICE 'Coluna status_aprovacao adicionada à tabela produtos';
+                ELSE
+                    RAISE NOTICE 'Coluna status_aprovacao já existe na tabela produtos';
+                END IF;
+
+                -- Adicionar coluna motivo_rejeicao se não existir
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'produtos' 
+                    AND column_name = 'motivo_rejeicao'
+                ) THEN
+                    ALTER TABLE produtos ADD COLUMN motivo_rejeicao TEXT;
+                    COMMENT ON COLUMN produtos.motivo_rejeicao IS 'Motivo da rejeição automática ou manual';
+                    RAISE NOTICE 'Coluna motivo_rejeicao adicionada à tabela produtos';
+                ELSE
+                    RAISE NOTICE 'Coluna motivo_rejeicao já existe na tabela produtos';
+                END IF;
+
+                -- Atualizar produtos existentes
+                UPDATE produtos 
+                SET status_aprovacao = 'aprovado' 
+                WHERE status_aprovacao IS NULL AND ativo = true;
+
+                UPDATE produtos 
+                SET status_aprovacao = 'rejeitado' 
+                WHERE status_aprovacao IS NULL AND ativo = false;
+            END $$;
+        `
+    },
+    {
+        name: 'add_carteira_campos_e_pagamento_public_id',
+        sql: `
+            -- Adicionar campos à tabela carteiras e pagamentos
+            DO $$ 
+            BEGIN
+                -- Carteiras: contacto_mpesa
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'carteiras') THEN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' AND column_name = 'contacto_mpesa'
+                    ) THEN
+                        ALTER TABLE carteiras ADD COLUMN contacto_mpesa VARCHAR(20) NULL;
+                        COMMENT ON COLUMN carteiras.contacto_mpesa IS 'Número de contacto Mpesa';
+                        RAISE NOTICE 'Coluna contacto_mpesa adicionada à tabela carteiras';
+                    END IF;
+
+                    -- Carteiras: nome_titular_mpesa
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' AND column_name = 'nome_titular_mpesa'
+                    ) THEN
+                        ALTER TABLE carteiras ADD COLUMN nome_titular_mpesa VARCHAR(255) NULL;
+                        COMMENT ON COLUMN carteiras.nome_titular_mpesa IS 'Nome do titular Mpesa';
+                        RAISE NOTICE 'Coluna nome_titular_mpesa adicionada à tabela carteiras';
+                    END IF;
+
+                    -- Carteiras: contacto_emola
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' AND column_name = 'contacto_emola'
+                    ) THEN
+                        ALTER TABLE carteiras ADD COLUMN contacto_emola VARCHAR(20) NULL;
+                        COMMENT ON COLUMN carteiras.contacto_emola IS 'Número de contacto Emola';
+                        RAISE NOTICE 'Coluna contacto_emola adicionada à tabela carteiras';
+                    END IF;
+
+                    -- Carteiras: nome_titular_emola
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' AND column_name = 'nome_titular_emola'
+                    ) THEN
+                        ALTER TABLE carteiras ADD COLUMN nome_titular_emola VARCHAR(255) NULL;
+                        COMMENT ON COLUMN carteiras.nome_titular_emola IS 'Nome do titular Emola';
+                        RAISE NOTICE 'Coluna nome_titular_emola adicionada à tabela carteiras';
+                    END IF;
+
+                    -- Carteiras: email
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'carteiras' AND column_name = 'email'
+                    ) THEN
+                        ALTER TABLE carteiras ADD COLUMN email VARCHAR(255) NULL;
+                        COMMENT ON COLUMN carteiras.email IS 'Email do titular';
+                        RAISE NOTICE 'Coluna email adicionada à tabela carteiras';
+                    END IF;
+                END IF;
+
+                -- Pagamentos: public_id
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pagamentos') THEN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'public_id'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN public_id VARCHAR(20) NULL;
+                        CREATE UNIQUE INDEX IF NOT EXISTS pagamentos_public_id_key ON pagamentos(public_id) WHERE public_id IS NOT NULL;
+                        COMMENT ON COLUMN pagamentos.public_id IS 'ID público memorável para exibição e pesquisa (ex: SAQ-123456)';
+                        RAISE NOTICE 'Coluna public_id adicionada à tabela pagamentos';
+                    END IF;
+
+                    -- Pagamentos: valor_liquido
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'valor_liquido'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN valor_liquido DECIMAL(10, 2) NULL;
+                        COMMENT ON COLUMN pagamentos.valor_liquido IS 'Valor líquido após dedução de taxas';
+                        RAISE NOTICE 'Coluna valor_liquido adicionada à tabela pagamentos';
+                    END IF;
+
+                    -- Pagamentos: taxa
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'taxa'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN taxa DECIMAL(10, 2) NULL DEFAULT 0;
+                        COMMENT ON COLUMN pagamentos.taxa IS 'Taxa aplicada ao saque';
+                        RAISE NOTICE 'Coluna taxa adicionada à tabela pagamentos';
+                    END IF;
+
+                    -- Pagamentos: nome_titular
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'nome_titular'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN nome_titular VARCHAR(255) NULL;
+                        COMMENT ON COLUMN pagamentos.nome_titular IS 'Nome do titular da conta';
+                        RAISE NOTICE 'Coluna nome_titular adicionada à tabela pagamentos';
+                    END IF;
+
+                    -- Pagamentos: ip_solicitacao
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'ip_solicitacao'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN ip_solicitacao VARCHAR(45) NULL;
+                        COMMENT ON COLUMN pagamentos.ip_solicitacao IS 'IP de onde foi feita a solicitação';
+                        RAISE NOTICE 'Coluna ip_solicitacao adicionada à tabela pagamentos';
+                    END IF;
+
+                    -- Pagamentos: user_agent
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'pagamentos' AND column_name = 'user_agent'
+                    ) THEN
+                        ALTER TABLE pagamentos ADD COLUMN user_agent TEXT NULL;
+                        COMMENT ON COLUMN pagamentos.user_agent IS 'User agent do navegador';
+                        RAISE NOTICE 'Coluna user_agent adicionada à tabela pagamentos';
+                    END IF;
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_slug_nome_atributos_to_upsell_pages',
+        sql: `
+            -- Adicionar campos slug, nome e atributos à tabela upsell_pages
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'upsell_pages') THEN
+                    -- Adicionar coluna slug
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'upsell_pages' AND column_name = 'slug'
+                    ) THEN
+                        ALTER TABLE upsell_pages ADD COLUMN slug VARCHAR(255);
+                        COMMENT ON COLUMN upsell_pages.slug IS 'ID de referência único (URL slug) para a página de upsell';
+                        RAISE NOTICE 'Coluna slug adicionada à tabela upsell_pages';
+                    END IF;
+
+                    -- Adicionar coluna nome
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'upsell_pages' AND column_name = 'nome'
+                    ) THEN
+                        ALTER TABLE upsell_pages ADD COLUMN nome VARCHAR(255);
+                        COMMENT ON COLUMN upsell_pages.nome IS 'Nome interno da página para identificação no painel';
+                        RAISE NOTICE 'Coluna nome adicionada à tabela upsell_pages';
+                    END IF;
+
+                    -- Adicionar coluna atributos
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'upsell_pages' AND column_name = 'atributos'
+                    ) THEN
+                        ALTER TABLE upsell_pages ADD COLUMN atributos JSONB DEFAULT '{}';
+                        COMMENT ON COLUMN upsell_pages.atributos IS 'Atributos editados do template em formato JSON';
+                        RAISE NOTICE 'Coluna atributos adicionada à tabela upsell_pages';
+                    END IF;
+
+                    -- Criar índice único para slug por vendedor
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_indexes 
+                        WHERE indexname = 'idx_upsell_pages_vendedor_slug'
+                    ) THEN
+                        CREATE UNIQUE INDEX idx_upsell_pages_vendedor_slug ON upsell_pages(vendedor_id, slug) WHERE slug IS NOT NULL;
+                        RAISE NOTICE 'Índice único idx_upsell_pages_vendedor_slug criado';
+                    END IF;
+
+                    -- Criar índice para busca por slug
+                    IF NOT EXISTS (
+                        SELECT 1 FROM pg_indexes 
+                        WHERE indexname = 'idx_upsell_pages_slug'
+                    ) THEN
+                        CREATE INDEX idx_upsell_pages_slug ON upsell_pages(slug);
+                        RAISE NOTICE 'Índice idx_upsell_pages_slug criado';
+                    END IF;
+
+                    -- Atualizar páginas existentes com slug gerado
+                    UPDATE upsell_pages 
+                    SET slug = LOWER(REGEXP_REPLACE(
+                        REGEXP_REPLACE(titulo, '[^a-zA-Z0-9\s-]', '', 'g'),
+                        '\s+', '-', 'g'
+                    )) || '-' || SUBSTRING(id::text, 1, 8)
+                    WHERE slug IS NULL AND titulo IS NOT NULL;
+
+                    -- Atualizar nome com título para páginas existentes
+                    UPDATE upsell_pages 
+                    SET nome = titulo
+                    WHERE nome IS NULL AND titulo IS NOT NULL;
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_template_html_to_upsell_pages',
+        sql: `
+            -- Adicionar campo template_html à tabela upsell_pages
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'upsell_pages') THEN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'upsell_pages' AND column_name = 'template_html'
+                    ) THEN
+                        ALTER TABLE upsell_pages ADD COLUMN template_html TEXT;
+                        COMMENT ON COLUMN upsell_pages.template_html IS 'HTML completo do template modificado pelo usuário';
+                        RAISE NOTICE 'Coluna template_html adicionada à tabela upsell_pages';
+                    END IF;
+                END IF;
+            END $$;
+        `
+    },
+    {
+        name: 'add_template_id_to_upsell_pages',
+        sql: `
+            -- Adicionar campo template_id à tabela upsell_pages
+            DO $$ 
+            BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'upsell_pages') THEN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'upsell_pages' AND column_name = 'template_id'
+                    ) THEN
+                        ALTER TABLE upsell_pages ADD COLUMN template_id VARCHAR(100) DEFAULT 'default';
+                        COMMENT ON COLUMN upsell_pages.template_id IS 'ID do template selecionado para esta página de upsell';
+                        RAISE NOTICE 'Coluna template_id adicionada à tabela upsell_pages';
+                    END IF;
+                END IF;
+            END $$;
+        `
     }
 ];
 
