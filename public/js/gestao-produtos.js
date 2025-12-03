@@ -407,12 +407,15 @@ function gerarStatusBadges(produto) {
     const badges = [];
     
     // Badge de status de aprovação
-    // Não mostrar badge "Aprovado" - produtos aprovados mostrarão apenas "Ativo" se estiverem ativos
+    // IMPORTANTE: Produtos ATIVOS devem estar APROVADOS
+    // Se estiver ativo mas não aprovado, considerar como erro e não mostrar badge de pendente
     if (produto.status_aprovacao === 'rejeitado') {
         badges.push('<span class="status-badge" style="background: #dc3545; color: white;">❌ Rejeitado</span>');
-    } else if (produto.status_aprovacao === 'pendente_aprovacao') {
+    } else if (produto.status_aprovacao === 'pendente_aprovacao' && !produto.ativo) {
+        // Só mostrar "Aguardando Aprovação" se o produto estiver INATIVO
         badges.push('<span class="status-badge" style="background: #ffc107; color: #000;">⏳ Aguardando Aprovação</span>');
     }
+    // Produtos ativos devem estar aprovados - não mostrar badge de pendente
     
     if (produto.ativo) {
         badges.push('<span class="status-badge active">Ativo</span>');
