@@ -1588,25 +1588,23 @@ router.get('/public/:productId', async (req, res) => {
       return res.status(404).json({ erro: 'Produto não encontrado' });
     }
 
-    // Verificar se o produto está aprovado
-    if (produto.status_aprovacao !== 'aprovado') {
-      const statusMessage = produto.status_aprovacao === 'rejeitado' 
-        ? 'Este produto foi rejeitado e não está disponível para venda.'
-        : produto.status_aprovacao === 'pendente_aprovacao'
-        ? 'Este produto está aguardando aprovação e ainda não está disponível para venda.'
-        : 'Este produto não está disponível para venda.';
-      
-      return res.status(403).json({ 
-        erro: 'Produto não disponível',
-        mensagem: statusMessage,
-        status_aprovacao: produto.status_aprovacao
-      });
-    }
-
-    // Verificar se o produto está ativo (tratar undefined como false)
+    // Verificar se o produto está ativo primeiro (produto ativo deve ser acessível)
     if (produto.ativo !== true) {
       return res.status(404).json({ erro: 'Produto não disponível' });
     }
+    
+    // Se o produto está ativo, considerar como aprovado para acesso público
+    // Mas ainda verificar se foi explicitamente rejeitado
+    if (produto.status_aprovacao === 'rejeitado') {
+      return res.status(403).json({ 
+        erro: 'Produto não disponível',
+        mensagem: 'Este produto foi rejeitado e não está disponível para venda.',
+        status_aprovacao: produto.status_aprovacao
+      });
+    }
+    
+    // Produtos ativos que não estão rejeitados podem ser acessados
+    // (mesmo que status seja pendente_aprovacao, se está ativo, permitir acesso)
 
     // Log para debug das configurações Utmify
     console.log(`📊 Produto ${produto.nome} - Configurações Utmify (antes de criar objeto):`, {
