@@ -36,14 +36,36 @@ echo ""
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MIGRATIONS_DIR="$SCRIPT_DIR/../migrations"
 
+# Detectar se estamos como root ou postgres
+if [ "$EUID" -eq 0 ] || [ "$USER" = "root" ]; then
+    # Estamos como root, usar runuser ou su
+    PSQL_CMD="runuser -u postgres -- psql"
+elif [ "$USER" = "postgres" ]; then
+    # Já estamos como postgres
+    PSQL_CMD="psql"
+else
+    # Tentar sudo, se não funcionar, tentar runuser
+    PSQL_CMD="sudo -u postgres psql" || PSQL_CMD="runuser -u postgres -- psql"
+fi
+
 echo -e "${GREEN}1. Corrigindo permissões do schema public...${NC}"
-sudo -u postgres psql -d "$DB_NAME" -f "$SCRIPT_DIR/fix-schema-permissions.sql" || {
-    echo -e "${RED}⚠️  Aviso: Erro ao corrigir permissões (pode estar OK se já corrigido)${NC}"
+$PSQL_CMD -d "$DB_NAME" -f "$SCRIPT_DIR/fix-schema-permissions.sql" || {
+    echo -e "${YELLOW}⚠️  Aviso: Erro ao corrigir permissões (tentando alternativa...)${NC}"
+    # Tentar diretamente como postgres se não funcionou
+    if [ "$USER" != "postgres" ]; then
+        su - postgres -c "psql -d $DB_NAME -f $SCRIPT_DIR/fix-schema-permissions.sql" || {
+            echo -e "${YELLOW}⚠️  Permissões podem já estar corretas, continuando...${NC}"
+        }
+    fi
 }
 
 echo ""
 echo -e "${GREEN}2. Executando script de sincronização principal...${NC}"
-sudo -u postgres psql -d "$DB_NAME" -f "$SCRIPT_DIR/sincronizar-estrutura-banco-completo.sql"
+$PSQL_CMD -d "$DB_NAME" -f "$SCRIPT_DIR/sincronizar-estrutura-banco-completo.sql" || {
+    if [ "$USER" != "postgres" ]; then
+        su - postgres -c "psql -d $DB_NAME -f $SCRIPT_DIR/sincronizar-estrutura-banco-completo.sql"
+    fi
+}
 
 echo ""
 echo -e "${GREEN}3. Executando migrações em ordem...${NC}"
@@ -70,8 +92,14 @@ MIGRATIONS=(
 for migration in "${MIGRATIONS[@]}"; do
     if [ -f "$MIGRATIONS_DIR/$migration" ]; then
         echo -e "${YELLOW}  → Executando: $migration${NC}"
-        sudo -u postgres psql -d "$DB_NAME" -f "$MIGRATIONS_DIR/$migration" || {
-            echo -e "${RED}    ⚠️  Erro ao executar $migration (continuando...)${NC}"
+        $PSQL_CMD -d "$DB_NAME" -f "$MIGRATIONS_DIR/$migration" || {
+            if [ "$USER" != "postgres" ]; then
+                su - postgres -c "psql -d $DB_NAME -f $MIGRATIONS_DIR/$migration" || {
+                    echo -e "${YELLOW}    ⚠️  Erro ao executar $migration (continuando...)${NC}"
+                }
+            else
+                echo -e "${YELLOW}    ⚠️  Erro ao executar $migration (continuando...)${NC}"
+            fi
         }
     else
         echo -e "${YELLOW}  ⚠️  Arquivo não encontrado: $migration${NC}"
@@ -80,9 +108,17 @@ done
 
 echo ""
 echo -e "${GREEN}4. Forçando aprovação de produtos ativos...${NC}"
-sudo -u postgres psql -d "$DB_NAME" -f "$SCRIPT_DIR/forcar-aprovacao-produtos-ativos.sql" || {
+if [ -f "$SCRIPT_DIR/forcar-aprovacao-produtos-ativos.sql" ]; then
+    $PSQL_CMD -d "$DB_NAME" -f "$SCRIPT_DIR/forcar-aprovacao-produtos-ativos.sql" || {
+        if [ "$USER" != "postgres" ]; then
+            su - postgres -c "psql -d $DB_NAME -f $SCRIPT_DIR/forcar-aprovacao-produtos-ativos.sql" || {
+                echo -e "${YELLOW}  ⚠️  Erro ao executar script de aprovação${NC}"
+            }
+        fi
+    }
+else
     echo -e "${YELLOW}  ⚠️  Script não encontrado, continuando...${NC}"
-}
+fi
 
 echo ""
 echo -e "${GREEN}✅ Replicação completa concluída!${NC}"
@@ -90,7 +126,7 @@ echo ""
 echo -e "${GREEN}📊 Verificando estrutura final...${NC}"
 
 # Mostrar estatísticas
-sudo -u postgres psql -d "$DB_NAME" -c "
+$PSQL_CMD -d "$DB_NAME" -c "
 SELECT 
     'produtos' as tabela,
     status_aprovacao,
@@ -99,7 +135,11 @@ SELECT
 FROM produtos
 GROUP BY status_aprovacao
 ORDER BY status_aprovacao;
-"
+" || {
+    if [ "$USER" != "postgres" ]; then
+        su - postgres -c "psql -d $DB_NAME -c \"SELECT 'produtos' as tabela, status_aprovacao, COUNT(*) as total, SUM(CASE WHEN ativo = true THEN 1 ELSE 0 END) as ativos FROM produtos GROUP BY status_aprovacao ORDER BY status_aprovacao;\""
+    fi
+}
 
 echo ""
 echo -e "${GREEN}🚀 Estrutura replicada com sucesso!${NC}"
