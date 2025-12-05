@@ -31,7 +31,10 @@ function formatarCarteira(carteira) {
         saldo_bloqueado: data.saldoBloqueado || data.saldo_bloqueado,
         saldo_total: data.saldoTotal || data.saldo_total,
         data_criacao: data.dataCriacao || data.data_criacao,
-        ultima_atualizacao: data.ultimaAtualizacao || data.ultima_atualizacao
+        ultima_atualizacao: data.ultimaAtualizacao || data.ultima_atualizacao,
+        // Campos dinâmicos (legado)
+        nome_titular: data.nomeTitular || data.nome_titular || data.nomeTitularMpesa || data.nome_titular_mpesa,
+        contacto: data.contacto || data.contactoMpesa || data.contacto_mpesa
     };
 }
 
@@ -42,7 +45,7 @@ function formatarCarteira(carteira) {
 router.get('/', authenticateToken, async (req, res) => {
     try {
         const carteira = await CarteiraService.buscarCarteiraUnica(req.user.id);
-        
+
         if (carteira) {
             res.json({
                 success: true,
@@ -55,7 +58,7 @@ router.get('/', authenticateToken, async (req, res) => {
                 message: 'Nenhuma carteira configurada'
             });
         }
-        
+
     } catch (error) {
         console.error('❌ Erro ao buscar carteira:', error);
         res.status(500).json({
@@ -72,8 +75,17 @@ router.get('/', authenticateToken, async (req, res) => {
  */
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { contactoMpesa, nomeTitularMpesa, contactoEmola, nomeTitularEmola } = req.body;
-        
+        // Coletar todos os campos do body
+        const { 
+            nome, 
+            metodoSaque, 
+            contactoMpesa, 
+            nomeTitularMpesa, 
+            contactoEmola, 
+            nomeTitularEmola,
+            emailTitular 
+        } = req.body;
+
         // Validações básicas
         if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {
             return res.status(400).json({
@@ -82,9 +94,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 message: 'Todos os campos são obrigatórios: Contacto Mpesa, Nome Titular Mpesa, Contacto Emola, Nome Titular Emola'
             });
         }
-        
-        // Usar email do usuário autenticado
-        const email = req.user.email || req.user.email_usuario;
+
+        // Usar email do usuário autenticado (prioridade) ou emailTitular fornecido
+        const email = (req.user.email || req.user.email_usuario || emailTitular || '').trim().toLowerCase();
         if (!email) {
             return res.status(400).json({
                 success: false,
@@ -92,30 +104,41 @@ router.post('/', authenticateToken, async (req, res) => {
                 message: 'Email do usuário não encontrado. Faça login novamente.'
             });
         }
-        
+
         console.log('🔄 Criando/atualizando carteira para vendedor:', req.user.id);
-        
+        console.log('📋 Dados recebidos:', {
+            nome: nome || 'Carteira Principal',
+            metodoSaque: metodoSaque || 'Mpesa',
+            contactoMpesa: !!contactoMpesa,
+            nomeTitularMpesa: !!nomeTitularMpesa,
+            contactoEmola: !!contactoEmola,
+            nomeTitularEmola: !!nomeTitularEmola,
+            email: !!email
+        });
+
         const carteira = await CarteiraService.criarOuAtualizarCarteira(req.user.id, {
+            nome: (nome || 'Carteira Principal').trim(),
+            metodoSaque: (metodoSaque || 'Mpesa').trim(),
             contactoMpesa: contactoMpesa.trim(),
             nomeTitularMpesa: nomeTitularMpesa.trim(),
             contactoEmola: contactoEmola.trim(),
             nomeTitularEmola: nomeTitularEmola.trim(),
-            email: email.trim().toLowerCase()
+            email: email
         });
-        
+
         res.status(201).json({
             success: true,
             message: 'Carteira configurada com sucesso',
             carteira: formatarCarteira(carteira)
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao criar/atualizar carteira:', error);
         console.error('❌ Stack trace:', error.stack);
-        
+
         // Mensagem de erro mais amigável
         let errorMessage = error.message || 'Erro ao configurar carteira';
-        
+
         res.status(400).json({
             success: false,
             error: 'Erro ao configurar carteira',
@@ -134,10 +157,10 @@ router.post('/saque/codigo', authenticateToken, async (req, res) => {
     try {
         console.log('🔄 Rota /saque/codigo chamada');
         console.log('👤 Usuário:', req.user.id);
-        
+
         // Buscar carteira única do usuário usando o serviço
         const carteira = await CarteiraService.buscarCarteiraUnica(req.user.id);
-        
+
         if (!carteira) {
             return res.status(400).json({
                 success: false,
@@ -145,7 +168,7 @@ router.post('/saque/codigo', authenticateToken, async (req, res) => {
                 message: 'Configure sua carteira primeiro antes de solicitar saques'
             });
         }
-        
+
         // Verificar se a carteira está ativa
         if (!carteira.ativa && carteira.ativa !== undefined) {
             return res.status(400).json({
@@ -154,11 +177,11 @@ router.post('/saque/codigo', authenticateToken, async (req, res) => {
                 message: 'Sua carteira está inativa. Ative-a antes de solicitar saques.'
             });
         }
-        
+
         const carteiraId = carteira.id;
         const emailCarteira = carteira.email || req.user.email || req.user.email_usuario;
         console.log('✅ Carteira encontrada:', carteiraId);
-        
+
         if (!emailCarteira) {
             return res.status(400).json({
                 success: false,
@@ -166,21 +189,21 @@ router.post('/saque/codigo', authenticateToken, async (req, res) => {
                 message: 'Email da carteira não encontrado. Configure sua carteira novamente.'
             });
         }
-        
+
         const resultado = await SaqueSimplificadoService.gerarCodigoSaque(
             req.user.id,
             carteiraId,
             emailCarteira
         );
-        
+
         console.log('✅ Código gerado com sucesso');
-        
+
         res.json({
             success: true,
             message: resultado.mensagem,
             expiraEm: resultado.expiraEm
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao gerar código de saque:', error);
         res.status(400).json({
@@ -198,7 +221,7 @@ router.post('/saque/codigo', authenticateToken, async (req, res) => {
 router.post('/saque/processar', authenticateToken, async (req, res) => {
     try {
         const { carteiraId, valor, codigoAutenticacao } = req.body;
-        
+
         // Validações básicas
         if (!carteiraId || !valor || !codigoAutenticacao) {
             return res.status(400).json({
@@ -207,7 +230,7 @@ router.post('/saque/processar', authenticateToken, async (req, res) => {
                 message: 'Carteira, valor e código são obrigatórios'
             });
         }
-        
+
         if (valor <= 0) {
             return res.status(400).json({
                 success: false,
@@ -215,19 +238,19 @@ router.post('/saque/processar', authenticateToken, async (req, res) => {
                 message: 'O valor deve ser maior que zero'
             });
         }
-        
+
         const resultado = await SaqueSimplificadoService.processarSaqueDirecto(
             req.user.id,
             carteiraId,
             parseFloat(valor),
             codigoAutenticacao
         );
-        
+
         res.json({
             success: true,
             ...resultado
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao processar saque:', error);
         res.status(400).json({
@@ -247,9 +270,9 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
         console.log('🔄 Rota /saque/direto chamada');
         console.log('📝 Body:', req.body);
         console.log('👤 Usuário:', req.user.id);
-        
+
         const { carteiraId, valor, codigoAutenticacao } = req.body;
-        
+
         // Validações básicas
         if (!carteiraId || !valor || !codigoAutenticacao) {
             console.log('❌ Dados incompletos:', { carteiraId, valor, codigoAutenticacao });
@@ -259,7 +282,7 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
                 message: 'Carteira, valor e código de autenticação são obrigatórios'
             });
         }
-        
+
         if (valor <= 0) {
             console.log('❌ Valor inválido:', valor);
             return res.status(400).json({
@@ -268,7 +291,7 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
                 message: 'O valor deve ser maior que zero'
             });
         }
-        
+
         if (!codigoAutenticacao || codigoAutenticacao.length !== 6) {
             console.log('❌ Código de autenticação inválido:', codigoAutenticacao);
             return res.status(400).json({
@@ -277,19 +300,19 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
                 message: 'Código de autenticação deve ter 6 dígitos'
             });
         }
-        
+
         console.log('✅ Dados validados, processando saque...');
-        
+
         const resultado = await SaqueSimplificadoService.processarSaqueDirecto(
             req.user.id,
             carteiraId,
             parseFloat(valor),
             codigoAutenticacao
         );
-        
+
         console.log('✅ Saque processado com sucesso');
         console.log('📊 Resultado do saque:', resultado);
-        
+
         res.json({
             success: true,
             data: {
@@ -297,7 +320,7 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
                 novaReceita: resultado.novaReceita
             }
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao processar saque direto:', error);
         res.status(400).json({
@@ -315,13 +338,13 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
 router.get('/saque/historico', authenticateToken, async (req, res) => {
     try {
         const historico = await SaqueSimplificadoService.listarHistoricoSaques(req.user.id);
-        
+
         res.json({
             success: true,
             historico: historico,
             total: historico.length
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao listar histórico de saques:', error);
         res.status(500).json({
@@ -342,7 +365,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, metodoSaque, contacto, nomeTitular, emailTitular } = req.body;
-        
+
         const carteira = await CarteiraService.editarCarteira(id, req.user.id, {
             nome,
             metodoSaque,
@@ -350,13 +373,13 @@ router.put('/:id', authenticateToken, async (req, res) => {
             nomeTitular,
             emailTitular
         });
-        
+
         res.json({
             success: true,
             message: 'Carteira atualizada com sucesso',
             carteira: carteira
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao editar carteira:', error);
         res.status(400).json({
@@ -374,14 +397,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         await CarteiraService.desativarCarteira(id, req.user.id);
-        
+
         res.json({
             success: true,
             message: 'Carteira desativada com sucesso'
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao desativar carteira:', error);
         res.status(400).json({
@@ -401,29 +424,29 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 router.post('/:id/codigo', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Buscar carteira para obter email
         const carteira = await CarteiraService.listarCarteiras(req.user.id);
         const carteiraAlvo = carteira.find(c => c.id === id);
-        
+
         if (!carteiraAlvo) {
             return res.status(404).json({
                 success: false,
                 error: 'Carteira não encontrada'
             });
         }
-        
+
         const resultado = await CarteiraService.gerarCodigoCarteira(
             req.user.id,
             carteiraAlvo.email_titular
         );
-        
+
         res.json({
             success: true,
             message: resultado.mensagem,
             expiraEm: resultado.expiraEm
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao gerar código de carteira:', error);
         res.status(400).json({
@@ -442,19 +465,19 @@ router.post('/:id/verificar-codigo', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { codigo } = req.body;
-        
+
         if (!codigo) {
             return res.status(400).json({
                 success: false,
                 error: 'Código é obrigatório'
             });
         }
-        
+
         const codigoValido = await CarteiraService.verificarCodigoCarteira(
             req.user.id,
             codigo
         );
-        
+
         if (codigoValido) {
             res.json({
                 success: true,
@@ -466,7 +489,7 @@ router.post('/:id/verificar-codigo', authenticateToken, async (req, res) => {
                 error: 'Código inválido'
             });
         }
-        
+
     } catch (error) {
         console.error('❌ Erro ao verificar código:', error);
         res.status(400).json({
@@ -484,12 +507,12 @@ router.post('/:id/verificar-codigo', authenticateToken, async (req, res) => {
 router.get('/saque/disponibilidade', authenticateToken, async (req, res) => {
     try {
         const disponibilidade = await SaqueSimplificadoService.verificarDisponibilidadeSaque(req.user.id);
-        
+
         res.json({
             success: true,
             ...disponibilidade
         });
-        
+
     } catch (error) {
         console.error('❌ Erro ao verificar disponibilidade de saque:', error);
         res.status(500).json({

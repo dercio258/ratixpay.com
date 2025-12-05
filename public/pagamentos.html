@@ -1126,6 +1126,27 @@
                         <!-- Form Inline (Oculto por padrão) -->
                         <div class="nova-carteira-form" id="novaCarteiraForm" style="display: none;">
                             <form id="formNovaCarteiraInline">
+                                <!-- Informações Gerais -->
+                                <div class="form-section">
+                                    <h5>
+                                        <i class="fas fa-info-circle"></i> Informações Gerais
+                                    </h5>
+                                    <div class="form-grid">
+                                        <div>
+                                            <label class="form-label" for="nomeCarteiraInline">Nome da Carteira *</label>
+                                            <input type="text" id="nomeCarteiraInline" class="form-input" 
+                                                   placeholder="Ex: Carteira Principal" required value="Carteira Principal">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="metodoSaqueInline">Método de Saque Padrão *</label>
+                                            <select id="metodoSaqueInline" class="form-input" required>
+                                                <option value="Mpesa" selected>Mpesa</option>
+                                                <option value="Emola">Emola</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Mpesa -->
                                 <div class="form-section">
                                     <h5>

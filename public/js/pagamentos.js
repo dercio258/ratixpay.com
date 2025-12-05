@@ -1696,6 +1696,8 @@ async function criarCarteiraInline() {
         }
 
         // Coletar todos os campos obrigatórios
+        const nomeCarteira = document.getElementById('nomeCarteiraInline')?.value?.trim() || 'Carteira Principal';
+        const metodoSaque = document.getElementById('metodoSaqueInline')?.value?.trim() || 'Mpesa';
         const contactoMpesa = document.getElementById('contactoMpesaInline')?.value?.trim().replace(/\s+/g, '');
         const nomeTitularMpesa = document.getElementById('nomeTitularMpesaInline')?.value?.trim();
         const contactoEmola = document.getElementById('contactoEmolaInline')?.value?.trim().replace(/\s+/g, '');
@@ -1704,6 +1706,16 @@ async function criarCarteiraInline() {
         // Validações básicas
         if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {
             mostrarErro('Todos os campos são obrigatórios');
+            return;
+        }
+        
+        if (!nomeCarteira || nomeCarteira.trim() === '') {
+            mostrarErro('Nome da carteira é obrigatório');
+            return;
+        }
+        
+        if (!metodoSaque || metodoSaque.trim() === '') {
+            mostrarErro('Método de saque é obrigatório');
             return;
         }
 
@@ -1718,7 +1730,10 @@ async function criarCarteiraInline() {
             return;
         }
 
+        // Preparar dados completos da carteira
         const dados = {
+            nome: nomeCarteira,
+            metodoSaque: metodoSaque,
             contactoMpesa: contactoMpesa,
             nomeTitularMpesa: nomeTitularMpesa,
             contactoEmola: contactoEmola,
@@ -1727,6 +1742,8 @@ async function criarCarteiraInline() {
 
         console.log('📤 Dados da carteira a serem enviados:', dados);
         console.log('✅ Validação dos dados:', {
+            nome: !!nomeCarteira && nomeCarteira.length > 0,
+            metodoSaque: !!metodoSaque && metodoSaque.length > 0,
             contactoMpesa: !!contactoMpesa && contactoMpesa.length > 0,
             nomeTitularMpesa: !!nomeTitularMpesa && nomeTitularMpesa.length > 0,
             contactoEmola: !!contactoEmola && contactoEmola.length > 0,
