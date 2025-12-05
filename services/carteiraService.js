@@ -61,10 +61,42 @@ class CarteiraService {
                 throw new Error('Contacto Emola inválido. Deve ser um número moçambicano válido (84, 85, 86 ou 87 seguido de 7 dígitos)');
             }
 
-            // Buscar carteira existente
+            // Buscar carteira existente antes de validar (para preservar valores se necessário)
             let carteira = await Carteira.findOne({
                 where: { vendedorId: vendedorId }
             });
+
+            // Validar que contactos não sejam null ou vazios antes de processar
+            // Se for atualização e os campos estiverem vazios, usar valores existentes
+            if (carteira) {
+                // Atualização: usar valores existentes se novos estiverem vazios
+                if (!dadosCarteira.contactoMpesa || dadosCarteira.contactoMpesa.trim() === '') {
+                    dadosCarteira.contactoMpesa = carteira.contacto_mpesa || carteira.contactoMpesa || '';
+                }
+                if (!dadosCarteira.contactoEmola || dadosCarteira.contactoEmola.trim() === '') {
+                    dadosCarteira.contactoEmola = carteira.contacto_emola || carteira.contactoEmola || '';
+                }
+                if (!dadosCarteira.nomeTitularMpesa || dadosCarteira.nomeTitularMpesa.trim() === '') {
+                    dadosCarteira.nomeTitularMpesa = carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || '';
+                }
+                if (!dadosCarteira.nomeTitularEmola || dadosCarteira.nomeTitularEmola.trim() === '') {
+                    dadosCarteira.nomeTitularEmola = carteira.nome_titular_emola || carteira.nomeTitularEmola || '';
+                }
+            }
+
+            // Validação final: garantir que todos os campos obrigatórios tenham valores
+            if (!dadosCarteira.contactoMpesa || dadosCarteira.contactoMpesa.trim() === '') {
+                throw new Error('Contacto Mpesa é obrigatório');
+            }
+            if (!dadosCarteira.contactoEmola || dadosCarteira.contactoEmola.trim() === '') {
+                throw new Error('Contacto Emola é obrigatório');
+            }
+            if (!dadosCarteira.nomeTitularMpesa || dadosCarteira.nomeTitularMpesa.trim() === '') {
+                throw new Error('Nome do titular Mpesa é obrigatório');
+            }
+            if (!dadosCarteira.nomeTitularEmola || dadosCarteira.nomeTitularEmola.trim() === '') {
+                throw new Error('Nome do titular Emola é obrigatório');
+            }
 
             const dadosAtualizados = {
                 contacto_mpesa: dadosCarteira.contactoMpesa.trim().replace(/\s+/g, ''),
@@ -109,6 +141,8 @@ class CarteiraService {
                 if (!dadosAtualizados.email_titular || dadosAtualizados.email_titular === '') {
                     dadosAtualizados.email_titular = emailParaSalvar || dadosAtualizados.email || carteira.email_titular || carteira.email || '';
                 }
+                // Preservar ativa = true (não permitir desativar pela atualização)
+                dadosAtualizados.ativa = true;
                 await carteira.update(dadosAtualizados);
                 console.log(`✅ Carteira atualizada com sucesso para vendedor ${vendedorId}`);
             } else {

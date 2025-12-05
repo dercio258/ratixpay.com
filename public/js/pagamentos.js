@@ -1741,6 +1741,14 @@ async function criarCarteiraInline() {
         };
 
         console.log('📤 Dados da carteira a serem enviados:', dados);
+        console.log('📋 Valores brutos capturados:', {
+            nomeCarteira: nomeCarteira,
+            metodoSaque: metodoSaque,
+            contactoMpesa: contactoMpesa,
+            nomeTitularMpesa: nomeTitularMpesa,
+            contactoEmola: contactoEmola,
+            nomeTitularEmola: nomeTitularEmola
+        });
         console.log('✅ Validação dos dados:', {
             nome: !!nomeCarteira && nomeCarteira.length > 0,
             metodoSaque: !!metodoSaque && metodoSaque.length > 0,
@@ -1749,6 +1757,18 @@ async function criarCarteiraInline() {
             contactoEmola: !!contactoEmola && contactoEmola.length > 0,
             nomeTitularEmola: !!nomeTitularEmola && nomeTitularEmola.length > 0
         });
+        
+        // Verificar se algum campo está vazio ou null antes de enviar
+        if (!contactoMpesa || contactoMpesa === '' || contactoMpesa === null) {
+            console.error('❌ ERRO: contactoMpesa está vazio ou null:', contactoMpesa);
+            mostrarErro('Contacto Mpesa é obrigatório. Por favor, preencha o campo.');
+            return;
+        }
+        if (!contactoEmola || contactoEmola === '' || contactoEmola === null) {
+            console.error('❌ ERRO: contactoEmola está vazio ou null:', contactoEmola);
+            mostrarErro('Contacto Emola é obrigatório. Por favor, preencha o campo.');
+            return;
+        }
 
         // Determinar URL da API
         let apiUrl;

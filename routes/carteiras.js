@@ -18,23 +18,42 @@ const SaqueSimplificadoService = require('../services/saqueSimplificadoService')
 function formatarCarteira(carteira) {
     if (!carteira) return null;
     const data = carteira.toJSON ? carteira.toJSON() : carteira;
+    
+    // Garantir que todos os campos sejam retornados corretamente
     return {
-        ...data,
-        contacto_mpesa: data.contactoMpesa || data.contacto_mpesa,
-        nome_titular_mpesa: data.nomeTitularMpesa || data.nome_titular_mpesa,
-        contacto_emola: data.contactoEmola || data.contacto_emola,
-        nome_titular_emola: data.nomeTitularEmola || data.nome_titular_emola,
-        metodo_saque: data.metodoSaque || data.metodo_saque || 'Mpesa',
+        id: data.id,
+        vendedorId: data.vendedorId || data.vendedor_id,
+        vendedor_id: data.vendedor_id || data.vendedorId,
+        nome: data.nome,
+        metodoSaque: data.metodoSaque || data.metodo_saque || 'Mpesa',
+        metodo_saque: data.metodo_saque || data.metodoSaque || 'Mpesa',
+        contactoMpesa: data.contactoMpesa || data.contacto_mpesa || null,
+        contacto_mpesa: data.contacto_mpesa || data.contactoMpesa || null,
+        nomeTitularMpesa: data.nomeTitularMpesa || data.nome_titular_mpesa || null,
+        nome_titular_mpesa: data.nome_titular_mpesa || data.nomeTitularMpesa || null,
+        contactoEmola: data.contactoEmola || data.contacto_emola || null,
+        contacto_emola: data.contacto_emola || data.contactoEmola || null,
+        nomeTitularEmola: data.nomeTitularEmola || data.nome_titular_emola || null,
+        nome_titular_emola: data.nome_titular_emola || data.nomeTitularEmola || null,
         email: data.email,
-        vendedor_id: data.vendedorId || data.vendedor_id,
-        saldo_disponivel: data.saldoDisponivel || data.saldo_disponivel,
-        saldo_bloqueado: data.saldoBloqueado || data.saldo_bloqueado,
-        saldo_total: data.saldoTotal || data.saldo_total,
-        data_criacao: data.dataCriacao || data.data_criacao,
-        ultima_atualizacao: data.ultimaAtualizacao || data.ultima_atualizacao,
-        // Campos dinâmicos (legado)
-        nome_titular: data.nomeTitular || data.nome_titular || data.nomeTitularMpesa || data.nome_titular_mpesa,
-        contacto: data.contacto || data.contactoMpesa || data.contacto_mpesa
+        emailTitular: data.emailTitular || data.email_titular || data.email,
+        email_titular: data.email_titular || data.emailTitular || data.email,
+        saldoDisponivel: data.saldoDisponivel || data.saldo_disponivel || '0.00',
+        saldo_disponivel: data.saldo_disponivel || data.saldoDisponivel || '0.00',
+        saldoBloqueado: data.saldoBloqueado || data.saldo_bloqueado || '0.00',
+        saldo_bloqueado: data.saldo_bloqueado || data.saldoBloqueado || '0.00',
+        saldoTotal: data.saldoTotal || data.saldo_total || '0.00',
+        saldo_total: data.saldo_total || data.saldoTotal || '0.00',
+        ativa: data.ativa !== undefined ? data.ativa : true,
+        dataCriacao: data.dataCriacao || data.data_criacao,
+        data_criacao: data.data_criacao || data.dataCriacao,
+        ultimaAtualizacao: data.ultimaAtualizacao || data.ultima_atualizacao,
+        ultima_atualizacao: data.ultima_atualizacao || data.ultimaAtualizacao,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        // Campos legados (compatibilidade)
+        contacto: data.contacto || data.contacto_mpesa || data.contactoMpesa || null,
+        nome_titular: data.nome_titular || data.nomeTitular || data.nome_titular_mpesa || data.nomeTitularMpesa || null
     };
 }
 
@@ -106,15 +125,31 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         console.log('🔄 Criando/atualizando carteira para vendedor:', req.user.id);
-        console.log('📋 Dados recebidos:', {
+        console.log('📋 Dados recebidos (completo):', {
             nome: nome || 'Carteira Principal',
             metodoSaque: metodoSaque || 'Mpesa',
-            contactoMpesa: !!contactoMpesa,
-            nomeTitularMpesa: !!nomeTitularMpesa,
-            contactoEmola: !!contactoEmola,
-            nomeTitularEmola: !!nomeTitularEmola,
-            email: !!email
+            contactoMpesa: contactoMpesa || 'NULL/VAZIO',
+            nomeTitularMpesa: nomeTitularMpesa || 'NULL/VAZIO',
+            contactoEmola: contactoEmola || 'NULL/VAZIO',
+            nomeTitularEmola: nomeTitularEmola || 'NULL/VAZIO',
+            email: email || 'NULL/VAZIO'
         });
+        
+        // Validar que contactos não sejam vazios ou null
+        if (!contactoMpesa || contactoMpesa.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'Contacto Mpesa inválido',
+                message: 'Contacto Mpesa é obrigatório e não pode estar vazio'
+            });
+        }
+        if (!contactoEmola || contactoEmola.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'Contacto Emola inválido',
+                message: 'Contacto Emola é obrigatório e não pode estar vazio'
+            });
+        }
 
         const carteira = await CarteiraService.criarOuAtualizarCarteira(req.user.id, {
             nome: (nome || 'Carteira Principal').trim(),
