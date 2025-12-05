@@ -36,42 +36,86 @@ class SaqueSimplificadoService {
                     id: carteiraId,
                     vendedorId: vendedorId,
                     ativa: true
-                }
+                },
+                // Garantir que todos os campos sejam buscados
+                attributes: [
+                    'id', 'vendedorId', 'nome', 'ativa',
+                    'contacto_mpesa', 'nome_titular_mpesa',
+                    'contacto_emola', 'nome_titular_emola',
+                    'contacto', 'nome_titular',
+                    'metodo_saque', 'email', 'email_titular'
+                ]
             });
 
             if (!carteira) {
                 throw new Error('Carteira não encontrada ou inativa');
             }
 
-            // Garantir que os campos estejam disponíveis (reload se necessário)
-            // await carteira.reload();
+            // Garantir que os campos estejam disponíveis (reload com todos os campos se necessário)
+            try {
+                await carteira.reload({
+                    attributes: [
+                        'id', 'vendedorId', 'nome', 'ativa',
+                        'contacto_mpesa', 'nome_titular_mpesa',
+                        'contacto_emola', 'nome_titular_emola',
+                        'contacto', 'nome_titular',
+                        'metodo_saque', 'email', 'email_titular'
+                    ]
+                });
+            } catch (reloadError) {
+                console.warn('⚠️ Erro ao recarregar carteira (continuando):', reloadError.message);
+                // Continuar mesmo se o reload falhar
+            }
+
+            // Função auxiliar para obter campos (método mais confiável do Sequelize)
+            const getField = (fieldName) => {
+                try {
+                    // Tentar getDataValue primeiro (método nativo do Sequelize)
+                    if (carteira.getDataValue && typeof carteira.getDataValue === 'function') {
+                        const value = carteira.getDataValue(fieldName);
+                        if (value !== null && value !== undefined) return value;
+                    }
+                    // Fallback para acesso direto
+                    if (carteira[fieldName] !== null && carteira[fieldName] !== undefined) {
+                        return carteira[fieldName];
+                    }
+                    // Fallback para método get
+                    if (carteira.get && typeof carteira.get === 'function') {
+                        const value = carteira.get(fieldName);
+                        if (value !== null && value !== undefined) return value;
+                    }
+                } catch (e) {
+                    // Ignorar erros e continuar
+                }
+                return null;
+            };
 
             // Determinar campos baseados no método de saque (ou padrão Mpesa)
-            const metodo = carteira.metodoSaque || carteira.metodo_saque || 'Mpesa';
+            const metodo = getField('metodo_saque') || getField('metodoSaque') || 'Mpesa';
             let nomeTitular = null;
             let contacto = null;
 
             // Tentar obter dados dos novos campos (snake_case ou camelCase)
             if (metodo.toLowerCase().includes('emola')) {
-                nomeTitular = carteira.nome_titular_emola || carteira.nomeTitularEmola || carteira.get?.('nome_titular_emola');
-                contacto = carteira.contacto_emola || carteira.contactoEmola || carteira.get?.('contacto_emola');
+                nomeTitular = getField('nome_titular_emola') || getField('nomeTitularEmola');
+                contacto = getField('contacto_emola') || getField('contactoEmola');
             } else {
                 // Padrão Mpesa
-                nomeTitular = carteira.nome_titular_mpesa || carteira.nomeTitularMpesa || carteira.get?.('nome_titular_mpesa');
-                contacto = carteira.contacto_mpesa || carteira.contactoMpesa || carteira.get?.('contacto_mpesa');
+                nomeTitular = getField('nome_titular_mpesa') || getField('nomeTitularMpesa');
+                contacto = getField('contacto_mpesa') || getField('contactoMpesa');
             }
 
             // Fallback para campos legados se os novos estiverem vazios
-            if (!nomeTitular || nomeTitular.trim() === '') {
-                nomeTitular = carteira.nomeTitular || carteira.nome_titular || carteira.get?.('nome_titular');
+            if (!nomeTitular || (typeof nomeTitular === 'string' && nomeTitular.trim() === '')) {
+                nomeTitular = getField('nome_titular') || getField('nomeTitular');
             }
 
-            if (!contacto || contacto.trim() === '') {
-                contacto = carteira.contacto || carteira.get?.('contacto');
+            if (!contacto || (typeof contacto === 'string' && contacto.trim() === '')) {
+                contacto = getField('contacto');
             }
 
             // Último fallback: buscar nome do usuário se ainda não tiver nome do titular
-            if (!nomeTitular || nomeTitular.trim() === '' || nomeTitular === 'N/A') {
+            if (!nomeTitular || (typeof nomeTitular === 'string' && (nomeTitular.trim() === '' || nomeTitular === 'N/A'))) {
                 try {
                     const usuario = await Usuario.findByPk(vendedorId, {
                         attributes: ['nome_completo', 'nomeCompleto']
@@ -85,13 +129,15 @@ class SaqueSimplificadoService {
             }
 
             // Normalizar valores vazios
-            if (!nomeTitular || nomeTitular.trim() === '') {
+            if (!nomeTitular || (typeof nomeTitular === 'string' && nomeTitular.trim() === '')) {
                 nomeTitular = null;
             }
-            if (!contacto || contacto.trim() === '') {
+            if (!contacto || (typeof contacto === 'string' && contacto.trim() === '')) {
                 contacto = null;
             }
 
+            // Log detalhado para debug
+            const rawData = carteira.toJSON ? carteira.toJSON() : {};
             console.log('📋 Carteira carregada:', {
                 id: carteira.id,
                 nome: carteira.nome,
@@ -99,9 +145,13 @@ class SaqueSimplificadoService {
                 contacto: contacto,
                 metodoSaque: metodo,
                 rawData: {
-                    nome_titular_mpesa: carteira.get?.('nome_titular_mpesa'),
-                    nome_titular_emola: carteira.get?.('nome_titular_emola'),
-                    nome_titular: carteira.get?.('nome_titular')
+                    contacto_mpesa: rawData.contacto_mpesa || getField('contacto_mpesa'),
+                    contacto_emola: rawData.contacto_emola || getField('contacto_emola'),
+                    contacto: rawData.contacto || getField('contacto'),
+                    nome_titular_mpesa: rawData.nome_titular_mpesa || getField('nome_titular_mpesa'),
+                    nome_titular_emola: rawData.nome_titular_emola || getField('nome_titular_emola'),
+                    nome_titular: rawData.nome_titular || getField('nome_titular'),
+                    metodo_saque: rawData.metodo_saque || getField('metodo_saque')
                 }
             });
 
