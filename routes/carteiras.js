@@ -94,6 +94,11 @@ router.get('/', authenticateToken, async (req, res) => {
  */
 router.post('/', authenticateToken, async (req, res) => {
     try {
+        // Log completo do body recebido para debug
+        console.log('📥 Body completo recebido:', JSON.stringify(req.body, null, 2));
+        console.log('📥 Tipo do body:', typeof req.body);
+        console.log('📥 Keys do body:', Object.keys(req.body || {}));
+        
         // Coletar todos os campos do body
         const { 
             nome, 
@@ -104,6 +109,17 @@ router.post('/', authenticateToken, async (req, res) => {
             nomeTitularEmola,
             emailTitular 
         } = req.body;
+
+        // Log dos valores extraídos
+        console.log('📋 Valores extraídos:', {
+            nome: nome,
+            metodoSaque: metodoSaque,
+            contactoMpesa: contactoMpesa,
+            nomeTitularMpesa: nomeTitularMpesa,
+            contactoEmola: contactoEmola,
+            nomeTitularEmola: nomeTitularEmola,
+            emailTitular: emailTitular
+        });
 
         // Validações básicas
         if (!contactoMpesa || !nomeTitularMpesa || !contactoEmola || !nomeTitularEmola) {

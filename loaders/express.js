@@ -68,13 +68,14 @@ function loadExpress(app) {
         res.setHeader(
             "Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.socket.io https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; " +
             "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdn.tailwindcss.com https://unpkg.com; " +
             "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
             "media-src 'self' https://www.myinstants.com https://actions.google.com https: blob:; " +
-            "connect-src 'self' https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com https://cdn.tailwindcss.com https://unpkg.com; " +
+            "connect-src 'self' https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.com ws://ratixpay.com ws://localhost:* http://localhost:* wss://localhost:* https://cdn.tailwindcss.com https://unpkg.com; " +
             "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
-            "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com https://scripts.converteai.net https://*.converteai.net blob:;"
+            "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com https://scripts.converteai.net https://*.converteai.net blob:; " +
+            "worker-src 'self' blob:;"
         );
         next();
     });
@@ -87,7 +88,6 @@ function loadExpress(app) {
 
     app.use(rateLimiters.general);
     app.use(slowDown);
-    app.use(sanitizeInput);
 
     // Analytics
     app.use(captureAnalytics);
@@ -117,10 +117,13 @@ function loadExpress(app) {
         }
     }));
 
-    // Body Parser & Cookie Parser
+    // Body Parser & Cookie Parser (DEVE VIR ANTES DO sanitizeInput)
     app.use(cookieParser());
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+    
+    // Sanitize Input (DEVE VIR DEPOIS DO BODY PARSER)
+    app.use(sanitizeInput);
 
     // Session
     app.use(session({

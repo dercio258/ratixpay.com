@@ -126,37 +126,53 @@ const validateProduct = [
 
 // Middleware de sanitização
 const sanitizeInput = (req, res, next) => {
-    // Sanitizar headers
-    const sanitizeHeaders = (obj) => {
-        const sanitized = {};
-        for (const [key, value] of Object.entries(obj)) {
-            if (typeof value === 'string') {
-                // Remover caracteres perigosos
-                sanitized[key] = value
-                    .replace(/[<>]/g, '')
-                    .replace(/javascript:/gi, '')
-                    .replace(/on\w+=/gi, '')
-                    .trim();
-            } else {
-                sanitized[key] = value;
-            }
+    // Função recursiva para sanitizar objetos aninhados
+    const sanitizeValue = (value) => {
+        // Preservar null e undefined
+        if (value === null || value === undefined) {
+            return value;
         }
-        return sanitized;
+        
+        // Sanitizar strings
+        if (typeof value === 'string') {
+            return value
+                .replace(/[<>]/g, '')
+                .replace(/javascript:/gi, '')
+                .replace(/on\w+=/gi, '')
+                .trim();
+        }
+        
+        // Sanitizar arrays recursivamente
+        if (Array.isArray(value)) {
+            return value.map(item => sanitizeValue(item));
+        }
+        
+        // Sanitizar objetos recursivamente
+        if (typeof value === 'object') {
+            const sanitized = {};
+            for (const [key, val] of Object.entries(value)) {
+                sanitized[key] = sanitizeValue(val);
+            }
+            return sanitized;
+        }
+        
+        // Preservar outros tipos (number, boolean, etc.)
+        return value;
     };
 
     // Sanitizar body
-    if (req.body) {
-        req.body = sanitizeHeaders(req.body);
+    if (req.body && typeof req.body === 'object') {
+        req.body = sanitizeValue(req.body);
     }
 
     // Sanitizar query
-    if (req.query) {
-        req.query = sanitizeHeaders(req.query);
+    if (req.query && typeof req.query === 'object') {
+        req.query = sanitizeValue(req.query);
     }
 
     // Sanitizar params
-    if (req.params) {
-        req.params = sanitizeHeaders(req.params);
+    if (req.params && typeof req.params === 'object') {
+        req.params = sanitizeValue(req.params);
     }
 
     next();
@@ -251,12 +267,13 @@ const securityHeaders = (req, res, next) => {
     // Content Security Policy mais permissiva para permitir comunicação entre domínios
     res.setHeader('Content-Security-Policy', 
         "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com cdn.socket.io cdn.jsdelivr.net; " +
-        "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com cdn.jsdelivr.net; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.socket.io https://cdn.jsdelivr.net https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; " +
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com; " +
         "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
-        "font-src 'self' cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com cdn.jsdelivr.net; " +
-        "connect-src 'self' https://opay.mucamba.site https://www.ratixpay.com https://ratixpay.com http://www.ratixpay.com http://ratixpay.com *; " +
-        "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com; " +
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+        "connect-src 'self' https://opay.mucamba.site https://www.ratixpay.com https://ratixpay.com http://www.ratixpay.com http://ratixpay.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.com ws://ratixpay.com ws://localhost:* http://localhost:* wss://localhost:* https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com https://cdn.tailwindcss.com https://unpkg.com *; " +
+        "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com https://scripts.converteai.net https://*.converteai.net blob:; " +
+        "worker-src 'self' blob:; " +
         "frame-ancestors 'none';"
     );
 
@@ -268,12 +285,13 @@ const helmetConfig = helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "cdn.socket.io", "cdn.jsdelivr.net"],
-            styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://cdn.socket.io", "https://cdn.jsdelivr.net", "https://connect.facebook.net", "https://static.cloudflareinsights.com", "https://cdn.tailwindcss.com", "https://unpkg.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdn.tailwindcss.com", "https://unpkg.com"],
             imgSrc: ["'self'", "data:", "https:", "http://localhost:*", "http://127.0.0.1:*"],
-            fontSrc: ["'self'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"],
-            connectSrc: ["'self'", "https://opay.mucamba.site", "https://www.ratixpay.com", "https://ratixpay.com", "http://www.ratixpay.com", "http://ratixpay.com", "*"],
-            frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://www.youtu.be", "https://youtu.be", "https://player.vimeo.com", "https://vimeo.com", "https://www.vimeo.com", "https://embed.videodelivery.net", "https://*.cloudinary.com", "https://*.cloudflare.com"],
+            fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+            connectSrc: ["'self'", "https://opay.mucamba.site", "https://www.ratixpay.com", "https://ratixpay.com", "http://www.ratixpay.com", "http://ratixpay.com", "https://cdn.socket.io", "wss://cdn.socket.io", "wss://ratixpay.com", "ws://ratixpay.com", "ws://localhost:*", "http://localhost:*", "wss://localhost:*", "https://connect.facebook.net", "https://www.facebook.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com", "https://fonts.googleapis.com", "https://api.utmify.com.br", "https://api.utmify.com", "https://cdn.tailwindcss.com", "https://unpkg.com", "*"],
+            frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://www.youtu.be", "https://youtu.be", "https://player.vimeo.com", "https://vimeo.com", "https://www.vimeo.com", "https://embed.videodelivery.net", "https://*.cloudinary.com", "https://*.cloudflare.com", "https://scripts.converteai.net", "https://*.converteai.net", "blob:"],
+            workerSrc: ["'self'", "blob:"],
             frameAncestors: ["'none'"]
         }
     },
