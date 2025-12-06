@@ -1292,26 +1292,88 @@
 
     <!-- Scripts (Mantidos) -->
     <script>
-        // Carregar Socket.IO de forma segura após DOM estar pronto
+        // Carregar Socket.IO de forma segura e aguardar carregamento completo
         (function() {
+            let socketIOLoaded = false;
+            let socketIOCallbacks = [];
+            
+            // Função para notificar quando Socket.IO estiver carregado
+            function onSocketIOLoaded() {
+                socketIOLoaded = true;
+                socketIOCallbacks.forEach(callback => {
+                    try {
+                        callback();
+                    } catch (error) {
+                        console.error('Erro ao executar callback do Socket.IO:', error);
+                    }
+                });
+                socketIOCallbacks = [];
+            }
+            
+            // Função para aguardar Socket.IO estar disponível
+            window.waitForSocketIO = function(callback) {
+                if (socketIOLoaded && typeof io !== 'undefined') {
+                    callback();
+                } else {
+                    socketIOCallbacks.push(callback);
+                }
+            };
+            
             function loadSocketIO() {
                 if (typeof io !== 'undefined') {
+                    socketIOLoaded = true;
+                    onSocketIOLoaded();
                     return; // Já carregado
                 }
                 
-            const script = document.createElement('script');
+                const script = document.createElement('script');
                 script.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
                 script.crossOrigin = 'anonymous';
                 script.async = true;
-            script.onerror = function() {
+                
+                script.onload = function() {
+                    // Verificar se io está disponível após carregar
+                    if (typeof io !== 'undefined') {
+                        console.log('✅ Socket.IO carregado com sucesso do CDN');
+                        onSocketIOLoaded();
+                    } else {
+                        // Tentar novamente após um pequeno delay
+                        setTimeout(function() {
+                            if (typeof io !== 'undefined') {
+                                onSocketIOLoaded();
+                            }
+                        }, 100);
+                    }
+                };
+                
+                script.onerror = function() {
                     console.warn('⚠️ CDN Socket.IO falhou, tentando versão local...');
                     const fallbackScript = document.createElement('script');
                     fallbackScript.src = '/socket.io/socket.io.js';
                     fallbackScript.async = true;
+                    
+                    fallbackScript.onload = function() {
+                        if (typeof io !== 'undefined') {
+                            console.log('✅ Socket.IO carregado com sucesso (versão local)');
+                            onSocketIOLoaded();
+                        }
+                    };
+                    
+                    fallbackScript.onerror = function() {
+                        console.error('❌ Falha ao carregar Socket.IO do CDN e versão local');
+                        // Mesmo assim, tentar aguardar um pouco mais
+                        setTimeout(function() {
+                            if (typeof io !== 'undefined') {
+                                onSocketIOLoaded();
+                            }
+                        }, 500);
+                    };
+                    
                     document.head.appendChild(fallbackScript);
-            };
-            document.head.appendChild(script);
-        }
+                };
+                
+                document.head.appendChild(script);
+            }
             
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', loadSocketIO);
@@ -1374,7 +1436,21 @@
             const sidebar = new SidebarComponent();
             sidebar.init('pagamentos');
             
-            if (typeof initSaqueWebSocket === 'function') initSaqueWebSocket();
+            // Aguardar Socket.IO estar carregado antes de inicializar WebSocket
+            if (typeof waitForSocketIO === 'function') {
+                waitForSocketIO(function() {
+                    if (typeof initSaqueWebSocket === 'function') {
+                        initSaqueWebSocket();
+                    }
+                });
+            } else {
+                // Fallback: tentar após um delay se waitForSocketIO não estiver disponível
+                setTimeout(function() {
+                    if (typeof io !== 'undefined' && typeof initSaqueWebSocket === 'function') {
+                        initSaqueWebSocket();
+                    }
+                }, 1000);
+            }
             
             // Atualizar UI periodicamente
             setInterval(updateWalletUI, 1000);
