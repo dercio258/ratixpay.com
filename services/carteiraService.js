@@ -15,6 +15,11 @@ class CarteiraService {
      */
     static async criarOuAtualizarCarteira(vendedorId, dadosCarteira) {
         try {
+            // Log dos dados recebidos no serviço
+            console.log('🔍 [CarteiraService] Dados recebidos no serviço:', JSON.stringify(dadosCarteira, null, 2));
+            console.log('🔍 [CarteiraService] Tipo dos dados:', typeof dadosCarteira);
+            console.log('🔍 [CarteiraService] Keys dos dados:', Object.keys(dadosCarteira || {}));
+            
             // Verificar conexão
             await sequelize.authenticate();
 
@@ -98,6 +103,14 @@ class CarteiraService {
                 throw new Error('Nome do titular Emola é obrigatório');
             }
 
+            // Log antes de mapear os dados
+            console.log('🔍 [CarteiraService] Valores antes de mapear:', {
+                contactoMpesa: dadosCarteira.contactoMpesa,
+                nomeTitularMpesa: dadosCarteira.nomeTitularMpesa,
+                contactoEmola: dadosCarteira.contactoEmola,
+                nomeTitularEmola: dadosCarteira.nomeTitularEmola
+            });
+            
             const dadosAtualizados = {
                 contacto_mpesa: dadosCarteira.contactoMpesa.trim().replace(/\s+/g, ''),
                 nome_titular_mpesa: dadosCarteira.nomeTitularMpesa.trim(),
@@ -105,6 +118,9 @@ class CarteiraService {
                 nome_titular_emola: dadosCarteira.nomeTitularEmola.trim(),
                 ultima_atualizacao: new Date()
             };
+            
+            // Log após mapear os dados
+            console.log('🔍 [CarteiraService] Dados mapeados para o banco:', JSON.stringify(dadosAtualizados, null, 2));
 
             // Atualizar nome se fornecido
             if (dadosCarteira.nome) {
@@ -143,7 +159,40 @@ class CarteiraService {
                 }
                 // Preservar ativa = true (não permitir desativar pela atualização)
                 dadosAtualizados.ativa = true;
-                await carteira.update(dadosAtualizados);
+                
+                // Mapear para camelCase para o Sequelize (o modelo espera camelCase)
+                const dadosParaUpdate = {
+                    contactoMpesa: dadosAtualizados.contacto_mpesa,
+                    nomeTitularMpesa: dadosAtualizados.nome_titular_mpesa,
+                    contactoEmola: dadosAtualizados.contacto_emola,
+                    nomeTitularEmola: dadosAtualizados.nome_titular_emola,
+                    metodoSaque: dadosAtualizados.metodo_saque,
+                    contacto: dadosAtualizados.contacto,
+                    nomeTitular: dadosAtualizados.nome_titular,
+                    email: dadosAtualizados.email,
+                    emailTitular: dadosAtualizados.email_titular,
+                    ultimaAtualizacao: dadosAtualizados.ultima_atualizacao,
+                    ativa: dadosAtualizados.ativa
+                };
+                
+                // Adicionar nome se foi fornecido
+                if (dadosCarteira.nome) {
+                    dadosParaUpdate.nome = dadosCarteira.nome.trim();
+                }
+                
+                console.log('🔍 [CarteiraService] Dados que serão salvos no update (camelCase):', JSON.stringify(dadosParaUpdate, null, 2));
+                
+                await carteira.update(dadosParaUpdate);
+                
+                // Recarregar para verificar o que foi salvo
+                await carteira.reload();
+                console.log('🔍 [CarteiraService] Dados salvos no banco após update:', {
+                    contacto_mpesa: carteira.contacto_mpesa || carteira.contactoMpesa,
+                    contacto_emola: carteira.contacto_emola || carteira.contactoEmola,
+                    nome_titular_mpesa: carteira.nome_titular_mpesa || carteira.nomeTitularMpesa,
+                    nome_titular_emola: carteira.nome_titular_emola || carteira.nomeTitularEmola
+                });
+                
                 console.log(`✅ Carteira atualizada com sucesso para vendedor ${vendedorId}`);
             } else {
                 // Criar nova carteira
@@ -185,12 +234,25 @@ class CarteiraService {
                 //     throw new Error('Nome titular Mpesa é obrigatório para criar carteira');
                 // }
 
-                console.log(`🔍 Dados para criar carteira:`, JSON.stringify({
-                    ...dadosAtualizados,
-                    metodo_saque: dadosAtualizados.metodo_saque
-                }, null, 2));
+                // Mapear para camelCase para o Sequelize (o modelo espera camelCase)
+                const dadosParaCreate = {
+                    vendedorId: vendedorId,
+                    nome: dadosAtualizados.nome,
+                    contactoMpesa: dadosAtualizados.contacto_mpesa,
+                    nomeTitularMpesa: dadosAtualizados.nome_titular_mpesa,
+                    contactoEmola: dadosAtualizados.contacto_emola,
+                    nomeTitularEmola: dadosAtualizados.nome_titular_emola,
+                    metodoSaque: dadosAtualizados.metodo_saque,
+                    contacto: dadosAtualizados.contacto,
+                    nomeTitular: dadosAtualizados.nome_titular,
+                    email: dadosAtualizados.email,
+                    emailTitular: dadosAtualizados.email_titular,
+                    ativa: dadosAtualizados.ativa
+                };
 
-                carteira = await Carteira.create(dadosAtualizados, {
+                console.log(`🔍 [CarteiraService] Dados para criar carteira (camelCase):`, JSON.stringify(dadosParaCreate, null, 2));
+
+                carteira = await Carteira.create(dadosParaCreate, {
                     validate: true
                 });
                 console.log(`✅ Carteira criada com sucesso para vendedor ${vendedorId}`);
