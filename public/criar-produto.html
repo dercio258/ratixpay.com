@@ -222,6 +222,57 @@
             line-height: 1.6;
         }
 
+        /* Contador de caracteres para descrição */
+        .char-counter {
+            float: right;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .form-group label .char-counter {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Estados de validação do campo */
+        .field-warning {
+            border-color: #f59e0b !important;
+            background-color: #fffbeb !important;
+        }
+
+        .field-warning:focus {
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1) !important;
+        }
+
+        .field-success {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        .field-success:focus {
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .form-text {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .form-text i {
+            margin-right: 5px;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1628,9 +1679,23 @@
 
                     <div class="form-group">
 
-                        <label for="productDescription">Descrição:</label>
+                        <label for="productDescription">
+                            <i class="fas fa-align-left"></i> Descrição do Produto:
+                            <span class="char-counter" id="descriptionCounter">
+                                <span id="descriptionCharCount">0</span>/50 caracteres mínimos
+                            </span>
+                        </label>
 
-                        <textarea id="productDescription" required></textarea>
+                        <textarea 
+                            id="productDescription" 
+                            required 
+                            minlength="50"
+                            rows="6"
+                            placeholder="Descreva seu produto de forma detalhada. Mínimo de 50 caracteres para uma descrição completa e atrativa..."
+                            oninput="updateDescriptionCounter(this)"></textarea>
+                        <small class="form-text text-muted" id="descriptionHelp">
+                            <i class="fas fa-info-circle"></i> A descrição deve ter pelo menos 50 caracteres para ser completa e informativa.
+                        </small>
 
                     </div>
 
@@ -2891,6 +2956,44 @@
 
 
 
+        // Função para atualizar contador de caracteres da descrição
+        function updateDescriptionCounter(textarea) {
+            const charCount = textarea.value.trim().length;
+            const counterElement = document.getElementById('descriptionCharCount');
+            const counterContainer = document.getElementById('descriptionCounter');
+            const helpText = document.getElementById('descriptionHelp');
+            
+            if (counterElement) {
+                counterElement.textContent = charCount;
+            }
+            
+            // Atualizar cores e mensagens baseado no número de caracteres
+            if (charCount < 50) {
+                const charsNeeded = 50 - charCount;
+                if (counterContainer) {
+                    counterContainer.style.color = '#ef4444';
+                    counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span>/50 caracteres mínimos <span style="color: #ef4444;">(faltam ${charsNeeded})</span>`;
+                }
+                if (helpText) {
+                    helpText.style.color = '#ef4444';
+                    helpText.innerHTML = `<i class="fas fa-exclamation-circle"></i> A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
+                }
+                textarea.classList.add('field-warning');
+                textarea.classList.remove('field-success');
+            } else {
+                if (counterContainer) {
+                    counterContainer.style.color = '#10b981';
+                    counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span> caracteres <i class="fas fa-check-circle" style="color: #10b981;"></i>`;
+                }
+                if (helpText) {
+                    helpText.style.color = '#10b981';
+                    helpText.innerHTML = `<i class="fas fa-check-circle"></i> Descrição completa! (${charCount} caracteres)`;
+                }
+                textarea.classList.remove('field-warning');
+                textarea.classList.add('field-success');
+            }
+        }
+
         function updateDiscountPreview() {
 
             const price = parseFloat(document.getElementById('productPrice').value) || 0;
@@ -3598,6 +3701,12 @@
             setupFieldErrorRemoval();
 
             
+
+            // Inicializar contador de caracteres da descrição
+            const productDescription = document.getElementById('productDescription');
+            if (productDescription) {
+                updateDescriptionCounter(productDescription);
+            }
 
             const productPrice = document.getElementById('productPrice');
 
@@ -4641,6 +4750,26 @@
                             isValid = false;
 
                             errorMessage = 'Por favor, insira um link de imagem válido (ex: https://exemplo.com/imagem.jpg)';
+
+                        }
+
+                    } else if (field.id === 'productDescription') {
+
+                        // Validação específica para descrição - mínimo de 50 caracteres
+
+                        if (!value) {
+
+                            isValid = false;
+
+                            errorMessage = 'A descrição do produto é obrigatória.';
+
+                        } else if (value.trim().length < 50) {
+
+                            isValid = false;
+
+                            const charsNeeded = 50 - value.trim().length;
+
+                            errorMessage = `A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
 
                         }
 

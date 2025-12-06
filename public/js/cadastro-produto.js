@@ -356,8 +356,9 @@ function validarCampo(nomeCampo) {
             if (!valor) {
                 mensagem = 'Descrição é obrigatória';
                 isValid = false;
-            } else if (valor.length < 10) {
-                mensagem = 'Descrição deve ter pelo menos 10 caracteres';
+            } else if (valor.length < 50) {
+                const charsNeeded = 50 - valor.length;
+                mensagem = `A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
                 isValid = false;
             }
             break;

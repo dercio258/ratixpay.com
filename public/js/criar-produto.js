@@ -709,6 +709,22 @@ async function createProduct(event) {
     event.preventDefault();
     
     try {
+        // Validação prévia da descrição
+        const description = document.getElementById('productDescription')?.value?.trim() || '';
+        if (!description) {
+            showError('A descrição do produto é obrigatória.');
+            document.getElementById('productDescription')?.focus();
+            return;
+        }
+        
+        if (description.length < 50) {
+            const charsNeeded = 50 - description.length;
+            showError(`A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`);
+            document.getElementById('productDescription')?.focus();
+            document.getElementById('productDescription')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        
         showLoading(true);
         
         // Coletar dados do formulário
@@ -718,7 +734,7 @@ async function createProduct(event) {
         formData.append('tipo', document.getElementById('productType').value);
         formData.append('categoria', document.getElementById('productCategory').value);
         formData.append('nome', document.getElementById('productName').value);
-        formData.append('descricao', document.getElementById('productDescription').value);
+        formData.append('descricao', description);
         formData.append('preco', document.getElementById('productPrice').value);
         formData.append('link_conteudo', document.getElementById('contentUrl').value);
         formData.append('marketplace', document.getElementById('marketPlace').checked);
