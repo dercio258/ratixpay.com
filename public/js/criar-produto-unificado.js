@@ -229,14 +229,50 @@ class ProductCreator {
             }
         });
 
-        // Validação da descrição
-        document.getElementById('description').addEventListener('input', (e) => {
-            this.validateField('description', e.target.value.trim().length > 0, 'descriptionError');
-            if (e.target.value.trim().length > 0) {
-                this.productData.description = e.target.value.trim();
-                this.markStepCompleted(2);
-            }
-        });
+        // Validação da descrição (mínimo 50 caracteres)
+        const descriptionField = document.getElementById('description');
+        if (descriptionField) {
+            descriptionField.addEventListener('input', (e) => {
+                const descValue = e.target.value.trim();
+                const isValid = descValue.length >= 50;
+                const errorElement = document.getElementById('descriptionError');
+                
+                if (isValid) {
+                    this.validateField('description', true, 'descriptionError');
+                    this.productData.description = descValue;
+                    this.markStepCompleted(2);
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                        errorElement.style.display = 'none';
+                    }
+                } else {
+                    const charsNeeded = 50 - descValue.length;
+                    this.validateField('description', false, 'descriptionError');
+                    if (errorElement) {
+                        errorElement.textContent = `A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
+                        errorElement.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Adicionar contador de caracteres
+            const charCounter = document.createElement('div');
+            charCounter.className = 'char-counter';
+            charCounter.id = 'descriptionCharCounter';
+            charCounter.style.cssText = 'font-size: 12px; color: #6c757d; margin-top: 5px; text-align: right;';
+            descriptionField.parentElement.appendChild(charCounter);
+            
+            descriptionField.addEventListener('input', (e) => {
+                const charCount = e.target.value.trim().length;
+                charCounter.textContent = `${charCount}/50 caracteres mínimos`;
+                if (charCount < 50) {
+                    charCounter.style.color = '#ef4444';
+                } else {
+                    charCounter.style.color = '#10b981';
+                    charCounter.textContent = `${charCount} caracteres ✓`;
+                }
+            });
+        }
 
         // Validação dos preços
         document.getElementById('price').addEventListener('input', (e) => {
@@ -399,7 +435,20 @@ class ProductCreator {
         requiredFields.forEach(field => {
             const element = document.getElementById(field.id);
             const value = element.type === 'number' ? parseFloat(element.value) : element.value.trim();
-            const isFieldValid = element.type === 'number' ? value > 0 : value.length > 0;
+            let isFieldValid = element.type === 'number' ? value > 0 : value.length > 0;
+            
+            // Validação específica para descrição - mínimo de 50 caracteres
+            if (field.id === 'description') {
+                isFieldValid = value.length >= 50;
+                if (!isFieldValid) {
+                    const charsNeeded = 50 - value.length;
+                    const errorElement = document.getElementById(field.errorId);
+                    if (errorElement) {
+                        errorElement.textContent = `A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
+                        errorElement.style.display = 'block';
+                    }
+                }
+            }
             
             if (!isFieldValid) {
                 this.validateField(field.id, false, field.errorId);

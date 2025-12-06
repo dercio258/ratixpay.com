@@ -107,5 +107,9 @@ SELECT
 FROM pg_indexes 
 WHERE tablename = 'webhooks';
 
-RAISE NOTICE '✅ Migração da tabela webhooks concluída!';
+-- Mensagem de conclusão (dentro do bloco DO)
+DO $$ 
+BEGIN
+    RAISE NOTICE '✅ Migração da tabela webhooks concluída!';
+END $$;
 

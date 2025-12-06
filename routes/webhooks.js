@@ -5,11 +5,15 @@ const axios = require('axios');
 const router = express.Router();
 
 // Extrair modelos do database
-const { Usuario, Produto, Venda, sequelize } = db;
+const { Usuario, Produto, Venda, sequelize, Webhook } = db;
 
 // Função helper para obter o modelo Webhook com verificação
 function getWebhookModel() {
     // Tentar múltiplas formas de obter o modelo
+    if (Webhook) {
+        return Webhook;
+    }
+    
     if (db.Webhook) {
         return db.Webhook;
     }
@@ -17,6 +21,7 @@ function getWebhookModel() {
     // Log detalhado para debug
     console.error('❌ ERRO: Modelo Webhook não está disponível');
     console.error('❌ Tipo de db:', typeof db);
+    console.error('❌ Webhook (desestruturado):', typeof Webhook, Webhook);
     console.error('❌ db.Webhook:', typeof db.Webhook, db.Webhook);
     console.error('❌ Modelos disponíveis:', Object.keys(db).filter(key => key !== 'databaseManager' && key !== 'sequelize'));
     
@@ -35,11 +40,26 @@ function getWebhookModel() {
 }
 
 // Verificar se Webhook está disponível no carregamento
-if (!db.Webhook) {
+if (!Webhook && !db.Webhook) {
     console.error('❌ ERRO CRÍTICO: Modelo Webhook não foi carregado corretamente do config/database.js');
     console.error('❌ Modelos disponíveis:', Object.keys(db).filter(key => key !== 'databaseManager' && key !== 'sequelize'));
+    console.error('❌ Tentando recarregar o módulo...');
+    
+    // Tentar recarregar o módulo (útil em desenvolvimento)
+    try {
+        delete require.cache[require.resolve('../config/database')];
+        const dbReloaded = require('../config/database');
+        if (dbReloaded.Webhook) {
+            console.log('✅ Webhook encontrado após recarregar módulo');
+            // Atualizar referência
+            Object.assign(db, { Webhook: dbReloaded.Webhook });
+        }
+    } catch (err) {
+        console.error('❌ Erro ao recarregar módulo:', err.message);
+    }
 } else {
     console.log('✅ Modelo Webhook carregado com sucesso');
+    console.log('✅ Webhook disponível via:', Webhook ? 'desestruturação' : 'db.Webhook');
 }
 
 /**
