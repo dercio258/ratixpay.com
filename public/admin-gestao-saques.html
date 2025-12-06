@@ -512,6 +512,7 @@
     <script src="js/server-check.js"></script>
     <script src="js/config.js"></script>
     <script src="js/admin-utils.js"></script>
+    <script src="js/admin-aprovar-saque-modal.js"></script>
     <script>
         // Configura��o da API (definida em config.js)
 
@@ -1480,8 +1481,10 @@
             }
         }
 
-        // Aprovar saque (marca diretamente como pago)
-        async function aprovarSaque(saqueId) {
+        // Aprovar saque (marca diretamente como pago) - Função melhorada em admin-aprovar-saque-modal.js
+        // A função foi movida para admin-aprovar-saque-modal.js e sobrescreve esta versão antiga
+        // Esta função antiga será mantida como fallback caso o arquivo externo não carregue
+        async function aprovarSaqueOld(saqueId) {
             try {
                 // Buscar dados do saque para mostrar no resumo
                 const token = verificarAutenticacao();

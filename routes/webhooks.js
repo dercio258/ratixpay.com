@@ -96,31 +96,51 @@ router.get('/', authenticateToken, async (req, res) => {
         const userId = req.user.id;
         
         // Buscar webhooks do usuário no banco de dados
+        // Usar literal SQL para garantir compatibilidade com snake_case do banco
         const userWebhooks = await Webhook.findAll({
             where: { user_id: userId },
-            order: [['created_at', 'DESC']]
+            order: [[sequelize.literal('created_at'), 'DESC']]
         });
 
         res.json({
             success: true,
-            webhooks: userWebhooks.map(webhook => ({
-                id: webhook.id,
-                user_id: webhook.user_id,
-                produto_id: webhook.produto_id,
-                url: webhook.url,
-                eventos: webhook.eventos,
-                secret: webhook.secret,
-                ativo: webhook.ativo,
-                created_at: webhook.created_at,
-                updated_at: webhook.updated_at
-            }))
+            webhooks: userWebhooks.map(webhook => {
+                // Garantir compatibilidade com ambos os formatos (camelCase e snake_case)
+                const webhookData = webhook.toJSON ? webhook.toJSON() : webhook;
+                return {
+                    id: webhookData.id,
+                    user_id: webhookData.user_id,
+                    produto_id: webhookData.produto_id,
+                    url: webhookData.url,
+                    eventos: webhookData.eventos,
+                    secret: webhookData.secret,
+                    ativo: webhookData.ativo,
+                    created_at: webhookData.created_at || webhookData.createdAt,
+                    updated_at: webhookData.updated_at || webhookData.updatedAt
+                };
+            })
         });
 
     } catch (error) {
         console.error('❌ Erro ao listar webhooks:', error);
+        console.error('❌ Stack trace:', error.stack);
+        console.error('❌ User ID:', req.user?.id);
+        console.error('❌ Error name:', error.name);
+        console.error('❌ Error message:', error.message);
+        
+        // Verificar se é erro de tabela não encontrada
+        if (error.name === 'SequelizeDatabaseError' || error.message.includes('does not exist')) {
+            return res.status(500).json({
+                success: false,
+                error: 'Tabela webhooks não encontrada. Execute a migração do banco de dados.',
+                message: error.message
+            });
+        }
+        
         res.status(500).json({
             success: false,
-            error: 'Erro interno do servidor'
+            error: 'Erro interno do servidor',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'Erro ao carregar webhooks'
         });
     }
 });

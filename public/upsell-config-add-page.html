@@ -1119,6 +1119,7 @@
         .media-tab-content.active {
             display: block;
             animation: fadeIn 0.3s ease;
+            position: relative;
         }
 
         @keyframes fadeIn {
@@ -1185,6 +1186,11 @@
             font-size: 0.95rem;
         }
 
+        .embed-input-group {
+            position: relative;
+            z-index: 1;
+        }
+        
         .embed-input-group textarea {
             width: 100%;
             min-height: 120px;
@@ -1196,6 +1202,9 @@
             resize: vertical;
             transition: all 0.2s ease;
             box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            background: white;
         }
 
         .embed-input-group textarea:focus {
@@ -1277,10 +1286,14 @@
             aspect-ratio: 16/9;
             display: none;
             position: relative;
+            z-index: 100;
+            isolation: isolate;
         }
 
         .media-preview.has-content {
             display: block;
+            z-index: 100;
+            position: relative;
         }
 
         .media-preview video,
@@ -1288,6 +1301,15 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .media-preview #media-preview-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
         }
 
         .media-preview-overlay {
