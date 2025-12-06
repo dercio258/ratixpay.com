@@ -282,11 +282,23 @@ router.post('/saque/processar', authenticateToken, async (req, res) => {
             });
         }
 
-        if (valor <= 0) {
+        const valorFloat = parseFloat(valor);
+        
+        if (isNaN(valorFloat) || valorFloat <= 0) {
             return res.status(400).json({
                 success: false,
                 error: 'Valor inválido',
                 message: 'O valor deve ser maior que zero'
+            });
+        }
+        
+        // Validar valor máximo de 5000 MZN
+        const valorMaximo = 5000;
+        if (valorFloat > valorMaximo) {
+            return res.status(400).json({
+                success: false,
+                error: 'Valor excede o máximo permitido',
+                message: `O valor máximo permitido para saque é MZN ${valorMaximo.toFixed(2)}`
             });
         }
 
@@ -334,12 +346,25 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
             });
         }
 
-        if (valor <= 0) {
+        const valorFloat = parseFloat(valor);
+        
+        if (isNaN(valorFloat) || valorFloat <= 0) {
             console.log('❌ Valor inválido:', valor);
             return res.status(400).json({
                 success: false,
                 error: 'Valor inválido',
                 message: 'O valor deve ser maior que zero'
+            });
+        }
+        
+        // Validar valor máximo de 5000 MZN
+        const valorMaximo = 5000;
+        if (valorFloat > valorMaximo) {
+            console.log('❌ Valor excede o máximo:', valorFloat);
+            return res.status(400).json({
+                success: false,
+                error: 'Valor excede o máximo permitido',
+                message: `O valor máximo permitido para saque é MZN ${valorMaximo.toFixed(2)}`
             });
         }
 
@@ -357,7 +382,7 @@ router.post('/saque/direto', authenticateToken, async (req, res) => {
         const resultado = await SaqueSimplificadoService.processarSaqueDirecto(
             req.user.id,
             carteiraId,
-            parseFloat(valor),
+            valorFloat,
             codigoAutenticacao
         );
 

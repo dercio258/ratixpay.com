@@ -575,8 +575,10 @@ function abrirModalSaque() {
     }
     
     if (valorSaqueInline) {
-        valorSaqueInline.max = receitaTotal;
-        valorSaqueInline.placeholder = `Máximo: ${formatCurrency(receitaTotal)}`;
+        const valorMaximoPermitido = 5000;
+        const maxPermitido = Math.min(valorMaximoPermitido, receitaTotal);
+        valorSaqueInline.max = maxPermitido;
+        valorSaqueInline.placeholder = `Máximo: ${formatCurrency(maxPermitido)}`;
         setTimeout(() => valorSaqueInline.focus(), 100);
     }
 }
@@ -845,11 +847,16 @@ async function initializePage() {
     if (valorSaqueInlineEl) {
         // Garantir que o min está correto
         valorSaqueInlineEl.setAttribute('min', '1');
+        // Definir valor máximo de 5000 MZN
+        const valorMaximoPermitido = 5000;
+        valorSaqueInlineEl.setAttribute('max', Math.min(valorMaximoPermitido, receitaTotal));
         
         valorSaqueInlineEl.addEventListener('input', function() {
             const valor = parseFloat(this.value);
             if (isNaN(valor) || valor < 1) {
                 this.setCustomValidity('O valor mínimo para saque é MZN 1,00');
+            } else if (valor > valorMaximoPermitido) {
+                this.setCustomValidity(`O valor máximo permitido para saque é MZN ${valorMaximoPermitido.toFixed(2)}`);
             } else if (valor > receitaTotal) {
                 this.setCustomValidity(`Valor máximo permitido: ${formatCurrency(receitaTotal)}`);
             } else {
@@ -1005,8 +1012,10 @@ function atualizarBotaoSaque() {
     // Atualizar também o campo de valor máximo
     const valorSaqueInput = document.getElementById('valorSaque');
     if (valorSaqueInput) {
-        valorSaqueInput.max = receitaTotal;
-        valorSaqueInput.placeholder = `Máximo: ${formatCurrency(receitaTotal)}`;
+        const valorMaximoPermitido = 5000;
+        const maxPermitido = Math.min(valorMaximoPermitido, receitaTotal);
+        valorSaqueInput.max = maxPermitido;
+        valorSaqueInput.placeholder = `Máximo: ${formatCurrency(maxPermitido)}`;
     }
 }
 

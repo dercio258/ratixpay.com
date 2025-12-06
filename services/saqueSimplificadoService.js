@@ -177,7 +177,13 @@ class SaqueSimplificadoService {
                 throw new Error('Você já possui um saque pendente. Aguarde a confirmação do administrador antes de solicitar outro saque.');
             }
 
-            // 4. Verificar se vendedor tem receita suficiente (SEM transação)
+            // 4. Validar valor máximo de 5000 MZN
+            const valorMaximo = 5000;
+            if (valor > valorMaximo) {
+                throw new Error(`O valor máximo permitido para saque é MZN ${valorMaximo.toFixed(2)}`);
+            }
+            
+            // 5. Verificar se vendedor tem receita suficiente (SEM transação)
             const receitaAtual = await ReceitaService.buscarReceitaTotal(vendedorId);
 
             if (receitaAtual.receitaDisponivel < valor) {
