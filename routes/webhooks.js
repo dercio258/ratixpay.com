@@ -1,8 +1,46 @@
 const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
-const { Usuario, Produto, Venda, Webhook, sequelize } = require('../config/database');
+const db = require('../config/database');
 const axios = require('axios');
 const router = express.Router();
+
+// Extrair modelos do database
+const { Usuario, Produto, Venda, sequelize } = db;
+
+// Função helper para obter o modelo Webhook com verificação
+function getWebhookModel() {
+    // Tentar múltiplas formas de obter o modelo
+    if (db.Webhook) {
+        return db.Webhook;
+    }
+    
+    // Log detalhado para debug
+    console.error('❌ ERRO: Modelo Webhook não está disponível');
+    console.error('❌ Tipo de db:', typeof db);
+    console.error('❌ db.Webhook:', typeof db.Webhook, db.Webhook);
+    console.error('❌ Modelos disponíveis:', Object.keys(db).filter(key => key !== 'databaseManager' && key !== 'sequelize'));
+    
+    // Tentar acessar diretamente do require
+    try {
+        const dbCheck = require('../config/database');
+        if (dbCheck.Webhook) {
+            console.log('✅ Webhook encontrado via require direto');
+            return dbCheck.Webhook;
+        }
+    } catch (err) {
+        console.error('❌ Erro ao tentar require direto:', err.message);
+    }
+    
+    throw new Error('Modelo Webhook não está disponível. Verifique se a tabela webhooks existe no banco de dados.');
+}
+
+// Verificar se Webhook está disponível no carregamento
+if (!db.Webhook) {
+    console.error('❌ ERRO CRÍTICO: Modelo Webhook não foi carregado corretamente do config/database.js');
+    console.error('❌ Modelos disponíveis:', Object.keys(db).filter(key => key !== 'databaseManager' && key !== 'sequelize'));
+} else {
+    console.log('✅ Modelo Webhook carregado com sucesso');
+}
 
 /**
  * POST - Criar webhook
@@ -50,8 +88,11 @@ router.post('/', authenticateToken, async (req, res) => {
 
         const webhookId = `webhook_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
+        
         // Criar webhook no banco de dados
-        const webhook = await Webhook.create({
+        const webhook = await WebhookModel.create({
             id: webhookId,
             user_id: userId,
             produto_id: produto_id || null,
@@ -93,11 +134,13 @@ router.post('/', authenticateToken, async (req, res) => {
  */
 router.get('/', authenticateToken, async (req, res) => {
     try {
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
         const userId = req.user.id;
         
         // Buscar webhooks do usuário no banco de dados
         // Usar literal SQL para garantir compatibilidade com snake_case do banco
-        const userWebhooks = await Webhook.findAll({
+        const userWebhooks = await WebhookModel.findAll({
             where: { user_id: userId },
             order: [[sequelize.literal('created_at'), 'DESC']]
         });
@@ -153,8 +196,11 @@ router.put('/:id/toggle', authenticateToken, async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
 
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
+        
         // Buscar webhook no banco de dados
-        const webhook = await Webhook.findByPk(id);
+        const webhook = await WebhookModel.findByPk(id);
         
         if (!webhook) {
             return res.status(404).json({
@@ -207,8 +253,11 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
 
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
+        
         // Buscar webhook no banco de dados
-        const webhook = await Webhook.findByPk(id);
+        const webhook = await WebhookModel.findByPk(id);
         
         if (!webhook) {
             return res.status(404).json({
@@ -249,8 +298,11 @@ router.post('/:id/testar', authenticateToken, async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
 
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
+        
         // Buscar webhook no banco de dados
-        const webhook = await Webhook.findByPk(id);
+        const webhook = await WebhookModel.findByPk(id);
         
         if (!webhook) {
             return res.status(404).json({
@@ -546,7 +598,10 @@ async function enviarWebhook(evento, dados, userId = null, produtoId = null) {
         console.log(`🔍 [WEBHOOK DEBUG] Buscando webhooks no banco de dados...`);
         console.log(`🔍 [WEBHOOK DEBUG] Filtros WHERE:`, JSON.stringify(whereClause, null, 2));
         
-        const webhooksAtivos = await Webhook.findAll({
+        // Obter modelo Webhook com verificação
+        const WebhookModel = getWebhookModel();
+        
+        const webhooksAtivos = await WebhookModel.findAll({
             where: whereClause
         });
 
