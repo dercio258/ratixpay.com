@@ -943,13 +943,27 @@
                 
                 const postId = document.getElementById('postId').value;
                 
-                // Obter conteúdo do Quill - usar root.innerHTML que retorna HTML limpo
-                let content = quill.root.innerHTML;
+                // Obter conteúdo do Quill usando uma div temporária para garantir HTML limpo
+                const tempDiv = document.createElement('div');
+                tempDiv.appendChild(quill.root.cloneNode(true));
+                let content = tempDiv.innerHTML;
                 
-                // Garantir que o conteúdo não está vazio (Quill sempre cria pelo menos <p><br></p>)
+                // Debug: ver conteúdo antes de processar
+                console.log('📝 Conteúdo original do Quill:', content);
+                
+                // Garantir que o conteúdo não está vazio (Quill pode gerar <p><br></p> quando vazio)
                 if (!content || content.trim() === '<p><br></p>' || content.trim() === '<p></p>') {
                     content = '';
+                } else {
+                    // Limpar apenas espaços extras e quebras de linha desnecessárias
+                    content = content.trim();
+                    // Remover <p><br></p> se for o único conteúdo
+                    if (content === '<p><br></p>') {
+                        content = '';
+                    }
                 }
+                
+                console.log('💾 Conteúdo que será salvo:', content);
                 
                 const postData = {
                     title: document.getElementById('postTitle').value,
@@ -1304,8 +1318,19 @@
                 // Obter conteúdo do Quill
                 let pageContent = pageQuill.root.innerHTML;
                 
+                // Normalizar o HTML antes de salvar
+                if (pageContent) {
+                    pageContent = pageContent.replace(/\n\s*/g, ' ');
+                    pageContent = pageContent.replace(/><\/(p|div|h[1-6]|ul|ol|li|blockquote)>/gi, '>$1>');
+                    pageContent = pageContent.replace(/\s+/g, ' ');
+                    pageContent = pageContent.replace(/>\s+/g, '>');
+                    pageContent = pageContent.replace(/\s+</g, '<');
+                    pageContent = pageContent.replace(/<p><br><\/p>/gi, '');
+                    pageContent = pageContent.trim();
+                }
+                
                 // Garantir que o conteúdo não está vazio
-                if (!pageContent || pageContent.trim() === '<p><br></p>' || pageContent.trim() === '<p></p>') {
+                if (!pageContent || pageContent === '<p></p>' || pageContent === '') {
                     pageContent = '';
                 }
                 
