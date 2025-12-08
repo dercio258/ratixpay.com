@@ -895,7 +895,6 @@
                         document.getElementById('postMetaDescription').value = post.meta_description || '';
                         document.getElementById('postMetaKeywords').value = post.meta_keywords || '';
                         if (quill) {
-                            // Decodificar HTML se estiver escapado e carregar no Quill corretamente
                             let content = post.content || '';
                             
                             // Decodificar entidades HTML se necessário
@@ -905,25 +904,20 @@
                                 content = textarea.value;
                             }
                             
-                            // Normalizar quebras de linha e espaços no HTML
-                            // Remover espaços extras entre tags
-                            content = content.replace(/>\s+</g, '><');
-                            // Adicionar quebras de linha entre tags para melhor legibilidade
-                            content = content.replace(/(><)(?!\/)/g, '>\n<');
+                            // Limpar o editor primeiro
+                            quill.setContents([], 'silent');
                             
-                            // Usar clipboard.convert que é o método correto do Quill para HTML
-                            try {
-                                if (content && content.trim()) {
-                                    // Converter HTML para Delta do Quill
-                                    const delta = quill.clipboard.convert({ html: content });
+                            // Se houver conteúdo, carregar no Quill
+                            if (content && content.trim()) {
+                                try {
+                                    // Usar clipboard.convert que é o método correto do Quill para HTML
+                                    const delta = quill.clipboard.convert(content);
                                     quill.setContents(delta, 'silent');
-                                } else {
-                                    quill.setContents([], 'silent');
+                                } catch (error) {
+                                    console.error('Erro ao carregar conteúdo no Quill:', error);
+                                    // Fallback: inserir HTML diretamente
+                                    quill.root.innerHTML = content;
                                 }
-                            } catch (error) {
-                                console.error('Erro ao carregar conteúdo no Quill:', error);
-                                // Fallback: usar innerHTML se o método acima falhar
-                                quill.root.innerHTML = content;
                             }
                         }
                     }
@@ -948,10 +942,19 @@
                 }
                 
                 const postId = document.getElementById('postId').value;
+                
+                // Obter conteúdo do Quill - usar root.innerHTML que retorna HTML limpo
+                let content = quill.root.innerHTML;
+                
+                // Garantir que o conteúdo não está vazio (Quill sempre cria pelo menos <p><br></p>)
+                if (!content || content.trim() === '<p><br></p>' || content.trim() === '<p></p>') {
+                    content = '';
+                }
+                
                 const postData = {
                     title: document.getElementById('postTitle').value,
                     subtitle: document.getElementById('postSubtitle').value,
-                    content: quill.root.innerHTML,
+                    content: content,
                     image: document.getElementById('postImage').value,
                     category: document.getElementById('postCategory').value,
                     tags: document.getElementById('postTags').value.split(',').map(t => t.trim()).filter(t => t),
@@ -1252,7 +1255,6 @@
                         document.getElementById('pageMetaDescription').value = page.meta_description || '';
                         document.getElementById('pageMetaKeywords').value = page.meta_keywords || '';
                         if (pageQuill) {
-                            // Decodificar HTML se estiver escapado e carregar no Quill corretamente
                             let pageContent = page.content || '';
                             
                             // Decodificar entidades HTML se necessário
@@ -1262,21 +1264,18 @@
                                 pageContent = textarea.value;
                             }
                             
-                            // Normalizar HTML
-                            pageContent = pageContent.replace(/>\s+</g, '><');
-                            pageContent = pageContent.replace(/(><)(?!\/)/g, '>\n<');
+                            // Limpar o editor primeiro
+                            pageQuill.setContents([], 'silent');
                             
-                            // Usar clipboard.convert que é o método correto do Quill para HTML
-                            try {
-                                if (pageContent && pageContent.trim()) {
-                                    const delta = pageQuill.clipboard.convert({ html: pageContent });
+                            // Se houver conteúdo, carregar no Quill
+                            if (pageContent && pageContent.trim()) {
+                                try {
+                                    const delta = pageQuill.clipboard.convert(pageContent);
                                     pageQuill.setContents(delta, 'silent');
-                                } else {
-                                    pageQuill.setContents([], 'silent');
+                                } catch (error) {
+                                    console.error('Erro ao carregar conteúdo no Quill:', error);
+                                    pageQuill.root.innerHTML = pageContent;
                                 }
-                            } catch (error) {
-                                console.error('Erro ao carregar conteúdo no Quill:', error);
-                                pageQuill.root.innerHTML = pageContent;
                             }
                         }
                     }
@@ -1301,9 +1300,18 @@
                 }
                 
                 const pageId = document.getElementById('pageId').value;
+                
+                // Obter conteúdo do Quill
+                let pageContent = pageQuill.root.innerHTML;
+                
+                // Garantir que o conteúdo não está vazio
+                if (!pageContent || pageContent.trim() === '<p><br></p>' || pageContent.trim() === '<p></p>') {
+                    pageContent = '';
+                }
+                
                 const pageData = {
                     title: document.getElementById('pageTitle').value,
-                    content: pageQuill.root.innerHTML,
+                    content: pageContent,
                     status: document.getElementById('pageStatus').value,
                     meta_description: document.getElementById('pageMetaDescription').value,
                     meta_keywords: document.getElementById('pageMetaKeywords').value
