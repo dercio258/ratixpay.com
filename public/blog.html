@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - RatixPay</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="/js/dark-mode-manager.js"></script>
+    <style>
+        :root {
+            --primary: #F64C00;
+            --primary-dark: #e55a00;
+            --secondary: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --text-light: #9ca3af;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --border-color: #4b5563;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .search-section {
+            margin-bottom: 50px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-tag {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-tag:hover,
+        .filter-tag.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 32px;
+            margin-bottom: 50px;
+        }
+
+        .post-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .post-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .post-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: var(--bg-tertiary);
+        }
+
+        .post-content {
+            padding: 24px;
+        }
+
+        .post-category {
+            display: inline-block;
+            padding: 6px 14px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .post-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+
+        .post-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .post-stats span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .pagination button {
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar h3 {
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popular-post {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .popular-post:last-child {
+            border-bottom: none;
+        }
+
+        .popular-post a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            transition: color 0.2s ease;
+            display: block;
+        }
+
+        .popular-post a:hover {
+            color: var(--primary);
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-list li:last-child {
+            border-bottom: none;
+        }
+
+        .category-list a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .category-list a:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+
+            .container {
+                padding: 40px 15px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-bar button {
+                width: 100%;
+            }
+
+            .post-title {
+                font-size: 1.2rem;
+            }
+
+            div[style*="grid-template-columns: 1fr 300px"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-blog"></i> Blog RatixPay</h1>
+        <p>Conteúdo educativo, atualizações e dicas para seu negócio</p>
+    </div>
+
+    <div class="container">
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar posts...">
+                <button class="btn btn-primary" onclick="searchPosts()" style="padding: 16px 32px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: var(--shadow-sm);">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+            <div class="filter-tags" id="categoryFilters"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 30px;">
+            <div>
+                <div id="postsContainer" class="posts-grid"></div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+            <div>
+                <div class="sidebar">
+                    <h3><i class="fas fa-fire"></i> Posts Populares</h3>
+                    <div id="popularPosts"></div>
+                </div>
+                <div class="sidebar">
+                    <h3><i class="fas fa-tags"></i> Categorias</h3>
+                    <ul class="category-list" id="categoriesList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.API_BASE || '';
+        let currentPage = 1;
+        let currentCategory = null;
+        let currentSearch = '';
+
+        // Função para formatar data de forma segura com ISO 8601 e fallback
+        function formatDate(dateString) {
+            if (!dateString) return 'Data não disponível';
+            
+            try {
+                let date;
+                
+                // Tentar parse ISO 8601 primeiro
+                if (typeof dateString === 'string') {
+                    // Remove espaços extras
+                    dateString = dateString.trim();
+                    
+                    // Verifica se é ISO 8601 (formato padrão)
+                    if (dateString.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+                        date = new Date(dateString);
+                    } 
+                    // Tentar outros formatos comuns
+                    else if (dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
+                        date = new Date(dateString + 'T00:00:00');
+                    }
+                    // Fallback: tentar parse direto
+                    else {
+                        date = new Date(dateString);
+                    }
+                } else {
+                    date = new Date(dateString);
+                }
+                
+                // Verificar se a data é válida
+                if (isNaN(date.getTime()) || !date.getTime()) {
+                    console.warn('Data inválida:', dateString);
+                    return 'Data inválida';
+                }
+                
+                // Formato relativo
+                const now = new Date();
+                const diff = Math.abs(now - date);
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+                const weeks = Math.floor(days / 7);
+                const months = Math.floor(days / 30);
+                const years = Math.floor(days / 365);
+                
+                // Determinar se é passado ou futuro
+                const isPast = now > date;
+                const prefix = isPast ? 'há' : 'em';
+                
+                // Retornar formato relativo se for recente (até 1 mês)
+                if (seconds < 60) return isPast ? 'há alguns segundos' : 'em alguns segundos';
+                if (minutes < 60) return `${prefix} ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+                if (hours < 24) return `${prefix} ${hours} hora${hours > 1 ? 's' : ''}`;
+                if (days < 7) return `${prefix} ${days} dia${days > 1 ? 's' : ''}`;
+                if (weeks < 4) return `${prefix} ${weeks} semana${weeks > 1 ? 's' : ''}`;
+                if (months < 12) return `${prefix} ${months} mês${months > 1 ? 'es' : ''}`;
+                if (years < 1) return `${prefix} ${years} ano${years > 1 ? 's' : ''}`;
+                
+                // Se for mais antigo, mostrar data formatada completa
+                try {
+                    return date.toLocaleDateString('pt-BR', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch (formatError) {
+                    // Fallback final: formato simples
+                    return date.toLocaleDateString('pt-BR');
+                }
+            } catch (error) {
+                console.error('Erro ao formatar data:', error, 'Data original:', dateString);
+                return 'Data inválida';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPosts();
+            loadPopularPosts();
+            loadCategories();
+        });
+
+        async function loadPosts(page = 1, category = null, search = '') {
+            try {
+                currentPage = page;
+                currentCategory = category;
+                currentSearch = search;
+
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 12
+                });
+                if (category) params.append('category', category);
+                if (search) params.append('search', search);
+
+                const response = await fetch(`${API_BASE}/api/blog/posts?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPosts(data.data);
+                    displayPagination(data.pagination);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar posts:', error);
+                document.getElementById('postsContainer').innerHTML = '<div class="empty-state"><p>Erro ao carregar posts. Tente novamente.</p></div>';
+            }
+        }
+
+        function displayPosts(posts) {
+            const container = document.getElementById('postsContainer');
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhum post encontrado.</p></div>';
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+                <div class="post-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'">
+                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : '<div class="post-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);"><i class="fas fa-image fa-3x"></i></div>'}
+                    <div class="post-content">
+                        ${post.category ? `<span class="post-category">${post.category}</span>` : ''}
+                        <h3 class="post-title">${post.title}</h3>
+                        ${post.subtitle ? `<p class="post-subtitle">${post.subtitle}</p>` : ''}
+                        <div class="post-meta">
+                            <div>
+                                <i class="fas fa-user"></i> ${post.author?.nome_completo || 'Admin'}
+                            </div>
+                            <div class="post-stats">
+                                <span><i class="fas fa-eye"></i> ${post.views || 0}</span>
+                                <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; color: var(--text-secondary); font-size: 0.85rem;">
+                            ${formatDate(post.published_at || post.created_at)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayPagination(pagination) {
+            const container = document.getElementById('pagination');
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            if (pagination.page > 1) {
+                html += `<button onclick="loadPosts(${pagination.page - 1}, '${currentCategory || ''}', '${currentSearch}')">Anterior</button>`;
+            }
+            html += `<span style="padding: 10px 20px; display: flex; align-items: center;">Página ${pagination.page} de ${pagination.pages}</span>`;
+            if (pagination.page < pagination.pages) {
+                html += `<button onclick="loadPosts(${pagination.page + 1}, '${currentCategory || ''}', '${currentSearch}')">Próxima</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function loadPopularPosts() {
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/popular?limit=5`);
+                const data = await response.json();
+                if (data.success) {
+                    const container = document.getElementById('popularPosts');
+                    container.innerHTML = data.data.map(post => `
+                        <div class="popular-post">
+                            <a href="blog-post.html?slug=${post.slug}">${post.title}</a>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                                <i class="fas fa-eye"></i> ${post.views || 0} visualizações
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar posts populares:', error);
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/categories`);
+                const data = await response.json();
+                if (data.success) {
+                    const container = document.getElementById('categoryFilters');
+                    const listContainer = document.getElementById('categoriesList');
+                    
+                    // Filtros
+                    container.innerHTML = '<span class="filter-tag active" onclick="loadPosts(1, null, \'\')">Todos</span>';
+                    data.data.forEach(cat => {
+                        if (cat.category) {
+                            container.innerHTML += `<span class="filter-tag" onclick="loadPosts(1, '${cat.category}', '')">${cat.category}</span>`;
+                        }
+                    });
+
+                    // Lista na sidebar
+                    listContainer.innerHTML = '<li><a href="javascript:loadPosts(1, null, \'\')">Todos</a></li>';
+                    data.data.forEach(cat => {
+                        if (cat.category) {
+                            listContainer.innerHTML += `<li><a href="javascript:loadPosts(1, '${cat.category}', '')">${cat.category} (${cat.count})</a></li>`;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar categorias:', error);
+            }
+        }
+
+        function searchPosts() {
+            const search = document.getElementById('searchInput').value;
+            loadPosts(1, null, search);
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPosts();
+            }
+        });
+    </script>
+</body>
+</html>
+
