@@ -943,10 +943,9 @@
                 
                 const postId = document.getElementById('postId').value;
                 
-                // Obter conteúdo do Quill usando uma div temporária para garantir HTML limpo
-                const tempDiv = document.createElement('div');
-                tempDiv.appendChild(quill.root.cloneNode(true));
-                let content = tempDiv.innerHTML;
+                // Obter apenas o conteúdo HTML interno do Quill (sem a div wrapper)
+                // quill.root é a div .ql-editor, então usamos apenas seu innerHTML
+                let content = quill.root.innerHTML;
                 
                 // Debug: ver conteúdo antes de processar
                 console.log('📝 Conteúdo original do Quill:', content);
@@ -955,7 +954,7 @@
                 if (!content || content.trim() === '<p><br></p>' || content.trim() === '<p></p>') {
                     content = '';
                 } else {
-                    // Limpar apenas espaços extras e quebras de linha desnecessárias
+                    // Apenas limpar espaços extras no início e fim
                     content = content.trim();
                     // Remover <p><br></p> se for o único conteúdo
                     if (content === '<p><br></p>') {
@@ -1315,23 +1314,17 @@
                 
                 const pageId = document.getElementById('pageId').value;
                 
-                // Obter conteúdo do Quill
+                // Obter apenas o conteúdo HTML interno do Quill
                 let pageContent = pageQuill.root.innerHTML;
                 
-                // Normalizar o HTML antes de salvar
-                if (pageContent) {
-                    pageContent = pageContent.replace(/\n\s*/g, ' ');
-                    pageContent = pageContent.replace(/><\/(p|div|h[1-6]|ul|ol|li|blockquote)>/gi, '>$1>');
-                    pageContent = pageContent.replace(/\s+/g, ' ');
-                    pageContent = pageContent.replace(/>\s+/g, '>');
-                    pageContent = pageContent.replace(/\s+</g, '<');
-                    pageContent = pageContent.replace(/<p><br><\/p>/gi, '');
-                    pageContent = pageContent.trim();
-                }
-                
                 // Garantir que o conteúdo não está vazio
-                if (!pageContent || pageContent === '<p></p>' || pageContent === '') {
+                if (!pageContent || pageContent.trim() === '<p><br></p>' || pageContent.trim() === '<p></p>') {
                     pageContent = '';
+                } else {
+                    pageContent = pageContent.trim();
+                    if (pageContent === '<p><br></p>') {
+                        pageContent = '';
+                    }
                 }
                 
                 const pageData = {
