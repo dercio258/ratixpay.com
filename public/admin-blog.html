@@ -895,7 +895,36 @@
                         document.getElementById('postMetaDescription').value = post.meta_description || '';
                         document.getElementById('postMetaKeywords').value = post.meta_keywords || '';
                         if (quill) {
-                            quill.root.innerHTML = post.content || '';
+                            // Decodificar HTML se estiver escapado e carregar no Quill corretamente
+                            let content = post.content || '';
+                            
+                            // Decodificar entidades HTML se necessário
+                            if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;') || content.includes('&quot;') || content.includes('&#39;')) {
+                                const textarea = document.createElement('textarea');
+                                textarea.innerHTML = content;
+                                content = textarea.value;
+                            }
+                            
+                            // Normalizar quebras de linha e espaços no HTML
+                            // Remover espaços extras entre tags
+                            content = content.replace(/>\s+</g, '><');
+                            // Adicionar quebras de linha entre tags para melhor legibilidade
+                            content = content.replace(/(><)(?!\/)/g, '>\n<');
+                            
+                            // Usar clipboard.convert que é o método correto do Quill para HTML
+                            try {
+                                if (content && content.trim()) {
+                                    // Converter HTML para Delta do Quill
+                                    const delta = quill.clipboard.convert({ html: content });
+                                    quill.setContents(delta, 'silent');
+                                } else {
+                                    quill.setContents([], 'silent');
+                                }
+                            } catch (error) {
+                                console.error('Erro ao carregar conteúdo no Quill:', error);
+                                // Fallback: usar innerHTML se o método acima falhar
+                                quill.root.innerHTML = content;
+                            }
                         }
                     }
                 }
@@ -1223,7 +1252,32 @@
                         document.getElementById('pageMetaDescription').value = page.meta_description || '';
                         document.getElementById('pageMetaKeywords').value = page.meta_keywords || '';
                         if (pageQuill) {
-                            pageQuill.root.innerHTML = page.content || '';
+                            // Decodificar HTML se estiver escapado e carregar no Quill corretamente
+                            let pageContent = page.content || '';
+                            
+                            // Decodificar entidades HTML se necessário
+                            if (pageContent.includes('&lt;') || pageContent.includes('&gt;') || pageContent.includes('&amp;') || pageContent.includes('&quot;') || pageContent.includes('&#39;')) {
+                                const textarea = document.createElement('textarea');
+                                textarea.innerHTML = pageContent;
+                                pageContent = textarea.value;
+                            }
+                            
+                            // Normalizar HTML
+                            pageContent = pageContent.replace(/>\s+</g, '><');
+                            pageContent = pageContent.replace(/(><)(?!\/)/g, '>\n<');
+                            
+                            // Usar clipboard.convert que é o método correto do Quill para HTML
+                            try {
+                                if (pageContent && pageContent.trim()) {
+                                    const delta = pageQuill.clipboard.convert({ html: pageContent });
+                                    pageQuill.setContents(delta, 'silent');
+                                } else {
+                                    pageQuill.setContents([], 'silent');
+                                }
+                            } catch (error) {
+                                console.error('Erro ao carregar conteúdo no Quill:', error);
+                                pageQuill.root.innerHTML = pageContent;
+                            }
                         }
                     }
                 }
