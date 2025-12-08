@@ -123,11 +123,17 @@
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 20px;
-            display: flex;
-            gap: 15px;
             margin-bottom: 30px;
             box-shadow: var(--shadow-sm);
+        }
+        .filters-row {
+            display: flex;
+            gap: 15px;
             flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .filters-row:last-child {
+            margin-bottom: 0;
         }
         .search-container {
             flex: 1;
@@ -169,6 +175,62 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 15px center;
+        }
+        /* Tags de Filtro */
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-tag:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .filter-tag.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(246, 76, 0, 0.2);
+        }
+        .filter-tag.hot {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border-color: #ff6b6b;
+        }
+        .filter-tag.hot.active {
+            box-shadow: 0 2px 12px rgba(255, 107, 107, 0.4);
+        }
+        .filter-tag i {
+            font-size: 0.75rem;
+        }
+        .filter-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-section-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         /* 3. Products Grid */
         .products-grid {
@@ -269,12 +331,20 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .commission-percentage {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            font-weight: 500;
             margin-bottom: 2px;
         }
         .commission-value {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--success);
+            line-height: 1.2;
         }
         .btn-affiliate {
             width: 100%;
@@ -327,8 +397,12 @@
         /* Responsividade */
         @media (max-width: 768px) {
             .main-content { padding: 15px; }
-            .filters-bar { flex-direction: column; align-items: stretch; gap: 15px; }
-            .sort-select { width: 100%; }
+            .filters-bar { padding: 15px; }
+            .filters-row { flex-direction: column; gap: 10px; }
+            .search-container { min-width: 100%; }
+            .sort-select { width: 100%; min-width: 100%; }
+            .filter-tags { justify-content: flex-start; }
+            .filter-tag { font-size: 0.8rem; padding: 6px 12px; }
         }
         @media (max-width: 480px) {
             .header-section { flex-direction: column; align-items: flex-start; }
@@ -395,16 +469,48 @@
             </div>
             <!-- Filtros -->
             <div class="filters-bar">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="form-input" placeholder="Buscar produtos por nome, categoria..." onkeyup="filtrarProdutos()">
+                <!-- Primeira linha: Busca e Ordenação -->
+                <div class="filters-row">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="form-input" placeholder="Buscar produtos por nome, categoria..." onkeyup="filtrarProdutos()">
+                    </div>
+                    <select id="sortSelect" class="sort-select" onchange="handleSortChange()">
+                        <option value="hots">🔥 HOTS (Mais Vendidos)</option>
+                        <option value="relevancia">Mais Relevantes</option>
+                        <option value="comissao">Maior Comissão</option>
+                        <option value="preco">Menor Preço</option>
+                        <option value="preco-desc">Maior Preço</option>
+                        <option value="nome">Nome (A-Z)</option>
+                    </select>
                 </div>
-                <select id="sortSelect" class="sort-select" onchange="filtrarProdutos()">
-                    <option value="relevancia">Mais Relevantes</option>
-                    <option value="comissao">Maior Comissão</option>
-                    <option value="preco">Menor Preço</option>
-                    <option value="nome">Nome (A-Z)</option>
-                </select>
+                
+                <!-- Segunda linha: Tags de Filtro Rápido -->
+                <div class="filters-row">
+                    <div class="filter-section">
+                        <span class="filter-section-label">Filtros:</span>
+                        <div class="filter-tags">
+                            <div class="filter-tag hot" data-filter="hots" onclick="toggleFilter('hots')">
+                                <i class="fas fa-fire"></i> HOTS
+                            </div>
+                            <div class="filter-tag" data-filter="alta-comissao" onclick="toggleFilter('alta-comissao')">
+                                <i class="fas fa-percentage"></i> Alta Comissão
+                            </div>
+                            <div class="filter-tag" data-filter="preco-baixo" onclick="toggleFilter('preco-baixo')">
+                                <i class="fas fa-tag"></i> Preço Baixo
+                            </div>
+                            <div class="filter-tag" data-filter="preco-medio" onclick="toggleFilter('preco-medio')">
+                                <i class="fas fa-tags"></i> Preço Médio
+                            </div>
+                            <div class="filter-tag" data-filter="preco-alto" onclick="toggleFilter('preco-alto')">
+                                <i class="fas fa-tag"></i> Preço Alto
+                            </div>
+                            <div class="filter-tag" data-filter="novos" onclick="toggleFilter('novos')">
+                                <i class="fas fa-star"></i> Novos
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Grid de Produtos -->
             <div id="productsGrid" class="products-grid"></div>
@@ -445,6 +551,7 @@
         };
         let todosProdutos = [];
         let produtosAfiliados = [];
+        let filtrosAtivos = new Set();
         // Carregar Catálogo
         async function carregarCatalogo() {
             // Tentar múltiplos tokens possíveis
@@ -558,16 +665,30 @@
             
             container.innerHTML = produtos.map(p => {
                 const isAffiliated = produtosAfiliados.includes(p.id);
-                // Calcular texto da comissão
+                
+                // Calcular valor da comissão e porcentagem
+                let comissaoValor = 0;
+                let comissaoPercentual = null;
                 let comissaoTexto = 'N/A';
+                
                 if (p.comissao_afiliados && p.comissao_afiliados > 0) {
-                    comissaoTexto = `${p.comissao_afiliados}%`;
+                    comissaoPercentual = p.comissao_afiliados;
+                    // Calcular valor da comissão baseado no preço
+                    const valorCalculado = (parseFloat(p.preco || 0) * parseFloat(comissaoPercentual)) / 100;
+                    
+                    // Se houver comissão mínima, usar o maior valor
                     if (p.comissao_minima && p.comissao_minima > 0) {
-                        comissaoTexto += ` (min: ${Formatters.moeda(p.comissao_minima)})`;
+                        comissaoValor = Math.max(valorCalculado, parseFloat(p.comissao_minima));
+                    } else {
+                        comissaoValor = valorCalculado;
                     }
+                    
+                    comissaoTexto = Formatters.moeda(comissaoValor);
                 } else if (p.comissao_minima && p.comissao_minima > 0) {
-                    comissaoTexto = Formatters.moeda(p.comissao_minima);
+                    comissaoValor = parseFloat(p.comissao_minima);
+                    comissaoTexto = Formatters.moeda(comissaoValor);
                 }
+                
                 return `
                     <div class="product-card">
                         <div class="product-image-container">
@@ -590,6 +711,7 @@
                                 </div>
                                 <div class="commission-group">
                                     <label>Sua Comissão</label>
+                                    ${comissaoPercentual ? `<div class="commission-percentage">${comissaoPercentual}%</div>` : ''}
                                     <div class="commission-value">${comissaoTexto}</div>
                                 </div>
                             </div>
@@ -603,26 +725,96 @@
                 `;
             }).join('');
         }
+        // Toggle de Filtros
+        function toggleFilter(filtro) {
+            const tag = document.querySelector(`[data-filter="${filtro}"]`);
+            if (filtrosAtivos.has(filtro)) {
+                filtrosAtivos.delete(filtro);
+                tag.classList.remove('active');
+            } else {
+                filtrosAtivos.add(filtro);
+                tag.classList.add('active');
+            }
+            filtrarProdutos();
+        }
+        
+        // Handler para mudança de ordenação
+        function handleSortChange() {
+            const ordem = document.getElementById('sortSelect').value;
+            
+            // Se selecionar HOTS, ativar o filtro HOTS automaticamente
+            if (ordem === 'hots') {
+                if (!filtrosAtivos.has('hots')) {
+                    filtrosAtivos.add('hots');
+                    const tag = document.querySelector('[data-filter="hots"]');
+                    if (tag) tag.classList.add('active');
+                }
+            }
+            
+            filtrarProdutos();
+        }
+        
         // Filtrar e Ordenar
         function filtrarProdutos() {
             const termo = document.getElementById('searchInput').value.toLowerCase();
             const ordem = document.getElementById('sortSelect').value;
-            let filtrados = todosProdutos.filter(p => 
-                p.nome.toLowerCase().includes(termo) || 
-                (p.descricao && p.descricao.toLowerCase().includes(termo))
-            );
+            
+            let filtrados = todosProdutos.filter(p => {
+                // Filtro de busca por texto
+                const matchBusca = !termo || 
+                    p.nome.toLowerCase().includes(termo) || 
+                    (p.descricao && p.descricao.toLowerCase().includes(termo)) ||
+                    (p.categoria && p.categoria.toLowerCase().includes(termo));
+                
+                if (!matchBusca) return false;
+                
+                // Aplicar filtros de tags
+                const preco = parseFloat(p.preco || 0);
+                const comissao = parseFloat(p.comissao_afiliados || 0);
+                const vendas = parseInt(p.total_vendas || 0);
+                
+                // HOTS - Mais vendidos (acima de 10 vendas)
+                if (filtrosAtivos.has('hots') && vendas < 10) return false;
+                
+                // Alta Comissão (acima de 15%)
+                if (filtrosAtivos.has('alta-comissao') && comissao < 15) return false;
+                
+                // Preço Baixo (até 100 MZN)
+                if (filtrosAtivos.has('preco-baixo') && preco > 100) return false;
+                
+                // Preço Médio (100-500 MZN)
+                if (filtrosAtivos.has('preco-medio') && (preco < 100 || preco > 500)) return false;
+                
+                // Preço Alto (acima de 500 MZN)
+                if (filtrosAtivos.has('preco-alto') && preco < 500) return false;
+                
+                // Novos (produtos com poucas vendas mas alta comissão)
+                if (filtrosAtivos.has('novos') && (vendas > 5 || comissao < 10)) return false;
+                
+                return true;
+            });
+            
+            // Ordenação
             filtrados.sort((a, b) => {
-                if (ordem === 'preco') return (a.preco || 0) - (b.preco || 0);
-                if (ordem === 'comissao') {
-                    // Simplificação para ordenação
-                    const comA = a.comissao_afiliados || 0;
-                    const comB = b.comissao_afiliados || 0;
-                    return comB - comA;
+                const precoA = parseFloat(a.preco || 0);
+                const precoB = parseFloat(b.preco || 0);
+                const comissaoA = parseFloat(a.comissao_afiliados || 0);
+                const comissaoB = parseFloat(b.comissao_afiliados || 0);
+                const vendasA = parseInt(a.total_vendas || 0);
+                const vendasB = parseInt(b.total_vendas || 0);
+                
+                if (ordem === 'hots') {
+                    // HOTS: ordenar por vendas (mais vendidos primeiro)
+                    return vendasB - vendasA;
                 }
+                if (ordem === 'preco') return precoA - precoB;
+                if (ordem === 'preco-desc') return precoB - precoA;
+                if (ordem === 'comissao') return comissaoB - comissaoA;
                 if (ordem === 'nome') return a.nome.localeCompare(b.nome);
                 // Relevancia (Vendas)
-                return (b.total_vendas || 0) - (a.total_vendas || 0);
+                return vendasB - vendasA;
             });
+            
             renderizarProdutos(filtrados);
         }
         // Ação de Afiliar

@@ -1,4 +1,4 @@
-const { databaseManager } = require('../config/database');
+const { databaseManager, sequelize, RemarketingQueue, RemarketingConversao, BlogPost, BlogComment, BlogPage } = require('../config/database');
 const { setupAssociations } = require('../config/associations');
 
 /**
@@ -15,6 +15,32 @@ async function loadDatabase() {
             
             console.log('🔄 Configurando associações...');
             setupAssociations();
+            
+            // Garantir que as tabelas de remarketing e blog existam (sync apenas se necessário)
+            console.log('🔄 Verificando tabelas de remarketing e blog...');
+            try {
+                const alterSync = process.env.DB_ALTER_SYNC === 'true';
+                if (alterSync) {
+                    // Sincronizar apenas as tabelas se alter sync estiver ativo
+                    await RemarketingQueue.sync({ alter: true });
+                    await RemarketingConversao.sync({ alter: true });
+                    await BlogPost.sync({ alter: true });
+                    await BlogComment.sync({ alter: true });
+                    await BlogPage.sync({ alter: true });
+                    console.log('✅ Tabelas de remarketing e blog verificadas/sincronizadas');
+                } else {
+                    // Apenas verificar se existem, sem alterar estrutura
+                    await RemarketingQueue.sync({ alter: false });
+                    await RemarketingConversao.sync({ alter: false });
+                    await BlogPost.sync({ alter: false });
+                    await BlogComment.sync({ alter: false });
+                    await BlogPage.sync({ alter: false });
+                    console.log('✅ Tabelas de remarketing e blog verificadas');
+                }
+            } catch (syncError) {
+                console.warn('⚠️ Erro ao sincronizar tabelas (continuando):', syncError.message);
+                // Continuar mesmo se houver erro na sincronização - as migrações SQL podem criar as tabelas
+            }
             
             console.log('✅ Banco de dados conectado e configurado com sucesso.');
             return true;

@@ -300,8 +300,142 @@
             margin: 0;
 
         }
-
         
+
+        /* Estilos para o Marketplace Toggle Renovado */
+        .marketplace-toggle-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .marketplace-toggle-container:hover {
+            border-color: #F64C00;
+            box-shadow: 0 4px 12px rgba(246, 76, 0, 0.1);
+        }
+
+        .marketplace-toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            cursor: pointer;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        .marketplace-toggle-label:hover {
+            background: rgba(246, 76, 0, 0.02);
+        }
+
+        .marketplace-toggle-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .marketplace-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(246, 76, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .marketplace-toggle-label:hover .marketplace-icon {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(246, 76, 0, 0.3);
+        }
+
+        .marketplace-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .marketplace-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.4;
+        }
+
+        .marketplace-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .marketplace-switch {
+            position: relative;
+            width: 56px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .marketplace-checkbox {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .marketplace-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.3s;
+            border-radius: 32px;
+        }
+
+        .marketplace-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .marketplace-checkbox:checked + .marketplace-slider {
+            background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%);
+        }
+
+        .marketplace-checkbox:checked + .marketplace-slider:before {
+            transform: translateX(24px);
+        }
+
+        .marketplace-checkbox:focus + .marketplace-slider {
+            box-shadow: 0 0 0 3px rgba(246, 76, 0, 0.2);
+        }
+
+        .marketplace-toggle-label:active .marketplace-slider:before {
+            transform: scale(0.9);
+        }
+
+        .marketplace-toggle-label:has(.marketplace-checkbox:checked) .marketplace-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+        }
+
         
         .image-section {
             border: 3px dashed var(--border-color);
@@ -1692,8 +1826,9 @@
                             minlength="50"
                             rows="6"
                             placeholder="Descreva seu produto de forma detalhada. Mínimo de 50 caracteres para uma descrição completa e atrativa..."
-                            oninput="updateDescriptionCounter(this)"></textarea>
-                        <small class="form-text text-muted" id="descriptionHelp">
+                            oninput="updateDescriptionCounter(this)"
+                            onblur="validateDescriptionOnBlur(this)"></textarea>
+                        <small class="form-text text-muted" id="descriptionHelp" style="display: none;">
                             <i class="fas fa-info-circle"></i> A descrição deve ter pelo menos 50 caracteres para ser completa e informativa.
                         </small>
 
@@ -1727,11 +1862,37 @@
 
                     <div class="form-group">
 
-                        <div class="checkbox-group">
+                        <div class="marketplace-toggle-container">
 
-                            <input type="checkbox" id="marketPlace">
+                            <label class="marketplace-toggle-label">
 
-                            <label for="marketPlace">Disponível no Marketplace</label>
+                                <div class="marketplace-toggle-content">
+
+                                    <div class="marketplace-icon">
+
+                                        <i class="fas fa-store"></i>
+
+                                    </div>
+
+                                    <div class="marketplace-text">
+
+                                        <span class="marketplace-title">Disponível no Marketplace</span>
+
+                                        <span class="marketplace-subtitle">Seu produto será exibido na vitrine pública do RatixPay</span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="marketplace-switch">
+
+                                    <input type="checkbox" id="marketPlace" class="marketplace-checkbox">
+
+                                    <span class="marketplace-slider"></span>
+
+                                </div>
+
+                            </label>
 
                         </div>
 
@@ -2580,6 +2741,9 @@
 
         // Função para expandir/colapsar seções de configuração
 
+        // Variável global para armazenar os timers de auto-minimização
+        const configSectionTimers = {};
+
         function toggleConfigSection(sectionId, event) {
 
             if (event) {
@@ -2632,6 +2796,13 @@
 
                 if (checkbox) checkbox.checked = false;
 
+                
+                // Limpar timer se existir
+                if (configSectionTimers[sectionId]) {
+                    clearTimeout(configSectionTimers[sectionId]);
+                    delete configSectionTimers[sectionId];
+                }
+
             } else {
 
                 // Ativando - verificar conflitos
@@ -2663,6 +2834,13 @@
                 if (checkbox) checkbox.checked = true;
 
                 
+                // Limpar timer anterior se existir
+                if (configSectionTimers[sectionId]) {
+                    clearTimeout(configSectionTimers[sectionId]);
+                }
+
+                // Configurar eventos para detectar quando o usuário para de interagir
+                setupAutoMinimizeTimer(sectionId, section);
 
                 // Atualizar previews após ativar
 
@@ -2674,6 +2852,56 @@
 
             }
 
+        }
+
+        // Função para configurar o timer de auto-minimização
+        function setupAutoMinimizeTimer(sectionId, section) {
+            let inactivityTimer;
+            const inactivityDelay = 15000; // 15 segundos
+
+            // Função para resetar o timer
+            function resetTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(() => {
+                    // Minimizar a seção após 15 segundos de inatividade
+                    const configSection = section.closest('.config-section');
+                    const arrow = document.getElementById(sectionId + 'Arrow');
+                    const checkbox = document.getElementById(
+                        sectionId === 'discountSection' ? 'enableDiscount' :
+                        sectionId === 'timerSection' ? 'enableTimer' :
+                        sectionId === 'blackFridaySection' ? 'enableBlackFriday' :
+                        sectionId === 'remarketingSection' ? 'enableRemarketing' : null
+                    );
+
+                    if (configSection && configSection.classList.contains('active')) {
+                        configSection.classList.remove('active');
+                        section.style.display = 'none';
+                        if (arrow) arrow.style.transform = 'rotate(0deg)';
+                        if (checkbox) checkbox.checked = false;
+                    }
+
+                    // Limpar timer
+                    if (configSectionTimers[sectionId]) {
+                        delete configSectionTimers[sectionId];
+                    }
+                }, inactivityDelay);
+            }
+
+            // Iniciar o timer
+            resetTimer();
+
+            // Detectar interações do usuário nos campos da seção
+            const inputs = section.querySelectorAll('input, select, textarea, button');
+            inputs.forEach(input => {
+                input.addEventListener('input', resetTimer);
+                input.addEventListener('change', resetTimer);
+                input.addEventListener('click', resetTimer);
+                input.addEventListener('keydown', resetTimer);
+                input.addEventListener('keyup', resetTimer);
+            });
+
+            // Salvar o timer para poder limpar depois
+            configSectionTimers[sectionId] = inactivityTimer;
         }
 
         
@@ -2968,17 +3196,18 @@
             }
             
             // Atualizar cores e mensagens baseado no número de caracteres
+            // Não mostrar alerta vermelho enquanto o usuário está digitando
             if (charCount < 50) {
                 const charsNeeded = 50 - charCount;
                 if (counterContainer) {
-                    counterContainer.style.color = '#ef4444';
-                    counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span>/50 caracteres mínimos <span style="color: #ef4444;">(faltam ${charsNeeded})</span>`;
+                    counterContainer.style.color = '#6b7280';
+                    counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span>/50 caracteres mínimos`;
                 }
+                // Não mostrar o helpText enquanto está digitando
                 if (helpText) {
-                    helpText.style.color = '#ef4444';
-                    helpText.innerHTML = `<i class="fas fa-exclamation-circle"></i> A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
+                    helpText.style.display = 'none';
                 }
-                textarea.classList.add('field-warning');
+                textarea.classList.remove('field-warning');
                 textarea.classList.remove('field-success');
             } else {
                 if (counterContainer) {
@@ -2986,11 +3215,37 @@
                     counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span> caracteres <i class="fas fa-check-circle" style="color: #10b981;"></i>`;
                 }
                 if (helpText) {
+                    helpText.style.display = 'block';
                     helpText.style.color = '#10b981';
                     helpText.innerHTML = `<i class="fas fa-check-circle"></i> Descrição completa! (${charCount} caracteres)`;
                 }
                 textarea.classList.remove('field-warning');
                 textarea.classList.add('field-success');
+            }
+        }
+
+        // Função para validar descrição quando o usuário sair do campo
+        function validateDescriptionOnBlur(textarea) {
+            const charCount = textarea.value.trim().length;
+            const counterContainer = document.getElementById('descriptionCounter');
+            const helpText = document.getElementById('descriptionHelp');
+            
+            if (charCount < 50) {
+                const charsNeeded = 50 - charCount;
+                if (counterContainer) {
+                    counterContainer.style.color = '#ef4444';
+                    counterContainer.innerHTML = `<span id="descriptionCharCount">${charCount}</span>/50 caracteres mínimos <span style="color: #ef4444;">(faltam ${charsNeeded})</span>`;
+                }
+                if (helpText) {
+                    helpText.style.display = 'block';
+                    helpText.style.color = '#ef4444';
+                    helpText.innerHTML = `<i class="fas fa-exclamation-circle"></i> A descrição deve ter pelo menos 50 caracteres. Faltam ${charsNeeded} caractere${charsNeeded > 1 ? 's' : ''}.`;
+                }
+                textarea.classList.add('field-warning');
+                textarea.classList.remove('field-success');
+            } else {
+                // Se estiver completa, manter a mensagem de sucesso
+                updateDescriptionCounter(textarea);
             }
         }
 
@@ -3699,6 +3954,29 @@
             // Configurar remoção dinâmica de erros
 
             setupFieldErrorRemoval();
+
+            // Configurar toggle do Marketplace
+            const marketPlaceCheckbox = document.getElementById('marketPlace');
+            const marketplaceIcon = document.querySelector('.marketplace-icon');
+            
+            if (marketPlaceCheckbox && marketplaceIcon) {
+                // Função para atualizar o ícone baseado no estado do checkbox
+                function updateMarketplaceIcon() {
+                    if (marketPlaceCheckbox.checked) {
+                        marketplaceIcon.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                        marketplaceIcon.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.2)';
+                    } else {
+                        marketplaceIcon.style.background = 'linear-gradient(135deg, #F64C00 0%, #FF6B35 100%)';
+                        marketplaceIcon.style.boxShadow = '0 4px 8px rgba(246, 76, 0, 0.2)';
+                    }
+                }
+                
+                // Atualizar no carregamento
+                updateMarketplaceIcon();
+                
+                // Atualizar quando o checkbox mudar
+                marketPlaceCheckbox.addEventListener('change', updateMarketplaceIcon);
+            }
 
             
 

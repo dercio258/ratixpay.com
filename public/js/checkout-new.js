@@ -903,7 +903,53 @@ function updateVendorIdentificationUI() {
 // Função para carregar produto
 async function loadProduct() {
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('produto') || urlParams.get('id');
+    let productId = urlParams.get('produto') || urlParams.get('id');
+    const affiliateRef = urlParams.get('ref');
+    
+    // Se não tem produto mas tem referência de afiliado, buscar produto do afiliado
+    if (!productId && affiliateRef) {
+        try {
+            // Garantir que API_BASE está definido
+            const apiBase = window.API_BASE || (window.location.origin.includes('localhost') 
+                ? 'http://localhost:4000/api' 
+                : `${window.location.origin}/api`);
+            
+            console.log('🔍 Buscando produto do afiliado:', affiliateRef, 'via', `${apiBase}/afiliados/produto/${affiliateRef}`);
+            
+            const response = await fetch(`${apiBase}/afiliados/produto/${affiliateRef}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('📡 Resposta da API:', response.status, response.statusText);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 Dados recebidos:', data);
+                
+                if (data.success && data.data && data.data.produto_custom_id) {
+                    productId = data.data.produto_custom_id;
+                    console.log('✅ Produto encontrado via afiliado:', productId, '(mantido apenas internamente, não exposto na URL)');
+                    
+                    // NÃO atualizar a URL - manter apenas ref na URL para segurança
+                    // O productId será usado apenas internamente para carregar o produto
+                } else {
+                    console.error('❌ Dados inválidos recebidos:', data);
+                    throw new Error(data.message || 'Produto não encontrado para este afiliado');
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('❌ Erro HTTP:', response.status, errorData);
+                throw new Error(errorData.message || `Erro ao buscar produto do afiliado (${response.status})`);
+            }
+        } catch (error) {
+            console.error('❌ Erro ao buscar produto do afiliado:', error);
+            showNotification(error.message || 'Produto não encontrado para este afiliado', 'error');
+            return;
+        }
+    }
     
     if (!productId) {
         showNotification('ID do produto não encontrado', 'error');

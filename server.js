@@ -5,6 +5,7 @@ require('dotenv').config();
 // Loaders
 const { loadDatabase } = require('./loaders/database');
 const { loadExpress } = require('./loaders/express');
+const { loadRemarketing } = require('./loaders/remarketing');
 
 // Inicializar app
 const app = express();
@@ -32,7 +33,10 @@ async function startServer() {
         // 2. Carregar Configurações do Express e Rotas
         loadExpress(app);
 
-        // 3. Iniciar Servidor
+        // 3. Inicializar Serviço de Remarketing Automático
+        loadRemarketing();
+
+        // 4. Iniciar Servidor
         server.listen(PORT, () => {
             console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
         });

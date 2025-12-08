@@ -2215,6 +2215,143 @@ router.put('/:id', authenticateToken, isVendedorOrAdmin, upload.single('imagem')
   }
 });
 
+// ======================== ROTA DE SOLICITAÇÃO DE APROVAÇÃO ========================
+
+// Rota para solicitar aprovação de produto rejeitado
+router.post('/:id/solicitar-aprovacao', authenticateToken, isVendedorOrAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Buscar produto
+    let produto;
+    if (/^\d+$/.test(id)) {
+      produto = await Produto.findByPk(parseInt(id));
+    } else {
+      produto = await Produto.findOne({ where: { custom_id: id } });
+    }
+    
+    if (!produto) {
+      return res.status(404).json({ 
+        success: false,
+        erro: 'Produto não encontrado' 
+      });
+    }
+    
+    // Verificar se o produto pertence ao usuário
+    if (req.user.tipo_conta !== 'admin' && req.user.role !== 'admin' && produto.vendedor_id !== req.user.id) {
+      return res.status(403).json({ 
+        success: false,
+        erro: 'Acesso negado. Este produto não pertence ao seu catálogo.' 
+      });
+    }
+    
+    // Verificar se o produto está rejeitado
+    if (produto.status_aprovacao !== 'rejeitado') {
+      return res.status(400).json({ 
+        success: false,
+        erro: 'Este produto não está rejeitado. Apenas produtos rejeitados podem solicitar aprovação.' 
+      });
+    }
+    
+    // Verificar se foi rejeitado há mais de 24h
+    const dataRejeicao = produto.updated_at || produto.created_at;
+    if (dataRejeicao) {
+      const horasDesdeRejeicao = (Date.now() - new Date(dataRejeicao).getTime()) / (1000 * 60 * 60);
+      if (horasDesdeRejeicao > 24) {
+        return res.status(400).json({ 
+          success: false,
+          erro: 'Este produto foi rejeitado há mais de 24 horas e não pode mais solicitar aprovação.' 
+        });
+      }
+    }
+    
+    // Buscar dados do vendedor
+    const vendedor = await Usuario.findByPk(produto.vendedor_id);
+    if (!vendedor) {
+      return res.status(404).json({ 
+        success: false,
+        erro: 'Vendedor não encontrado' 
+      });
+    }
+    
+    // Buscar admin para enviar notificação
+    const admin = await Usuario.findOne({ 
+      where: {
+        [Op.or]: [
+          { role: 'admin' },
+          { tipo_conta: 'admin' },
+          { email: 'ratixpay.mz@gmail.com' }
+        ]
+      },
+      order: [['created_at', 'DESC']]
+    });
+    
+    if (!admin || !admin.email) {
+      console.error('⚠️ Admin não encontrado para enviar notificação');
+      return res.status(500).json({ 
+        success: false,
+        erro: 'Erro ao encontrar administrador para enviar notificação' 
+      });
+    }
+    
+    // Enviar email de notificação para admin
+    try {
+      const emailManagerService = require('../services/emailManagerService');
+      
+      await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
+        email: admin.email,
+        nome: admin.nome_completo || 'Administrador',
+        produto: {
+          id: produto.id,
+          custom_id: produto.custom_id,
+          nome: produto.nome,
+          descricao: produto.descricao,
+          link_conteudo: produto.link_conteudo,
+          imagem_url: produto.imagem_url,
+          categoria: produto.categoria,
+          tipo: produto.tipo
+        },
+        vendedor: {
+          nome: vendedor.nome_completo || vendedor.email,
+          email: vendedor.email,
+          id: vendedor.id,
+          custom_id: vendedor.custom_id
+        },
+        motivo_rejeicao: produto.motivo_rejeicao
+      });
+      
+      console.log(`📧 Notificação de solicitação de aprovação enviada para admin: ${admin.email}`);
+      
+      // Atualizar status do produto para pendente_aprovacao
+      produto.status_aprovacao = 'pendente_aprovacao';
+      produto.motivo_rejeicao = null;
+      await produto.save();
+      
+      return res.json({
+        success: true,
+        message: 'Solicitação de aprovação enviada com sucesso. O administrador será notificado.',
+        produto: {
+          id: produto.id,
+          custom_id: produto.custom_id,
+          status_aprovacao: produto.status_aprovacao
+        }
+      });
+    } catch (emailError) {
+      console.error('⚠️ Erro ao enviar notificação de solicitação de aprovação:', emailError);
+      return res.status(500).json({ 
+        success: false,
+        erro: 'Erro ao enviar notificação. Tente novamente mais tarde.' 
+      });
+    }
+  } catch (error) {
+    console.error('❌ Erro ao solicitar aprovação:', error);
+    res.status(500).json({ 
+      success: false,
+      erro: 'Erro ao processar solicitação de aprovação' 
+    });
+  }
+});
+
 // ======================== ROTAS DE EXCLUSÃO ========================
 
 // Rota para deletar um produto

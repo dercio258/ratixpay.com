@@ -204,15 +204,31 @@ async function carregarProdutos() {
             });
             
             // NORMALIZAÇÃO CRÍTICA: Produtos ATIVOS devem estar APROVADOS
-            produtos = produtosDoUsuario.map(produto => {
-                // Se o produto está ativo mas não está aprovado, normalizar para aprovado
-                if (produto.ativo === true && produto.status_aprovacao !== 'aprovado') {
-                    console.warn('⚠️ Produto ativo não aprovado detectado, normalizando:', produto.custom_id || produto.id);
-                    produto.status_aprovacao = 'aprovado';
-                    produto.motivo_rejeicao = null;
-                }
-                return produto;
-            });
+            // Filtrar produtos rejeitados há mais de 24h
+            produtos = produtosDoUsuario
+                .filter(produto => {
+                    // Se produto foi rejeitado, verificar se foi há mais de 24h
+                    if (produto.status_aprovacao === 'rejeitado') {
+                        const dataRejeicao = produto.data_rejeicao || produto.updated_at;
+                        if (dataRejeicao) {
+                            const horasDesdeRejeicao = (Date.now() - new Date(dataRejeicao).getTime()) / (1000 * 60 * 60);
+                            // Se foi rejeitado há mais de 24h, não mostrar
+                            if (horasDesdeRejeicao > 24) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                })
+                .map(produto => {
+                    // Se o produto está ativo mas não está aprovado, normalizar para aprovado
+                    if (produto.ativo === true && produto.status_aprovacao !== 'aprovado') {
+                        console.warn('⚠️ Produto ativo não aprovado detectado, normalizando:', produto.custom_id || produto.id);
+                        produto.status_aprovacao = 'aprovado';
+                        produto.motivo_rejeicao = null;
+                    }
+                    return produto;
+                });
             
             renderizarProdutos();
         } else {
@@ -369,41 +385,105 @@ function criarCardProduto(produto) {
                             <i class="fas fa-plus-circle"></i> Produto complementar
                         </button>
                         <div id="ob-overlay-${produto.id}" class="ob-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;" onclick="closeOBSelector('${produto.id}')"></div>
-                        <div id="ob-panel-${produto.id}" class="ob-panel" style="display:none; position:fixed; z-index:1000; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.12); width:320px; max-height:400px; overflow:auto; transform:translateX(-50%); left:50%; top:50%; margin-top:-200px; max-width:90vw; max-height:80vh;">
-                            <div style="padding:10px; border-bottom:1px solid #eee; font-weight:600; font-size:13px;">Selecione até 3</div>
-                            <div id="ob-list-${produto.id}" style="padding:8px;"></div>
-                            <div style="display:flex; gap:8px; padding:8px; border-top:1px solid #eee; justify-content:flex-end;">
-                                <button class="action-btn secondary" style="padding:6px 10px;" onclick="closeOBSelector('${produto.id}')">Fechar</button>
-                                <button class="action-btn success" style="padding:6px 10px;" onclick="saveOBSelection('${produto.id}')">Salvar</button>
+                        <div id="ob-panel-${produto.id}" class="ob-panel" style="display:none; position:fixed; z-index:1000; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3); width:500px; max-height:600px; overflow:hidden; transform:translateX(-50%); left:50%; top:50%; margin-top:-300px; max-width:90vw;">
+                            <div style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:20px; border-radius:16px 16px 0 0;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <h3 style="margin:0; font-size:18px; font-weight:600; display:flex; align-items:center; gap:10px;">
+                                            <i class="fas fa-gift"></i> Adicionar Produto Order Bump
+                                        </h3>
+                                        <p style="margin:5px 0 0 0; font-size:13px; opacity:0.9;">Selecione até 3 produtos complementares</p>
+                                    </div>
+                                    <button onclick="closeOBSelector('${produto.id}')" style="background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="ob-list-${produto.id}" style="padding:20px; max-height:400px; overflow-y:auto;"></div>
+                            <div style="display:flex; gap:10px; padding:20px; border-top:1px solid var(--border-color); background:var(--bg-input); border-radius:0 0 16px 16px; justify-content:flex-end;">
+                                <button class="action-btn secondary" style="padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600; transition:all 0.3s;" onclick="closeOBSelector('${produto.id}')">Cancelar</button>
+                                <button class="action-btn success" style="padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; transition:all 0.3s; box-shadow:0 4px 12px rgba(16,185,129,0.3);" onclick="saveOBSelection('${produto.id}')" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16,185,129,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16,185,129,0.3)'">
+                                    <i class="fas fa-check"></i> Salvar Seleção
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="product-actions">
-                    <div class="payment-actions">
-                        ${(produto.status_aprovacao === 'aprovado' || (produto.ativo && produto.status_aprovacao !== 'rejeitado')) ? `
-                            <button onclick="copiarLinkPagamento('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn success">
-                                <i class="fas fa-copy"></i> Copiar Link
-                            </button>
-                            <button onclick="compartilharProduto('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn info">
-                                <i class="fas fa-share"></i> Compartilhar
-                            </button>
-                            <button onclick="adicionarUpsell('${produto.id}', '${produto.nome}')" class="action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                <i class="fas fa-arrow-up"></i> Adicionar Upsell
-                            </button>
-                        ` : `
-                            <button disabled class="action-btn" style="background: #6c757d; color: white; cursor: not-allowed;" title="Produto aguardando aprovação - Link de checkout não disponível">
-                                <i class="fas fa-clock"></i> Aguardando Aprovação
-                            </button>
-                        `}
-                    </div>
-                    <a href="atualizar-produto.html?id=${produto.id}" class="action-btn warning">
-                        <i class="fas fa-edit"></i> Atualizar Produto
-                    </a>
-                    <button onclick="confirmarExclusao('${produto.id}', '${produto.nome}')" class="action-btn danger">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
+                    ${(() => {
+                        const dataRejeicao = produto.data_rejeicao || produto.updated_at;
+                        const horasDesdeRejeicao = dataRejeicao ? (Date.now() - new Date(dataRejeicao).getTime()) / (1000 * 60 * 60) : null;
+                        const rejeitadoMaisDe24h = produto.status_aprovacao === 'rejeitado' && horasDesdeRejeicao && horasDesdeRejeicao > 24;
+                        const isRejeitado = produto.status_aprovacao === 'rejeitado' && !rejeitadoMaisDe24h;
+                        const isPendente = produto.status_aprovacao === 'pendente_aprovacao' || (produto.status_aprovacao === null && !produto.ativo);
+                        const isAprovado = produto.status_aprovacao === 'aprovado' || (produto.ativo && produto.status_aprovacao !== 'rejeitado');
+                        
+                        // Se rejeitado há mais de 24h, não mostrar o produto
+                        if (rejeitadoMaisDe24h) {
+                            return '';
+                        }
+                        
+                        // Se rejeitado (menos de 24h), mostrar botões de solicitar aprovação e eliminar
+                        if (isRejeitado) {
+                            return `
+                                <div class="payment-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button onclick="solicitarAprovacaoProduto('${produto.id}')" class="action-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; flex: 1;">
+                                        <i class="fas fa-check-circle"></i> Solicitar Aprovação
+                                    </button>
+                                    <button onclick="confirmarExclusao('${produto.id}', '${escapeHtml(produto.nome)}')" class="action-btn danger" style="flex: 1;">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        
+                        // Se pendente, mostrar apenas botão de aguardando
+                        if (isPendente) {
+                            return `
+                                <div class="payment-actions">
+                                    <button disabled class="action-btn" style="background: #ffc107; color: #000; cursor: not-allowed; width: 100%;" title="Produto aguardando aprovação - Link de checkout não disponível">
+                                        <i class="fas fa-clock"></i> Aguardando Aprovação
+                                    </button>
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <a href="atualizar-produto.html?id=${produto.id}" class="action-btn warning" style="flex: 1;">
+                                        <i class="fas fa-edit"></i> Atualizar Produto
+                                    </a>
+                                    <button onclick="confirmarExclusao('${produto.id}', '${produto.nome}')" class="action-btn danger" style="flex: 1;">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        
+                        // Se aprovado, mostrar ações normais
+                        if (isAprovado) {
+                            return `
+                                <div class="payment-actions">
+                                    <button onclick="copiarLinkPagamento('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn success">
+                                        <i class="fas fa-copy"></i> Copiar Link
+                                    </button>
+                                    <button onclick="compartilharProduto('${produto.custom_id || produto.id}', '${produto.nome}')" class="action-btn info">
+                                        <i class="fas fa-share"></i> Compartilhar
+                                    </button>
+                                    <button onclick="adicionarUpsell('${produto.id}', '${produto.nome}')" class="action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                        <i class="fas fa-arrow-up"></i> Adicionar Upsell
+                                    </button>
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <a href="atualizar-produto.html?id=${produto.id}" class="action-btn warning" style="flex: 1;">
+                                        <i class="fas fa-edit"></i> Atualizar Produto
+                                    </a>
+                                    <button onclick="confirmarExclusao('${produto.id}', '${produto.nome}')" class="action-btn danger" style="flex: 1;">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        
+                        return '';
+                    })()}
                 </div>
             </div>
         </div>
@@ -414,21 +494,26 @@ function criarCardProduto(produto) {
 function gerarStatusBadges(produto) {
     const badges = [];
     
+    // Verificar se produto foi rejeitado há mais de 24h
+    const dataRejeicao = produto.data_rejeicao || produto.updated_at;
+    const horasDesdeRejeicao = dataRejeicao ? (Date.now() - new Date(dataRejeicao).getTime()) / (1000 * 60 * 60) : null;
+    const rejeitadoMaisDe24h = produto.status_aprovacao === 'rejeitado' && horasDesdeRejeicao && horasDesdeRejeicao > 24;
+    
     // Badge de status de aprovação
-    // IMPORTANTE: Produtos ATIVOS devem estar APROVADOS
-    // Se estiver ativo mas não aprovado, considerar como erro e não mostrar badge de pendente
-    if (produto.status_aprovacao === 'rejeitado') {
+    if (produto.status_aprovacao === 'rejeitado' && !rejeitadoMaisDe24h) {
         badges.push('<span class="status-badge" style="background: #dc3545; color: white;">❌ Rejeitado</span>');
-    } else if (produto.status_aprovacao === 'pendente_aprovacao' && !produto.ativo) {
-        // Só mostrar "Aguardando Aprovação" se o produto estiver INATIVO
+    } else if (produto.status_aprovacao === 'pendente_aprovacao' || (produto.status_aprovacao === null && !produto.ativo)) {
+        // Mostrar como pendente se não estiver aprovado e não estiver ativo
         badges.push('<span class="status-badge" style="background: #ffc107; color: #000;">⏳ Aguardando Aprovação</span>');
     }
-    // Produtos ativos devem estar aprovados - não mostrar badge de pendente
     
-    if (produto.ativo) {
-        badges.push('<span class="status-badge active">Ativo</span>');
-    } else {
-        badges.push('<span class="status-badge inactive">Inativo</span>');
+    // Só mostrar status ativo/inativo se não estiver rejeitado há mais de 24h
+    if (!rejeitadoMaisDe24h) {
+        if (produto.ativo && produto.status_aprovacao === 'aprovado') {
+            badges.push('<span class="status-badge active">Ativo</span>');
+        } else if (!produto.ativo && produto.status_aprovacao !== 'rejeitado') {
+            badges.push('<span class="status-badge inactive">Inativo</span>');
+        }
     }
     
     if (produto.afiliado) {
@@ -488,14 +573,34 @@ async function carregarListaOB(produtoId) {
             .filter(p => p.id !== produtoId) // não listar ele mesmo
             .forEach(p => {
                 const row = document.createElement('div');
-                row.style = 'display:flex; align-items:center; gap:8px; padding:6px 4px;';
+                row.style = 'display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:8px; background:var(--bg-input); border:2px solid var(--border-color); border-radius:12px; cursor:pointer; transition:all 0.3s;';
+                row.onmouseover = function() { this.style.borderColor = '#667eea'; this.style.background = 'rgba(102, 126, 234, 0.1)'; };
+                row.onmouseout = function() { this.style.borderColor = 'var(--border-color)'; this.style.background = 'var(--bg-input)'; };
+                row.onclick = function() { cb.click(); };
+                
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
                 cb.value = p.id;
                 cb.checked = selecionados.has(p.id);
-                cb.addEventListener('change', () => limitarOBMax(produtoId));
+                cb.style = 'width:20px; height:20px; cursor:pointer; accent-color:#667eea;';
+                cb.addEventListener('change', () => {
+                    limitarOBMax(produtoId);
+                    if (cb.checked) {
+                        row.style.borderColor = '#667eea';
+                        row.style.background = 'rgba(102, 126, 234, 0.15)';
+                    } else {
+                        row.style.borderColor = 'var(--border-color)';
+                        row.style.background = 'var(--bg-input)';
+                    }
+                });
+                
                 const label = document.createElement('label');
-                label.textContent = `${p.nome} — ${formatarPreco(p.preco || 0)}`;
+                label.style = 'flex:1; cursor:pointer; display:flex; flex-direction:column; gap:4px;';
+                label.innerHTML = `
+                    <span style="font-weight:600; color:var(--text-primary);">${escapeHtml(p.nome)}</span>
+                    <span style="font-size:14px; color:var(--text-secondary);">${formatarPreco(p.preco || 0)}</span>
+                `;
+                
                 row.appendChild(cb);
                 row.appendChild(label);
                 container.appendChild(row);
@@ -630,22 +735,32 @@ function mostrarModalSelecionarUpsell(produtoId, produtoNome, paginas, paginaAtu
         modal.id = 'modal-selecionar-upsell';
         modal.className = 'modal';
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>Selecionar Página de Upsell</h2>
-                    <button class="close-modal" onclick="fecharModalSelecionarUpsell()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            <div class="modal-content" style="max-width: 700px; border-radius: 16px; overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 16px 16px 0 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="margin: 0; font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-arrow-up"></i> Adicionar Página de Upsell
+                            </h2>
+                            <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">
+                                Escolha qual página será exibida após o pagamento de <strong>${escapeHtml(produtoNome)}</strong>
+                            </p>
+                        </div>
+                        <button class="close-modal" onclick="fecharModalSelecionarUpsell()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
-                <p style="margin-bottom: 20px; color: #666;">
-                    Escolha qual página de upsell será exibida após o pagamento de <strong>${escapeHtml(produtoNome)}</strong>
-                </p>
-                <div id="upsell-pages-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
-                    <!-- Lista de páginas será inserida aqui -->
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button onclick="fecharModalSelecionarUpsell()" class="btn btn-secondary">Cancelar</button>
-                    <button onclick="criarNovaPaginaUpsell()" class="btn btn-info" style="background: #17a2b8;">
-                        <i class="fas fa-plus"></i> Criar Nova Página
-                    </button>
+                <div style="padding: 24px;">
+                    <div id="upsell-pages-list" style="max-height: 450px; overflow-y: auto; margin-bottom: 20px;">
+                        <!-- Lista de páginas será inserida aqui -->
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                        <button onclick="fecharModalSelecionarUpsell()" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; background: var(--bg-input); color: var(--text-primary); transition: all 0.3s;">Cancelar</button>
+                        <button onclick="criarNovaPaginaUpsell()" class="btn btn-info" style="padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
+                            <i class="fas fa-plus"></i> Criar Nova Página
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -654,20 +769,27 @@ function mostrarModalSelecionarUpsell(produtoId, produtoNome, paginas, paginaAtu
 
     // Preencher lista de páginas
     const listContainer = document.getElementById('upsell-pages-list');
-    listContainer.innerHTML = paginas.map(pagina => {
+        listContainer.innerHTML = paginas.map(pagina => {
         const isSelected = paginaAtualId === pagina.id;
         return `
-            <div class="upsell-page-item" style="border: 2px solid ${isSelected ? '#667eea' : '#e9ecef'}; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; ${isSelected ? 'background: #f0f4ff;' : ''}" 
+            <div class="upsell-page-item" style="border: 2px solid ${isSelected ? '#667eea' : 'var(--border-color)'}; border-radius: 12px; padding: 20px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; background: ${isSelected ? 'rgba(102, 126, 234, 0.1)' : 'var(--bg-input)'}; box-shadow: ${isSelected ? '0 4px 12px rgba(102, 126, 234, 0.15)' : 'none'};" 
                  onclick="selecionarPaginaUpsell('${produtoId}', '${pagina.id}', '${escapeHtml(pagina.titulo)}')"
-                 onmouseover="this.style.borderColor='#667eea'; this.style.background='#f0f4ff';"
-                 onmouseout="this.style.borderColor='${isSelected ? '#667eea' : '#e9ecef'}'; this.style.background='${isSelected ? '#f0f4ff' : 'white'}';">
+                 onmouseover="this.style.borderColor='#667eea'; this.style.background='rgba(102, 126, 234, 0.15)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.2)';"
+                 onmouseout="this.style.borderColor='${isSelected ? '#667eea' : 'var(--border-color)'}'; this.style.background='${isSelected ? 'rgba(102, 126, 234, 0.1)' : 'var(--bg-input)'}'; this.style.transform='translateY(0)'; this.style.boxShadow='${isSelected ? '0 4px 12px rgba(102, 126, 234, 0.15)' : 'none'}'">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h4 style="margin: 0 0 5px 0; color: #333;">${escapeHtml(pagina.titulo)}</h4>
-                        <p style="margin: 0; color: #666; font-size: 0.9rem;">${escapeHtml(pagina.nome_produto)}</p>
-                        ${isSelected ? '<span style="color: #667eea; font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Página atual</span>' : ''}
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 4px 0; color: var(--text-primary); font-weight: 600; font-size: 16px;">${escapeHtml(pagina.titulo)}</h4>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">${escapeHtml(pagina.nome_produto || 'Sem produto associado')}</p>
+                            </div>
+                        </div>
+                        ${isSelected ? '<div style="display: flex; align-items: center; gap: 6px; color: #667eea; font-size: 13px; font-weight: 600; margin-top: 8px;"><i class="fas fa-check-circle"></i> Página atual selecionada</div>' : ''}
                     </div>
-                    <i class="fas fa-chevron-right" style="color: #999;"></i>
+                    <i class="fas fa-chevron-right" style="color: var(--text-secondary); font-size: 18px; margin-left: 16px;"></i>
                 </div>
             </div>
         `;
@@ -740,7 +862,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Confirmar exclusão
+// Confirmar exclusão com melhor UX
 function confirmarExclusao(produtoId, produtoNome) {
     produtoParaExcluir = produtoId;
     
@@ -751,9 +873,18 @@ function confirmarExclusao(produtoId, produtoNome) {
     // Definir texto de confirmação
     confirmationText = `DELETE#${customId}`;
     
-    
     // Atualizar elementos do modal
-    modalMensagem.textContent = `Tem certeza que deseja excluir o produto "${produtoNome}"? Esta ação não pode ser desfeita.`;
+    modalMensagem.innerHTML = `
+        Você está prestes a excluir permanentemente o produto <strong>"${escapeHtml(produtoNome)}"</strong>.<br><br>
+        <strong>⚠️ Esta ação não pode ser desfeita!</strong><br><br>
+        Todos os dados relacionados a este produto serão removidos, incluindo:
+        <ul style="margin: 12px 0; padding-left: 20px; color: var(--text-secondary);">
+            <li>Informações do produto</li>
+            <li>Histórico de vendas associado</li>
+            <li>Configurações de upsell</li>
+            <li>Order bumps relacionados</li>
+        </ul>
+    `;
     
     // Atualizar texto de confirmação
     const confirmationDisplay = document.getElementById('confirmation-text-display');
@@ -771,11 +902,18 @@ function confirmarExclusao(produtoId, produtoNome) {
     // Desabilitar botão de confirmação
     if (btnConfirmar) {
         btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = '<i class="fas fa-trash-alt"></i> Confirmar Exclusão';
+    }
+    
+    // Resetar animação do modal
+    const modalContent = document.querySelector('#modal-confirmacao .modal-content');
+    if (modalContent) {
+        modalContent.style.animation = '';
     }
     
     modalConfirmacao.style.display = 'flex';
     
-    // Focar no campo de entrada
+    // Focar no campo de entrada após animação
     setTimeout(() => {
         if (confirmationInput) {
             confirmationInput.focus();
@@ -796,13 +934,52 @@ function validarTextoConfirmacao() {
         input.classList.remove('invalid');
         input.classList.add('valid');
         btnConfirmar.disabled = false;
+        
+        // Adicionar feedback visual de sucesso
+        btnConfirmar.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            if (btnConfirmar) btnConfirmar.style.transform = '';
+        }, 200);
     } else if (inputValue.length > 0) {
         input.classList.remove('valid');
         input.classList.add('invalid');
         btnConfirmar.disabled = true;
+        
+        // Feedback visual de erro
+        input.style.animation = 'shake 0.3s';
+        setTimeout(() => {
+            if (input) input.style.animation = '';
+        }, 300);
     } else {
         input.classList.remove('valid', 'invalid');
         btnConfirmar.disabled = true;
+    }
+}
+
+// Adicionar estilos de animação se não existirem (será adicionado uma vez)
+if (typeof window.deleteModalStylesAdded === 'undefined') {
+    window.deleteModalStylesAdded = true;
+    if (!document.getElementById('delete-modal-styles')) {
+        const style = document.createElement('style');
+        style.id = 'delete-modal-styles';
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-8px); }
+                75% { transform: translateX(8px); }
+            }
+            @keyframes modalFadeOut {
+                from { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1); 
+                }
+                to { 
+                    opacity: 0; 
+                    transform: translateY(-20px) scale(0.95); 
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
 
@@ -821,14 +998,28 @@ function fecharModal() {
     produtoParaExcluir = null;
 }
 
-// Excluir produto
+// Excluir produto com feedback visual aprimorado
 async function excluirProduto(produtoId) {
+    const btnConfirmar = document.getElementById('btn-confirmar');
+    const modalContent = document.querySelector('#modal-confirmacao .modal-content');
+    
     try {
+        // Mostrar estado de carregamento
+        if (btnConfirmar) {
+            btnConfirmar.disabled = true;
+            btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Excluindo...';
+        }
+        
+        if (modalContent) {
+            modalContent.style.opacity = '0.7';
+            modalContent.style.pointerEvents = 'none';
+        }
         
         const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
         
         if (!token) {
             mostrarErro('Usuário não autenticado. Faça login novamente.');
+            restaurarBotaoConfirmar();
             return;
         }
         
@@ -845,23 +1036,62 @@ async function excluirProduto(produtoId) {
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 2000);
+            restaurarBotaoConfirmar();
             return;
         }
         
         const data = await response.json();
         
         if (response.ok) {
-            mostrarSucesso('Produto excluído com sucesso');
+            // Feedback visual de sucesso
+            if (modalContent) {
+                modalContent.style.animation = 'modalFadeOut 0.3s ease';
+            }
+            
+            mostrarSucesso('Produto excluído com sucesso!');
+            
+            // Remover produto da lista
             produtos = produtos.filter(p => p.id !== produtoId);
-            renderizarProdutos();
+            
+            // Fechar modal após animação
+            setTimeout(() => {
+                fecharModal();
+                renderizarProdutos();
+            }, 300);
+            
+            // Verificar se não há mais produtos
+            if (produtos.length === 0) {
+                setTimeout(() => {
+                    produtosContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                }, 400);
+            }
         } else {
-            mostrarErro(data.erro || 'Erro ao excluir produto');
+            restaurarBotaoConfirmar();
+            mostrarErro(data.erro || data.message || 'Erro ao excluir produto');
         }
     } catch (error) {
         console.error('Erro ao excluir produto:', error);
-        mostrarErro('Erro de conexão com o servidor');
+        restaurarBotaoConfirmar();
+        mostrarErro('Erro de conexão com o servidor. Verifique sua internet e tente novamente.');
+    } finally {
+        if (modalContent) {
+            modalContent.style.opacity = '';
+            modalContent.style.pointerEvents = '';
+        }
     }
 }
+
+// Restaurar botão de confirmação ao estado original
+function restaurarBotaoConfirmar() {
+    const btnConfirmar = document.getElementById('btn-confirmar');
+    if (btnConfirmar) {
+        btnConfirmar.disabled = false;
+        btnConfirmar.innerHTML = '<i class="fas fa-trash-alt"></i> Confirmar Exclusão';
+    }
+}
+
+// Estilos de animação já foram adicionados acima
 
 // Alternar status ativo
 async function alternarAtivo(produtoId) {
@@ -1096,6 +1326,40 @@ async function copiarLinkPagamento(produtoId, nomeProduto) {
     } catch (error) {
         console.error('Erro ao copiar link:', error);
         mostrarErro('Erro ao copiar link de pagamento');
+    }
+}
+
+// Solicitar aprovação de produto rejeitado
+async function solicitarAprovacaoProduto(produtoId) {
+    try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+        
+        if (!token) {
+            mostrarErro('Usuário não autenticado');
+            return;
+        }
+
+        // Enviar solicitação de aprovação (o backend buscará os dados do produto)
+        const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/solicitar-aprovacao`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            mostrarSucesso('Solicitação de aprovação enviada com sucesso! O administrador será notificado.');
+            // Recarregar produtos para atualizar status
+            await carregarProdutos();
+        } else {
+            mostrarErro(data.message || data.erro || 'Erro ao solicitar aprovação');
+        }
+    } catch (error) {
+        console.error('Erro ao solicitar aprovação:', error);
+        mostrarErro('Erro de conexão ao solicitar aprovação');
     }
 }
 

@@ -965,7 +965,23 @@
                 const response = await fetch(`${API_BASE}/pagamento/order-bump/${productId}`);
                 
                 if (!response.ok) {
-                    console.warn('⚠️ Falha ao buscar Order Bumps:', response.status);
+                    // Tentar ler a resposta como texto primeiro para verificar se é JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        console.warn('⚠️ Falha ao buscar Order Bumps:', response.status, errorData.error || errorData.message || '');
+                    } else {
+                        const errorText = await response.text();
+                        console.warn('⚠️ Falha ao buscar Order Bumps:', response.status, 'Resposta não-JSON recebida');
+                        // Se a resposta não for JSON, apenas logar silenciosamente
+                    }
+                    return;
+                }
+                
+                // Verificar se a resposta é JSON antes de fazer parse
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.warn('⚠️ Resposta não é JSON, ignorando Order Bumps');
                     return;
                 }
                 
@@ -984,6 +1000,7 @@
                 
             } catch (error) {
                 console.error('❌ Erro ao carregar produtos complementares:', error);
+                // Não exibir erro ao usuário, apenas logar silenciosamente
             }
         }
         

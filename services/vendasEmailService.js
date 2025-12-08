@@ -107,7 +107,7 @@ class VendasEmailService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <img src="https://ratixpay.com/uploads/produtos/originals/1761230672212_c05b892ecbf3ee55_gemini_generated_image_dhjcjbdhjcjbdhjc__1_.png" 
+                        <img src="https://ratixpay.site/uploads/produtos/originals/1761230672212_c05b892ecbf3ee55_gemini_generated_image_dhjcjbdhjcjbdhjc__1_.png" 
                              alt="RatixPay Logo" 
                              style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
                     </div>
@@ -301,7 +301,7 @@ class VendasEmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/dashboard" style="background-color: #F64C00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                <a href="https://ratixpay.site/dashboard" style="background-color: #F64C00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
                     🏠 Acessar Minha Conta
                 </a>
             </div>

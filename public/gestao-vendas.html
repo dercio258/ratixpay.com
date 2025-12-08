@@ -55,8 +55,8 @@
         body.dark-mode {
             --bg-body: #000000;
             --bg-card: #111111;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
+            --text-main: #e0e0e0; /* Texto principal mais suave para melhor contraste */
+            --text-muted: #b0b0b0; /* Texto secundário mais claro */
             --border-light: #2a2a2a;
             --bg-hover: #1a1a1a;
             
@@ -67,6 +67,31 @@
             
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Ajustes específicos para tabelas no modo escuro */
+        body.dark-mode .table th {
+            background: var(--bg-hover) !important;
+            color: var(--text-muted) !important;
+            border-bottom-color: var(--border-light) !important;
+        }
+        
+        body.dark-mode .table td {
+            color: var(--text-main) !important;
+            border-bottom-color: var(--border-light) !important;
+        }
+        
+        body.dark-mode .table tbody tr {
+            background: transparent !important;
+        }
+        
+        body.dark-mode .table tbody tr:hover {
+            background: var(--bg-hover) !important;
+        }
+        
+        body.dark-mode .table-responsive {
+            background: var(--bg-card) !important;
+            border-color: var(--border-light) !important;
         }
         * { box-sizing: border-box; outline: none; }
         body {

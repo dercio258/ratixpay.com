@@ -17,6 +17,25 @@ function gerarCodigoAfiliado() {
     return codigo;
 }
 
+// Função para normalizar link de afiliado (garantir que tenha apenas ref, sem produto na URL)
+function normalizarLinkAfiliado(linkAfiliado, codigoAfiliado) {
+    if (!linkAfiliado || !codigoAfiliado) {
+        return linkAfiliado;
+    }
+    
+    try {
+        const url = new URL(linkAfiliado);
+        const baseUrl = `${url.protocol}//${url.host}${url.pathname}`;
+        
+        // Sempre retornar apenas com ref, removendo produto se existir
+        return `${baseUrl}?ref=${codigoAfiliado}`;
+    } catch (error) {
+        // Se não for uma URL válida, tentar extrair o código e gerar link limpo
+        const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
+        return `${baseUrl}/checkout.html?ref=${codigoAfiliado}`;
+    }
+}
+
 // GET - Buscar configurações de integração do afiliado pelo código (público, para rastreamento)
 router.get('/config/:codigo', async (req, res) => {
     try {
@@ -56,6 +75,103 @@ router.get('/config/:codigo', async (req, res) => {
         return res.status(500).json({
             success: false,
             message: 'Erro ao buscar configurações',
+            error: error.message
+        });
+    }
+});
+
+// GET - Buscar produto do afiliado pelo código (público, para checkout inteligente)
+router.get('/produto/:codigo', async (req, res) => {
+    try {
+        const { codigo } = req.params;
+        
+        if (!codigo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Código de afiliado é obrigatório'
+            });
+        }
+
+        // Buscar afiliado
+        const afiliado = await Afiliado.findOne({
+            where: {
+                codigo_afiliado: codigo,
+                status: 'ativo'
+            }
+        });
+
+        if (!afiliado) {
+            return res.status(404).json({
+                success: false,
+                message: 'Afiliado não encontrado ou inativo'
+            });
+        }
+
+        // Buscar links de tracking do afiliado com produtos
+        // Primeiro buscar todos os links com produto_id não nulo
+        const links = await LinkTracking.findAll({
+            where: {
+                afiliado_id: afiliado.id,
+                produto_id: { [Op.ne]: null }
+            },
+            include: [{
+                model: Produto,
+                as: 'produto',
+                required: true, // INNER JOIN - apenas links com produto válido
+                attributes: ['id', 'custom_id', 'nome', 'preco', 'imagem_url', 'descricao', 'ativo', 'permitir_afiliados']
+            }],
+            order: [
+                // Ordenar por mais cliques primeiro
+                ['cliques', 'DESC'],
+                ['conversoes', 'DESC'],
+                ['created_at', 'DESC']
+            ]
+        });
+
+        console.log(`🔍 [AFILIADO PRODUTO] Encontrados ${links.length} links para afiliado ${codigo}`);
+
+        // Filtrar apenas produtos ativos e que permitem afiliados
+        const linksValidos = links.filter(link => {
+            const produto = link.produto;
+            if (!produto) return false;
+            const valido = produto.ativo === true && produto.permitir_afiliados === true;
+            if (!valido) {
+                console.log(`⚠️ [AFILIADO PRODUTO] Produto ${produto.custom_id} ignorado: ativo=${produto.ativo}, permitir_afiliados=${produto.permitir_afiliados}`);
+            }
+            return valido;
+        });
+
+        if (!linksValidos || linksValidos.length === 0) {
+            console.log(`❌ [AFILIADO PRODUTO] Nenhum produto válido encontrado para afiliado ${codigo}`);
+            return res.status(404).json({
+                success: false,
+                message: 'Nenhum produto encontrado para este afiliado'
+            });
+        }
+
+        // Pegar o primeiro produto válido (já ordenado por cliques)
+        const linkSelecionado = linksValidos[0];
+        const produto = linkSelecionado.produto;
+        
+        console.log(`✅ [AFILIADO PRODUTO] Produto selecionado: ${produto.custom_id} - ${produto.nome}`);
+
+        return res.json({
+            success: true,
+            data: {
+                produto_id: produto.id,
+                produto_custom_id: produto.custom_id,
+                nome: produto.nome,
+                preco: produto.preco,
+                imagem_url: produto.imagem_url,
+                descricao: produto.descricao,
+                link_afiliado: linkSelecionado.link_afiliado
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar produto do afiliado:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar produto do afiliado',
             error: error.message
         });
     }
@@ -122,9 +238,17 @@ router.get('/meus-links', authenticateAfiliado, async (req, res) => {
             const creditosPendentes = Math.floor(cliquesPendentes / 10) * 1.00;
             const cliquesParaProximoCredito = 10 - (cliquesPendentes % 10);
             
+            // Normalizar link para garantir que tenha apenas ref (sem produto na URL)
+            const linkNormalizado = normalizarLinkAfiliado(link.link_afiliado, req.afiliado.codigo_afiliado);
+            
+            // Atualizar no banco se o link estiver desatualizado
+            if (link.link_afiliado !== linkNormalizado) {
+                await link.update({ link_afiliado: linkNormalizado });
+            }
+            
             return {
                 id: link.id,
-                link_afiliado: link.link_afiliado,
+                link_afiliado: linkNormalizado,
                 link_original: link.link_original,
                 produto_id: link.produto_id,
                 produto: link.produto ? {
@@ -800,9 +924,10 @@ router.post('/gerar-link', authenticateAfiliado, async (req, res) => {
             });
         }
         
-        // Gerar link de afiliado usando o código do afiliado
-        const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
-        const linkAfiliado = `${linkOriginal}&ref=${req.afiliado.codigo_afiliado}`;
+        // Gerar link de afiliado usando apenas a referência (proteção: produto não exposto na URL)
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`; // Para referência interna
+        const linkAfiliado = `${baseUrl}/checkout.html?ref=${req.afiliado.codigo_afiliado}`; // Link público (sem produto)
         
         // Criar novo link (garantindo um link por produto)
         linkTracking = await LinkTracking.create({
@@ -882,16 +1007,17 @@ router.post('/gerar-link-produto', authenticateAfiliado, async (req, res) => {
                     link_original: linkTracking.link_original,
                     produto_id: linkTracking.produto_id,
                     cliques: linkTracking.cliques,
-                    cliques_pagos: linkTracking.cliques_pagos,
-                    creditos_gerados: parseFloat(linkTracking.creditos_gerados || 0),
-                    created_at: linkTracking.created_at
+                cliques_pagos: linkTracking.cliques_pagos,
+                creditos_gerados: parseFloat(linkTracking.creditos_gerados || 0),
+                created_at: linkTracking.created_at
                 }
             });
         }
         
-        // Gerar link de afiliado usando o código do afiliado
-        const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
-        const linkAfiliado = `${linkOriginal}&ref=${req.afiliado.codigo_afiliado}`;
+        // Gerar link de afiliado usando apenas a referência (proteção: produto não exposto na URL)
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`; // Para referência interna
+        const linkAfiliado = `${baseUrl}/checkout.html?ref=${req.afiliado.codigo_afiliado}`; // Link público (sem produto)
         
         // Criar novo link (garantindo um link por produto)
         linkTracking = await LinkTracking.create({
@@ -1360,11 +1486,12 @@ router.post('/registrar-clique-valido', async (req, res) => {
             console.log(`🔍 [LINK TRACKING] Busca para afiliado ${afiliado.id} e produto ${produto.id}: ${linkTracking ? 'ENCONTRADO' : 'NÃO ENCONTRADO'}`);
         }
 
-        // Se não encontrou link tracking, criar um básico
-        if (!linkTracking && produto) {
-            console.log(`⚠️ [LINK TRACKING] Link não encontrado, criando novo para afiliado ${afiliado.id} e produto ${produto.id}...`);
-            const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produto.custom_id}`;
-            const linkAfiliado = `${linkOriginal}&ref=${afiliado.codigo_afiliado}`;
+            // Se não encontrou link tracking, criar um básico
+            if (!linkTracking && produto) {
+                console.log(`⚠️ [LINK TRACKING] Link não encontrado, criando novo para afiliado ${afiliado.id} e produto ${produto.id}...`);
+                const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+                const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`; // Para referência interna
+                const linkAfiliado = `${baseUrl}/checkout.html?ref=${afiliado.codigo_afiliado}`; // Link público (sem produto)
             
             try {
                 linkTracking = await LinkTracking.create({
@@ -1639,15 +1766,15 @@ router.post('/banners', authenticateAfiliado, async (req, res) => {
             if (linkTracking) {
                 linkAfiliado = linkTracking.link_afiliado;
             } else {
-                // Gerar link básico se não existir
+                // Gerar link básico se não existir (apenas com ref, sem produto na URL)
                 const produto = await Produto.findByPk(produto_id);
                 if (produto) {
                     const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
-                    linkAfiliado = `${baseUrl}/checkout.html?produto=${produto.custom_id}&ref=${req.afiliado.codigo_afiliado}`;
+                    linkAfiliado = `${baseUrl}/checkout.html?ref=${req.afiliado.codigo_afiliado}`; // Proteção: produto não exposto
                 }
             }
         } else {
-            // Gerar link genérico
+            // Gerar link genérico (apenas com ref)
             const baseUrl = process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000';
             linkAfiliado = `${baseUrl}/checkout.html?ref=${req.afiliado.codigo_afiliado}`;
         }
@@ -1997,6 +2124,14 @@ router.get('/meus-produtos', authenticateAfiliado, async (req, res) => {
                 comissaoInfo = `MZN ${parseFloat(produto.comissao_valor).toFixed(2)}`;
             }
 
+            // Normalizar link para garantir que tenha apenas ref (sem produto na URL)
+            const linkNormalizado = normalizarLinkAfiliado(link.link_afiliado, req.afiliado.codigo_afiliado);
+            
+            // Atualizar no banco se o link estiver desatualizado
+            if (link.link_afiliado !== linkNormalizado) {
+                await link.update({ link_afiliado: linkNormalizado });
+            }
+
             return {
                 id: link.id,
                 produto_id: produto.id,
@@ -2005,7 +2140,7 @@ router.get('/meus-produtos', authenticateAfiliado, async (req, res) => {
                 comissao_percentual: produto.comissao_percentual,
                 comissao_valor: produto.comissao_valor,
                 comissao_info: comissaoInfo,
-                link_afiliado: link.link_afiliado,
+                link_afiliado: linkNormalizado,
                 total_vendas: totalVendas,
                 total_cliques: totalCliques,
                 comissoes_geradas: comissoesGeradas,
@@ -2115,11 +2250,11 @@ router.post('/afiliar-produto', authenticateAfiliado, async (req, res) => {
             });
         }
 
-        // Gerar link único de afiliado
+        // Gerar link único de afiliado (proteção: produto não exposto na URL)
         const baseUrl = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:4000';
         const codigoAfiliado = req.afiliado.codigo_afiliado;
-        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`;
-        const linkAfiliado = `${linkOriginal}&ref=${codigoAfiliado}`;
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`; // Para referência interna
+        const linkAfiliado = `${baseUrl}/checkout.html?ref=${codigoAfiliado}`; // Link público (sem produto)
 
         // Criar link de tracking
         const linkTracking = await LinkTracking.create({
@@ -2292,6 +2427,14 @@ router.get('/meus-produtos', authenticateToken, async (req, res) => {
                 comissaoInfo = `MZN ${parseFloat(produto.comissao_valor).toFixed(2)}`;
             }
 
+            // Normalizar link para garantir que tenha apenas ref (sem produto na URL)
+            const linkNormalizado = normalizarLinkAfiliado(link.link_afiliado, afiliado.codigo_afiliado);
+            
+            // Atualizar no banco se o link estiver desatualizado
+            if (link.link_afiliado !== linkNormalizado) {
+                await link.update({ link_afiliado: linkNormalizado });
+            }
+
             return {
                 id: link.id,
                 produto_id: produto.id,
@@ -2300,7 +2443,7 @@ router.get('/meus-produtos', authenticateToken, async (req, res) => {
                 comissao_percentual: produto.comissao_percentual,
                 comissao_valor: produto.comissao_valor,
                 comissao_info: comissaoInfo,
-                link_afiliado: link.link_afiliado,
+                link_afiliado: linkNormalizado,
                 total_vendas: totalVendas,
                 total_cliques: totalCliques,
                 comissoes_geradas: comissoesGeradas,
@@ -2434,11 +2577,11 @@ router.post('/afiliar-produto', authenticateToken, async (req, res) => {
             });
         }
 
-        // Gerar link único de afiliado
+        // Gerar link único de afiliado (proteção: produto não exposto na URL)
         const baseUrl = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:4000';
         const codigoAfiliado = afiliado.codigo_afiliado;
-        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`;
-        const linkAfiliado = `${linkOriginal}&ref=${codigoAfiliado}`;
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produto.custom_id}`; // Para referência interna
+        const linkAfiliado = `${baseUrl}/checkout.html?ref=${codigoAfiliado}`; // Link público (sem produto)
 
         // Criar link de tracking
         const linkTracking = await LinkTracking.create({

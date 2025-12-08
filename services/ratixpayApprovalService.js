@@ -2,11 +2,11 @@ const axios = require('axios');
 
 /**
  * Serviço para integração com a API de aprovação de produtos da RatixPay
- * API: https://api.ratixpay.com/analisar
+ * API: https://api.ratixpay.site/analisar
  */
 class RatixpayApprovalService {
     constructor() {
-        this.apiBaseUrl = process.env.RATIXPAY_API_URL || 'https://api.ratixpay.com';
+        this.apiBaseUrl = process.env.RATIXPAY_API_URL || 'https://api.ratixpay.site';
         this.timeout = 60000; // 60 segundos (aumentado de 30s)
         this.maxRetries = 3; // Número máximo de tentativas
         this.retryDelay = 2000; // Delay entre tentativas (2 segundos)

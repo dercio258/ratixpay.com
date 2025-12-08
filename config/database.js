@@ -1350,6 +1350,501 @@ const Webhook = sequelize.define('Webhook', {
 Webhook.belongsTo(Usuario, { foreignKey: 'user_id', as: 'usuario' });
 Webhook.belongsTo(Produto, { foreignKey: 'produto_id', as: 'produto' });
 
+// RemarketingQueue
+const RemarketingQueue = sequelize.define('RemarketingQueue', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+    },
+    cliente_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        comment: 'ID do cliente (UUID)'
+    },
+    cliente_nome: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do cliente'
+    },
+    produto_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        comment: 'ID do produto'
+    },
+    produto_nome: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do produto'
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Email do cliente'
+    },
+    telefone: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: 'Telefone do cliente'
+    },
+    status: {
+        type: DataTypes.ENUM('pendente', 'enviado', 'ignorado'),
+        allowNull: false,
+        defaultValue: 'pendente',
+        comment: 'Status: pendente, enviado, ignorado'
+    },
+    data_cancelamento: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: 'Data do cancelamento da venda'
+    },
+    tempo_envio: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        comment: 'Tempo em minutos até o envio'
+    },
+    data_agendada: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: 'Data agendada para envio'
+    },
+    tentativas: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        comment: 'Número de tentativas de envio'
+    },
+    motivo_ignorado: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Motivo pelo qual foi ignorado'
+    },
+    venda_cancelada_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        comment: 'ID da venda cancelada que originou este item'
+    }
+}, {
+    tableName: 'remarketing_queue',
+    timestamps: true,
+    underscored: true
+});
+
+// RemarketingConversao
+const RemarketingConversao = sequelize.define('RemarketingConversao', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+    },
+    remarketing_queue_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        comment: 'ID do item na fila de remarketing'
+    },
+    venda_cancelada_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        comment: 'ID da venda cancelada original'
+    },
+    venda_aprovada_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        comment: 'ID da venda aprovada (conversão)'
+    },
+    cliente_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        comment: 'ID do cliente'
+    },
+    cliente_nome: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do cliente'
+    },
+    produto_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        comment: 'ID do produto'
+    },
+    produto_nome: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do produto'
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Email do cliente'
+    },
+    telefone: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: 'Telefone do cliente'
+    },
+    data_cancelamento: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        comment: 'Data do cancelamento'
+    },
+    data_remarketing_enviado: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'Data em que o remarketing foi enviado'
+    },
+    data_conversao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+        comment: 'Data da conversão'
+    },
+    valor_venda_cancelada: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Valor da venda cancelada'
+    },
+    valor_venda_aprovada: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Valor da venda aprovada'
+    },
+    tempo_ate_conversao_minutos: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'Tempo em minutos entre o envio do remarketing e a conversão'
+    }
+}, {
+    tableName: 'remarketing_conversoes',
+    timestamps: true,
+    underscored: true
+});
+
+// Relacionamentos Remarketing
+RemarketingQueue.belongsTo(Produto, { foreignKey: 'produto_id', as: 'produto' });
+RemarketingQueue.belongsTo(Venda, { foreignKey: 'venda_cancelada_id', as: 'vendaCancelada' });
+RemarketingConversao.belongsTo(RemarketingQueue, { foreignKey: 'remarketing_queue_id', as: 'remarketingQueue' });
+RemarketingConversao.belongsTo(Venda, { foreignKey: 'venda_cancelada_id', as: 'vendaCancelada' });
+RemarketingConversao.belongsTo(Venda, { foreignKey: 'venda_aprovada_id', as: 'vendaAprovada' });
+RemarketingConversao.belongsTo(Produto, { foreignKey: 'produto_id', as: 'produto' });
+
+// ======================== MODELOS DO BLOG ========================
+
+// BlogPost - Posts do blog
+const BlogPost = sequelize.define('BlogPost', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    title: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Título do post'
+    },
+    slug: {
+        type: DataTypes.STRING(255),
+        unique: true,
+        allowNull: false,
+        comment: 'URL amigável do post'
+    },
+    subtitle: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Subtítulo do post'
+    },
+    content: {
+        type: DataTypes.TEXT('long'),
+        allowNull: false,
+        comment: 'Conteúdo HTML do post'
+    },
+    image: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        comment: 'URL da imagem de destaque'
+    },
+    category: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: 'Categoria do post'
+    },
+    tags: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: [],
+        comment: 'Array de tags do post'
+    },
+    author_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'usuarios',
+            key: 'id'
+        },
+        comment: 'ID do autor do post'
+    },
+    views: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        comment: 'Número de visualizações'
+    },
+    likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        comment: 'Número de curtidas'
+    },
+    status: {
+        type: DataTypes.ENUM('published', 'draft'),
+        defaultValue: 'draft',
+        allowNull: false,
+        comment: 'Status do post: publicado ou rascunho'
+    },
+    published_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'Data de publicação agendada'
+    },
+    meta_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Meta description para SEO'
+    },
+    meta_keywords: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Meta keywords para SEO'
+    }
+}, {
+    tableName: 'blog_posts',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['slug'] },
+        { fields: ['status'] },
+        { fields: ['category'] },
+        { fields: ['author_id'] },
+        { fields: ['published_at'] }
+    ]
+});
+
+// BlogComment - Comentários dos posts
+const BlogComment = sequelize.define('BlogComment', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    post_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'blog_posts',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        comment: 'ID do post comentado'
+    },
+    user_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: 'usuarios',
+            key: 'id'
+        },
+        onDelete: 'SET NULL',
+        comment: 'ID do usuário (se autenticado)'
+    },
+    name: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do comentarista'
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Email do comentarista'
+    },
+    comment: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        comment: 'Conteúdo do comentário'
+    },
+    parent_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: 'blog_comments',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        comment: 'ID do comentário pai (para respostas)'
+    },
+    status: {
+        type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+        defaultValue: 'pending',
+        allowNull: false,
+        comment: 'Status do comentário: pendente, aprovado ou rejeitado'
+    },
+    reactions: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: { like: 0, bad: 0, heart: 0, fire: 0 },
+        comment: 'Reações do comentário (like, bad, heart, fire)'
+    },
+    ip_address: {
+        type: DataTypes.STRING(45),
+        allowNull: true,
+        comment: 'IP do comentarista para moderação'
+    }
+}, {
+    tableName: 'blog_comments',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['post_id'] },
+        { fields: ['user_id'] },
+        { fields: ['parent_id'] },
+        { fields: ['status'] }
+    ]
+});
+
+// BlogPage - Páginas estáticas criadas pelo admin
+const BlogPage = sequelize.define('BlogPage', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    title: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Título da página'
+    },
+    slug: {
+        type: DataTypes.STRING(255),
+        unique: true,
+        allowNull: false,
+        comment: 'URL amigável da página'
+    },
+    content: {
+        type: DataTypes.TEXT('long'),
+        allowNull: false,
+        comment: 'Conteúdo HTML da página'
+    },
+    status: {
+        type: DataTypes.ENUM('published', 'draft'),
+        defaultValue: 'draft',
+        allowNull: false,
+        comment: 'Status da página: publicada ou rascunho'
+    },
+    meta_description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Meta description para SEO'
+    },
+    meta_keywords: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Meta keywords para SEO'
+    }
+}, {
+    tableName: 'blog_pages',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['slug'] },
+        { fields: ['status'] }
+    ]
+});
+
+// Relacionamentos do Blog
+BlogPost.belongsTo(Usuario, { foreignKey: 'author_id', as: 'author' });
+BlogPost.hasMany(BlogComment, { foreignKey: 'post_id', as: 'comments' });
+
+BlogComment.belongsTo(BlogPost, { foreignKey: 'post_id', as: 'post' });
+BlogComment.belongsTo(Usuario, { foreignKey: 'user_id', as: 'user' });
+BlogComment.belongsTo(BlogComment, { foreignKey: 'parent_id', as: 'parent' });
+BlogComment.hasMany(BlogComment, { foreignKey: 'parent_id', as: 'replies' });
+
+// BlogNewsletter - Newsletter do blog
+const BlogNewsletter = sequelize.define('BlogNewsletter', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true
+        },
+        comment: 'Email do assinante'
+    },
+    user_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: 'usuarios',
+            key: 'id'
+        },
+        onDelete: 'SET NULL',
+        comment: 'ID do usuário se estiver autenticado'
+    },
+    nome: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Nome do assinante'
+    },
+    notificar_novos_posts: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+        comment: 'Receber notificações de novos posts'
+    },
+    notificar_reacoes: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+        comment: 'Receber notificações de reações nos comentários'
+    },
+    notificar_respostas: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull: false,
+        comment: 'Receber notificações de respostas aos comentários'
+    },
+    status: {
+        type: DataTypes.ENUM('ativo', 'inativo', 'cancelado'),
+        defaultValue: 'ativo',
+        allowNull: false,
+        comment: 'Status da assinatura'
+    },
+    token_unsubscribe: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true,
+        comment: 'Token para cancelar assinatura'
+    }
+}, {
+    tableName: 'blog_newsletter',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['email'] },
+        { fields: ['user_id'] },
+        { fields: ['status'] },
+        { fields: ['token_unsubscribe'] }
+    ]
+});
+
 const databaseManager = new LocalDatabaseManager();
 
 // Log para debug - verificar se Webhook está definido antes de exportar
@@ -1389,7 +1884,13 @@ const models = {
     BannerAfiliado,
     Webhook, // CRÍTICO: Webhook deve estar aqui
     UpsellPage,
-    ProdutoUpsell
+    ProdutoUpsell,
+    RemarketingQueue,
+    RemarketingConversao,
+    BlogPost,
+    BlogComment,
+    BlogPage,
+    BlogNewsletter
 };
 
 // Verificar se Webhook está no objeto de exportação

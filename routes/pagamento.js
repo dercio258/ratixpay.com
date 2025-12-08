@@ -9,7 +9,7 @@ const notificationService = require('../services/notificationService');
 const professionalEmailService = require('../services/professionalEmailService');
 const afiliadoVendaService = require('../services/afiliadoVendaService');
 
-const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.com';
+const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.site';
 // remarketingService removido - funcionalidade integrada na criação de produtos
 // Push notifications removido
 
@@ -692,7 +692,7 @@ async function enviarProdutoViaWhatsApp(pedidoInfo, venda, produto) {
 
         const isMedia = isMediaLink(linkConteudo);
         const SUPPORT_WHATSAPP = process.env.SUPPORT_WHATSAPP || '884460571';
-        const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
 
         // Obter valor da venda
         const valorTotal = venda.valor_total || pedidoInfo.produto.valorOriginal || produto.preco || 0;
@@ -947,7 +947,7 @@ async function enviarNotificacaoPush(pedidoInfo, vendedor, produto) {
 
         const pushRoutes = require('./push');
         const valorAdicionado = pedidoInfo.produto.valorVendedor || (pedidoInfo.produto.valorOriginal * 0.9);
-        const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
         const transactionIdFormatado = formatarTransactionIdPayMoz(pedidoInfo.idPedido);
 
         // Estrutura completa e melhorada da notificação push
@@ -1188,18 +1188,38 @@ router.post('/test-support', async (req, res) => {
     res.json({ success: true, message: 'Rota de teste funcionando!' });
 });
 
-// GET - Produtos complementares (Order Bump) por public_id (6 dígitos) ou custom_id
+// GET - Produtos complementares (Order Bump) por public_id (6 dígitos), custom_id ou id (UUID)
 router.get('/pagamento/order-bump/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const { Op } = require('sequelize');
+        let produtoPrincipal = null;
 
-        // Determinar se o parâmetro é public_id numérico (6 dígitos) ou custom_id alfanumérico
-        const isPublicId = /^\d{6}$/.test(id);
-
-        // Buscar produto principal por public_id ou custom_id
-        const produtoPrincipal = await Produto.findOne({
-            where: isPublicId ? { public_id: id } : { custom_id: id }
-        });
+        // Tentar buscar produto principal por diferentes identificadores
+        // 1. Se for public_id numérico (6 dígitos)
+        if (/^\d{6}$/.test(id)) {
+            produtoPrincipal = await Produto.findOne({
+                where: { public_id: id }
+            });
+        }
+        
+        // 2. Se não encontrou, tentar por custom_id
+        if (!produtoPrincipal) {
+            produtoPrincipal = await Produto.findOne({
+                where: { custom_id: id }
+            });
+        }
+        
+        // 3. Se ainda não encontrou, tentar por id (UUID)
+        if (!produtoPrincipal) {
+            // Verificar se parece ser um UUID
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (uuidPattern.test(id)) {
+                produtoPrincipal = await Produto.findOne({
+                    where: { id: id }
+                });
+            }
+        }
 
         if (!produtoPrincipal) {
             return res.status(404).json({
@@ -1223,7 +1243,6 @@ router.get('/pagamento/order-bump/:id', async (req, res) => {
         }
 
         // Buscar produtos complementares do mesmo vendedor OU os explicitamente configurados
-        const { Op } = require('sequelize');
         let whereClause = {
             vendedor_id: produtoPrincipal.vendedor_id,
             ativo: true,

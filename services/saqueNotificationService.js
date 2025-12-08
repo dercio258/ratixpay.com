@@ -112,7 +112,7 @@ class SaqueNotificationService {
             
             // Enviar WhatsApp para vendedor se tiver telefone
             if (vendedor.telefone) {
-                const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+                const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
                 
                 const mensagemVendedor = `💰 *Saque Solicitado*
 
@@ -619,7 +619,7 @@ RatixPay`;
             const dataPagamento = saque.data_pagamento || saque.data_aprovacao || new Date();
             
             // URL base do sistema
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             
             // Mensagem curta e objetiva
             const mensagem = `✅ *Saque Pago*
@@ -699,7 +699,7 @@ ${process.env.FRONTEND_URL || 'http://localhost:3000'}/confirmar-pagamento.html?
                 message: `Seu saque de ID ${saque.id} foi cancelado. Motivo: ${saque.motivo_cancelamento || 'Não informado'}. Entre em contato com o suporte RatixPay.`
             };
             
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             const mensagem = `❌ *Saque Cancelado*
 
 💰 MZN ${parseFloat(saque.valor_solicitado).toFixed(2)}

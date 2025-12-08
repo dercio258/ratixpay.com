@@ -85,11 +85,12 @@ class AfiliadoVendaService {
                         console.log(`  - Link ${link.id}: Produto ${link.produto_id}, ${link.cliques} cliques, ${link.conversoes} conversões, link: ${link.link_afiliado?.substring(0, 80)}...`);
                     });
                     
-                    // Criar um link tracking básico se não existir
+                    // Criar um link tracking básico se não existir (proteção: produto não exposto na URL)
                     console.log(`🔧 [VENDA AFILIADO] Criando link tracking para afiliado ${afiliado.id} e produto ${produto.id}...`);
+                    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
                     const produtoCustomId = produto.custom_id || produto.id;
-                    const linkOriginal = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produtoCustomId}`;
-                    const linkAfiliado = `${linkOriginal}&ref=${afiliado.codigo_afiliado}`;
+                    const linkOriginal = `${baseUrl}/checkout.html?produto=${produtoCustomId}`; // Para referência interna
+                    const linkAfiliado = `${baseUrl}/checkout.html?ref=${afiliado.codigo_afiliado}`; // Link público (sem produto)
                     
                     try {
                         linkTracking = await LinkTracking.create({
@@ -122,13 +123,14 @@ class AfiliadoVendaService {
                         }
                     }
                 } else {
-                    // Verificar e atualizar link_afiliado se necessário
+                    // Verificar e atualizar link_afiliado se necessário (proteção: produto não exposto na URL)
+                    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
                     const produtoCustomId = produto.custom_id || produto.id;
-                    const linkOriginalEsperado = `${process.env.FRONTEND_URL || 'http://localhost:4000'}/checkout.html?produto=${produtoCustomId}`;
-                    const linkAfiliadoEsperado = `${linkOriginalEsperado}&ref=${afiliado.codigo_afiliado}`;
+                    const linkOriginalEsperado = `${baseUrl}/checkout.html?produto=${produtoCustomId}`; // Para referência interna
+                    const linkAfiliadoEsperado = `${baseUrl}/checkout.html?ref=${afiliado.codigo_afiliado}`; // Link público (sem produto)
                     
                     if (linkTracking.link_afiliado !== linkAfiliadoEsperado || linkTracking.link_original !== linkOriginalEsperado) {
-                        console.log(`🔄 [VENDA AFILIADO] Atualizando link_afiliado para o formato correto...`);
+                        console.log(`🔄 [VENDA AFILIADO] Atualizando link_afiliado para o formato correto (sem produto na URL)...`);
                         try {
                             await linkTracking.update({
                                 link_original: linkOriginalEsperado,

@@ -68,11 +68,11 @@ function loadExpress(app) {
         res.setHeader(
             "Content-Security-Policy",
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.socket.io https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; " +
-            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdn.tailwindcss.com https://unpkg.com; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.socket.io https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com https://cdn.quilljs.com; " +
+            "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdn.tailwindcss.com https://unpkg.com https://cdn.quilljs.com; " +
             "img-src 'self' data: https: http://localhost:* http://127.0.0.1:*; " +
             "media-src 'self' https://www.myinstants.com https://actions.google.com https: blob:; " +
-            "connect-src 'self' https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.com ws://ratixpay.com ws://localhost:* http://localhost:* wss://localhost:* https://cdn.tailwindcss.com https://unpkg.com; " +
+            "connect-src 'self' https://connect.facebook.net https://www.facebook.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://fonts.googleapis.com https://api.utmify.com.br https://api.utmify.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.site ws://ratixpay.site ws://localhost:* http://localhost:* wss://localhost:* https://cdn.tailwindcss.com https://unpkg.com; " +
             "font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
             "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtu.be https://youtu.be https://player.vimeo.com https://vimeo.com https://www.vimeo.com https://embed.videodelivery.net https://*.cloudinary.com https://*.cloudflare.com https://scripts.converteai.net https://*.converteai.net blob:; " +
             "worker-src 'self' blob:;"
@@ -259,6 +259,7 @@ function loadRoutes(app) {
     app.use('/api/transactions', require('../routes/transactions-optimized'));
     app.use('/api/produtos-integracao', require('../routes/produtos-integracao'));
     app.use('/api/produtos-complementares', require('../routes/produtos-complementares'));
+    app.use('/api/blog', require('../routes/blog'));
 
     // Rotas extraídas do server.js
     app.use('/api/whatsapp-bot', require('../routes/whatsapp-bot'));
@@ -297,6 +298,19 @@ function loadRoutes(app) {
 
     app.get('/whatsapp-bot', (req, res) => {
         res.sendFile(path.join(rootDir, 'bot', 'public', 'index.html'));
+    });
+
+    // Blog Routes
+    app.get('/blog', (req, res) => {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.sendFile(path.join(rootDir, 'public', 'blog.html'));
+    });
+    app.get('/blog-post.html', (req, res) => {
+        // Headers explícitos para garantir que o navegador não tente interpretar como JavaScript
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('Content-Security-Policy', "default-src 'self'");
+        res.sendFile(path.join(rootDir, 'public', 'blog-post.html'));
     });
 
     // Health Check

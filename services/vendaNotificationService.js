@@ -754,8 +754,8 @@ class VendaNotificationService {
                 .replace(/{{botoes_acesso}}/g, botoesAcesso)
                 .replace(/{{produtos_bonus}}/g, produtosBonusHtml)
                 .replace(/{{url_suporte}}/g, 'https://wa.me/258842363948')
-                .replace(/{{url_plataforma}}/g, 'https://ratixpay.com')
-                .replace(/{{url_termos}}/g, 'https://ratixpay.com/termos');
+                .replace(/{{url_plataforma}}/g, 'https://ratixpay.site')
+                .replace(/{{url_termos}}/g, 'https://ratixpay.site/termos');
 
             const idPedidoFormatado = pedidoId ? 
                 (pedidoId.toString().startsWith('TXP_') ? pedidoId : `TXP_${pedidoId}`) : 
@@ -849,8 +849,8 @@ class VendaNotificationService {
                 .replace(/{{url_acesso_produto}}/g, produto.link_conteudo || '#')
                 .replace(/{{ordem}}/g, ordem.toString())
                 .replace(/{{url_suporte}}/g, 'https://wa.me/258842363948')
-                .replace(/{{url_plataforma}}/g, 'https://ratixpay.com')
-                .replace(/{{url_termos}}/g, 'https://ratixpay.com/termos');
+                .replace(/{{url_plataforma}}/g, 'https://ratixpay.site')
+                .replace(/{{url_termos}}/g, 'https://ratixpay.site/termos');
 
             const assunto = `🎁 Produto Complementar ${ordem} - ${produto.nome}`;
             
@@ -904,7 +904,7 @@ class VendaNotificationService {
                     <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
                     <p style="color: #6c757d; font-size: 12px; text-align: center;">
                         Dúvidas? Entre em contato: <a href="mailto:${contatoEmail}" style="color: #F64C00;">${contatoEmail}</a><br>
-                        <a href="https://ratixpay.com" style="color: #F64C00;">RatixPay</a> - Sua plataforma de vendas digitais
+                        <a href="https://ratixpay.site" style="color: #F64C00;">RatixPay</a> - Sua plataforma de vendas digitais
                     </p>
                 </div>
             </body>
@@ -1083,8 +1083,8 @@ class VendaNotificationService {
                 .replace(/{{url_acesso_produto}}/g, produto.link_conteudo || '#')
                 .replace(/{{botoes_acesso}}/g, botoesAcesso) // Múltiplos botões para order bump
                 .replace(/{{url_suporte}}/g, 'https://wa.me/258842363948')
-                .replace(/{{url_plataforma}}/g, 'https://ratixpay.com')
-                .replace(/{{url_termos}}/g, 'https://ratixpay.com/termos');
+                .replace(/{{url_plataforma}}/g, 'https://ratixpay.site')
+                .replace(/{{url_termos}}/g, 'https://ratixpay.site/termos');
             // Formatar ID do pedido para o assunto
             const idPedidoFormatado = pedidoId ? 
                 (pedidoId.toString().startsWith('TXP_') ? pedidoId : `TXP_${pedidoId}`) : 
@@ -1431,7 +1431,7 @@ RatixPay`;
 
             // Enviar notificação via WhatsApp Session Manager
             const whatsappManager = require('./whatsappManager');
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             const valorVendedor = parseFloat(venda.valor_total || 0) * 0.9;
             
             const mensagem = `🎉 *Nova Venda*
@@ -1720,7 +1720,7 @@ RatixPay`;
 
             // Enviar notificação via WhatsApp Session Manager
             const whatsappManager = require('./whatsappManager');
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             
             const mensagem = `❌ *Venda Cancelada*
 
@@ -2217,7 +2217,7 @@ RatixPay`;
 
             // Enviar notificação via WhatsApp Session Manager
             const whatsappManager = require('./whatsappManager');
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             const valorSaque = parseFloat(saqueData.valor || 0);
             
             const mensagem = `✅ *Saque Pago*
@@ -2251,7 +2251,7 @@ RatixPay`;
 
             // Usar novo serviço de push notifications (suporta múltiplos dispositivos)
             const pushNotificationService = require('../services/pushNotificationService');
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             // Calcular valor do vendedor (90% do total ou usar valor já calculado)
             const valorVendedor = dadosNotificacao.dadosExtras?.valor_recebido || dadosNotificacao.dadosExtras?.valor_vendedor || venda.valor;
             const valorFormatado = this.formatarValorMonetario(valorVendedor);
@@ -2325,7 +2325,7 @@ RatixPay`;
 
             // Usar novo serviço de push notifications (suporta múltiplos dispositivos)
             const pushNotificationService = require('../services/pushNotificationService');
-            const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
             const isAprovado = dadosNotificacao.dadosExtras?.status === 'Pago';
             const valorFormatado = dadosNotificacao.dadosExtras?.valor_formatado || 
                 this.formatarValorMonetario(saqueData.valor_liquido || saqueData.valor);
@@ -2385,7 +2385,7 @@ RatixPay`;
             (pedidoId.toString().startsWith('TXP_') ? pedidoId : `TXP_${pedidoId}`) : 
             'N/A';
         
-        const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
         const clienteNome = venda.cliente_nome || 'Cliente';
         const produtoNome = produto.nome || 'Produto';
         const vendedorNome = vendedor ? (vendedor.nome_completo || vendedor.nome || 'Vendedor') : 'Suporte';
@@ -2778,7 +2778,7 @@ RatixPay`;
         const dataHoraCompleta = `${dataFormatada}, ${horaFormatada}`;
         
         const valorCreditado = dadosExtras.valor_recebido || dadosExtras.valor_formatado || '0,00 MZN';
-        const baseUrl = process.env.BASE_URL || 'https://ratixpay.com';
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
         
         // Preparar produtos bônus se existirem
         let produtosBonusDetalhesCompra = '';

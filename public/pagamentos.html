@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.socket.io https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://connect.facebook.net https://www.facebook.com https://static.cloudflareinsights.com https://api.utmify.com.br https://api.utmify.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.com ws://ratixpay.com ws://localhost:* http://localhost:* wss://localhost:*; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; worker-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.socket.io https://connect.facebook.net https://static.cloudflareinsights.com https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://connect.facebook.net https://www.facebook.com https://static.cloudflareinsights.com https://api.utmify.com.br https://api.utmify.com https://cdn.socket.io wss://cdn.socket.io https://cdn.socket.io wss://ratixpay.site ws://ratixpay.site ws://localhost:* http://localhost:* wss://localhost:*; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.gstatic.com; worker-src 'self' blob:;">
     
     <title>RatixPay - Pagamentos</title>
     
@@ -59,12 +59,73 @@
             --bg-page: #000000;
             --bg-surface: #111111;
             --bg-input: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
+            --text-primary: #e0e0e0; /* Texto principal mais suave para melhor contraste */
+            --text-secondary: #b0b0b0; /* Texto secundário mais claro */
             --border-color: #2a2a2a;
             --bg-hover: #1a1a1a;
             --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Ajustes específicos para tabelas no modo escuro */
+        body.dark-mode .table th,
+        body.dark-mode .saques-table th {
+            background: var(--bg-input) !important;
+            color: var(--text-secondary) !important;
+            border-bottom-color: var(--border-color) !important;
+        }
+        
+        body.dark-mode .table td,
+        body.dark-mode .saques-table td {
+            color: var(--text-primary) !important;
+            border-bottom-color: var(--border-color) !important;
+            background: transparent !important;
+        }
+        
+        body.dark-mode .table tbody tr,
+        body.dark-mode .saques-table tbody tr {
+            background: transparent !important;
+        }
+        
+        body.dark-mode .table tbody tr:hover,
+        body.dark-mode .saques-table tbody tr:hover {
+            background: var(--bg-hover) !important;
+        }
+        
+        body.dark-mode .table tbody tr td strong,
+        body.dark-mode .saques-table tbody tr td strong {
+            color: var(--text-primary) !important;
+        }
+        
+        body.dark-mode .history-table-container {
+            background: var(--bg-surface) !important;
+        }
+        
+        body.dark-mode .table-wrapper {
+            background: var(--bg-surface) !important;
+        }
+        
+        /* Garantir que badges de status tenham contraste adequado */
+        body.dark-mode .status-badge {
+            font-weight: 600 !important;
+        }
+        
+        body.dark-mode .status-pendente {
+            background: rgba(255, 193, 7, 0.2) !important;
+            color: #ffc107 !important;
+            border: 1px solid rgba(255, 193, 7, 0.3) !important;
+        }
+        
+        body.dark-mode .status-aprovado {
+            background: rgba(76, 175, 80, 0.2) !important;
+            color: #4caf50 !important;
+            border: 1px solid rgba(76, 175, 80, 0.3) !important;
+        }
+        
+        body.dark-mode .status-cancelado {
+            background: rgba(244, 67, 54, 0.2) !important;
+            color: #f44336 !important;
+            border: 1px solid rgba(244, 67, 54, 0.3) !important;
         }
 
         * {
@@ -470,13 +531,15 @@
             border-radius: var(--radius-md);
         }
         
-        .table {
+        .table,
+        .saques-table {
             width: 100%;
             border-collapse: collapse;
             min-width: 600px;
         }
 
-        .table th {
+        .table th,
+        .saques-table th {
             text-align: left;
             padding: 1rem;
             font-size: 0.8rem;
@@ -488,19 +551,28 @@
             background: var(--bg-input);
         }
 
-        .table td {
+        .table td,
+        .saques-table td {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-primary);
             font-size: 0.9rem;
         }
 
-        .table tr:hover {
+        .table tr:hover,
+        .saques-table tr:hover {
             background: var(--bg-hover);
         }
         
-        .table tr:last-child td { 
+        .table tr:last-child td,
+        .saques-table tr:last-child td { 
             border-bottom: none; 
+        }
+        
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-md);
         }
 
         /* Status Badges */

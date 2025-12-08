@@ -838,13 +838,13 @@ router.post('/afiliar-produto', authenticateToken, async (req, res) => {
             });
         }
 
-        // Criar link de afiliado usando custom_id do produto
+        // Criar link de afiliado usando apenas a referência (proteção: produto não exposto na URL)
         // (afiliado já foi buscado anteriormente, não precisa buscar novamente)
         const baseUrl = process.env.BASE_URL || process.env.FRONTEND_URL || 'http://localhost:4000';
         const produtoCustomId = produto.custom_id || produto_id;
         const codigoAfiliado = afiliado.codigo_afiliado;
-        const linkOriginal = `${baseUrl}/checkout.html?produto=${produtoCustomId}`;
-        const linkAfiliado = `${linkOriginal}&ref=${codigoAfiliado}`;
+        const linkOriginal = `${baseUrl}/checkout.html?produto=${produtoCustomId}`; // Para referência interna
+        const linkAfiliado = `${baseUrl}/checkout.html?ref=${codigoAfiliado}`; // Link público (sem produto)
 
         const comissaoPercentual = produto.comissao_afiliados || 0;
 

@@ -82,7 +82,7 @@ class SistemaEmailService {
                 </p>
                 
                 <div style="text-align: center; margin: 35px 0;">
-                    <a href="https://ratixpay.com" 
+                    <a href="https://ratixpay.site" 
                        style="background-color: #F64C00; color: white; padding: 15px 35px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         🚀 Acessar Meu Painel
                 </a>
@@ -128,7 +128,7 @@ class SistemaEmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/dashboard" style="background-color: #6c757d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                <a href="https://ratixpay.site/dashboard" style="background-color: #6c757d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
                     🔍 Ver Detalhes
                 </a>
             </div>
@@ -277,13 +277,13 @@ class SistemaEmailService {
                         </p>
                         
                         <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://ratixpay.com/forgot-password.html" class="btn-primary">
+                            <a href="https://ratixpay.site/forgot-password.html" class="btn-primary">
                                 🔒 REDEFINIR SENHA
                             </a>
                         </div>
                         
                         <p style="text-align: center; margin-top: 20px; word-break: break-word; font-size: 14px;">
-                            <strong>URL:</strong> <a href="https://ratixpay.com/forgot-password.html" style="color: #007bff; text-decoration: none;">https://ratixpay.com/forgot-password.html</a>
+                            <strong>URL:</strong> <a href="https://ratixpay.site/forgot-password.html" style="color: #007bff; text-decoration: none;">https://ratixpay.site/forgot-password.html</a>
                         </p>
                         
                         <p style="text-align: center; margin-top: 20px; color: #28a745; font-weight: bold; line-height: 1.6;">
@@ -627,7 +627,7 @@ class SistemaEmailService {
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://ratixpay.com/login.html" class="btn-primary">
+                        <a href="https://ratixpay.site/login.html" class="btn-primary">
                             🚀 Acessar Minha Conta
                         </a>
                     </div>
@@ -738,7 +738,7 @@ class SistemaEmailService {
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/gestao-produtos.html" 
+                <a href="https://ratixpay.site/gestao-produtos.html" 
                    style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
                     Ver Meus Produtos
                 </a>
@@ -920,7 +920,7 @@ class SistemaEmailService {
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/admin-produtos.html?pendente=${produto.id}" 
+                <a href="https://ratixpay.site/admin-produtos.html?pendente=${produto.id}" 
                    style="background-color: #ffc107; color: #333; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
                     Revisar Produto
                 </a>
@@ -970,7 +970,7 @@ class SistemaEmailService {
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/gestao-produtos.html" 
+                <a href="https://ratixpay.site/gestao-produtos.html" 
                    style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
                     Ver Meus Produtos
                 </a>
@@ -1020,7 +1020,7 @@ class SistemaEmailService {
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/gestao-produtos.html" 
+                <a href="https://ratixpay.site/gestao-produtos.html" 
                    style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
                     Ver Meus Produtos
                 </a>
@@ -1070,7 +1070,7 @@ class SistemaEmailService {
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://ratixpay.com/gestao-produtos.html" 
+                <a href="https://ratixpay.site/gestao-produtos.html" 
                    style="background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
                     Editar Produto
                 </a>
@@ -1089,6 +1089,236 @@ class SistemaEmailService {
         `;
         
         return await this.emailService.enviarEmail('sistema', email, assunto, conteudo, 'notificacao_produto_rejeitado');
+    }
+
+    /**
+     * Enviar notificação de novo post no blog
+     */
+    async enviarNotificacaoNovoPost(dadosNotificacao) {
+        const { email, nome, post } = dadosNotificacao;
+        
+        const assunto = `📰 Há novidade na RatixPay: ${post.title}`;
+        
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+        const postUrl = `${baseUrl}/blog-post.html?slug=${post.slug}`;
+        
+        const conteudo = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Novo Post - RatixPay</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); padding: 40px 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">
+                            📰 Há novidade na RatixPay!
+                        </h1>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px; color: #1f2937;">
+                            Olá, <strong>${nome || 'Usuário'}</strong>!
+                        </p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px; color: #4b5563;">
+                            Temos uma novidade especial para você! Acabamos de publicar um novo artigo no nosso blog.
+                        </p>
+                        
+                        <!-- Post Card -->
+                        <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 25px; margin: 30px 0; overflow: hidden;">
+                            ${post.image ? `
+                                <img src="${post.image}" alt="${post.title}" style="width: 100%; border-radius: 8px; margin-bottom: 20px; max-height: 300px; object-fit: cover;">
+                            ` : ''}
+                            
+                            ${post.category ? `
+                                <div style="display: inline-block; background: #F64C00; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-bottom: 15px;">
+                                    ${post.category}
+                                </div>
+                            ` : ''}
+                            
+                            <h2 style="color: #1f2937; font-size: 24px; font-weight: 700; margin: 15px 0; line-height: 1.3;">
+                                ${post.title}
+                            </h2>
+                            
+                            ${post.subtitle ? `
+                                <p style="color: #6b7280; font-size: 16px; margin: 10px 0 20px 0; line-height: 1.5;">
+                                    ${post.subtitle}
+                                </p>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- CTA Button -->
+                        <div style="text-align: center; margin: 40px 0;">
+                            <a href="${postUrl}" 
+                               style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3); transition: all 0.3s;">
+                                📖 Ver Mais
+                            </a>
+                        </div>
+                        
+                        <p style="font-size: 14px; line-height: 1.6; color: #6b7280; margin-top: 30px; text-align: center;">
+                            Não quer mais receber estas notificações? Entre em contato conosco.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 30px; text-align: center;">
+                        <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                            <strong>RatixPay</strong> - Sua plataforma de vendas digitais
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #9ca3af; font-size: 12px;">
+                            Este é um email automático. Por favor, não responda.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        return await this.emailService.enviarEmail('suporte', email, assunto, conteudo, 'notificacao_novo_post');
+    }
+
+    /**
+     * Enviar notificação de resposta a comentário
+     */
+    async enviarNotificacaoRespostaComentario(dadosNotificacao) {
+        const { email, nome, comentario_original, resposta, autor_resposta, post } = dadosNotificacao;
+        
+        const assunto = `💬 Alguém respondeu seu comentário no blog RatixPay`;
+        
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+        
+        const conteudo = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Resposta ao Comentário - RatixPay</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); padding: 40px 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">
+                            💬 Nova Resposta ao Seu Comentário
+                        </h1>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px; color: #1f2937;">
+                            Olá, <strong>${nome || 'Usuário'}</strong>!
+                        </p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px; color: #4b5563;">
+                            <strong>${autor_resposta}</strong> respondeu ao seu comentário no post <strong>"${post.title}"</strong>.
+                        </p>
+                        
+                        <!-- Seu Comentário -->
+                        <div style="background: #f9fafb; border-left: 4px solid #F64C00; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: #6b7280;">Seu comentário:</p>
+                            <p style="margin: 0; color: #1f2937; line-height: 1.6;">${comentario_original}</p>
+                        </div>
+                        
+                        <!-- Resposta -->
+                        <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: #1e40af;">
+                                Resposta de <strong>${autor_resposta}</strong>:
+                            </p>
+                            <p style="margin: 0; color: #1f2937; line-height: 1.6;">${resposta}</p>
+                        </div>
+                        
+                        <!-- CTA Button -->
+                        <div style="text-align: center; margin: 40px 0;">
+                            <a href="${post.url}" 
+                               style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3);">
+                                💬 Ver no Blog
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 30px; text-align: center;">
+                        <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                            <strong>RatixPay</strong> - Sua plataforma de vendas digitais
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        return await this.emailService.enviarEmail('suporte', email, assunto, conteudo, 'resposta_comentario_blog');
+    }
+
+    /**
+     * Enviar notificação de reação em comentário
+     */
+    async enviarNotificacaoReacaoComentario(dadosNotificacao) {
+        const { email, nome, comentario, reacao, post } = dadosNotificacao;
+        
+        const assunto = `💬 Alguém reagiu ao seu comentário no blog RatixPay`;
+        
+        const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+        
+        const conteudo = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Reação ao Comentário - RatixPay</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); padding: 40px 30px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">
+                            ${reacao} Nova Reação ao Seu Comentário
+                        </h1>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px; color: #1f2937;">
+                            Olá, <strong>${nome || 'Usuário'}</strong>!
+                        </p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px; color: #4b5563;">
+                            Alguém reagiu com ${reacao} ao seu comentário no post <strong>"${post.title}"</strong>.
+                        </p>
+                        
+                        <!-- Seu Comentário -->
+                        <div style="background: #f9fafb; border-left: 4px solid #F64C00; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                            <p style="margin: 0; color: #1f2937; line-height: 1.6;">${comentario}</p>
+                        </div>
+                        
+                        <!-- CTA Button -->
+                        <div style="text-align: center; margin: 40px 0;">
+                            <a href="${post.url}" 
+                               style="background: linear-gradient(135deg, #F64C00 0%, #FF6B35 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(246, 76, 0, 0.3);">
+                                💬 Ver no Blog
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 30px; text-align: center;">
+                        <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                            <strong>RatixPay</strong> - Sua plataforma de vendas digitais
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        return await this.emailService.enviarEmail('suporte', email, assunto, conteudo, 'reacao_comentario_blog');
     }
 }
 

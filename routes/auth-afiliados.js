@@ -18,7 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'ratixpay-secret-key-2024';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'ratixpay-refresh-secret-key-2024';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'; // 7 dias para access token
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d'; // 30 dias para refresh token
-const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.com';
+const BASE_URL = process.env.BASE_URL || process.env.FRONTEND_URL || 'https://ratixpay.site';
 
 // Função para gerar tokens (access + refresh)
 function generateTokens(afiliado) {
