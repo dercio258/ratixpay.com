@@ -1235,24 +1235,39 @@
             }
         }
 
+        // Função para decodificar entidades HTML
+        function decodeHtmlEntities(text) {
+            if (!text) return '';
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = text;
+            return textarea.value;
+        }
+
         function displayPost(post) {
             const header = document.getElementById('postHeader');
             header.innerHTML = `
-                ${post.category ? `<span class="post-category">${post.category}</span>` : ''}
-                <h1 class="post-title">${post.title}</h1>
-                ${post.subtitle ? `<p class="post-subtitle">${post.subtitle}</p>` : ''}
+                ${post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : ''}
+                <h1 class="post-title">${escapeHtml(post.title)}</h1>
+                ${post.subtitle ? `<p class="post-subtitle">${escapeHtml(post.subtitle)}</p>` : ''}
                 <div class="post-meta">
-                    <span><i class="fas fa-user"></i> ${post.author?.nome_completo || 'Admin'}</span>
+                    <span><i class="fas fa-user"></i> ${escapeHtml(post.author?.nome_completo || 'Admin')}</span>
                     <span><i class="fas fa-calendar"></i> ${formatDate(post.published_at || post.created_at)}</span>
                     <span><i class="fas fa-eye"></i> <span id="viewsCount">${post.views || 0} visualizações</span></span>
                 </div>
             `;
 
             if (post.image) {
-                document.getElementById('postImageContainer').innerHTML = `<img src="${post.image}" alt="${post.title}" class="post-image">`;
+                document.getElementById('postImageContainer').innerHTML = `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" class="post-image">`;
             }
 
-            document.getElementById('postContent').innerHTML = post.content;
+            // Decodificar HTML antes de inserir (caso esteja escapado)
+            let content = post.content || '';
+            // Se o conteúdo parece estar escapado (contém &lt; ao invés de <), decodificar
+            if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;')) {
+                content = decodeHtmlEntities(content);
+            }
+            
+            document.getElementById('postContent').innerHTML = content;
             document.getElementById('likeCount').textContent = post.likes || 0;
             document.title = `${post.title} - Blog RatixPay`;
             
