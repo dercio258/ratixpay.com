@@ -84,6 +84,84 @@ async function ensureAfiliadoColumns() {
             `);
             console.log('✅ Coluna utmify_api_token criada automaticamente');
         }
+
+        // Verificar e criar total_cliques
+        const [totalCliquesCheck] = await sequelize.query(`
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'afiliados'
+            AND column_name = 'total_cliques'
+        `);
+        
+        if (totalCliquesCheck.length === 0) {
+            await sequelize.query(`
+                DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'total_cliques'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN total_cliques INTEGER NOT NULL DEFAULT 0;
+                        COMMENT ON COLUMN afiliados.total_cliques IS 'Total de cliques em todos os links do afiliado';
+                        RAISE NOTICE 'Coluna total_cliques adicionada';
+                    END IF;
+                END $$;
+            `);
+            console.log('✅ Coluna total_cliques criada automaticamente');
+        }
+
+        // Verificar e criar cliques_pagos
+        const [cliquesPagosCheck] = await sequelize.query(`
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'afiliados'
+            AND column_name = 'cliques_pagos'
+        `);
+        
+        if (cliquesPagosCheck.length === 0) {
+            await sequelize.query(`
+                DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'cliques_pagos'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN cliques_pagos INTEGER NOT NULL DEFAULT 0;
+                        COMMENT ON COLUMN afiliados.cliques_pagos IS 'Total de cliques já pagos';
+                        RAISE NOTICE 'Coluna cliques_pagos adicionada';
+                    END IF;
+                END $$;
+            `);
+            console.log('✅ Coluna cliques_pagos criada automaticamente');
+        }
+
+        // Verificar e criar creditos_cliques
+        const [creditosCliquesCheck] = await sequelize.query(`
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'afiliados'
+            AND column_name = 'creditos_cliques'
+        `);
+        
+        if (creditosCliquesCheck.length === 0) {
+            await sequelize.query(`
+                DO $$ 
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns 
+                        WHERE table_name = 'afiliados' 
+                        AND column_name = 'creditos_cliques'
+                    ) THEN
+                        ALTER TABLE afiliados ADD COLUMN creditos_cliques DECIMAL(10, 2) NOT NULL DEFAULT 0.00;
+                        COMMENT ON COLUMN afiliados.creditos_cliques IS 'Créditos gerados por cliques (1 MZN a cada 10 cliques)';
+                        RAISE NOTICE 'Coluna creditos_cliques adicionada';
+                    END IF;
+                END $$;
+            `);
+            console.log('✅ Coluna creditos_cliques criada automaticamente');
+        }
     } catch (error) {
         // Ignorar erros de coluna já existe
         if (!error.message.includes('already exists') && 
