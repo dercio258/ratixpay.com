@@ -424,13 +424,10 @@ function criarCardProduto(produto) {
                             return '';
                         }
                         
-                        // Se rejeitado (menos de 24h), mostrar botões de solicitar aprovação e eliminar
+                        // Se rejeitado (menos de 24h), mostrar apenas botão de eliminar
                         if (isRejeitado) {
                             return `
                                 <div class="payment-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                    <button onclick="solicitarAprovacaoProduto('${produto.id}')" class="action-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; flex: 1;">
-                                        <i class="fas fa-check-circle"></i> Solicitar Aprovação
-                                    </button>
                                     <button onclick="confirmarExclusao('${produto.id}', '${escapeHtml(produto.nome)}')" class="action-btn danger" style="flex: 1;">
                                         <i class="fas fa-trash"></i> Eliminar
                                     </button>
@@ -1329,39 +1326,6 @@ async function copiarLinkPagamento(produtoId, nomeProduto) {
     }
 }
 
-// Solicitar aprovação de produto rejeitado
-async function solicitarAprovacaoProduto(produtoId) {
-    try {
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-        
-        if (!token) {
-            mostrarErro('Usuário não autenticado');
-            return;
-        }
-
-        // Enviar solicitação de aprovação (o backend buscará os dados do produto)
-        const response = await fetch(`${window.API_BASE}/produtos/${produtoId}/solicitar-aprovacao`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            mostrarSucesso('Solicitação de aprovação enviada com sucesso! O administrador será notificado.');
-            // Recarregar produtos para atualizar status
-            await carregarProdutos();
-        } else {
-            mostrarErro(data.message || data.erro || 'Erro ao solicitar aprovação');
-        }
-    } catch (error) {
-        console.error('Erro ao solicitar aprovação:', error);
-        mostrarErro('Erro de conexão ao solicitar aprovação');
-    }
-}
 
 // Compartilhar produto
 async function compartilharProduto(produtoId, nomeProduto) {

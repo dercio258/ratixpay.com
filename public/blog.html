@@ -522,8 +522,7 @@
             }
 
             container.innerHTML = posts.map(post => `
-                <!-- Posts removidos -->
-                <div class="post-card" style="display: none;">
+                <div class="post-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'">
                     ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : '<div class="post-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);"><i class="fas fa-image fa-3x"></i></div>'}
                     <div class="post-content">
                         ${post.category ? `<span class="post-category">${post.category}</span>` : ''}

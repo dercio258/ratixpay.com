@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post - RatixPay</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="/js/dark-mode-manager.js"></script>
+    <script src="/js/blog-content-processor.js"></script>
+    <style>
+        :root {
+            --primary: #F64C00;
+            --primary-dark: #e55a00;
+            --secondary: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-light: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --text-light: #9ca3af;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --border-color: #4b5563;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header a {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .header a:hover {
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .post-header {
+            margin-bottom: 40px;
+        }
+
+        .post-category {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .post-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .post-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .post-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .post-content {
+            margin: 40px 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .post-content h1,
+        .post-content h2,
+        .post-content h3,
+        .post-content h4,
+        .post-content h5,
+        .post-content h6 {
+            margin-top: 32px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .post-content h2 {
+            font-size: 2rem;
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+        }
+
+        .post-content p {
+            margin-bottom: 20px;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .post-content ul,
+        .post-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .post-content li {
+            margin-bottom: 10px;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+            margin: 24px 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .post-content code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .post-content pre {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .related-posts {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .related-posts h3 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .related-posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .related-post-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .related-post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .related-post-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .related-post-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .post-title {
+                font-size: 2rem;
+            }
+
+            .post-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .post-content {
+                font-size: 1rem;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .related-posts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/blog.html">
+            <i class="fas fa-arrow-left"></i> Voltar ao Blog
+        </a>
+        <div id="postHeader"></div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Carregando post...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i> Erro ao carregar post. Tente novamente.
+        </div>
+
+        <div id="postContent" style="display: none;">
+            <div class="post-header">
+                <span id="postCategory" class="post-category"></span>
+                <h1 id="postTitle" class="post-title"></h1>
+                <p id="postSubtitle" class="post-subtitle"></p>
+                <div class="post-meta">
+                    <div class="post-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span id="postAuthor"></span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="postDate"></span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-eye"></i>
+                        <span id="postViews">0</span> visualizações
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-heart"></i>
+                        <span id="postLikes">0</span> curtidas
+                    </div>
+                </div>
+            </div>
+
+            <img id="postImage" class="post-image" style="display: none;" alt="Imagem do post">
+
+            <div id="postContentBody" class="post-content"></div>
+
+            <div class="post-actions">
+                <button class="btn btn-primary" onclick="likePost()">
+                    <i class="fas fa-heart"></i> Curtir
+                </button>
+                <a href="/blog.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div id="relatedPosts" class="related-posts" style="display: none;">
+                <h3>Posts Relacionados</h3>
+                <div id="relatedPostsGrid" class="related-posts-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.API_BASE || '';
+        let currentPost = null;
+        let postId = null;
+
+        // Função para formatar data
+        function formatDate(dateString) {
+            if (!dateString) return 'Data não disponível';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Data inválida';
+                
+                return date.toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric'
+                });
+            } catch (error) {
+                return 'Data inválida';
+            }
+        }
+
+        // Carregar post ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            
+            if (slug) {
+                loadPost(slug);
+            } else {
+                showError('Slug do post não fornecido');
+            }
+        });
+
+        async function loadPost(slug) {
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/posts/${slug}`);
+                const result = await response.json();
+
+                if (result.success && result.data.post) {
+                    currentPost = result.data.post;
+                    postId = currentPost.id;
+                    displayPost(currentPost);
+                    
+                    // Registrar visualização
+                    registerView(postId);
+                    
+                    // Carregar posts relacionados
+                    if (result.data.relatedPosts && result.data.relatedPosts.length > 0) {
+                        displayRelatedPosts(result.data.relatedPosts);
+                    }
+                } else {
+                    showError('Post não encontrado');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar post:', error);
+                showError('Erro ao carregar post. Tente novamente.');
+            }
+        }
+
+        function displayPost(post) {
+            // Ocultar loading e mostrar conteúdo
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('postContent').style.display = 'block';
+
+            // Preencher header
+            const headerDiv = document.getElementById('postHeader');
+            headerDiv.innerHTML = `
+                <h1 style="font-size: 2rem; margin-bottom: 10px;">${post.title}</h1>
+                ${post.subtitle ? `<p style="opacity: 0.9;">${post.subtitle}</p>` : ''}
+            `;
+
+            // Preencher informações
+            if (post.category) {
+                document.getElementById('postCategory').textContent = post.category;
+                document.getElementById('postCategory').style.display = 'inline-block';
+            } else {
+                document.getElementById('postCategory').style.display = 'none';
+            }
+
+            document.getElementById('postTitle').textContent = post.title;
+            if (post.subtitle) {
+                document.getElementById('postSubtitle').textContent = post.subtitle;
+                document.getElementById('postSubtitle').style.display = 'block';
+            } else {
+                document.getElementById('postSubtitle').style.display = 'none';
+            }
+
+            document.getElementById('postAuthor').textContent = post.author?.nome_completo || 'Admin';
+            document.getElementById('postDate').textContent = formatDate(post.published_at || post.created_at);
+            document.getElementById('postViews').textContent = post.views || 0;
+            document.getElementById('postLikes').textContent = post.likes || 0;
+
+            // Imagem
+            if (post.image) {
+                const img = document.getElementById('postImage');
+                img.src = post.image;
+                img.alt = post.title;
+                img.style.display = 'block';
+            }
+
+            // Conteúdo
+            const contentDiv = document.getElementById('postContentBody');
+            if (typeof BlogContentProcessor !== 'undefined') {
+                BlogContentProcessor.render(post.content, contentDiv);
+            } else if (typeof processBlogContent !== 'undefined') {
+                processBlogContent(post.content, contentDiv);
+            } else {
+                contentDiv.innerHTML = post.content;
+            }
+        }
+
+        function displayRelatedPosts(relatedPosts) {
+            if (relatedPosts.length === 0) return;
+
+            const container = document.getElementById('relatedPosts');
+            const grid = document.getElementById('relatedPostsGrid');
+            
+            grid.innerHTML = relatedPosts.map(post => `
+                <div class="related-post-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'">
+                    ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">` : ''}
+                    <h4>${post.title}</h4>
+                    ${post.subtitle ? `<p>${post.subtitle}</p>` : ''}
+                    <div style="font-size: 0.85rem; color: var(--text-light);">
+                        <i class="fas fa-eye"></i> ${post.views || 0} visualizações
+                    </div>
+                </div>
+            `).join('');
+
+            container.style.display = 'block';
+        }
+
+        async function registerView(postId) {
+            try {
+                await fetch(`${API_BASE}/api/blog/posts/${postId}/view`, {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Erro ao registrar visualização:', error);
+            }
+        }
+
+        async function likePost() {
+            if (!postId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/posts/${postId}/like`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('postLikes').textContent = result.data.likes;
+                }
+            } catch (error) {
+                console.error('Erro ao curtir post:', error);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i> ${message}
+            `;
+        }
+    </script>
+</body>
+</html>
+

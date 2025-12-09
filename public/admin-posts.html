@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Editor de Posts - RatixPay Admin</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Bootstrap para compatibilidade -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Scripts de configuração -->
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/login.js"></script>
+    
+    <style>
+        /* Estilos Base para o Editor */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .aspect-video { aspect-ratio: 16 / 9; }
+        
+        /* Estilos de Citação */
+        blockquote { 
+            border-left: 4px solid #cbd5e1; 
+            padding-left: 1rem; 
+            color: #475569; 
+            font-style: italic; 
+            background: #f8fafc; 
+            padding: 1rem; 
+            border-radius: 0 4px 4px 0; 
+            margin: 1.5rem 0;
+        }
+        
+        /* Placeholder para ContentEditable */
+        [contenteditable]:empty:before { 
+            content: attr(placeholder); 
+            color: #94a3b8; 
+            display: block; 
+            cursor: text;
+        }
+        
+        /* Estilos de Tabela dentro do Editor */
+        .editor-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .editor-content th { background-color: #f1f5f9; padding: 0.5rem; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; }
+        .editor-content td { padding: 0.5rem; border: 1px solid #e2e8f0; }
+        
+        /* Estilos de Lista */
+        .editor-content ul { list-style-type: disc; padding-left: 1.5rem; margin: 1rem 0; }
+        .editor-content ol { list-style-type: decimal; padding-left: 1.5rem; margin: 1rem 0; }
+        
+        /* Tipografia básica do editor */
+        .editor-content h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5em; margin-bottom: 0.5em; color: #1e293b; }
+        .editor-content h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.2em; margin-bottom: 0.5em; color: #334155; }
+        .editor-content p { margin-bottom: 1em; line-height: 1.75; }
+        .editor-content b, .editor-content strong { font-weight: 700; }
+        .editor-content a { color: #2563eb; text-decoration: underline; cursor: pointer; }
+        .editor-content pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; font-family: monospace; overflow-x: auto; margin: 1rem 0; }
+        
+        /* Popups */
+        .popup { display: none; }
+        .popup.active { display: flex; }
+        
+        /* Header Admin */
+        .admin-header-bar {
+            background: rgba(15, 23, 42, 0.95);
+            color: #cbd5e1;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .tool-btn { 
+            padding: 0.5rem; 
+            border-radius: 0.375rem; 
+            color: #475569; 
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .tool-btn:hover { background-color: #f1f5f9; color: #0f172a; }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* User Info */
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2c3e50 0%, #e74c3c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        /* Editor Container */
+        .editor-container {
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 pb-20">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>
+            <i class="fas fa-spinner fa-spin"></i> Verificando autenticação...
+        </div>
+    </div>
+
+    <a href="admin-blog.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+
+    <div class="user-info" id="userInfo" style="display: none;">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <span id="userName">Admin</span>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
+    </div>
+
+    <!-- HEADER ADMINISTRATIVO -->
+    <div class="admin-header-bar">
+        <div class="flex items-center gap-2">
+            <span class="font-bold text-white uppercase tracking-wider">Painel Admin</span>
+            <span class="text-slate-600">|</span>
+            <span>Editor de Posts</span>
+        </div>
+        <div>
+            <span id="auto-save-status" class="text-green-400">Rascunho salvo agora mesmo</span>
+        </div>
+    </div>
+
+    <!-- BARRA DE FERRAMENTAS -->
+    <div class="toolbar">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-1 flex-wrap">
+                <!-- Histórico -->
+                <div class="flex items-center gap-1 pr-2 mr-2 border-r border-slate-200">
+                    <button onclick="execCmd('undo')" class="tool-btn" title="Desfazer"><i data-lucide="undo" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('redo')" class="tool-btn" title="Refazer"><i data-lucide="redo" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Tipos de Bloco -->
+                <div class="flex items-center gap-1 pr-2 mr-2 border-r border-slate-200">
+                    <select onchange="execCmd('formatBlock', this.value); this.value='p'" class="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer w-24 border border-slate-200 rounded px-2 py-1">
+                        <option value="p">Texto</option>
+                        <option value="h2">Seção (H2)</option>
+                        <option value="h3">Subseção (H3)</option>
+                        <option value="pre">Código</option>
+                    </select>
+                </div>
+                <!-- Formatação Básica -->
+                <div class="flex items-center gap-1 pr-2 mr-2 border-r border-slate-200">
+                    <button onclick="execCmd('bold')" class="tool-btn" title="Negrito"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('italic')" class="tool-btn" title="Itálico"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('strikeThrough')" class="tool-btn" title="Tachado"><i data-lucide="strikethrough" class="w-4 h-4"></i></button>
+                    <button onclick="insertLink()" class="tool-btn" title="Link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Alinhamento e Listas -->
+                <div class="flex items-center gap-1 pr-2 mr-2 border-r border-slate-200">
+                    <button onclick="execCmd('justifyLeft')" class="tool-btn" title="Esquerda"><i data-lucide="align-left" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('justifyCenter')" class="tool-btn" title="Centro"><i data-lucide="align-center" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('justifyRight')" class="tool-btn" title="Direita"><i data-lucide="align-right" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('justifyFull')" class="tool-btn" title="Justificado"><i data-lucide="align-justify" class="w-4 h-4"></i></button>
+                    <span class="w-px h-4 bg-slate-200 mx-1"></span>
+                    <button onclick="execCmd('insertOrderedList')" class="tool-btn" title="Lista Numerada"><i data-lucide="list-ordered" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('insertUnorderedList')" class="tool-btn" title="Lista"><i data-lucide="list" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Ferramentas Estruturais -->
+                <div class="flex items-center gap-1 pr-2 mr-2 border-r border-slate-200">
+                    <button onclick="execCmd('indent')" class="tool-btn" title="Aumentar Recuo"><i data-lucide="indent" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('outdent')" class="tool-btn" title="Diminuir Recuo"><i data-lucide="outdent" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('insertHorizontalRule')" class="tool-btn" title="Linha Divisória"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Ferramentas de Documentação -->
+                <div class="flex items-center gap-1 bg-slate-50 rounded px-1 border border-slate-200 mr-2">
+                    <button onclick="insertCallout('warning')" class="tool-btn text-amber-600 hover:text-amber-700" title="Aviso"><i data-lucide="alert-triangle" class="w-4 h-4"></i></button>
+                    <button onclick="insertCallout('info')" class="tool-btn text-blue-600 hover:text-blue-700" title="Info"><i data-lucide="info" class="w-4 h-4"></i></button>
+                    <button onclick="insertCallout('tip')" class="tool-btn text-emerald-600 hover:text-emerald-700" title="Dica"><i data-lucide="help-circle" class="w-4 h-4"></i></button>
+                    <button onclick="insertTable()" class="tool-btn text-slate-600" title="Tabela"><i data-lucide="table" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Mídia (Imagens/Vídeo) -->
+                <div class="flex items-center gap-1 relative mr-2">
+                    <button onclick="togglePopup('url-popup', 'image')" class="tool-btn" title="Imagem"><i data-lucide="image" class="w-4 h-4"></i></button>
+                    <button onclick="togglePopup('url-popup', 'video')" class="tool-btn" title="Vídeo"><i data-lucide="video" class="w-4 h-4"></i></button>
+                    <!-- Popup de URL -->
+                    <div id="url-popup" class="popup absolute top-full left-0 mt-2 p-3 bg-white rounded shadow-xl border border-slate-200 w-80 flex-col gap-2 z-50">
+                        <span id="url-label" class="text-xs font-semibold text-slate-500">URL:</span>
+                        <div class="flex gap-2">
+                            <input type="text" id="media-url-input" class="flex-1 text-sm border border-slate-300 rounded px-2 py-1 outline-none focus:border-blue-500" placeholder="https://...">
+                            <button onclick="confirmMedia()" class="bg-blue-600 text-white rounded p-1 hover:bg-blue-700"><i data-lucide="check" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Cores -->
+                <div class="flex items-center gap-1 relative">
+                    <button onclick="togglePopup('color-popup', 'foreColor')" class="tool-btn" title="Cor do Texto"><i data-lucide="palette" class="w-4 h-4"></i></button>
+                    <button onclick="togglePopup('bg-color-popup', 'hiliteColor')" class="tool-btn" title="Marca Texto"><i data-lucide="highlighter" class="w-4 h-4"></i></button>
+                    <button onclick="execCmd('removeFormat')" class="tool-btn" title="Limpar Formatação"><i data-lucide="eraser" class="w-4 h-4"></i></button>
+                    <!-- Popup Cor Texto -->
+                    <div id="color-popup" class="popup absolute top-full left-0 mt-2 p-2 bg-white rounded shadow-xl border border-slate-200 grid grid-cols-4 gap-1 w-32 z-50"></div>
+                    <!-- Popup Cor Fundo -->
+                    <div id="bg-color-popup" class="popup absolute top-full left-0 mt-2 p-2 bg-white rounded shadow-xl border border-slate-200 grid grid-cols-4 gap-1 w-32 z-50"></div>
+                </div>
+            </div>
+            <button onclick="savePost()" id="save-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow-sm font-medium text-sm transition-all flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> <span id="save-btn-text">Publicar Artigo</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ÁREA DE CONTEÚDO -->
+    <main class="max-w-5xl mx-auto mt-6 px-4 sm:px-6">
+        <!-- Sidebar Superior / Metadados -->
+        <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Categoria -->
+            <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Categoria</label>
+                <select id="category-select" class="w-full text-sm bg-slate-50 border border-slate-200 rounded p-1 outline-none focus:border-blue-500">
+                    <option value="pagamentos">Pagamentos</option>
+                    <option value="produtos">Produtos</option>
+                    <option value="vendas">Vendas</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="nos">Nós</option>
+                    <option value="ratixpay">Ratixpay</option>
+                    <option value="financeiro">Financeiro</option>
+                    <option value="ranking">Ranking</option>
+                    <option value="premiacoes">Premiações</option>
+                    <option value="vendas_automatizadas">Vendas Automatizadas</option>
+                    <option value="upsell">Upsell</option>
+                    <option value="ofertas">Ofertas</option>
+                    <option value="pagina_vendas">Página de Vendas</option>
+                    <option value="order_bump">Order Bump</option>
+                    <option value="downsell">Downsell</option>
+                    <option value="remarketing">Remarketing</option>
+                    <option value="afiliados">Afiliados</option>
+                    <option value="meta_pixel">Meta Pixel</option>
+                    <option value="utemfy">Utemfy</option>
+                    <option value="aviso">Aviso</option>
+                    <option value="noticia">Notícia</option>
+                    <option value="duvidas">Dúvidas</option>
+                    <option value="perguntas">Perguntas</option>
+                    <option value="dicas">Dicas</option>
+                    <option value="pedido_saque">Pedido de Saque</option>
+                    <option value="brevemente">Brevemente</option>
+                    <option value="outros">Etc</option>
+                </select>
+            </div>
+            
+            <!-- Status -->
+            <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
+                <select id="status-select" class="w-full text-sm bg-slate-50 border border-slate-200 rounded p-1 outline-none focus:border-blue-500">
+                    <option value="draft">Rascunho</option>
+                    <option value="published">Publicado (Visível)</option>
+                </select>
+            </div>
+            
+            <!-- Agendamento -->
+            <div class="bg-white p-3 rounded border border-slate-200 shadow-sm md:col-span-1">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Publicação</label>
+                <div class="flex flex-col gap-1">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600">
+                        <input type="radio" name="publish-mode" value="now" checked onchange="toggleSchedule(false)" class="accent-blue-600">
+                        <span>Imediata</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600">
+                        <input type="radio" name="publish-mode" value="schedule" onchange="toggleSchedule(true)" class="accent-blue-600">
+                        <span>Agendada</span>
+                    </label>
+                    <input type="datetime-local" id="schedule-date" class="w-full text-xs border border-slate-300 rounded px-1 py-1 mt-1 hidden focus:border-blue-500 outline-none">
+                </div>
+            </div>
+            
+            <!-- ID -->
+            <div class="bg-white p-3 rounded border border-slate-200 shadow-sm flex items-end">
+                <span class="text-xs text-slate-500 w-full text-center" id="post-id-display">ID: Novo Post</span>
+            </div>
+        </div>
+
+        <!-- Editor Principal -->
+        <div class="editor-container">
+            <div class="p-8 md:p-12 flex-1 flex flex-col">
+                <!-- Título -->
+                <div class="mb-8 border-b border-slate-100 pb-6">
+                    <h1 id="doc-title" contenteditable="true" class="text-3xl md:text-4xl font-bold text-slate-900 outline-none leading-tight tracking-tight mb-3" placeholder="Título do Post">Título do Post</h1>
+                    <h2 id="doc-subtitle" contenteditable="true" class="text-lg text-slate-500 font-normal outline-none" placeholder="Breve descrição do post...">Breve descrição do post</h2>
+                </div>
+                <!-- Conteúdo -->
+                <div id="doc-content" contenteditable="true" class="editor-content outline-none flex-1 text-slate-700 leading-7" placeholder="Escreva o conteúdo do post...">
+                    <p>Comece a escrever seu post aqui...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = window.API_BASE || '';
+        let currentPostId = null;
+        let currentMediaType = null;
+        
+        // Cores
+        const colors = ['#1e293b', '#334155', '#dc2626', '#d97706', '#16a34a', '#2563eb', '#7c3aed'];
+        const bgColors = ['#ffffff', '#f1f5f9', '#fecaca', '#fef3c7', '#dcfce7', '#dbeafe', '#f3e8ff', '#ffff00'];
+
+        // Verificar autenticação
+        async function checkAuth() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                console.log('🔍 Verificando autenticação...');
+                
+                if (!token) {
+                    console.log('❌ Nenhum token encontrado, redirecionando para login');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                try {
+                    const tokenParts = token.split('.');
+                    if (tokenParts.length === 3) {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        const now = Math.floor(Date.now() / 1000);
+                        if (payload.exp && payload.exp < now) {
+                            console.log('❌ Token expirado');
+                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('adminToken');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        const isMainAdmin = payload.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = payload.role === 'admin' || isMainAdmin;
+                        if (isAdmin) {
+                            console.log('✅ Acesso admin autorizado pelo token');
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.log('🔍 Erro ao decodificar token, tentando API...', e);
+                }
+
+                const apiUrl = `${API_BASE}/auth/me`;
+                const response = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.user) {
+                        const user = result.user;
+                        const isMainAdmin = user.email === 'ratixpay.mz@gmail.com';
+                        const isAdmin = user.role === 'admin' || isMainAdmin;
+                        if (!isAdmin) {
+                            alert('Acesso negado. Apenas administradores podem acessar esta página.');
+                            window.location.href = 'login.html';
+                            return false;
+                        }
+                        console.log('✅ Acesso admin autorizado');
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro na verificação de auth:', error);
+            }
+
+            console.log('❌ Redirecionando para login');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        // Função de logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+        }
+
+        // Carregar informações do usuário
+        async function loadUserInfo() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                if (!token) return;
+                
+                const apiUrl = `${API_BASE}/auth/me`;
+                const response = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        document.getElementById('userName').textContent = data.user.nome_completo || data.user.email || 'Admin';
+                        const avatar = document.getElementById('userAvatar');
+                        avatar.textContent = (data.user.nome_completo || data.user.email || 'A').charAt(0).toUpperCase();
+                        document.getElementById('userInfo').style.display = 'flex';
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar informações do usuário:', error);
+            }
+        }
+
+        // Inicializar ícones
+        lucide.createIcons();
+
+        // Inicializar Paletas de Cores
+        function initColorPickers() {
+            const colorContainer = document.getElementById('color-popup');
+            colors.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'w-6 h-6 rounded border border-slate-200 hover:scale-110 transition-transform shadow-sm';
+                btn.style.backgroundColor = c;
+                btn.onclick = (e) => { e.preventDefault(); execCmd('foreColor', c); togglePopup('color-popup'); };
+                colorContainer.appendChild(btn);
+            });
+
+            const bgContainer = document.getElementById('bg-color-popup');
+            bgColors.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'w-6 h-6 rounded border border-slate-200 hover:scale-110 transition-transform shadow-sm';
+                btn.style.backgroundColor = c;
+                btn.onclick = (e) => { e.preventDefault(); execCmd('hiliteColor', c); togglePopup('bg-color-popup'); };
+                bgContainer.appendChild(btn);
+            });
+        }
+
+        // Função Central de Comandos
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('doc-content').focus();
+        }
+
+        // Inserir Link
+        function insertLink() {
+            const url = prompt("Digite a URL do link:", "https://");
+            if (url) {
+                execCmd('createLink', url);
+            }
+        }
+
+        // Gerenciamento de Popups
+        function togglePopup(id, type = null) {
+            document.querySelectorAll('.popup').forEach(p => {
+                if(p.id !== id) p.classList.remove('active');
+            });
+            
+            const popup = document.getElementById(id);
+            popup.classList.toggle('active');
+            
+            if (id === 'url-popup' && type) {
+                currentMediaType = type;
+                document.getElementById('url-label').innerText = type === 'video' ? 'URL do Vídeo (YouTube):' : 'URL da Imagem:';
+                document.getElementById('media-url-input').focus();
+            }
+        }
+
+        // Gerenciamento de Agendamento
+        function toggleSchedule(show) {
+            const input = document.getElementById('schedule-date');
+            if (show) {
+                input.classList.remove('hidden');
+                input.focus();
+            } else {
+                input.classList.add('hidden');
+            }
+        }
+
+        // Inserção de Mídia
+        function confirmMedia() {
+            const url = document.getElementById('media-url-input').value;
+            if (!url) return;
+            if (currentMediaType === 'image') {
+                execCmd('insertImage', url);
+            } else if (currentMediaType === 'video') {
+                let embedUrl = url;
+                if (url.includes('youtube.com/watch?v=')) {
+                    embedUrl = `https://www.youtube.com/embed/${url.split('v=')[1].split('&')[0]}`;
+                } else if (url.includes('youtu.be/')) {
+                    embedUrl = `https://www.youtube.com/embed/${url.split('youtu.be/')[1]}`;
+                }
+                
+                const html = `
+                    <div class="video-container my-6 relative w-full aspect-video rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <iframe src="${embedUrl}" class="absolute top-0 left-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div><p><br></p>
+                `;
+                execCmd('insertHTML', html);
+            }
+            document.getElementById('media-url-input').value = '';
+            togglePopup('url-popup');
+        }
+
+        // Inserções Especiais (Callouts, Tabelas)
+        function insertCallout(type) {
+            let html = '';
+            if (type === 'warning') {
+                html = `<div class="p-4 my-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 rounded-r shadow-sm"><strong class="block mb-1 font-bold flex items-center gap-2">⚠️ Atenção:</strong> Digite seu aviso importante aqui.</div><p><br></p>`;
+            } else if (type === 'info') {
+                html = `<div class="p-4 my-4 bg-blue-50 border-l-4 border-blue-500 text-blue-900 rounded-r shadow-sm"><strong class="block mb-1 font-bold">ℹ️ Informação:</strong> Detalhe útil sobre a funcionalidade.</div><p><br></p>`;
+            } else if (type === 'tip') {
+                html = `<div class="p-4 my-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-900 rounded-r shadow-sm"><strong class="block mb-1 font-bold">💡 Dica Pro:</strong> Sugestão para melhor uso.</div><p><br></p>`;
+            }
+            execCmd('insertHTML', html);
+        }
+
+        function insertTable() {
+            const html = `
+                <div class="overflow-x-auto my-4">
+                    <table class="min-w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 p-2 text-left font-semibold">Parâmetro</th>
+                                <th class="border border-gray-300 p-2 text-left font-semibold">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="border border-gray-300 p-2">Item 1</td><td class="border border-gray-300 p-2">Valor 1</td></tr>
+                            <tr><td class="border border-gray-300 p-2">Item 2</td><td class="border border-gray-300 p-2">Valor 2</td></tr>
+                        </tbody>
+                    </table>
+                </div><p><br></p>
+            `;
+            execCmd('insertHTML', html);
+        }
+
+        // Carregar Post para Edição
+        async function loadPost(postId) {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                if (!token) return;
+                
+                const response = await fetch(`${API_BASE}/blog/admin/posts`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const post = Array.isArray(data.data) ? data.data.find(p => p.id == postId) : data.data;
+                    if (post) {
+                        currentPostId = post.id;
+                        document.getElementById('doc-title').innerText = post.title || '';
+                        document.getElementById('doc-subtitle').innerText = post.subtitle || '';
+                        document.getElementById('doc-content').innerHTML = post.content || '';
+                        document.getElementById('category-select').value = post.category || 'outros';
+                        document.getElementById('status-select').value = post.status || 'draft';
+                        document.getElementById('post-id-display').textContent = `ID: #${post.id}`;
+                        
+                        if (post.published_at) {
+                            const publishDate = new Date(post.published_at);
+                            const now = new Date();
+                            if (publishDate > now) {
+                                document.querySelector('input[name="publish-mode"][value="schedule"]').checked = true;
+                                toggleSchedule(true);
+                                document.getElementById('schedule-date').value = publishDate.toISOString().slice(0, 16);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar post:', error);
+                alert('Erro ao carregar post: ' + error.message);
+            }
+        }
+
+        // Salvar Post
+        async function savePost() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                if (!token) {
+                    alert('Sessão expirada. Por favor, faça login novamente.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const title = document.getElementById('doc-title').innerText.trim();
+                if (!title) {
+                    alert('Por favor, preencha o título do post.');
+                    document.getElementById('doc-title').focus();
+                    return;
+                }
+                
+                const subtitle = document.getElementById('doc-subtitle').innerText.trim();
+                const content = document.getElementById('doc-content').innerHTML.trim();
+                const category = document.getElementById('category-select').value;
+                const status = document.getElementById('status-select').value;
+                const publishMode = document.querySelector('input[name="publish-mode"]:checked').value;
+                const scheduledDate = document.getElementById('schedule-date').value;
+                
+                let published_at = null;
+                if (publishMode === 'schedule' && scheduledDate) {
+                    published_at = new Date(scheduledDate).toISOString();
+                } else if (status === 'published' && publishMode === 'now') {
+                    published_at = new Date().toISOString();
+                }
+                
+                const postData = {
+                    title,
+                    subtitle,
+                    content,
+                    category,
+                    status,
+                    published_at,
+                    tags: [],
+                    meta_description: subtitle,
+                    meta_keywords: ''
+                };
+                
+                const url = currentPostId ? `${API_BASE}/blog/admin/posts/${currentPostId}` : `${API_BASE}/blog/admin/posts`;
+                const method = currentPostId ? 'PUT' : 'POST';
+                
+                const btn = document.getElementById('save-btn');
+                const btnText = document.getElementById('save-btn-text');
+                const originalText = btnText.textContent;
+                btn.disabled = true;
+                btnText.textContent = 'Salvando...';
+                
+                try {
+                    const response = await fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(postData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        btnText.textContent = 'Salvo!';
+                        document.getElementById('auto-save-status').textContent = 'Post salvo com sucesso!';
+                        document.getElementById('auto-save-status').classList.remove('text-green-400');
+                        document.getElementById('auto-save-status').classList.add('text-green-400');
+                        
+                        if (!currentPostId && data.data && data.data.id) {
+                            currentPostId = data.data.id;
+                            document.getElementById('post-id-display').textContent = `ID: #${data.data.id}`;
+                            // Atualizar URL sem recarregar
+                            const newUrl = `admin-posts.html?id=${data.data.id}`;
+                            window.history.pushState({}, '', newUrl);
+                        }
+                        
+                        setTimeout(() => {
+                            btnText.textContent = originalText;
+                            btn.disabled = false;
+                        }, 2000);
+                    } else {
+                        alert('Erro ao salvar post: ' + (data.message || 'Erro desconhecido'));
+                        btnText.textContent = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Erro ao salvar post:', error);
+                    alert('Erro ao salvar post: ' + error.message);
+                    btnText.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Erro ao salvar post:', error);
+                alert('Erro ao salvar post: ' + error.message);
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) {
+                return;
+            }
+
+            document.getElementById('loadingOverlay').style.display = 'none';
+            await loadUserInfo();
+            initColorPickers();
+            
+            // Verificar se há ID na URL para carregar post
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            if (postId) {
+                await loadPost(postId);
+            }
+            
+            // Auto-save a cada 30 segundos
+            setInterval(() => {
+                const title = document.getElementById('doc-title').innerText.trim();
+                if (title && currentPostId) {
+                    savePost();
+                }
+            }, 30000);
+        });
+        
+        // Fechar popups ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.popup') && !e.target.closest('button[onclick*="togglePopup"]')) {
+                document.querySelectorAll('.popup').forEach(p => p.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>
+

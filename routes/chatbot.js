@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const chatbotService = require('../services/chatbotService');
-const geminiService = require('../services/geminiService');
 
 // Configurar multer para upload de arquivos
 const upload = multer({
@@ -216,80 +215,6 @@ router.get('/estatisticas', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Erro interno do servidor'
-        });
-    }
-});
-
-/**
- * POST /api/chatbot/gerar-descricao
- * Gera descrição para um produto (para uso na criação de produtos)
- */
-router.post('/gerar-descricao', async (req, res) => {
-    try {
-        const { nome, preco, categoria } = req.body;
-        
-        if (!nome || !preco) {
-            return res.status(400).json({
-                success: false,
-                message: 'Nome e preço são obrigatórios'
-            });
-        }
-
-        
-        const produto = {
-            nome: nome,
-            preco: preco,
-            categoria: categoria || 'Não especificada'
-        };
-        
-        const descricao = await geminiService.gerarDescricaoProduto(produto);
-        
-        res.json({
-            success: true,
-            descricao: descricao,
-            produto: produto
-        });
-
-    } catch (error) {
-        console.error('❌ Erro ao gerar descrição:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro interno do servidor'
-        });
-    }
-});
-
-/**
- * POST /api/chatbot/gerar-perguntas-produto
- * Gera perguntas para facilitar a criação da descrição do produto
- */
-router.post('/gerar-perguntas-produto', async (req, res) => {
-    try {
-        const { nome, categoria, preco } = req.body;
-        
-        if (!nome || !categoria || !preco) {
-            return res.status(400).json({
-                success: false,
-                message: 'Nome, categoria e preço são obrigatórios'
-            });
-        }
-
-        
-        const perguntas = await geminiService.gerarPerguntasProduto({
-            nome,
-            categoria,
-            preco
-        });
-        
-        res.json({
-            success: true,
-            perguntas: perguntas
-        });
-    } catch (error) {
-        console.error('❌ Erro ao gerar perguntas:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao gerar perguntas. Tente novamente.'
         });
     }
 });
