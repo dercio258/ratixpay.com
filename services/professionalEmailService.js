@@ -10,9 +10,35 @@ const path = require('path');
 class ProfessionalEmailService {
     constructor() {
         this.transporters = {};
+        this.gmailTransporter = null; // Transporter Gmail para fallback
         this.initialized = false;
         this.recreating = new Set(); // Prevenir recriações simultâneas
         this.initializeTransporters();
+        this.initializeGmailFallback();
+    }
+    
+    /**
+     * Inicializar transporter Gmail como fallback
+     */
+    initializeGmailFallback() {
+        try {
+            this.gmailTransporter = nodemailer.createTransport({
+                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false,
+                auth: {
+                    user: 'ratixpay.mz@gmail.com',
+                    pass: 'jxlm jybx kofp gmhr'
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            console.log('✅ Gmail fallback configurado (ratixpay.mz@gmail.com)');
+        } catch (error) {
+            console.error('❌ Erro ao configurar Gmail fallback:', error);
+        }
     }
 
     /**
@@ -48,39 +74,31 @@ class ProfessionalEmailService {
     }
 
     /**
-     * Criar configuração de transporter (sem pool para evitar conflitos)
+     * Criar configuração de transporter
+     * Usa Gmail por padrão para todas as categorias (bypass dos emails profissionais)
      */
     createTransporterConfig(config) {
-        // Tentar porta 465 primeiro (SSL direto), se falhar, usar 587 (STARTTLS)
-        const transporterConfig = {
-            host: 'smtp.zoho.com',
-            port: 465, // Porta SSL padrão
-            secure: true, // true para SSL na porta 465
+        // Sempre usar Gmail como padrão (bypass dos emails profissionais)
+        // Mantém estrutura profissional mas usa Gmail para envio
+        return {
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
             auth: {
-                user: config.user,
-                pass: config.pass
+                user: 'ratixpay.mz@gmail.com',
+                pass: 'jxlm jybx kofp gmhr'
             },
             tls: {
                 rejectUnauthorized: false
-                // Remover minVersion e ciphers para usar padrão do Node.js
             },
             connectionTimeout: 30000,
             greetingTimeout: 30000,
             socketTimeout: 60000,
-            pool: false, // Desabilitar pool para evitar conflitos de conexão
+            pool: false,
             logger: false,
             debug: false
         };
-
-        // Se for Gmail, usar configuração do Gmail
-        if (config.user.includes('@gmail.com')) {
-            transporterConfig.service = 'gmail';
-            transporterConfig.host = 'smtp.gmail.com';
-            transporterConfig.port = 465;
-            transporterConfig.secure = true;
-        }
-
-        return transporterConfig;
     }
 
     /**
@@ -277,8 +295,45 @@ class ProfessionalEmailService {
             }
         }
 
-        console.error(`❌ Todas as ${maxRetries} tentativas falharam para ${category}`);
-        return { success: false, error: lastError?.message || 'Falha ao enviar email', code: lastError?.code };
+        // Se todas as tentativas falharam, usar Gmail como fallback
+        console.warn(`⚠️ Falha ao enviar com email profissional ${category}, tentando Gmail fallback...`);
+        return await this.enviarComGmailFallback(mailOptions, category);
+    }
+    
+    /**
+     * Enviar email usando Gmail como fallback
+     */
+    async enviarComGmailFallback(mailOptions, category) {
+        try {
+            if (!this.gmailTransporter) {
+                this.initializeGmailFallback();
+            }
+            
+            if (!this.gmailTransporter) {
+                return { success: false, error: 'Gmail fallback não disponível' };
+            }
+            
+            // Manter o from original mas usar Gmail para envio
+            // Ajustar apenas se necessário para evitar problemas de autenticação
+            const gmailOptions = {
+                ...mailOptions,
+                from: mailOptions.from || `"RatixPay ${category}" <ratixpay.mz@gmail.com>`
+            };
+            
+            const result = await Promise.race([
+                this.gmailTransporter.sendMail(gmailOptions),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout ao enviar email via Gmail')), 60000)
+                )
+            ]);
+            
+            console.log(`✅ Email enviado via Gmail fallback para: ${mailOptions.to}`);
+            return { success: true, messageId: result.messageId, via: 'gmail_fallback' };
+            
+        } catch (error) {
+            console.error('❌ Erro ao enviar via Gmail fallback:', error);
+            return { success: false, error: error.message || 'Falha ao enviar email via Gmail', code: error.code };
+        }
     }
 
     /**

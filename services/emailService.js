@@ -15,17 +15,19 @@ class EmailService {
 
     /**
      * Inicializar o serviço de email
+     * Usa Gmail como padrão com senha de app
      */
     async initialize() {
         try {
-            // Configuração do transporter
+            // Configuração do transporter usando Gmail com senha de app
             this.transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                port: process.env.SMTP_PORT || 587,
+                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 587,
                 secure: false, // true para 465, false para outras portas
                 auth: {
-                    user: process.env.SMTP_USER || process.env.EMAIL_USER || 'ratixpay.moz@gmail.com',
-                    pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD
+                    user: process.env.SMTP_USER || process.env.EMAIL_USER || 'ratixpay.mz@gmail.com',
+                    pass: process.env.SMTP_PASS || process.env.EMAIL_PASSWORD || 'jxlm jybx kofp gmhr'
                 },
                 tls: {
                     rejectUnauthorized: false
@@ -35,7 +37,7 @@ class EmailService {
             // Verificar conexão
             await this.transporter.verify();
             this.isInitialized = true;
-            // Email Service inicializado com sucesso
+            console.log('✅ Email Service inicializado com Gmail (ratixpay.mz@gmail.com)');
 
         } catch (error) {
             console.error('❌ Erro ao inicializar Email Service:', error);
@@ -82,7 +84,7 @@ class EmailService {
                 .replace(/{{linkDesbloqueio}}/g, linkDesbloqueio);
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: email,
                 subject: '🔓 Desbloqueio de Conta - RatixPay',
                 html: htmlContent
@@ -115,7 +117,7 @@ class EmailService {
             htmlContent = htmlContent.replace(/{{nome}}/g, nome);
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: email,
                 subject: '🔒 Conta Bloqueada - RatixPay',
                 html: htmlContent
@@ -152,7 +154,7 @@ class EmailService {
                 .replace(/{{linkDesbloqueio}}/g, linkDesbloqueio);
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: email,
                 subject: '🔓 Novo Link de Desbloqueio - RatixPay',
                 html: htmlContent
@@ -200,7 +202,7 @@ class EmailService {
                 .replace(/{{TEMPO_EXPIRACAO}}/g, '15');
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: email,
                 subject: '🔓 Código de Desbloqueio - RatixPay',
                 html: htmlContent
@@ -248,7 +250,7 @@ class EmailService {
                 .replace(/{{TEMPO_EXPIRACAO}}/g, '15');
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: email,
                 subject: '🔐 Código de Autenticação - RatixPay',
                 html: htmlContent
@@ -274,7 +276,7 @@ class EmailService {
             }
 
             const mailOptions = {
-                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.moz@gmail.com'}>`,
+                from: `"RatixPay" <${process.env.SMTP_USER || 'ratixpay.mz@gmail.com'}>`,
                 to: destinatario,
                 subject: assunto,
                 [isHtml ? 'html' : 'text']: conteudo

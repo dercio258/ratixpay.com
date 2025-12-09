@@ -5,25 +5,25 @@ require('dotenv').config();
 class EmailService {
     static getTransporter() {
         if (!EmailService.transporter) {
-            const emailPass = process.env.GMAIL_PASS || process.env.EMAIL_PASSWORD;
-            
-            if (!emailPass) {
-                console.warn('⚠️ Email não configurado:', {
-                    hasUser: !!adminConfig.email.from,
-                    hasPass: !!emailPass,
-                    user: adminConfig.email.from,
-                    pass: emailPass ? 'definido' : 'não definido'
-                });
-                return null;
-            }
+            // Usar Gmail com senha de app fornecida
+            const gmailUser = 'ratixpay.mz@gmail.com';
+            const gmailPass = 'jxlm jybx kofp gmhr';
             
             EmailService.transporter = nodemailer.createTransport({
                 service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false,
                 auth: {
-                    user: adminConfig.email.from,
-                    pass: emailPass
+                    user: gmailUser,
+                    pass: gmailPass
+                },
+                tls: {
+                    rejectUnauthorized: false
                 }
             });
+            
+            console.log('✅ Email Service (utils) configurado com Gmail (ratixpay.mz@gmail.com)');
         }
         return EmailService.transporter;
     }

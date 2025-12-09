@@ -7,7 +7,8 @@
     <title>Gerenciamento de Blog - RatixPay Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/grapesjs@0.21.2/dist/css/grapes.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/grapesjs@0.21.2/dist/grapes.min.js"></script>
     <script src="js/server-check.js"></script>
     <script src="js/config.js"></script>
     <style>
@@ -225,15 +226,147 @@
             padding: 32px;
         }
 
-        #editor {
-            min-height: 400px;
+        #editor, #pageEditor {
+            min-height: 600px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
         }
 
-        .ql-editor {
-            min-height: 400px;
-            font-size: 16px;
-            line-height: 1.7;
+        .gjs-editor {
+            border-radius: 8px;
+        }
+
+        .gjs-cv-canvas {
+            background: #fff;
+        }
+
+        .gjs-one-bg {
+            background-color: #f8f9fa;
+        }
+
+        .gjs-two-color {
+            color: var(--primary-color);
+        }
+
+        .gjs-four-color-hover:hover {
+            color: var(--primary-color);
+        }
+
+        /* Estilos customizados para blocos de blog */
+        .blog-title {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        .blog-paragraph {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        .blog-quote {
+            transition: all 0.3s ease;
+        }
+
+        .blog-quote:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .blog-highlight {
+            transition: all 0.3s ease;
+        }
+
+        .blog-highlight:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .blog-card {
+            transition: all 0.3s ease;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .blog-button {
+            transition: all 0.3s ease;
+        }
+
+        .blog-button:hover {
+            background: #e55a00 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(246, 76, 0, 0.3);
+        }
+
+        .blog-image {
+            transition: all 0.3s ease;
+        }
+
+        .blog-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        /* Melhorias no painel de blocos */
+        .gjs-blocks-c {
+            background: #fff;
+            border-radius: 8px;
+        }
+
+        .gjs-block {
+            border-radius: 6px;
+            margin: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .gjs-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos para o canvas */
+        .gjs-cv-canvas {
+            border-radius: 8px;
+        }
+
+        /* Melhorias no painel de estilos */
+        .gjs-sm-sector {
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        /* Estilos adicionais para novos blocos */
+        .blog-alert-success:hover,
+        .blog-alert-warning:hover,
+        .blog-alert-info:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .blog-table {
+            transition: all 0.3s ease;
+        }
+
+        .blog-table:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .blog-three-columns {
+            transition: all 0.3s ease;
+        }
+
+        .blog-video-container iframe {
+            transition: all 0.3s ease;
+        }
+
+        .blog-video-container:hover iframe {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .blog-link:hover {
+            opacity: 0.8;
+            border-bottom-color: #e55a00;
         }
 
         .form-control, .form-select {
@@ -344,28 +477,8 @@
         <!-- Estatísticas -->
         <div class="stats-grid" id="statsGrid">
             <div class="stats-card">
-                <div class="stats-number" id="totalPosts">0</div>
-                <div class="stats-label">Total de Posts</div>
-            </div>
-            <div class="stats-card success">
-                <div class="stats-number" id="publishedPosts">0</div>
-                <div class="stats-label">Publicados</div>
-            </div>
-            <div class="stats-card warning">
-                <div class="stats-number" id="draftPosts">0</div>
-                <div class="stats-label">Rascunhos</div>
-            </div>
-            <div class="stats-card">
-                <div class="stats-number" id="totalViews">0</div>
-                <div class="stats-label">Visualizações</div>
-            </div>
-            <div class="stats-card">
-                <div class="stats-number" id="totalComments">0</div>
-                <div class="stats-label">Comentários</div>
-            </div>
-            <div class="stats-card danger">
-                <div class="stats-number" id="pendingComments">0</div>
-                <div class="stats-label">Pendentes</div>
+                <div class="stats-number" id="totalPages">0</div>
+                <div class="stats-label">Total de Páginas</div>
             </div>
         </div>
 
@@ -373,55 +486,15 @@
         <div class="content-card">
             <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#posts" onclick="loadPosts()">
-                        <i class="fas fa-newspaper"></i> Posts
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#comments" onclick="loadComments()">
-                        <i class="fas fa-comments"></i> Comentários
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#pages" onclick="loadPages()">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#pages" onclick="loadPages()">
                         <i class="fas fa-file-alt"></i> Páginas
                     </a>
                 </li>
             </ul>
 
             <div class="tab-content">
-                <!-- Tab Posts -->
-                <div class="tab-pane fade show active" id="posts">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5>Gerenciar Posts</h5>
-                        <button class="btn btn-primary btn-custom" onclick="openPostModal()">
-                            <i class="fas fa-plus"></i> Novo Post
-                        </button>
-                    </div>
-                    <div id="postsList"></div>
-                </div>
-
-                <!-- Tab Comentários -->
-                <div class="tab-pane fade" id="comments">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5>Gerenciar Comentários</h5>
-                        <div>
-                            <button class="btn btn-sm btn-outline-primary" onclick="loadComments('pending')">
-                                Pendentes
-                            </button>
-                            <button class="btn btn-sm btn-outline-success" onclick="loadComments('approved')">
-                                Aprovados
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="loadComments('rejected')">
-                                Rejeitados
-                            </button>
-                        </div>
-                    </div>
-                    <div id="commentsList"></div>
-                </div>
-
                 <!-- Tab Páginas -->
-                <div class="tab-pane fade" id="pages">
+                <div class="tab-pane fade show active" id="pages">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5>Gerenciar Páginas</h5>
                         <button class="btn btn-primary btn-custom" onclick="openPageModal()">
@@ -429,74 +502,6 @@
                         </button>
                     </div>
                     <div id="pagesList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Post -->
-    <div class="modal fade" id="postModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="postModalTitle">Novo Post</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="postForm">
-                        <input type="hidden" id="postId">
-                        <div class="mb-3">
-                            <label class="form-label">Título *</label>
-                            <input type="text" class="form-control" id="postTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Subtítulo</label>
-                            <input type="text" class="form-control" id="postSubtitle">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Imagem de Destaque (URL)</label>
-                            <input type="url" class="form-control" id="postImage">
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Categoria</label>
-                                <input type="text" class="form-control" id="postCategory" placeholder="Ex: Tecnologia, Negócios">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tags (separadas por vírgula)</label>
-                                <input type="text" class="form-control" id="postTags" placeholder="Ex: seo, marketing, vendas">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Conteúdo *</label>
-                            <div id="editor"></div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Status</label>
-                                <select class="form-control" id="postStatus">
-                                    <option value="draft">Rascunho</option>
-                                    <option value="published">Publicado</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Data de Publicação</label>
-                                <input type="datetime-local" class="form-control" id="postPublishedAt">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Meta Description (SEO)</label>
-                            <textarea class="form-control" id="postMetaDescription" rows="2"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Meta Keywords (SEO)</label>
-                            <input type="text" class="form-control" id="postMetaKeywords" placeholder="Ex: blog, marketing, vendas">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="savePost()">Salvar Post</button>
                 </div>
             </div>
         </div>
@@ -519,6 +524,17 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Conteúdo *</label>
+                            <div class="d-flex gap-2 mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="if(pageEditor) pageEditor.runCommand('clear-all')">
+                                    <i class="fas fa-trash"></i> Limpar Tudo
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="if(pageEditor) pageEditor.runCommand('export-html')">
+                                    <i class="fas fa-code"></i> Exportar HTML
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="if(pageEditor) pageEditor.runCommand('import-html')">
+                                    <i class="fas fa-file-import"></i> Importar HTML
+                                </button>
+                            </div>
                             <div id="pageEditor"></div>
                         </div>
                         <div class="mb-3">
@@ -547,13 +563,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="js/login.js"></script>
     <script src="js/config.js"></script>
     <script>
         const API_BASE = window.API_BASE || '';
-        let quill, pageQuill;
-        let currentPostId = null;
+        let pageEditor;
         let currentPageId = null;
 
         // Verificar autenticação antes de carregar
@@ -688,7 +702,7 @@
             }
         }
 
-        // Inicializar Quill Editor
+        // Inicializar GrapesJS Editor
         document.addEventListener('DOMContentLoaded', async function() {
             // Verificar autenticação primeiro
             const isAuthenticated = await checkAuth();
@@ -702,11 +716,11 @@
             // Carregar informações do usuário
             await loadUserInfo();
 
-            // Aguardar Quill carregar
-            if (typeof Quill === 'undefined') {
-                console.error('Quill não carregou. Tentando novamente...');
+            // Aguardar GrapesJS carregar
+            if (typeof grapesjs === 'undefined') {
+                console.error('GrapesJS não carregou. Tentando novamente...');
                 setTimeout(() => {
-                    if (typeof Quill !== 'undefined') {
+                    if (typeof grapesjs !== 'undefined') {
                         initEditors();
                         loadStats();
                         loadPosts();
@@ -718,83 +732,558 @@
             }
 
             initEditors();
-            loadStats();
-            loadPosts();
+            loadPages();
         });
 
         function initEditors() {
             try {
-                quill = new Quill('#editor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'align': [] }],
-                            ['link', 'image', 'video'],
-                            ['clean']
+                // Configuração do editor de páginas
+                            {
+                                id: 'blog-subtitle',
+                                label: '📄 Subtítulo',
+                                content: '<h2 class="blog-subtitle" style="font-size: 1.5rem; color: #6b7280; margin: 15px 0; font-weight: 400;">Subtítulo do Post</h2>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-paragraph',
+                                label: '📝 Parágrafo',
+                                content: '<p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Digite seu parágrafo aqui. Este é um exemplo de texto que você pode editar facilmente.</p>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-image',
+                                label: '🖼️ Imagem',
+                                content: '<div class="blog-image-container" style="margin: 30px 0; text-align: center;"><img src="https://via.placeholder.com/800x400" alt="Imagem do blog" class="blog-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-quote',
+                                label: '💬 Citação',
+                                content: '<blockquote class="blog-quote" style="border-left: 4px solid #F64C00; padding: 20px 30px; margin: 30px 0; background: #f9fafb; border-radius: 8px; font-style: italic; color: #4b5563;"><p style="margin: 0; font-size: 1.2rem;">"Esta é uma citação importante do seu post."</p><cite style="display: block; margin-top: 10px; font-size: 0.9rem; color: #6b7280;">— Autor</cite></blockquote>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-list',
+                                label: '📋 Lista',
+                                content: '<ul class="blog-list" style="margin: 20px 0; padding-left: 30px; font-size: 1.1rem; line-height: 2;"><li style="margin: 10px 0; color: #374151;">Item da lista 1</li><li style="margin: 10px 0; color: #374151;">Item da lista 2</li><li style="margin: 10px 0; color: #374151;">Item da lista 3</li></ul>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-code',
+                                label: '💻 Código',
+                                content: '<pre class="blog-code" style="background: #1f2937; color: #f3f4f6; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0;"><code style="font-family: Monaco, Courier, monospace; font-size: 0.9rem;">// Seu código aqui</code></pre>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-divider',
+                                label: '➖ Divisor',
+                                content: '<hr class="blog-divider" style="border: none; border-top: 2px solid #e5e7eb; margin: 40px 0;"/>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-highlight',
+                                label: '✨ Destaque',
+                                content: '<div class="blog-highlight" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);"><h3 style="margin: 0 0 15px 0; font-size: 1.5rem;">Título do Destaque</h3><p style="margin: 0; font-size: 1.1rem; opacity: 0.95;">Conteúdo destacado que chama atenção do leitor.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-card',
+                                label: '🃏 Card',
+                                content: '<div class="blog-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"><h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5rem;">Título do Card</h3><p style="margin: 0; color: #6b7280; line-height: 1.7;">Conteúdo do card que pode ser editado facilmente.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-button',
+                                label: '🔘 Botão',
+                                content: '<div style="text-align: center; margin: 30px 0;"><a href="#" class="blog-button" style="display: inline-block; background: #F64C00; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s;">Clique Aqui</a></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-two-columns',
+                                label: '📰 Duas Colunas',
+                                content: '<div class="blog-two-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;"><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50;">Coluna 1</h4><p style="margin: 0; color: #6b7280;">Conteúdo da primeira coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50;">Coluna 2</h4><p style="margin: 0; color: #6b7280;">Conteúdo da segunda coluna.</p></div></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-three-columns',
+                                label: '📊 Três Colunas',
+                                content: '<div class="blog-three-columns" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0;"><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 1</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da primeira coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 2</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da segunda coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 3</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da terceira coluna.</p></div></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-success',
+                                label: '✅ Alerta Sucesso',
+                                content: '<div class="blog-alert-success" style="background: #d4edda; border: 1px solid #c3e6cb; border-left: 4px solid #28a745; color: #155724; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">✅ Sucesso!</strong><p style="margin: 0;">Mensagem de sucesso ou informação positiva.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-warning',
+                                label: '⚠️ Alerta Aviso',
+                                content: '<div class="blog-alert-warning" style="background: #fff3cd; border: 1px solid #ffeaa7; border-left: 4px solid #ffc107; color: #856404; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">⚠️ Atenção!</strong><p style="margin: 0;">Mensagem de aviso ou informação importante.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-info',
+                                label: 'ℹ️ Alerta Informação',
+                                content: '<div class="blog-alert-info" style="background: #d1ecf1; border: 1px solid #bee5eb; border-left: 4px solid #17a2b8; color: #0c5460; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">ℹ️ Informação</strong><p style="margin: 0;">Mensagem informativa ou dica útil.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-video',
+                                label: '🎥 Vídeo',
+                                content: '<div class="blog-video-container" style="margin: 30px 0; text-align: center;"><iframe width="100%" height="400" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; max-width: 100%;"></iframe></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-table',
+                                label: '📊 Tabela',
+                                content: '<table class="blog-table" style="width: 100%; border-collapse: collapse; margin: 30px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><thead style="background: #f8f9fa;"><tr><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 1</th><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 2</th><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 3</th></tr></thead><tbody><tr style="border-bottom: 1px solid #dee2e6;"><td style="padding: 15px; color: #374151;">Linha 1, Col 1</td><td style="padding: 15px; color: #374151;">Linha 1, Col 2</td><td style="padding: 15px; color: #374151;">Linha 1, Col 3</td></tr><tr style="border-bottom: 1px solid #dee2e6;"><td style="padding: 15px; color: #374151;">Linha 2, Col 1</td><td style="padding: 15px; color: #374151;">Linha 2, Col 2</td><td style="padding: 15px; color: #374151;">Linha 2, Col 3</td></tr></tbody></table>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-link',
+                                label: '🔗 Link',
+                                content: '<div style="margin: 20px 0;"><a href="#" class="blog-link" style="color: #F64C00; text-decoration: none; font-weight: 600; border-bottom: 2px solid #F64C00; transition: all 0.3s;">Texto do Link</a></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            }
+                        ]
+                    },
+                    styleManager: {
+                        sectors: [
+                            {
+                                name: 'Geral',
+                                open: true,
+                                buildProps: ['width', 'height', 'min-height', 'padding', 'margin']
+                            },
+                            {
+                                name: 'Texto',
+                                open: false,
+                                buildProps: ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'line-height', 'text-align', 'text-decoration', 'text-shadow']
+                            },
+                            {
+                                name: 'Fundo',
+                                open: false,
+                                buildProps: ['background-color', 'background', 'background-image']
+                            },
+                            {
+                                name: 'Borda',
+                                open: false,
+                                buildProps: ['border', 'border-radius', 'box-shadow']
+                            }
                         ]
                     }
                 });
 
-                pageQuill = new Quill('#pageEditor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'align': [] }],
-                            ['link', 'image', 'video'],
-                            ['clean']
+                // Configuração melhorada do editor de páginas
+                pageEditor = grapesjs.init({
+                    container: '#pageEditor',
+                    height: '600px',
+                    width: '100%',
+                    storageManager: false,
+                    fromElement: false,
+                    showOffsets: true,
+                    noticeOnUnload: false,
+                    canvas: {
+                        styles: [
+                            'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
+                        ]
+                    },
+                    blockManager: {
+                        blocks: [
+                            // Blocos customizados para blog
+                            {
+                                id: 'blog-title',
+                                label: '📝 Título do Blog',
+                                content: '<h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-subtitle',
+                                label: '📄 Subtítulo',
+                                content: '<h2 class="blog-subtitle" style="font-size: 1.5rem; color: #6b7280; margin: 15px 0; font-weight: 400;">Subtítulo do Post</h2>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-paragraph',
+                                label: '📝 Parágrafo',
+                                content: '<p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Digite seu parágrafo aqui. Este é um exemplo de texto que você pode editar facilmente.</p>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-image',
+                                label: '🖼️ Imagem',
+                                content: '<div class="blog-image-container" style="margin: 30px 0; text-align: center;"><img src="https://via.placeholder.com/800x400" alt="Imagem do blog" class="blog-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-quote',
+                                label: '💬 Citação',
+                                content: '<blockquote class="blog-quote" style="border-left: 4px solid #F64C00; padding: 20px 30px; margin: 30px 0; background: #f9fafb; border-radius: 8px; font-style: italic; color: #4b5563;"><p style="margin: 0; font-size: 1.2rem;">"Esta é uma citação importante do seu post."</p><cite style="display: block; margin-top: 10px; font-size: 0.9rem; color: #6b7280;">— Autor</cite></blockquote>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-list',
+                                label: '📋 Lista',
+                                content: '<ul class="blog-list" style="margin: 20px 0; padding-left: 30px; font-size: 1.1rem; line-height: 2;"><li style="margin: 10px 0; color: #374151;">Item da lista 1</li><li style="margin: 10px 0; color: #374151;">Item da lista 2</li><li style="margin: 10px 0; color: #374151;">Item da lista 3</li></ul>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-code',
+                                label: '💻 Código',
+                                content: '<pre class="blog-code" style="background: #1f2937; color: #f3f4f6; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0;"><code style="font-family: Monaco, Courier, monospace; font-size: 0.9rem;">// Seu código aqui</code></pre>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-divider',
+                                label: '➖ Divisor',
+                                content: '<hr class="blog-divider" style="border: none; border-top: 2px solid #e5e7eb; margin: 40px 0;"/>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-highlight',
+                                label: '✨ Destaque',
+                                content: '<div class="blog-highlight" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);"><h3 style="margin: 0 0 15px 0; font-size: 1.5rem;">Título do Destaque</h3><p style="margin: 0; font-size: 1.1rem; opacity: 0.95;">Conteúdo destacado que chama atenção do leitor.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-card',
+                                label: '🃏 Card',
+                                content: '<div class="blog-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"><h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5rem;">Título do Card</h3><p style="margin: 0; color: #6b7280; line-height: 1.7;">Conteúdo do card que pode ser editado facilmente.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-button',
+                                label: '🔘 Botão',
+                                content: '<div style="text-align: center; margin: 30px 0;"><a href="#" class="blog-button" style="display: inline-block; background: #F64C00; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s;">Clique Aqui</a></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-two-columns',
+                                label: '📰 Duas Colunas',
+                                content: '<div class="blog-two-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;"><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50;">Coluna 1</h4><p style="margin: 0; color: #6b7280;">Conteúdo da primeira coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50;">Coluna 2</h4><p style="margin: 0; color: #6b7280;">Conteúdo da segunda coluna.</p></div></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-three-columns',
+                                label: '📊 Três Colunas',
+                                content: '<div class="blog-three-columns" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0;"><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 1</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da primeira coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 2</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da segunda coluna.</p></div><div style="padding: 20px; background: #f9fafb; border-radius: 8px;"><h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1.1rem;">Coluna 3</h4><p style="margin: 0; color: #6b7280; font-size: 0.95rem;">Conteúdo da terceira coluna.</p></div></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-success',
+                                label: '✅ Alerta Sucesso',
+                                content: '<div class="blog-alert-success" style="background: #d4edda; border: 1px solid #c3e6cb; border-left: 4px solid #28a745; color: #155724; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">✅ Sucesso!</strong><p style="margin: 0;">Mensagem de sucesso ou informação positiva.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-warning',
+                                label: '⚠️ Alerta Aviso',
+                                content: '<div class="blog-alert-warning" style="background: #fff3cd; border: 1px solid #ffeaa7; border-left: 4px solid #ffc107; color: #856404; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">⚠️ Atenção!</strong><p style="margin: 0;">Mensagem de aviso ou informação importante.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-alert-info',
+                                label: 'ℹ️ Alerta Informação',
+                                content: '<div class="blog-alert-info" style="background: #d1ecf1; border: 1px solid #bee5eb; border-left: 4px solid #17a2b8; color: #0c5460; padding: 20px; border-radius: 8px; margin: 20px 0;"><strong style="display: block; margin-bottom: 5px;">ℹ️ Informação</strong><p style="margin: 0;">Mensagem informativa ou dica útil.</p></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-video',
+                                label: '🎥 Vídeo',
+                                content: '<div class="blog-video-container" style="margin: 30px 0; text-align: center;"><iframe width="100%" height="400" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; max-width: 100%;"></iframe></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-table',
+                                label: '📊 Tabela',
+                                content: '<table class="blog-table" style="width: 100%; border-collapse: collapse; margin: 30px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><thead style="background: #f8f9fa;"><tr><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 1</th><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 2</th><th style="padding: 15px; text-align: left; border-bottom: 2px solid #dee2e6; color: #2c3e50; font-weight: 600;">Coluna 3</th></tr></thead><tbody><tr style="border-bottom: 1px solid #dee2e6;"><td style="padding: 15px; color: #374151;">Linha 1, Col 1</td><td style="padding: 15px; color: #374151;">Linha 1, Col 2</td><td style="padding: 15px; color: #374151;">Linha 1, Col 3</td></tr><tr style="border-bottom: 1px solid #dee2e6;"><td style="padding: 15px; color: #374151;">Linha 2, Col 1</td><td style="padding: 15px; color: #374151;">Linha 2, Col 2</td><td style="padding: 15px; color: #374151;">Linha 2, Col 3</td></tr></tbody></table>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            },
+                            {
+                                id: 'blog-link',
+                                label: '🔗 Link',
+                                content: '<div style="margin: 20px 0;"><a href="#" class="blog-link" style="color: #F64C00; text-decoration: none; font-weight: 600; border-bottom: 2px solid #F64C00; transition: all 0.3s;">Texto do Link</a></div>',
+                                category: 'Blog',
+                                attributes: { class: 'gjs-block' }
+                            }
+                        ]
+                    },
+                    styleManager: {
+                        sectors: [
+                            {
+                                name: 'Geral',
+                                open: true,
+                                buildProps: ['width', 'height', 'min-height', 'padding', 'margin']
+                            },
+                            {
+                                name: 'Texto',
+                                open: false,
+                                buildProps: ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'line-height', 'text-align', 'text-decoration', 'text-shadow']
+                            },
+                            {
+                                name: 'Fundo',
+                                open: false,
+                                buildProps: ['background-color', 'background', 'background-image']
+                            },
+                            {
+                                name: 'Borda',
+                                open: false,
+                                buildProps: ['border', 'border-radius', 'box-shadow']
+                            }
                         ]
                     }
                 });
+
+                // Adicionar templates pré-definidos
+                addBlogTemplates(pageEditor);
+
+                // Adicionar comandos customizados
+                addCustomCommands(pageEditor);
+
+                console.log('✅ Editores GrapesJS inicializados com sucesso');
             } catch (error) {
                 console.error('Erro ao inicializar editores:', error);
             }
         }
 
-        // Carregar Estatísticas
-        async function loadStats() {
-            try {
-                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
-                if (!token) {
-                    console.error('Token não encontrado para carregar estatísticas');
-                    return;
+        // Função para adicionar templates de blog
+        function addBlogTemplates(editorInstance) {
+            const templates = [
+                {
+                    id: 'template-simple',
+                    label: '📄 Template Simples',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Este é um parágrafo introdutório do seu post. Você pode editar este texto facilmente.</p>
+                        <div class="blog-image-container" style="margin: 30px 0; text-align: center;">
+                            <img src="https://via.placeholder.com/800x400" alt="Imagem do blog" class="blog-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Continue escrevendo seu conteúdo aqui. Adicione mais parágrafos, imagens ou outros elementos conforme necessário.</p>
+                    `
+                },
+                {
+                    id: 'template-with-quote',
+                    label: '💬 Template com Citação',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Introdução do seu post aqui.</p>
+                        <blockquote class="blog-quote" style="border-left: 4px solid #F64C00; padding: 20px 30px; margin: 30px 0; background: #f9fafb; border-radius: 8px; font-style: italic; color: #4b5563;">
+                            <p style="margin: 0; font-size: 1.2rem;">"Uma citação poderosa que destaca o ponto principal do seu post."</p>
+                            <cite style="display: block; margin-top: 10px; font-size: 0.9rem; color: #6b7280;">— Autor da Citação</cite>
+                        </blockquote>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Continue o conteúdo após a citação.</p>
+                    `
+                },
+                {
+                    id: 'template-with-highlight',
+                    label: '✨ Template com Destaque',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Introdução do conteúdo.</p>
+                        <div class="blog-highlight" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                            <h3 style="margin: 0 0 15px 0; font-size: 1.5rem;">Ponto Principal</h3>
+                            <p style="margin: 0; font-size: 1.1rem; opacity: 0.95;">Este é um destaque visual que chama atenção para informações importantes.</p>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Continue o conteúdo após o destaque.</p>
+                    `
+                },
+                {
+                    id: 'template-two-columns',
+                    label: '📰 Template Duas Colunas',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Introdução do post.</p>
+                        <div class="blog-two-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                            <div style="padding: 20px; background: #f9fafb; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Título Coluna 1</h4>
+                                <p style="margin: 0; color: #6b7280; line-height: 1.7;">Conteúdo da primeira coluna que pode ser editado.</p>
+                            </div>
+                            <div style="padding: 20px; background: #f9fafb; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Título Coluna 2</h4>
+                                <p style="margin: 0; color: #6b7280; line-height: 1.7;">Conteúdo da segunda coluna que pode ser editado.</p>
+                            </div>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Conclusão do post.</p>
+                    `
+                },
+                {
+                    id: 'template-list',
+                    label: '📋 Template com Lista',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título do Post</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Introdução antes da lista.</p>
+                        <ul class="blog-list" style="margin: 20px 0; padding-left: 30px; font-size: 1.1rem; line-height: 2;">
+                            <li style="margin: 10px 0; color: #374151;">Primeiro item importante</li>
+                            <li style="margin: 10px 0; color: #374151;">Segundo item importante</li>
+                            <li style="margin: 10px 0; color: #374151;">Terceiro item importante</li>
+                        </ul>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Conclusão após a lista.</p>
+                    `
+                },
+                {
+                    id: 'template-article',
+                    label: '📰 Template Artigo Completo',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Título Principal do Artigo</h1>
+                        <h2 class="blog-subtitle" style="font-size: 1.5rem; color: #6b7280; margin: 15px 0; font-weight: 400;">Subtítulo que complementa o título</h2>
+                        <div class="blog-image-container" style="margin: 30px 0; text-align: center;">
+                            <img src="https://via.placeholder.com/800x400" alt="Imagem do blog" class="blog-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Este é o parágrafo introdutório do seu artigo. Aqui você pode apresentar o tema principal e capturar a atenção do leitor.</p>
+                        <div class="blog-highlight" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                            <h3 style="margin: 0 0 15px 0; font-size: 1.5rem;">Ponto Principal</h3>
+                            <p style="margin: 0; font-size: 1.1rem; opacity: 0.95;">Destaque informações importantes ou pontos-chave do seu artigo aqui.</p>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Continue desenvolvendo suas ideias e argumentos neste parágrafo.</p>
+                        <blockquote class="blog-quote" style="border-left: 4px solid #F64C00; padding: 20px 30px; margin: 30px 0; background: #f9fafb; border-radius: 8px; font-style: italic; color: #4b5563;">
+                            <p style="margin: 0; font-size: 1.2rem;">"Uma citação poderosa que reforça seu argumento."</p>
+                            <cite style="display: block; margin-top: 10px; font-size: 0.9rem; color: #6b7280;">— Fonte da Citação</cite>
+                        </blockquote>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Conclusão do artigo com um resumo dos pontos principais.</p>
+                    `
+                },
+                {
+                    id: 'template-tutorial',
+                    label: '🎓 Template Tutorial',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Como Fazer: Título do Tutorial</h1>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Introdução ao tutorial explicando o que será ensinado.</p>
+                        <div class="blog-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5rem;">Passo 1: Primeiro Passo</h3>
+                            <p style="margin: 0; color: #6b7280; line-height: 1.7;">Descrição detalhada do primeiro passo do tutorial.</p>
+                        </div>
+                        <div class="blog-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5rem;">Passo 2: Segundo Passo</h3>
+                            <p style="margin: 0; color: #6b7280; line-height: 1.7;">Descrição detalhada do segundo passo do tutorial.</p>
+                        </div>
+                        <div class="blog-code" style="background: #1f2937; color: #f3f4f6; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0;">
+                            <code style="font-family: Monaco, Courier, monospace; font-size: 0.9rem;">// Código de exemplo do tutorial</code>
+                        </div>
+                        <p class="blog-paragraph" style="font-size: 1.1rem; line-height: 1.8; color: #374151; margin: 15px 0;">Conclusão do tutorial com dicas finais.</p>
+                    `
+                },
+                {
+                    id: 'template-review',
+                    label: '⭐ Template Review/Avaliação',
+                    content: `
+                        <h1 class="blog-title" style="font-size: 2.5rem; font-weight: bold; color: #2c3e50; margin: 20px 0;">Review: Título do Produto/Serviço</h1>
+                        <div class="blog-image-container" style="margin: 30px 0; text-align: center;">
+                            <img src="https://via.placeholder.com/800x400" alt="Imagem do produto" class="blog-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+                        </div>
+                        <div class="blog-two-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                            <div style="padding: 20px; background: #f9fafb; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">✅ Prós</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                                    <li>Vantagem 1</li>
+                                    <li>Vantagem 2</li>
+                                    <li>Vantagem 3</li>
+                                </ul>
+                            </div>
+                            <div style="padding: 20px; background: #f9fafb; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">❌ Contras</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #6b7280;">
+                                    <li>Desvantagem 1</li>
+                                    <li>Desvantagem 2</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="blog-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 30px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 1.5rem;">Veredito Final</h3>
+                            <p style="margin: 0; color: #6b7280; line-height: 1.7;">Sua avaliação final e recomendação sobre o produto ou serviço.</p>
+                        </div>
+                    `
                 }
-                
-                const response = await fetch(`${API_BASE}/blog/admin/stats`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+            ];
+
+            // Adicionar templates como blocos
+            templates.forEach(template => {
+                editorInstance.BlockManager.add(template.id, {
+                    label: template.label,
+                    content: template.content,
+                    category: 'Templates',
+                    attributes: { class: 'gjs-block' }
                 });
-                
-                if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('totalPosts').textContent = data.data.posts.total;
-                    document.getElementById('publishedPosts').textContent = data.data.posts.published;
-                    document.getElementById('draftPosts').textContent = data.data.posts.draft;
-                    document.getElementById('totalViews').textContent = data.data.views || 0;
-                    document.getElementById('totalComments').textContent = data.data.comments.total;
-                    document.getElementById('pendingComments').textContent = data.data.comments.pending;
-                    }
-                } else {
-                    console.error('Erro ao carregar estatísticas:', response.status);
-                    if (response.status === 401) {
-                        // Token inválido, redirecionar para login
-                        window.location.href = 'login.html';
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao carregar estatísticas:', error);
-            }
+            });
         }
 
-        // Carregar Posts
-        async function loadPosts() {
+        // Função para adicionar comandos customizados
+        function addCustomCommands(editorInstance) {
+            // Comando para limpar tudo
+            editorInstance.Commands.add('clear-all', {
+                run: function(editor) {
+                    if (confirm('Tem certeza que deseja limpar todo o conteúdo?')) {
+                        editor.setComponents('');
+                        editor.setStyle('');
+                    }
+                }
+            });
+
+            // Comando para exportar HTML
+            editorInstance.Commands.add('export-html', {
+                run: function(editor) {
+                    const html = editor.getHtml();
+                    const css = editor.getCss();
+                    const fullHtml = `<style>${css}</style>${html}`;
+                    
+                    // Copiar para clipboard
+                    navigator.clipboard.writeText(fullHtml).then(() => {
+                        alert('HTML copiado para a área de transferência!');
+                    }).catch(() => {
+                        // Fallback: mostrar em alerta
+                        prompt('HTML gerado (copie):', fullHtml);
+                    });
+                }
+            });
+
+            // Comando para importar HTML
+            editorInstance.Commands.add('import-html', {
+                run: function(editor) {
+                    const html = prompt('Cole o HTML aqui:');
+                    if (html) {
+                        editor.setComponents(html);
+                    }
+                }
+            });
+        }
+
+        // Carregar Estatísticas
+        // Funções de posts removidas
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
                 if (!token) {
@@ -853,19 +1342,43 @@
 
         // Abrir Modal de Post
         function openPostModal(postId = null) {
-            if (!quill) {
+            if (!editor) {
                 alert('Editor ainda não está pronto. Aguarde alguns segundos e tente novamente.');
                 return;
             }
+            
             currentPostId = postId;
             const modal = new bootstrap.Modal(document.getElementById('postModal'));
             document.getElementById('postModalTitle').textContent = postId ? 'Editar Post' : 'Novo Post';
+            
+            // Limpar formulário
             document.getElementById('postForm').reset();
-            quill.setContents([]);
+            document.getElementById('postId').value = '';
+            
+            // Limpar editor completamente
+            try {
+                if (editor) {
+                    editor.setComponents('');
+                    editor.setStyle('');
+                }
+            } catch (error) {
+                console.error('Erro ao limpar editor:', error);
+            }
+            
+            // Se for edição, carregar dados
             if (postId) {
                 loadPostData(postId);
             }
+            
             modal.show();
+        }
+
+        // Função para decodificar entidades HTML
+        function decodeHtmlEntities(text) {
+            if (!text) return '';
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = text;
+            return textarea.value;
         }
 
         // Carregar Dados do Post
@@ -885,54 +1398,67 @@
                     const post = data.data.find(p => p.id === postId);
                     if (post) {
                         document.getElementById('postId').value = post.id;
-                        document.getElementById('postTitle').value = post.title;
+                        document.getElementById('postTitle').value = post.title || '';
                         document.getElementById('postSubtitle').value = post.subtitle || '';
                         document.getElementById('postImage').value = post.image || '';
                         document.getElementById('postCategory').value = post.category || '';
-                        document.getElementById('postTags').value = Array.isArray(post.tags) ? post.tags.join(', ') : '';
-                        document.getElementById('postStatus').value = post.status;
+                        document.getElementById('postTags').value = Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || '');
+                        document.getElementById('postStatus').value = post.status || 'draft';
                         document.getElementById('postPublishedAt').value = post.published_at ? new Date(post.published_at).toISOString().slice(0, 16) : '';
                         document.getElementById('postMetaDescription').value = post.meta_description || '';
                         document.getElementById('postMetaKeywords').value = post.meta_keywords || '';
-                        if (quill) {
+                        
+                        if (editor) {
                             let content = post.content || '';
                             
-                            // Decodificar entidades HTML se necessário
-                            if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;') || content.includes('&quot;') || content.includes('&#39;')) {
-                                const textarea = document.createElement('textarea');
-                                textarea.innerHTML = content;
-                                content = textarea.value;
+                            // Se o conteúdo está vazio, limpar completamente o editor
+                            if (!content || content.trim() === '') {
+                                editor.setComponents('');
+                                editor.setStyle('');
+                                return;
                             }
                             
-                            // Limpar o editor primeiro
-                            quill.setContents([], 'silent');
+                            // Decodificar entidades HTML se necessário
+                            if (content.includes('&lt;') || content.includes('&gt;')) {
+                                content = decodeHtmlEntities(content);
+                            }
                             
-                            // Se houver conteúdo, carregar no Quill
-                            if (content && content.trim()) {
-                                try {
-                                    // Usar clipboard.convert que é o método correto do Quill para HTML
-                                    const delta = quill.clipboard.convert(content);
-                                    quill.setContents(delta, 'silent');
+                            // Carregar conteúdo no editor GrapesJS
+                            try {
+                                editor.setComponents(content);
                                 } catch (error) {
-                                    console.error('Erro ao carregar conteúdo no Quill:', error);
-                                    // Fallback: inserir HTML diretamente
-                                    quill.root.innerHTML = content;
-                                }
+                                console.error('Erro ao carregar conteúdo no editor:', error);
+                                // Fallback: tentar novamente após um delay
+                                setTimeout(() => {
+                                    try {
+                                        editor.setComponents(content);
+                                    } catch (retryError) {
+                                        console.error('Erro ao carregar conteúdo após retry:', retryError);
+                                    }
+                                }, 200);
                             }
                         }
+                    } else {
+                        console.error('Post não encontrado com ID:', postId);
+                        alert('Post não encontrado.');
                     }
+                } else {
+                    console.error('Erro ao carregar dados do post:', data.message);
+                    alert('Erro ao carregar dados do post: ' + (data.message || 'Erro desconhecido'));
                 }
             } catch (error) {
                 console.error('Erro ao carregar post:', error);
+                alert('Erro ao carregar post. Tente novamente.');
             }
         }
 
         // Salvar Post
         async function savePost() {
-            if (!quill) {
+            if (!editor) {
                 alert('Editor ainda não está pronto. Aguarde alguns segundos e tente novamente.');
                 return;
             }
+            
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
                 if (!token) {
@@ -941,45 +1467,67 @@
                     return;
                 }
                 
+                // Validação básica
+                const title = document.getElementById('postTitle').value.trim();
+                if (!title) {
+                    alert('Por favor, preencha o título do post.');
+                    document.getElementById('postTitle').focus();
+                    return;
+                }
+                
                 const postId = document.getElementById('postId').value;
                 
-                // Obter apenas o conteúdo HTML interno do Quill (sem a div wrapper)
-                // quill.root é a div .ql-editor, então usamos apenas seu innerHTML
-                let content = quill.root.innerHTML;
+                // Obter conteúdo HTML do GrapesJS
+                let content = editor.getHtml();
                 
-                // Debug: ver conteúdo antes de processar
-                console.log('📝 Conteúdo original do Quill:', content);
+                // Normalizar conteúdo vazio
+                const emptyPatterns = ['<div></div>', '<div><br></div>', '<br>', '<br/>', ''];
+                const isEmpty = emptyPatterns.includes(content.trim()) || content.trim() === '';
                 
-                // Garantir que o conteúdo não está vazio (Quill pode gerar <p><br></p> quando vazio)
-                if (!content || content.trim() === '<p><br></p>' || content.trim() === '<p></p>') {
+                if (isEmpty) {
                     content = '';
                 } else {
-                    // Apenas limpar espaços extras no início e fim
                     content = content.trim();
-                    // Remover <p><br></p> se for o único conteúdo
-                    if (content === '<p><br></p>') {
-                        content = '';
+                }
+                
+                // Processar tags
+                const tagsInput = document.getElementById('postTags').value.trim();
+                const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+                
+                // Processar data de publicação
+                const publishedAtInput = document.getElementById('postPublishedAt').value;
+                let publishedAt = null;
+                if (publishedAtInput) {
+                    try {
+                        publishedAt = new Date(publishedAtInput).toISOString();
+                    } catch (e) {
+                        console.warn('Data de publicação inválida:', publishedAtInput);
                     }
                 }
                 
-                console.log('💾 Conteúdo que será salvo:', content);
-                
                 const postData = {
-                    title: document.getElementById('postTitle').value,
-                    subtitle: document.getElementById('postSubtitle').value,
+                    title: title,
+                    subtitle: document.getElementById('postSubtitle').value.trim(),
                     content: content,
-                    image: document.getElementById('postImage').value,
-                    category: document.getElementById('postCategory').value,
-                    tags: document.getElementById('postTags').value.split(',').map(t => t.trim()).filter(t => t),
-                    status: document.getElementById('postStatus').value,
-                    published_at: document.getElementById('postPublishedAt').value || null,
-                    meta_description: document.getElementById('postMetaDescription').value,
-                    meta_keywords: document.getElementById('postMetaKeywords').value
+                    image: document.getElementById('postImage').value.trim(),
+                    category: document.getElementById('postCategory').value.trim(),
+                    tags: tags,
+                    status: document.getElementById('postStatus').value || 'draft',
+                    published_at: publishedAt,
+                    meta_description: document.getElementById('postMetaDescription').value.trim(),
+                    meta_keywords: document.getElementById('postMetaKeywords').value.trim()
                 };
 
                 const url = postId ? `${API_BASE}/blog/admin/posts/${postId}` : `${API_BASE}/blog/admin/posts`;
                 const method = postId ? 'PUT' : 'POST';
 
+                // Mostrar feedback de carregamento
+                const saveButton = document.querySelector('#postModal .btn-primary');
+                const originalText = saveButton.textContent;
+                saveButton.disabled = true;
+                saveButton.textContent = 'Salvando...';
+
+                try {
                 const response = await fetch(url, {
                     method,
                     headers: {
@@ -990,17 +1538,22 @@
                 });
 
                 const data = await response.json();
+                    
                 if (data.success) {
                     alert('Post salvo com sucesso!');
                     bootstrap.Modal.getInstance(document.getElementById('postModal')).hide();
                     loadPosts();
                     loadStats();
                 } else {
-                    alert('Erro ao salvar post: ' + data.message);
+                        alert('Erro ao salvar post: ' + (data.message || 'Erro desconhecido'));
+                    }
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = originalText;
                 }
             } catch (error) {
                 console.error('Erro ao salvar post:', error);
-                alert('Erro ao salvar post');
+                alert('Erro ao salvar post: ' + error.message);
             }
         }
 
@@ -1117,7 +1670,6 @@
                 if (data.success) {
                     alert('Comentário aprovado!');
                     loadComments();
-                    loadStats();
                 }
             } catch (error) {
                 console.error('Erro ao aprovar comentário:', error);
@@ -1142,7 +1694,6 @@
                 if (data.success) {
                     alert('Comentário rejeitado!');
                     loadComments();
-                    loadStats();
                 }
             } catch (error) {
                 console.error('Erro ao rejeitar comentário:', error);
@@ -1168,7 +1719,6 @@
                 if (data.success) {
                     alert('Comentário deletado!');
                     loadComments();
-                    loadStats();
                 }
             } catch (error) {
                 console.error('Erro ao deletar comentário:', error);
@@ -1231,18 +1781,34 @@
 
         // Abrir Modal de Página
         function openPageModal(pageId = null) {
-            if (!pageQuill) {
+            if (!pageEditor) {
                 alert('Editor ainda não está pronto. Aguarde alguns segundos e tente novamente.');
                 return;
             }
+            
             currentPageId = pageId;
             const modal = new bootstrap.Modal(document.getElementById('pageModal'));
             document.getElementById('pageModalTitle').textContent = pageId ? 'Editar Página' : 'Nova Página';
+            
+            // Limpar formulário
             document.getElementById('pageForm').reset();
-            pageQuill.setContents([]);
+            document.getElementById('pageId').value = '';
+            
+            // Limpar editor completamente
+            try {
+                if (pageEditor) {
+                    pageEditor.setComponents('');
+                    pageEditor.setStyle('');
+                }
+            } catch (error) {
+                console.error('Erro ao limpar editor:', error);
+            }
+            
+            // Se for edição, carregar dados
             if (pageId) {
                 loadPageData(pageId);
             }
+            
             modal.show();
         }
 
@@ -1263,47 +1829,63 @@
                     const page = data.data.find(p => p.id === pageId);
                     if (page) {
                         document.getElementById('pageId').value = page.id;
-                        document.getElementById('pageTitle').value = page.title;
-                        document.getElementById('pageStatus').value = page.status;
+                        document.getElementById('pageTitle').value = page.title || '';
+                        document.getElementById('pageStatus').value = page.status || 'draft';
                         document.getElementById('pageMetaDescription').value = page.meta_description || '';
                         document.getElementById('pageMetaKeywords').value = page.meta_keywords || '';
-                        if (pageQuill) {
+                        
+                        if (pageEditor) {
                             let pageContent = page.content || '';
                             
-                            // Decodificar entidades HTML se necessário
-                            if (pageContent.includes('&lt;') || pageContent.includes('&gt;') || pageContent.includes('&amp;') || pageContent.includes('&quot;') || pageContent.includes('&#39;')) {
-                                const textarea = document.createElement('textarea');
-                                textarea.innerHTML = pageContent;
-                                pageContent = textarea.value;
+                            // Se o conteúdo está vazio, limpar completamente o editor
+                            if (!pageContent || pageContent.trim() === '') {
+                                pageEditor.setComponents('');
+                                pageEditor.setStyle('');
+                                return;
                             }
                             
-                            // Limpar o editor primeiro
-                            pageQuill.setContents([], 'silent');
+                            // Decodificar entidades HTML se necessário
+                            if (pageContent.includes('&lt;') || pageContent.includes('&gt;') || pageContent.includes('&amp;') || 
+                                pageContent.includes('&quot;') || pageContent.includes('&#39;') || pageContent.includes('&nbsp;')) {
+                                pageContent = decodeHtmlEntities(pageContent);
+                            }
                             
-                            // Se houver conteúdo, carregar no Quill
-                            if (pageContent && pageContent.trim()) {
-                                try {
-                                    const delta = pageQuill.clipboard.convert(pageContent);
-                                    pageQuill.setContents(delta, 'silent');
-                                } catch (error) {
-                                    console.error('Erro ao carregar conteúdo no Quill:', error);
-                                    pageQuill.root.innerHTML = pageContent;
-                                }
+                            // Carregar conteúdo no editor GrapesJS
+                            try {
+                                pageEditor.setComponents(pageContent);
+                            } catch (error) {
+                                console.error('Erro ao carregar conteúdo no editor:', error);
+                                // Fallback: tentar novamente após um delay
+                                setTimeout(() => {
+                                    try {
+                                        pageEditor.setComponents(pageContent);
+                                    } catch (retryError) {
+                                        console.error('Erro ao carregar conteúdo após retry:', retryError);
+                                    }
+                                }, 200);
                             }
                         }
+                    } else {
+                        console.error('Página não encontrada com ID:', pageId);
+                        alert('Página não encontrada.');
                     }
+                } else {
+                    console.error('Erro ao carregar dados da página:', data.message);
+                    alert('Erro ao carregar dados da página: ' + (data.message || 'Erro desconhecido'));
                 }
             } catch (error) {
                 console.error('Erro ao carregar página:', error);
+                alert('Erro ao carregar página. Tente novamente.');
             }
         }
 
         // Salvar Página
         async function savePage() {
-            if (!pageQuill) {
+            if (!pageEditor) {
                 alert('Editor ainda não está pronto. Aguarde alguns segundos e tente novamente.');
                 return;
             }
+            
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
                 if (!token) {
@@ -1312,32 +1894,47 @@
                     return;
                 }
                 
+                // Validação básica
+                const title = document.getElementById('pageTitle').value.trim();
+                if (!title) {
+                    alert('Por favor, preencha o título da página.');
+                    document.getElementById('pageTitle').focus();
+                    return;
+                }
+                
                 const pageId = document.getElementById('pageId').value;
                 
-                // Obter apenas o conteúdo HTML interno do Quill
-                let pageContent = pageQuill.root.innerHTML;
+                // Obter conteúdo do GrapesJS
+                let pageContent = pageEditor.getHtml();
                 
-                // Garantir que o conteúdo não está vazio
-                if (!pageContent || pageContent.trim() === '<p><br></p>' || pageContent.trim() === '<p></p>') {
+                // Normalizar conteúdo vazio
+                const emptyPatterns = ['<div></div>', '<div><br></div>', '<br>', '<br/>', ''];
+                const isEmpty = emptyPatterns.includes(pageContent.trim()) || pageContent.trim() === '';
+                
+                if (isEmpty) {
                     pageContent = '';
                 } else {
                     pageContent = pageContent.trim();
-                    if (pageContent === '<p><br></p>') {
-                        pageContent = '';
-                    }
                 }
                 
                 const pageData = {
-                    title: document.getElementById('pageTitle').value,
+                    title: title,
                     content: pageContent,
-                    status: document.getElementById('pageStatus').value,
-                    meta_description: document.getElementById('pageMetaDescription').value,
-                    meta_keywords: document.getElementById('pageMetaKeywords').value
+                    status: document.getElementById('pageStatus').value || 'draft',
+                    meta_description: document.getElementById('pageMetaDescription').value.trim(),
+                    meta_keywords: document.getElementById('pageMetaKeywords').value.trim()
                 };
 
                 const url = pageId ? `${API_BASE}/blog/admin/pages/${pageId}` : `${API_BASE}/blog/admin/pages`;
                 const method = pageId ? 'PUT' : 'POST';
 
+                // Mostrar feedback de carregamento
+                const saveButton = document.querySelector('#pageModal .btn-primary');
+                const originalText = saveButton.textContent;
+                saveButton.disabled = true;
+                saveButton.textContent = 'Salvando...';
+
+                try {
                 const response = await fetch(url, {
                     method,
                     headers: {
@@ -1354,11 +1951,15 @@
                     loadPages();
                     loadStats();
                 } else {
-                    alert('Erro ao salvar página: ' + data.message);
+                        alert('Erro ao salvar página: ' + (data.message || 'Erro desconhecido'));
+                    }
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = originalText;
                 }
             } catch (error) {
                 console.error('Erro ao salvar página:', error);
-                alert('Erro ao salvar página');
+                alert('Erro ao salvar página: ' + error.message);
             }
         }
 

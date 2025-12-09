@@ -6,6 +6,8 @@ const { Op } = require('sequelize');
 
 // ======================== ROTAS PÚBLICAS ========================
 
+// ROTAS DE POSTS REMOVIDAS
+/*
 // GET /api/blog/posts - Listar posts publicados
 router.get('/posts', async (req, res) => {
     try {
@@ -441,6 +443,8 @@ router.get('/pages/:slug', async (req, res) => {
 
 // ======================== ROTAS ADMINISTRATIVAS ========================
 
+// ROTAS ADMIN DE POSTS REMOVIDAS
+/*
 // GET /api/blog/admin/posts - Listar todos os posts (admin)
 router.get('/admin/posts', authenticateToken, isAdmin, async (req, res) => {
     try {
@@ -630,7 +634,7 @@ router.put('/admin/posts/:id', authenticateToken, isAdmin, async (req, res) => {
             title: title || post.title,
             slug,
             subtitle: subtitle !== undefined ? subtitle : post.subtitle,
-            content: content || post.content,
+            content: content !== undefined ? content : post.content,
             image: image !== undefined ? image : post.image,
             category: category !== undefined ? category : post.category,
             tags: tags !== undefined ? tags : post.tags,
