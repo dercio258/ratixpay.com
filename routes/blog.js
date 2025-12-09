@@ -245,6 +245,7 @@ router.post('/posts/:id/view', async (req, res) => {
         res.status(500).json({ success: false, message: 'Erro ao registrar visualização', error: error.message });
     }
 });
+*/
 
 // POST /api/blog/comments - Criar comentário
 router.post('/comments', async (req, res) => {
@@ -726,6 +727,7 @@ router.delete('/admin/posts/:id', authenticateToken, isAdmin, async (req, res) =
         res.status(500).json({ success: false, message: 'Erro ao deletar post', error: error.message });
     }
 });
+*/
 
 // GET /api/blog/admin/comments - Listar comentários (admin)
 router.get('/admin/comments', authenticateToken, isAdmin, async (req, res) => {
