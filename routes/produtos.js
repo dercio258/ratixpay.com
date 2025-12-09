@@ -617,6 +617,73 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
 
     console.log(`✅ Produto criado com sucesso: ${produto.custom_id}`);
 
+    // Enviar notificação para admins sobre produto pendente
+    try {
+      const emailService = require('../services/emailService');
+      const { Usuario } = require('../config/database');
+      const vendedor = await Usuario.findByPk(req.user.id);
+      const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+      const produtoUrl = `${baseUrl}/admin-produtos.html`;
+      
+      const emailBody = `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+              <h2 style="color: #F64C00;">🔔 Novo Produto Pendente de Aprovação</h2>
+              
+              <p>Um novo produto foi adicionado e está aguardando aprovação manual:</p>
+              
+              <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #2c3e50;">Detalhes do Produto:</h3>
+                <p><strong>ID:</strong> ${produto.custom_id}</p>
+                <p><strong>Nome:</strong> ${produto.nome}</p>
+                <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                <p><strong>Tipo:</strong> ${produto.tipo}</p>
+                <p><strong>Preço:</strong> R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+                <p><strong>Preço Final:</strong> R$ ${parseFloat(produto.preco_final).toFixed(2)}</p>
+                ${produto.descricao ? `<p><strong>Descrição:</strong> ${produto.descricao.substring(0, 200)}${produto.descricao.length > 200 ? '...' : ''}</p>` : ''}
+                ${produto.link_conteudo ? `<p><strong>Link do Conteúdo:</strong> <a href="${produto.link_conteudo}" target="_blank">${produto.link_conteudo}</a></p>` : ''}
+                ${produto.imagem_url ? `<p><strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank">Ver Imagem</a></p>` : ''}
+              </div>
+              
+              <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #2c3e50;">Vendedor:</h3>
+                <p><strong>Nome:</strong> ${vendedor?.nome_completo || 'N/A'}</p>
+                <p><strong>Email:</strong> ${vendedor?.email || 'N/A'}</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${produtoUrl}" style="background: #F64C00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                  Aprovar/Revisar Produto
+                </a>
+              </div>
+              
+              <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                Este é um email automático do sistema RatixPay. Por favor, revise e aprove o produto manualmente.
+              </p>
+            </div>
+          </body>
+        </html>
+      `;
+      
+      const emailsAdmins = ['derciomatsope9@gmail.com', 'raphaelmanguele.jr@gmail.com'];
+      
+      for (const emailAdmin of emailsAdmins) {
+        try {
+          await emailService.enviarEmail(
+            emailAdmin,
+            `[RatixPay] Novo Produto Pendente: ${produto.nome}`,
+            emailBody
+          );
+          console.log(`📧 Notificação de produto pendente enviada para: ${emailAdmin}`);
+        } catch (emailError) {
+          console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
+        }
+      }
+    } catch (notificationError) {
+      console.error('⚠️ Erro ao enviar notificações de produto pendente:', notificationError);
+    }
+
     // Retornar resposta imediata ao cliente (produto criado e aguardando aprovação)
     res.status(201).json({
       success: true,
@@ -697,44 +764,74 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
         });
         console.log('⚠️ Erro de comunicação com API - Produto mantido como pendente para aprovação manual');
         
-        // Notificar admin sobre produto pendente por erro de comunicação
+        // Notificar admins sobre produto pendente por erro de comunicação
         try {
-          const emailManagerService = require('../services/emailManagerService');
-          const admin = await Usuario.findOne({ 
-            where: {
-              [Op.or]: [
-                { role: 'admin' },
-                { tipo_conta: 'admin' },
-                { email: 'ratixpay.mz@gmail.com' }
-              ]
-            },
-            order: [['created_at', 'DESC']]
-          });
+          const emailService = require('../services/emailService');
+          const vendedor = await Usuario.findByPk(produto.vendedor_id);
+          const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+          const produtoUrl = `${baseUrl}/admin-produtos.html`;
           
-          if (admin && admin.email) {
-            const vendedor = await Usuario.findByPk(req.user.id);
-            await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
-              email: admin.email,
-              nome: admin.nome_completo || 'Administrador',
-              produto: {
-                id: produto.id,
-                custom_id: produto.custom_id,
-                nome: produto.nome,
-                descricao: produto.descricao,
-                categoria: produto.categoria,
-                tipo: produto.tipo,
-                imagem_url: produto.imagem_url
-              },
-              vendedor: {
-                nome: vendedor?.nome_completo || vendedor?.email,
-                email: vendedor?.email
-              },
-              motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'
-            });
-            console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+          const emailBody = `
+            <html>
+              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                  <h2 style="color: #F64C00;">⚠️ Erro na API - Produto Pendente de Aprovação</h2>
+                  
+                  <p>Ocorreu um erro ao tentar aprovar o produto automaticamente via API. O produto está aguardando aprovação manual:</p>
+                  
+                  <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; border-radius: 5px;">
+                    <p><strong>⚠️ Erro:</strong> ${resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'}</p>
+                  </div>
+                  
+                  <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #2c3e50;">Detalhes do Produto:</h3>
+                    <p><strong>ID:</strong> ${produto.custom_id}</p>
+                    <p><strong>Nome:</strong> ${produto.nome}</p>
+                    <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                    <p><strong>Tipo:</strong> ${produto.tipo}</p>
+                    <p><strong>Preço:</strong> R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+                    <p><strong>Preço Final:</strong> R$ ${parseFloat(produto.preco_final).toFixed(2)}</p>
+                    ${produto.descricao ? `<p><strong>Descrição:</strong> ${produto.descricao.substring(0, 200)}${produto.descricao.length > 200 ? '...' : ''}</p>` : ''}
+                    ${produto.link_conteudo ? `<p><strong>Link do Conteúdo:</strong> <a href="${produto.link_conteudo}" target="_blank">${produto.link_conteudo}</a></p>` : ''}
+                    ${produto.imagem_url ? `<p><strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank">Ver Imagem</a></p>` : ''}
+                  </div>
+                  
+                  <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #2c3e50;">Vendedor:</h3>
+                    <p><strong>Nome:</strong> ${vendedor?.nome_completo || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${vendedor?.email || 'N/A'}</p>
+                  </div>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${produtoUrl}" style="background: #F64C00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                      Aprovar/Revisar Produto
+                    </a>
+                  </div>
+                  
+                  <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                    Este é um email automático do sistema RatixPay. Por favor, revise e aprove o produto manualmente.
+                  </p>
+                </div>
+              </body>
+            </html>
+          `;
+          
+          const emailsAdmins = ['derciomatsope9@gmail.com', 'raphaelmanguele.jr@gmail.com'];
+          
+          for (const emailAdmin of emailsAdmins) {
+            try {
+              await emailService.enviarEmail(
+                emailAdmin,
+                `[RatixPay] Erro na API - Produto Pendente: ${produto.nome}`,
+                emailBody
+              );
+              console.log(`📧 Notificação de erro na API enviada para: ${emailAdmin}`);
+            } catch (emailError) {
+              console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
+            }
           }
         } catch (emailError) {
-          console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+          console.error('⚠️ Erro ao enviar notificação para admins:', emailError);
         }
       } else {
         // Produto rejeitado - MANTER no banco para revisão manual do admin
@@ -821,22 +918,72 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
             motivo_rejeicao: 'Erro inesperado ao processar aprovação. Produto será revisado manualmente pelo administrador.'
           });
           
-          // Notificar admin sobre produto pendente por erro
+          // Notificar admins sobre produto pendente por erro
           try {
-            const emailManagerService = require('../services/emailManagerService');
-            const admin = await Usuario.findOne({ 
-              where: {
-                [Op.or]: [
-                  { role: 'admin' },
-                  { tipo_conta: 'admin' },
-                  { email: 'ratixpay.mz@gmail.com' }
-                ]
-              },
-              order: [['created_at', 'DESC']]
-            });
+            const emailService = require('../services/emailService');
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+            const produtoUrl = `${baseUrl}/admin-produtos.html`;
             
-            if (admin && admin.email) {
-              const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            const emailBody = `
+              <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                  <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #F64C00;">❌ Erro Inesperado - Produto Pendente de Aprovação</h2>
+                    
+                    <p>Ocorreu um erro inesperado ao processar a aprovação do produto. O produto está aguardando aprovação manual:</p>
+                    
+                    <div style="background: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0; border-radius: 5px;">
+                      <p><strong>❌ Erro:</strong> ${approvalError.message || 'Erro inesperado ao processar aprovação'}</p>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                      <h3 style="margin-top: 0; color: #2c3e50;">Detalhes do Produto:</h3>
+                      <p><strong>ID:</strong> ${produto.custom_id}</p>
+                      <p><strong>Nome:</strong> ${produto.nome}</p>
+                      <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                      <p><strong>Tipo:</strong> ${produto.tipo}</p>
+                      <p><strong>Preço:</strong> R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+                      <p><strong>Preço Final:</strong> R$ ${parseFloat(produto.preco_final).toFixed(2)}</p>
+                      ${produto.descricao ? `<p><strong>Descrição:</strong> ${produto.descricao.substring(0, 200)}${produto.descricao.length > 200 ? '...' : ''}</p>` : ''}
+                      ${produto.link_conteudo ? `<p><strong>Link do Conteúdo:</strong> <a href="${produto.link_conteudo}" target="_blank">${produto.link_conteudo}</a></p>` : ''}
+                      ${produto.imagem_url ? `<p><strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank">Ver Imagem</a></p>` : ''}
+                    </div>
+                    
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                      <h3 style="margin-top: 0; color: #2c3e50;">Vendedor:</h3>
+                      <p><strong>Nome:</strong> ${vendedor?.nome_completo || 'N/A'}</p>
+                      <p><strong>Email:</strong> ${vendedor?.email || 'N/A'}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${produtoUrl}" style="background: #F64C00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                        Aprovar/Revisar Produto
+                      </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                      Este é um email automático do sistema RatixPay. Por favor, revise e aprove o produto manualmente.
+                    </p>
+                  </div>
+                </body>
+              </html>
+            `;
+            
+            const emailsAdmins = ['derciomatsope9@gmail.com', 'raphaelmanguele.jr@gmail.com'];
+            
+            for (const emailAdmin of emailsAdmins) {
+              try {
+                await emailService.enviarEmail(
+                  emailAdmin,
+                  `[RatixPay] Erro Inesperado - Produto Pendente: ${produto.nome}`,
+                  emailBody
+                );
+                console.log(`📧 Notificação de erro inesperado enviada para: ${emailAdmin}`);
+              } catch (emailError) {
+                console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
+              }
+            }
               await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
                 email: admin.email,
                 nome: admin.nome_completo || 'Administrador',
@@ -1168,6 +1315,73 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
 
     console.log(`✅ Produto criado: ${produto.custom_id}`);
 
+    // Enviar notificação para admins sobre produto pendente
+    try {
+      const emailService = require('../services/emailService');
+      const { Usuario } = require('../config/database');
+      const vendedor = await Usuario.findByPk(req.user.id);
+      const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+      const produtoUrl = `${baseUrl}/admin-produtos.html`;
+      
+      const emailBody = `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+              <h2 style="color: #F64C00;">🔔 Novo Produto Pendente de Aprovação</h2>
+              
+              <p>Um novo produto foi adicionado e está aguardando aprovação manual:</p>
+              
+              <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #2c3e50;">Detalhes do Produto:</h3>
+                <p><strong>ID:</strong> ${produto.custom_id}</p>
+                <p><strong>Nome:</strong> ${produto.nome}</p>
+                <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                <p><strong>Tipo:</strong> ${produto.tipo}</p>
+                <p><strong>Preço:</strong> R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+                <p><strong>Preço Final:</strong> R$ ${parseFloat(produto.preco_final).toFixed(2)}</p>
+                ${produto.descricao ? `<p><strong>Descrição:</strong> ${produto.descricao.substring(0, 200)}${produto.descricao.length > 200 ? '...' : ''}</p>` : ''}
+                ${produto.link_conteudo ? `<p><strong>Link do Conteúdo:</strong> <a href="${produto.link_conteudo}" target="_blank">${produto.link_conteudo}</a></p>` : ''}
+                ${produto.imagem_url ? `<p><strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank">Ver Imagem</a></p>` : ''}
+              </div>
+              
+              <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #2c3e50;">Vendedor:</h3>
+                <p><strong>Nome:</strong> ${vendedor?.nome_completo || 'N/A'}</p>
+                <p><strong>Email:</strong> ${vendedor?.email || 'N/A'}</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${produtoUrl}" style="background: #F64C00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                  Aprovar/Revisar Produto
+                </a>
+              </div>
+              
+              <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                Este é um email automático do sistema RatixPay. Por favor, revise e aprove o produto manualmente.
+              </p>
+            </div>
+          </body>
+        </html>
+      `;
+      
+      const emailsAdmins = ['derciomatsope9@gmail.com', 'raphaelmanguele.jr@gmail.com'];
+      
+      for (const emailAdmin of emailsAdmins) {
+        try {
+          await emailService.enviarEmail(
+            emailAdmin,
+            `[RatixPay] Novo Produto Pendente: ${produto.nome}`,
+            emailBody
+          );
+          console.log(`📧 Notificação de produto pendente enviada para: ${emailAdmin}`);
+        } catch (emailError) {
+          console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
+        }
+      }
+    } catch (notificationError) {
+      console.error('⚠️ Erro ao enviar notificações de produto pendente:', notificationError);
+    }
+
     // Retornar resposta imediata ao cliente (produto criado e aguardando aprovação)
     res.status(201).json({
       success: true,
@@ -1248,44 +1462,74 @@ router.post('/unificado', authenticateToken, isVendedorOrAdmin, LargeFileService
           });
           console.log('⚠️ Erro de comunicação com API - Produto mantido como pendente para aprovação manual');
           
-          // Notificar admin sobre produto pendente por erro de comunicação
+          // Notificar admins sobre produto pendente por erro de comunicação
           try {
-            const emailManagerService = require('../services/emailManagerService');
-            const admin = await Usuario.findOne({ 
-              where: {
-                [Op.or]: [
-                  { role: 'admin' },
-                  { tipo_conta: 'admin' },
-                  { email: 'ratixpay.mz@gmail.com' }
-                ]
-              },
-              order: [['created_at', 'DESC']]
-            });
+            const emailService = require('../services/emailService');
+            const vendedor = await Usuario.findByPk(produto.vendedor_id);
+            const baseUrl = process.env.BASE_URL || 'https://ratixpay.site';
+            const produtoUrl = `${baseUrl}/admin-produtos.html`;
             
-            if (admin && admin.email) {
-              const vendedor = await Usuario.findByPk(produto.vendedor_id);
-              await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
-                email: admin.email,
-                nome: admin.nome_completo || 'Administrador',
-                produto: {
-                  id: produto.id,
-                  custom_id: produto.custom_id,
-                  nome: produto.nome,
-                  descricao: produto.descricao,
-                  categoria: produto.categoria,
-                  tipo: produto.tipo,
-                  imagem_url: produto.imagem_url
-                },
-                vendedor: {
-                  nome: vendedor?.nome_completo || vendedor?.email,
-                  email: vendedor?.email
-                },
-                motivo_rejeicao: resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'
-              });
-              console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
+            const emailBody = `
+              <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                  <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #F64C00;">⚠️ Erro na API - Produto Pendente de Aprovação</h2>
+                    
+                    <p>Ocorreu um erro ao tentar aprovar o produto automaticamente via API. O produto está aguardando aprovação manual:</p>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0; border-radius: 5px;">
+                      <p><strong>⚠️ Erro:</strong> ${resultadoAprovacao.motivo || 'Erro de comunicação com API de aprovação'}</p>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                      <h3 style="margin-top: 0; color: #2c3e50;">Detalhes do Produto:</h3>
+                      <p><strong>ID:</strong> ${produto.custom_id}</p>
+                      <p><strong>Nome:</strong> ${produto.nome}</p>
+                      <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                      <p><strong>Tipo:</strong> ${produto.tipo}</p>
+                      <p><strong>Preço:</strong> R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+                      <p><strong>Preço Final:</strong> R$ ${parseFloat(produto.preco_final).toFixed(2)}</p>
+                      ${produto.descricao ? `<p><strong>Descrição:</strong> ${produto.descricao.substring(0, 200)}${produto.descricao.length > 200 ? '...' : ''}</p>` : ''}
+                      ${produto.link_conteudo ? `<p><strong>Link do Conteúdo:</strong> <a href="${produto.link_conteudo}" target="_blank">${produto.link_conteudo}</a></p>` : ''}
+                      ${produto.imagem_url ? `<p><strong>Imagem:</strong> <a href="${produto.imagem_url}" target="_blank">Ver Imagem</a></p>` : ''}
+                    </div>
+                    
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                      <h3 style="margin-top: 0; color: #2c3e50;">Vendedor:</h3>
+                      <p><strong>Nome:</strong> ${vendedor?.nome_completo || 'N/A'}</p>
+                      <p><strong>Email:</strong> ${vendedor?.email || 'N/A'}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${produtoUrl}" style="background: #F64C00; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                        Aprovar/Revisar Produto
+                      </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                      Este é um email automático do sistema RatixPay. Por favor, revise e aprove o produto manualmente.
+                    </p>
+                  </div>
+                </body>
+              </html>
+            `;
+            
+            const emailsAdmins = ['derciomatsope9@gmail.com', 'raphaelmanguele.jr@gmail.com'];
+            
+            for (const emailAdmin of emailsAdmins) {
+              try {
+                await emailService.enviarEmail(
+                  emailAdmin,
+                  `[RatixPay] Erro na API - Produto Pendente: ${produto.nome}`,
+                  emailBody
+                );
+                console.log(`📧 Notificação de erro na API enviada para: ${emailAdmin}`);
+              } catch (emailError) {
+                console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
+              }
             }
           } catch (emailError) {
-            console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
+            console.error('⚠️ Erro ao enviar notificação para admins:', emailError);
           }
         } else {
           // Produto rejeitado - MANTER no banco para revisão manual do admin
