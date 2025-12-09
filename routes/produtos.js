@@ -984,26 +984,6 @@ router.post('/', authenticateToken, isVendedorOrAdmin, upload.any(), async (req,
                 console.error(`⚠️ Erro ao enviar notificação para ${emailAdmin}:`, emailError);
               }
             }
-              await emailManagerService.enviarEmailSistema('solicitacao_aprovacao_produto', {
-                email: admin.email,
-                nome: admin.nome_completo || 'Administrador',
-                produto: {
-                  id: produto.id,
-                  custom_id: produto.custom_id,
-                  nome: produto.nome,
-                  descricao: produto.descricao,
-                  categoria: produto.categoria,
-                  tipo: produto.tipo,
-                  imagem_url: produto.imagem_url
-                },
-                vendedor: {
-                  nome: vendedor?.nome_completo || vendedor?.email,
-                  email: vendedor?.email
-                },
-                motivo_rejeicao: 'Erro inesperado ao processar aprovação'
-              });
-              console.log(`📧 Notificação enviada para admin sobre produto pendente: ${admin.email}`);
-            }
           } catch (emailError) {
             console.error('⚠️ Erro ao enviar notificação para admin:', emailError);
           }
