@@ -5,6 +5,7 @@ class GibraPayService {
         this.baseUrl = process.env.GIBRAPAY_BASE_URL || 'http://209.126.85.29:18350';
         this.apiToken = process.env.GIBRAPAY_API_TOKEN || 'vE5rTyU7iOpL9kJmNbVcX3zAsDfG8hQ2';
         this.timeoutMs = 30000;
+        this.origin = process.env.BASE_URL || 'https://ratixpay.site';
     }
 
     /**
@@ -55,7 +56,8 @@ class GibraPayService {
                 headers: {
                     'Authorization': `Bearer ${this.apiToken.trim()}`,
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Origin': this.origin
                 },
                 timeout: this.timeoutMs
             });
@@ -161,7 +163,8 @@ class GibraPayService {
                 headers: {
                     'Authorization': `Bearer ${this.apiToken.trim()}`,
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Origin': this.origin
                 },
                 timeout: this.timeoutMs
             });
@@ -242,7 +245,8 @@ class GibraPayService {
             const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${this.apiToken.trim()}`,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Origin': this.origin
                 },
                 timeout: this.timeoutMs
             });
@@ -273,7 +277,8 @@ class GibraPayService {
             const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${this.apiToken.trim()}`,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Origin': this.origin
                 },
                 timeout: this.timeoutMs
             });
