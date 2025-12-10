@@ -19,8 +19,14 @@ class PayMozService {
         try {
             // Validar método
             const metodo = String(method || '').toLowerCase();
-            if (metodo !== 'mpesa' && metodo !== 'emola') {
-                throw new Error('Método inválido. Use "mpesa" ou "emola"');
+            
+            // MPESA agora é processado pela GibraPay - apenas Emola usa PayMoz
+            if (metodo === 'mpesa') {
+                throw new Error('MPESA deve ser processado via GibraPay. Use gibrapayService para MPESA.');
+            }
+            
+            if (metodo !== 'emola') {
+                throw new Error('Método inválido. PayMoz processa apenas "emola". Use "gibrapayService" para "mpesa"');
             }
 
             // Validar API Key

@@ -10,16 +10,34 @@ router.post('/initiate', paymentMiddleware.initiatePayment(), async (req, res) =
         const paymentId = req.paymentId;
         const paymentInfo = req.paymentInfo;
 
-        // Processar pagamento com PayMoz
-        const paymozService = require('../services/paymozService');
+        // Processar pagamento - usar GibraPay para MPESA e PayMoz para Emola
+        let paymentResult;
+        const reference = `Pagamento do Pedido #${paymentId}`;
         
-        // Iniciar pagamento com PayMoz
-        const paymentResult = await paymozService.processPayment(
-            metodo.toLowerCase(), // Garantir que o método está em lowercase
-            valor,
-            clienteId, // phone number
-            `Pagamento do Pedido #${paymentId}` // referencia_externa
-        );
+        if (metodo.toLowerCase() === 'mpesa') {
+            // MPESA via GibraPay
+            const gibrapayService = require('../services/gibrapayService');
+            console.log(`📤 Processando pagamento MPESA via GibraPay: MZN ${valor}`);
+            paymentResult = await gibrapayService.processC2B(
+                valor,
+                clienteId, // phone number
+                reference
+            );
+            
+            // Adaptar formato da resposta para compatibilidade
+            if (paymentResult.success) {
+                paymentResult.transaction_id = paymentResult.transaction_id || reference;
+            }
+        } else {
+            // Emola via PayMoz
+            const paymozService = require('../services/paymozService');
+            paymentResult = await paymozService.processPayment(
+                metodo.toLowerCase(),
+                valor,
+                clienteId, // phone number
+                reference
+            );
+        }
 
         if (paymentResult.success) {
             res.status(200).json({

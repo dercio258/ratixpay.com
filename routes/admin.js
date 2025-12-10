@@ -1818,14 +1818,22 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
             });
         }
         
-        // Fazer transferência via E2Payment API
-        const E2PaymentService = require('../services/e2paymentService');
-        const resultado = await E2PaymentService.transferirB2C({
-            valor: valor,
-            telefone: telefone,
-            nome: nome,
-            metodo: 'mpesa'
-        });
+        // Validar telefone - apenas 843357697 é permitido para MPESA nesta página
+        if (!telefone || telefone.trim() !== '843357697') {
+            return res.status(400).json({
+                success: false,
+                message: 'Para transferências B2C M-Pesa, apenas o número 843357697 é permitido nesta página'
+            });
+        }
+        
+        // Fazer transferência via GibraPay API (para MPESA)
+        const gibrapayService = require('../services/gibrapayService');
+        const reference = `b2c_mpesa_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const resultado = await gibrapayService.processB2C(
+            valor,
+            telefone,
+            reference
+        );
         
         if (resultado.success) {
             // Verificar se há saques suficientes para transferir
@@ -1854,33 +1862,34 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
             
             // Criar registro na tabela de transferências B2C
             await TransferenciaB2C.create({
-                id_transacao: `B2C-${Date.now()}`,
+                id_transacao: resultado.transaction_id || `B2C-${Date.now()}`,
                 metodo: 'mpesa',
                 valor: valor,
-                nome_destinatario: nome,
+                nome_destinatario: nome || 'Destinatário M-Pesa',
                 telefone: telefone,
                 status: 'sucesso',
-                id_transacao_e2payment: resultado.transacao_id,
+                id_transacao_e2payment: resultado.transaction_id,
                 resposta_e2payment: JSON.stringify(resultado),
-                observacoes: 'Transferência B2C M-Pesa realizada com sucesso',
+                observacoes: 'Transferência B2C M-Pesa realizada com sucesso via GibraPay',
                 data_processamento: new Date(),
                 processado_por: req.user.id
             });
             
             // Subtrair valor do saldo do admin
-            await SaldoAdminService.subtrairSaldo(valor, 'Transferência B2C M-Pesa');
+            await SaldoAdminService.subtrairSaldo(valor, 'Transferência B2C M-Pesa (GibraPay)');
             
-            console.log(`✅ Transferência B2C para M-Pesa realizada com sucesso: MZN ${valor}`);
+            console.log(`✅ Transferência B2C para M-Pesa via GibraPay realizada com sucesso: MZN ${valor}`);
             
             res.json({
                 success: true,
-                message: 'Transferência realizada com sucesso',
+                message: 'Transferência B2C M-Pesa realizada com sucesso via GibraPay',
                 data: {
                     valor: valor,
                     telefone: telefone,
                     nome: nome,
                     metodo: 'mpesa',
-                    transacao_id: resultado.transacao_id,
+                    transacao_id: resultado.transaction_id,
+                    referencia: resultado.reference,
                     saldo_restante: saldoDisponivelMpesa - valor
                 }
             });

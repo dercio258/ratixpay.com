@@ -1511,14 +1511,34 @@ router.post('/processar', async (req, res) => {
         // Criar referência externa única para o upsell
         const referenciaExterna = `upsell_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        // Processar pagamento DIRETO via PayMoz (one-click upsell)
-        const paymozService = require('../services/paymozService');
-        const paymozResult = await paymozService.processPayment(
-            metodoPagamento,
-            parseFloat(valor),
-            telefone,
-            referenciaExterna
-        );
+        // Processar pagamento - usar GibraPay para MPESA e PayMoz para Emola
+        let paymozResult;
+        if (metodoPagamento === 'mpesa') {
+            // MPESA via GibraPay
+            const gibrapayService = require('../services/gibrapayService');
+            console.log(`📤 Processando upsell MPESA via GibraPay: MZN ${parseFloat(valor)}`);
+            paymozResult = await gibrapayService.processC2B(
+                parseFloat(valor),
+                telefone,
+                referenciaExterna
+            );
+            
+            // Adaptar formato da resposta para compatibilidade
+            if (paymozResult.success) {
+                paymozResult.output_ThirdPartyReference = paymozResult.transaction_id;
+                paymozResult.output_TransactionID = paymozResult.transaction_id;
+            }
+        } else {
+            // Emola via PayMoz
+            const paymozService = require('../services/paymozService');
+            console.log(`📤 Processando upsell Emola via PayMoz: MZN ${parseFloat(valor)}`);
+            paymozResult = await paymozService.processPayment(
+                metodoPagamento,
+                parseFloat(valor),
+                telefone,
+                referenciaExterna
+            );
+        }
 
         // Verificar se o pagamento foi processado com sucesso
         if (!paymozResult.success) {

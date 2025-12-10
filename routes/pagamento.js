@@ -1843,16 +1843,39 @@ router.post('/pagar', async (req, res) => {
         console.log(`💰 Valor para PayMoz: MZN ${valorParaPagamento}`);
         
         try {
-            const resultadoPagamento = await paymozService.processPayment(
-                metodo.toLowerCase(), // Garantir que o método está em lowercase
-                valorParaPagamento, // Usar valor ajustado para PayMoz
-                numeroFormatado,
-                `${produto.custom_id}${produtosOrderBump.length > 0 ? `+${produtosOrderBump.length}OB` : ''}` // Referência externa do pagamento incluindo Order Bump
-            );
+            // Usar GibraPay para MPESA e PayMoz para Emola
+            let resultadoPagamento;
+            const referenciaPagamento = `${produto.custom_id}${produtosOrderBump.length > 0 ? `+${produtosOrderBump.length}OB` : ''}`;
+            
+            if (metodo.toLowerCase() === 'mpesa') {
+                // MPESA via GibraPay
+                const gibrapayService = require('../services/gibrapayService');
+                console.log(`📤 Processando pagamento MPESA via GibraPay: MZN ${valorParaPagamento}`);
+                resultadoPagamento = await gibrapayService.processC2B(
+                    valorParaPagamento,
+                    numeroFormatado,
+                    referenciaPagamento
+                );
+                
+                // Adaptar formato da resposta para compatibilidade
+                if (resultadoPagamento.success) {
+                    resultadoPagamento.output_ThirdPartyReference = resultadoPagamento.transaction_id;
+                    resultadoPagamento.output_TransactionID = resultadoPagamento.transaction_id;
+                }
+            } else {
+                // Emola via PayMoz
+                console.log(`📤 Processando pagamento Emola via PayMoz: MZN ${valorParaPagamento}`);
+                resultadoPagamento = await paymozService.processPayment(
+                    metodo.toLowerCase(),
+                    valorParaPagamento,
+                    numeroFormatado,
+                    referenciaPagamento
+                );
+            }
 
-            console.log('📊 Resultado do pagamento PayMoz:', resultadoPagamento);
+            console.log('📊 Resultado do pagamento:', resultadoPagamento);
 
-            // Determinar status baseado na resposta real da API PayMoz
+            // Determinar status baseado na resposta real da API (PayMoz para Emola ou GibraPay para MPESA)
             let statusPagamento = 'Pendente';
             let statusVenda = 'Pendente';
             let mensagemResposta = 'Pagamento iniciado com sucesso';
@@ -1877,7 +1900,7 @@ router.post('/pagar', async (req, res) => {
             console.log(`📊 Verificação de cancelamento: ${isCancelled}`);
 
             // Tratar erro primeiro - mas NÃO forçar cancelamento
-            // Apenas usar status real retornado pela PayMoz
+            // Apenas usar status real retornado pela API (PayMoz ou GibraPay)
             if (isError) {
                 // API retornou erro - usar status real, mas não forçar cancelamento
                 console.log('⚠️ API PayMoz retornou erro - usando status real da resposta');
@@ -4524,17 +4547,34 @@ router.post('/checkout', async (req, res) => {
             });
         }
 
-        // Chamada para PayMoz API
-        const response = await paymozService.processPayment(
-            method.toLowerCase(), // Garantir que o método está em lowercase
-            amount,
-            phone,
-            context || `Pagamento do Pedido #${context || 'N/A'}`
-        );
+        // Usar GibraPay para MPESA e PayMoz para Emola
+        let response;
+        const reference = context || `Pagamento_${Date.now()}`;
+        
+        if (method.toLowerCase() === 'mpesa') {
+            // MPESA via GibraPay
+            const gibrapayService = require('../services/gibrapayService');
+            console.log(`📤 Processando checkout MPESA via GibraPay: MZN ${amount}`);
+            response = await gibrapayService.processC2B(amount, phone, reference);
+            
+            // Adaptar formato da resposta para compatibilidade
+            if (response.success) {
+                response.transaction_id = response.transaction_id || reference;
+            }
+        } else {
+            // Emola via PayMoz
+            console.log(`📤 Processando checkout Emola via PayMoz: MZN ${amount}`);
+            response = await paymozService.processPayment(
+                method.toLowerCase(),
+                amount,
+                phone,
+                reference
+            );
+        }
 
         res.json({
-            success: true,
-            transaction_id: referenciaPagamento, // Usar o referencia_pagamento como transaction_id
+            success: response.success || false,
+            transaction_id: response.transaction_id || response.output_ThirdPartyReference || reference,
             status: response.status || "approved",
             message: response.message || "Pagamento processado",
             paid_amount: amount,
