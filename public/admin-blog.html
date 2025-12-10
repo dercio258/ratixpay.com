@@ -88,6 +88,7 @@
         .stats-card.success { border-left-color: var(--success-color); }
         .stats-card.warning { border-left-color: var(--warning-color); }
         .stats-card.danger { border-left-color: var(--danger-color); }
+        .stats-card.info { border-left-color: var(--info-color); }
 
         .stats-number {
             font-size: 2.5rem;
@@ -334,8 +335,36 @@
         <!-- Estatísticas -->
         <div class="stats-grid" id="statsGrid">
             <div class="stats-card">
+                <div class="stats-number" id="totalPosts">0</div>
+                <div class="stats-label">Total de Posts</div>
+            </div>
+            <div class="stats-card success">
+                <div class="stats-number" id="publishedPosts">0</div>
+                <div class="stats-label">Posts Publicados</div>
+            </div>
+            <div class="stats-card warning">
+                <div class="stats-number" id="draftPosts">0</div>
+                <div class="stats-label">Rascunhos</div>
+            </div>
+            <div class="stats-card">
                 <div class="stats-number" id="totalPages">0</div>
                 <div class="stats-label">Total de Páginas</div>
+            </div>
+            <div class="stats-card info">
+                <div class="stats-number" id="totalViews">0</div>
+                <div class="stats-label">Visualizações</div>
+            </div>
+            <div class="stats-card success">
+                <div class="stats-number" id="totalLikes">0</div>
+                <div class="stats-label">Curtidas</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-number" id="totalComments">0</div>
+                <div class="stats-label">Comentários</div>
+            </div>
+            <div class="stats-card warning">
+                <div class="stats-number" id="pendingComments">0</div>
+                <div class="stats-label">Comentários Pendentes</div>
             </div>
         </div>
 
@@ -347,6 +376,11 @@
                         <i class="fas fa-file-alt"></i> Páginas
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#posts" onclick="loadPosts()">
+                        <i class="fas fa-newspaper"></i> Posts
+                    </a>
+                </li>
             </ul>
 
             <div class="tab-content">
@@ -355,15 +389,25 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5>Gerenciar Páginas</h5>
                         <div class="d-flex gap-2">
-                            <a href="admin-posts.html" class="btn btn-success btn-custom">
-                                <i class="fas fa-plus"></i> Novo Post
-                            </a>
                             <button class="btn btn-primary btn-custom" onclick="openPageModal()">
                                 <i class="fas fa-plus"></i> Nova Página
                             </button>
                         </div>
                     </div>
                     <div id="pagesList"></div>
+                </div>
+                
+                <!-- Tab Posts -->
+                <div class="tab-pane fade" id="posts">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Gerenciar Posts</h5>
+                        <div class="d-flex gap-2">
+                            <a href="admin-posts.html" class="btn btn-success btn-custom">
+                                <i class="fas fa-plus"></i> Novo Post
+                            </a>
+                        </div>
+                    </div>
+                    <div id="postsList"></div>
                 </div>
             </div>
         </div>
@@ -566,7 +610,9 @@
             // Carregar informações do usuário
             await loadUserInfo();
 
+            // Carregar dados iniciais
             loadPages();
+            loadStats();
         });
 
 
@@ -592,9 +638,44 @@
                 }
                 
                 const data = await response.json();
-                if (data.success) {
-                    // Atualizar estatísticas na interface se necessário
-                    console.log('Estatísticas carregadas:', data.data);
+                if (data.success && data.data) {
+                    // Função auxiliar para atualizar elementos
+                    const updateElement = (id, value) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            // Formatar números grandes
+                            if (value >= 1000) {
+                                element.textContent = (value / 1000).toFixed(1) + 'K';
+                            } else {
+                                element.textContent = value;
+                            }
+                        }
+                    };
+                    
+                    // Atualizar estatísticas na interface
+                    const stats = data.data;
+                    
+                    // Atualizar posts
+                    if (stats.posts) {
+                        updateElement('totalPosts', stats.posts.total || 0);
+                        updateElement('publishedPosts', stats.posts.published || 0);
+                        updateElement('draftPosts', stats.posts.draft || 0);
+                    }
+                    
+                    // Atualizar páginas
+                    updateElement('totalPages', stats.pages || 0);
+                    
+                    // Atualizar views e likes
+                    updateElement('totalViews', stats.views || 0);
+                    updateElement('totalLikes', stats.likes || 0);
+                    
+                    // Atualizar comentários
+                    if (stats.comments) {
+                        updateElement('totalComments', stats.comments.total || 0);
+                        updateElement('pendingComments', stats.comments.pending || 0);
+                    }
+                    
+                    console.log('✅ Estatísticas carregadas:', stats);
                 }
             } catch (error) {
                 console.error('Erro ao carregar estatísticas:', error);
@@ -626,28 +707,33 @@
                 if (data.success) {
                     const postsList = document.getElementById('postsList');
                     if (postsList) {
-                        if (data.data.length === 0) {
-                            postsList.innerHTML = '<p class="text-center text-muted">Nenhum post encontrado.</p>';
+                        if (!data.data || data.data.length === 0) {
+                            postsList.innerHTML = '<p class="text-center text-muted py-4">Nenhum post encontrado. <a href="admin-posts.html">Criar primeiro post</a></p>';
                             return;
                         }
                         postsList.innerHTML = data.data.map(post => `
                             <div class="post-card ${post.status}">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-2">${post.title}</h6>
-                                        <p class="text-muted small mb-2">${post.subtitle || ''}</p>
-                                        <div class="d-flex gap-2 flex-wrap">
+                                        <h6 class="mb-2">${escapeHtml(post.title)}</h6>
+                                        ${post.subtitle ? `<p class="text-muted small mb-2">${escapeHtml(post.subtitle)}</p>` : ''}
+                                        ${post.content ? (() => {
+                                            const textContent = stripHtml(post.content);
+                                            return `<p class="text-muted small mb-2" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(textContent.substring(0, 150))}${textContent.length > 150 ? '...' : ''}</p>`;
+                                        })() : ''}
+                                        <div class="d-flex gap-2 flex-wrap align-items-center">
                                             <span class="status-badge status-${post.status}">${post.status === 'published' ? 'Publicado' : 'Rascunho'}</span>
-                                            ${post.category ? `<span class="badge bg-secondary">${post.category}</span>` : ''}
-                                            <span class="text-muted small"><i class="fas fa-eye"></i> ${post.views || 0}</span>
-                                            <span class="text-muted small"><i class="fas fa-heart"></i> ${post.likes || 0}</span>
+                                            ${post.category ? `<span class="badge bg-secondary">${escapeHtml(post.category)}</span>` : ''}
+                                            ${post.views !== undefined ? `<span class="text-muted small"><i class="fas fa-eye"></i> ${post.views}</span>` : ''}
+                                            ${post.likes !== undefined ? `<span class="text-muted small"><i class="fas fa-heart"></i> ${post.likes}</span>` : ''}
                                         </div>
+                                        ${post.status === 'published' ? `<a href="/blog-post.html?slug=${escapeHtml(post.slug)}" target="_blank" class="btn btn-sm btn-outline-success mt-2"><i class="fas fa-external-link-alt"></i> Visualizar</a>` : ''}
                                     </div>
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="editPost('${post.id}')">
+                                    <div class="btn-group ms-2">
+                                        <a href="admin-posts.html?id=${post.id}" class="btn btn-sm btn-outline-primary" title="Editar post">
                                             <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deletePost('${post.id}')">
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deletePost('${post.id}')" title="Deletar post">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -692,6 +778,22 @@
             }
             
             modal.show();
+        }
+
+        // Função para escapar HTML (prevenir XSS)
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Função para remover tags HTML e obter apenas texto (para preview)
+        function stripHtml(html) {
+            if (!html) return '';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
         }
 
         // Função para decodificar entidades HTML
@@ -885,7 +987,7 @@
 
         // Deletar Post
         async function deletePost(postId) {
-            if (!confirm('Tem certeza que deseja deletar este post?')) return;
+            if (!confirm('Tem certeza que deseja deletar este post? Esta ação não pode ser desfeita.')) return;
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
                 if (!token) {
@@ -899,12 +1001,13 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
+                
                 if (data.success) {
                     alert('Post deletado com sucesso!');
                     loadPosts();
-                    loadStats();
+                    loadStats(); // Atualizar estatísticas
                 } else {
-                    alert('Erro ao deletar post: ' + data.message);
+                    alert('Erro ao deletar post: ' + (data.message || 'Erro desconhecido'));
                 }
             } catch (error) {
                 console.error('Erro ao deletar post:', error);
@@ -1077,17 +1180,22 @@
                         <div class="post-card ${page.status}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-2">${page.title}</h6>
-                                    <div class="d-flex gap-2">
+                                    <h6 class="mb-2">${escapeHtml(page.title)}</h6>
+                                    ${page.content ? (() => {
+                                        const textContent = stripHtml(page.content);
+                                        return `<p class="text-muted small mb-2" style="max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(textContent.substring(0, 150))}${textContent.length > 150 ? '...' : ''}</p>`;
+                                    })() : ''}
+                                    <div class="d-flex gap-2 flex-wrap align-items-center">
                                         <span class="status-badge status-${page.status}">${page.status === 'published' ? 'Publicado' : 'Rascunho'}</span>
-                                        <span class="text-muted small">Slug: /${page.slug}</span>
+                                        <span class="text-muted small">Slug: /${escapeHtml(page.slug)}</span>
+                                        ${page.status === 'published' ? `<a href="/blog-page.html?slug=${page.slug}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-external-link-alt"></i> Visualizar</a>` : ''}
                                     </div>
                                 </div>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editPage('${page.id}')">
+                                <div class="btn-group ms-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editPage('${page.id}')" title="Editar página">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePage('${page.id}')">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePage('${page.id}')" title="Deletar página">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>

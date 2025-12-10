@@ -419,7 +419,13 @@
 
             // Mostrar produtos relacionados
             const productPreview = document.getElementById('productPreview');
-            const produtos = page.produtos_relacionados || [];
+            let produtos = page.produtos_relacionados || [];
+            
+            // Se for um objeto único, converter para array
+            if (produtos && !Array.isArray(produtos)) {
+                console.warn('⚠️ produtos_relacionados é um objeto, convertendo para array');
+                produtos = [produtos];
+            }
 
             if (produtos.length > 0) {
                 const primeiroProduto = produtos[0];

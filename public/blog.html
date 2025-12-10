@@ -52,16 +52,35 @@
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 80px 20px;
+            padding: 100px 20px 80px;
             text-align: center;
             box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header > * {
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
             font-size: 3.5rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 15px;
             letter-spacing: -0.02em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
@@ -70,6 +89,7 @@
             font-weight: 300;
             max-width: 600px;
             margin: 0 auto;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
         }
 
         .container {
@@ -146,28 +166,56 @@
         .post-card {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .post-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             border-color: var(--primary);
+        }
+
+        .post-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
         }
 
         .post-image {
             width: 100%;
-            height: 220px;
+            height: 100%;
             object-fit: cover;
-            background: var(--bg-tertiary);
+            transition: transform 0.5s ease;
+        }
+
+        .post-card:hover .post-image {
+            transform: scale(1.1);
+        }
+
+        .post-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
         }
 
         .post-content {
             padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .post-category {
@@ -206,6 +254,7 @@
             font-size: 0.875rem;
             color: var(--text-secondary);
             padding-top: 16px;
+            margin-top: auto;
             border-top: 1px solid var(--border-color);
         }
 
@@ -218,6 +267,20 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .post-stats span:hover {
+            color: var(--primary);
+        }
+
+        .post-read-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin-top: 8px;
         }
 
         .pagination {
@@ -264,13 +327,60 @@
             color: var(--text-secondary);
         }
 
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .stats-banner {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .sidebar {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 28px;
             margin-bottom: 30px;
             box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .sidebar h3 {
@@ -281,6 +391,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .popular-post {
@@ -328,10 +440,24 @@
             color: var(--primary);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 968px) {
             .posts-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                 gap: 24px;
+            }
+
+            div[style*="grid-template-columns: 1fr 300px"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            .sidebar {
+                margin-top: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 60px 20px 50px;
             }
 
             .header h1 {
@@ -346,6 +472,11 @@
                 padding: 40px 15px;
             }
 
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
             .search-bar {
                 flex-direction: column;
             }
@@ -358,8 +489,50 @@
                 font-size: 1.2rem;
             }
 
-            div[style*="grid-template-columns: 1fr 300px"] {
-                grid-template-columns: 1fr !important;
+            .post-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .post-content {
+                padding: 20px;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .post-stats {
+                gap: 15px;
+            }
+
+            .filter-tags {
+                gap: 8px;
+            }
+
+            .filter-tag {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .post-image-wrapper {
+                height: 180px;
+            }
+
+            .post-title {
+                font-size: 1.1rem;
+            }
+
+            .post-category {
+                font-size: 0.75rem;
+                padding: 5px 12px;
             }
         }
     </style>
@@ -370,15 +543,30 @@
         <p>Conteúdo educativo, atualizações e dicas para seu negócio</p>
     </div>
 
-    <div class="container">
+        <div class="container">
         <div class="search-section">
             <div class="search-bar">
-                <input type="text" class="search-input" id="searchInput" placeholder="Buscar posts...">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar posts por título, conteúdo ou categoria...">
                 <button class="btn btn-primary" onclick="searchPosts()" style="padding: 16px 32px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: var(--shadow-sm);">
                     <i class="fas fa-search"></i> Buscar
                 </button>
             </div>
             <div class="filter-tags" id="categoryFilters"></div>
+        </div>
+
+        <div class="stats-banner" id="statsBanner" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-number" id="totalPosts">0</div>
+                <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalViews">0</div>
+                <div class="stat-label">Visualizações</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCategories">0</div>
+                <div class="stat-label">Categorias</div>
+            </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 300px; gap: 30px;">
@@ -486,7 +674,49 @@
             loadPosts();
             loadPopularPosts();
             loadCategories();
+            loadStats();
         });
+
+        async function loadStats() {
+            try {
+                // Tentar carregar estatísticas de várias fontes
+                const [postsResponse, categoriesResponse] = await Promise.all([
+                    fetch(`${API_BASE}/api/blog/posts?limit=1000`).catch(() => null),
+                    fetch(`${API_BASE}/api/blog/categories`).catch(() => null)
+                ]);
+
+                let totalPosts = 0;
+                let totalViews = 0;
+                let totalCategories = 0;
+
+                if (postsResponse && postsResponse.ok) {
+                    const postsData = await postsResponse.json();
+                    if (postsData.success && postsData.data) {
+                        totalPosts = postsData.data.length;
+                        totalViews = postsData.data.reduce((sum, post) => sum + (post.views || 0), 0);
+                    }
+                }
+
+                if (categoriesResponse && categoriesResponse.ok) {
+                    const categoriesData = await categoriesResponse.json();
+                    if (categoriesData.success && categoriesData.data) {
+                        totalCategories = categoriesData.data.length;
+                    }
+                }
+
+                if (totalPosts > 0 || totalViews > 0 || totalCategories > 0) {
+                    document.getElementById('totalPosts').textContent = totalPosts;
+                    document.getElementById('totalViews').textContent = totalViews.toLocaleString('pt-BR');
+                    document.getElementById('totalCategories').textContent = totalCategories;
+                    document.getElementById('statsBanner').style.display = 'grid';
+                } else {
+                    document.getElementById('statsBanner').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                document.getElementById('statsBanner').style.display = 'none';
+            }
+        }
 
         async function loadPosts(page = 1, category = null, search = '') {
             try {
@@ -517,17 +747,35 @@
         function displayPosts(posts) {
             const container = document.getElementById('postsContainer');
             if (posts.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nenhum post encontrado.</p></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhum post encontrado</h3>
+                        <p>Tente ajustar seus filtros de busca ou categoria.</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = posts.map(post => `
+            container.innerHTML = posts.map(post => {
+                const readTime = Math.ceil((post.content?.length || 0) / 1000) || 3; // Aproximadamente 1 minuto por 1000 caracteres
+                return `
                 <div class="post-card" onclick="window.location.href='blog-post.html?slug=${post.slug}'">
-                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : '<div class="post-image" style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);"><i class="fas fa-image fa-3x"></i></div>'}
+                    <div class="post-image-wrapper">
+                        ${post.image ? 
+                            `<img src="${post.image}" alt="${post.title}" class="post-image">` : 
+                            `<div class="post-image-placeholder">
+                                <i class="fas fa-newspaper fa-3x"></i>
+                            </div>`
+                        }
+                    </div>
                     <div class="post-content">
                         ${post.category ? `<span class="post-category">${post.category}</span>` : ''}
                         <h3 class="post-title">${post.title}</h3>
                         ${post.subtitle ? `<p class="post-subtitle">${post.subtitle}</p>` : ''}
+                        <div class="post-read-time">
+                            <i class="fas fa-clock"></i> ${readTime} min de leitura
+                        </div>
                         <div class="post-meta">
                             <div>
                                 <i class="fas fa-user"></i> ${post.author?.nome_completo || 'Admin'}
@@ -537,12 +785,13 @@
                                 <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
                             </div>
                         </div>
-                        <div style="margin-top: 15px; color: var(--text-secondary); font-size: 0.85rem;">
-                            ${formatDate(post.published_at || post.created_at)}
+                        <div style="margin-top: 12px; color: var(--text-secondary); font-size: 0.85rem;">
+                            <i class="fas fa-calendar-alt"></i> ${formatDate(post.published_at || post.created_at)}
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function displayPagination(pagination) {

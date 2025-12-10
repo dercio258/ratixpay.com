@@ -325,6 +325,21 @@
     <main class="max-w-5xl mx-auto mt-6 px-4 sm:px-6">
         <!-- Sidebar Superior / Metadados -->
         <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Imagem de Capa -->
+            <div class="bg-white p-3 rounded border border-slate-200 shadow-sm md:col-span-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Imagem de Capa do Post *</label>
+                <div class="flex flex-col gap-2">
+                    <input type="url" id="post-image-url" placeholder="https://exemplo.com/imagem.jpg" class="w-full text-sm border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500">
+                    <div class="flex items-center gap-2">
+                        <div id="image-preview-container" class="flex-1 hidden">
+                            <img id="image-preview" src="" alt="Preview" class="max-w-full h-32 object-cover rounded border border-slate-200">
+                        </div>
+                        <button type="button" onclick="clearImagePreview()" id="clear-image-btn" class="hidden bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Limpar</button>
+                    </div>
+                    <small class="text-xs text-slate-500">URL da imagem de capa que será exibida no topo do post</small>
+                </div>
+            </div>
+            
             <!-- Categoria -->
             <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Categoria</label>
@@ -408,7 +423,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API_BASE = window.API_BASE || '';
+        // Garantir que API_BASE está definido
+        const API_BASE = window.API_BASE || window.location.origin + '/api';
+        console.log('🔧 API_BASE configurado:', API_BASE);
         let currentPostId = null;
         let currentMediaType = null;
         
@@ -646,9 +663,14 @@
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
                 if (!token) return;
                 
-                const response = await fetch(`${API_BASE}/blog/admin/posts`, {
+                const url = `${API_BASE}/blog/admin/posts`;
+                console.log('📤 GET - Carregando posts de:', url);
+                
+                const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                console.log('📥 GET - Resposta:', response.status, response.statusText);
                 
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -665,10 +687,26 @@
                         currentPostId = post.id;
                         document.getElementById('doc-title').innerText = post.title || '';
                         document.getElementById('doc-subtitle').innerText = post.subtitle || '';
-                        document.getElementById('doc-content').innerHTML = post.content || '';
+                        
+                        // Carregar conteúdo HTML corretamente
+                        const contentElement = document.getElementById('doc-content');
+                        if (post.content) {
+                            // Limpar conteúdo anterior
+                            contentElement.innerHTML = '';
+                            // Inserir novo conteúdo HTML
+                            contentElement.innerHTML = post.content;
+                        } else {
+                            contentElement.innerHTML = '<p>Comece a escrever seu post aqui...</p>';
+                        }
                         document.getElementById('category-select').value = post.category || 'outros';
                         document.getElementById('status-select').value = post.status || 'draft';
                         document.getElementById('post-id-display').textContent = `ID: #${post.id}`;
+                        
+                        // Carregar imagem de capa
+                        if (post.image) {
+                            document.getElementById('post-image-url').value = post.image;
+                            updateImagePreview();
+                        }
                         
                         if (post.published_at) {
                             const publishDate = new Date(post.published_at);
@@ -718,10 +756,19 @@
                     published_at = new Date().toISOString();
                 }
                 
+                // Obter imagem de capa
+                const image = document.getElementById('post-image-url').value.trim();
+                if (!image) {
+                    alert('Por favor, adicione uma imagem de capa para o post.');
+                    document.getElementById('post-image-url').focus();
+                    return;
+                }
+                
                 const postData = {
                     title,
                     subtitle,
                     content,
+                    image,
                     category,
                     status,
                     published_at,
@@ -740,6 +787,8 @@
                 btnText.textContent = 'Salvando...';
                 
                 try {
+                    console.log('📤 Enviando requisição:', { url, method, postData: { ...postData, content: postData.content?.substring(0, 50) + '...' } });
+                    
                     const response = await fetch(url, {
                         method,
                         headers: {
@@ -748,6 +797,16 @@
                         },
                         body: JSON.stringify(postData)
                     });
+                    
+                    console.log('📥 Resposta recebida:', { status: response.status, statusText: response.statusText, url: response.url });
+                    
+                    // Verificar se a resposta é JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('❌ Resposta não é JSON:', text.substring(0, 200));
+                        throw new Error(`Erro do servidor (${response.status}): A resposta não é JSON. URL: ${url}`);
+                    }
                     
                     const data = await response.json();
                     
@@ -811,6 +870,41 @@
                     savePost();
                 }
             }, 30000);
+        });
+        
+        // Preview de imagem de capa
+        function updateImagePreview() {
+            const imageUrl = document.getElementById('post-image-url').value.trim();
+            const previewContainer = document.getElementById('image-preview-container');
+            const previewImg = document.getElementById('image-preview');
+            const clearBtn = document.getElementById('clear-image-btn');
+            
+            if (imageUrl) {
+                previewImg.src = imageUrl;
+                previewImg.onerror = function() {
+                    previewContainer.classList.add('hidden');
+                    clearBtn.classList.add('hidden');
+                };
+                previewImg.onload = function() {
+                    previewContainer.classList.remove('hidden');
+                    clearBtn.classList.remove('hidden');
+                };
+            } else {
+                previewContainer.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+            }
+        }
+        
+        function clearImagePreview() {
+            document.getElementById('post-image-url').value = '';
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('clear-image-btn').classList.add('hidden');
+        }
+        
+        // Event listener para preview de imagem
+        document.getElementById('post-image-url').addEventListener('input', updateImagePreview);
+        document.getElementById('post-image-url').addEventListener('paste', function() {
+            setTimeout(updateImagePreview, 100);
         });
         
         // Fechar popups ao clicar fora

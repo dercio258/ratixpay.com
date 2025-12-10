@@ -74,9 +74,31 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 40px;
+        }
+
+        .main-content {
+            min-width: 0;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
         }
 
         .post-header {
@@ -134,15 +156,31 @@
             width: 100%;
             max-height: 500px;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 16px;
             margin: 30px 0;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s ease;
+        }
+
+        .post-image:hover {
+            transform: scale(1.02);
         }
 
         .post-content {
             margin: 40px 0;
-            font-size: 1.1rem;
-            line-height: 1.8;
+            font-size: 1.125rem;
+            line-height: 1.9;
+            color: var(--text-primary);
+        }
+
+        .post-content::first-letter {
+            font-size: 4rem;
+            line-height: 1;
+            float: left;
+            padding-right: 8px;
+            padding-top: 4px;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         .post-content h1,
@@ -214,31 +252,34 @@
         .post-actions {
             display: flex;
             gap: 12px;
-            margin: 30px 0;
+            margin: 40px 0;
+            flex-wrap: wrap;
         }
 
         .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            font-size: 0.95rem;
         }
 
         .btn-primary {
             background: var(--primary);
             color: white;
+            box-shadow: 0 4px 6px -1px rgba(246, 76, 0, 0.3);
         }
 
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 10px 15px -3px rgba(246, 76, 0, 0.4);
         }
 
         .btn-secondary {
@@ -249,6 +290,85 @@
 
         .btn-secondary:hover {
             background: var(--bg-tertiary);
+            border-color: var(--primary);
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .share-btn.facebook {
+            border-color: #1877f2;
+            color: #1877f2;
+        }
+
+        .share-btn.facebook:hover {
+            background: #1877f2;
+            color: white;
+        }
+
+        .share-btn.twitter {
+            border-color: #1da1f2;
+            color: #1da1f2;
+        }
+
+        .share-btn.twitter:hover {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .share-btn.whatsapp {
+            border-color: #25d366;
+            color: #25d366;
+        }
+
+        .share-btn.whatsapp:hover {
+            background: #25d366;
+            color: white;
+        }
+
+        .share-btn.linkedin {
+            border-color: #0077b5;
+            color: #0077b5;
+        }
+
+        .share-btn.linkedin:hover {
+            background: #0077b5;
+            color: white;
+        }
+
+        .share-btn.copy {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .share-btn.copy:hover {
+            background: var(--primary);
+            color: white;
         }
 
         .related-posts {
@@ -296,6 +416,195 @@
             margin-bottom: 12px;
         }
 
+        /* Estilos de Comentários */
+        .comments-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .comment-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .comment-item:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .comment-author-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .comment-author-info span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .comment-action-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .comment-content {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+        }
+
+        .comment-content a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--primary);
+            transition: all 0.2s;
+        }
+
+        .comment-content a:hover {
+            color: var(--primary-dark);
+            border-bottom-color: var(--primary-dark);
+        }
+
+        .comment-content-full {
+            display: none;
+        }
+
+        .comment-content-full.show {
+            display: block;
+        }
+
+        .comment-content-preview {
+            display: block;
+        }
+
+        .comment-content-preview.hide {
+            display: none;
+        }
+
+        .read-more-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 4px 0;
+            margin-top: 4px;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .read-more-btn:hover {
+            color: var(--primary-dark);
+        }
+
+        .comment-reactions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .reaction-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .reaction-btn:hover {
+            background: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+
+        .reaction-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .comment-replies {
+            margin-top: 12px;
+            margin-left: 32px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .comment-reply-form {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .comment-reply-form.active {
+            display: block;
+        }
+
+        .empty-comments {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -308,7 +617,23 @@
             color: #ef4444;
         }
 
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .sidebar {
+                position: static;
+                margin-top: 40px;
+            }
+        }
+
         @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+
             .post-title {
                 font-size: 2rem;
             }
@@ -321,13 +646,232 @@
                 font-size: 1rem;
             }
 
+            .post-content::first-letter {
+                font-size: 3rem;
+            }
+
             .post-meta {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 12px;
+            }
+
+            .post-actions {
+                flex-direction: column;
+            }
+
+            .post-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .related-posts-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .comment-form-container div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            .post-image {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .post-title {
+                font-size: 1.75rem;
+            }
+
+            .post-content::first-letter {
+                font-size: 2.5rem;
+            }
+
+            .post-image {
+                max-height: 250px;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Sidebar Styles */
+        .sidebar-widget {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-widget h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .category-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .category-item {
+            margin-bottom: 8px;
+        }
+
+        .category-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .category-link:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .category-count {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .latest-posts-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .latest-post-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .latest-post-item:last-child {
+            border-bottom: none;
+        }
+
+        .latest-post-item:hover {
+            color: var(--primary);
+        }
+
+        .latest-post-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .latest-post-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .latest-post-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .latest-post-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Newsletter Section */
+        .newsletter-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 40px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .newsletter-section p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            color: var(--text-primary);
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .newsletter-form button:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .newsletter-form {
+                flex-direction: column;
             }
         }
     </style>
@@ -349,7 +893,7 @@
             <i class="fas fa-exclamation-triangle"></i> Erro ao carregar post. Tente novamente.
         </div>
 
-        <div id="postContent" style="display: none;">
+        <div id="postContent" style="display: none;" class="main-content">
             <div class="post-header">
                 <span id="postCategory" class="post-category"></span>
                 <h1 id="postTitle" class="post-title"></h1>
@@ -378,13 +922,92 @@
 
             <div id="postContentBody" class="post-content"></div>
 
+            <!-- Newsletter Section -->
+            <div class="newsletter-section">
+                <h3>📧 Receba Notificações de Novos Posts</h3>
+                <p>Inscreva-se na nossa newsletter e seja notificado quando publicarmos novos artigos!</p>
+                <form class="newsletter-form" id="newsletterForm" onsubmit="subscribeNewsletter(event)">
+                    <input type="email" id="newsletterEmail" placeholder="Seu melhor e-mail" required>
+                    <button type="submit">
+                        <i class="fas fa-paper-plane"></i> Inscrever-se
+                    </button>
+                </form>
+            </div>
+
             <div class="post-actions">
                 <button class="btn btn-primary" onclick="likePost()">
                     <i class="fas fa-heart"></i> Curtir
                 </button>
                 <a href="/blog.html" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Voltar
+                    <i class="fas fa-arrow-left"></i> Voltar ao Blog
                 </a>
+            </div>
+
+            <!-- Compartilhamento Social -->
+            <div class="share-section" style="margin: 40px 0; padding: 24px; background: var(--bg-secondary); border-radius: 12px; border-left: 4px solid var(--primary);">
+                <h4 style="margin-bottom: 16px; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-share-alt"></i> Compartilhar este post
+                </h4>
+                <div class="share-buttons">
+                    <a href="#" class="share-btn facebook" onclick="shareOnFacebook(event)" title="Compartilhar no Facebook">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="#" class="share-btn twitter" onclick="shareOnTwitter(event)" title="Compartilhar no Twitter">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>
+                    <a href="#" class="share-btn whatsapp" onclick="shareOnWhatsApp(event)" title="Compartilhar no WhatsApp">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="#" class="share-btn linkedin" onclick="shareOnLinkedIn(event)" title="Compartilhar no LinkedIn">
+                        <i class="fab fa-linkedin-in"></i> LinkedIn
+                    </a>
+                    <button class="share-btn copy" onclick="copyLink(event)" title="Copiar link">
+                        <i class="fas fa-link"></i> Copiar Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seção de Comentários -->
+            <div id="commentsSection" class="comments-section" style="margin-top: 60px; padding-top: 40px; border-top: 2px solid var(--border-color);">
+                <h3 style="font-size: 1.5rem; margin-bottom: 30px; color: var(--text-primary);">
+                    <i class="fas fa-comments"></i> Comentários
+                    <span id="commentsCount" style="font-size: 1rem; color: var(--text-secondary); font-weight: normal;"></span>
+                </h3>
+
+                <!-- Formulário de Comentário -->
+                <div class="comment-form-container" style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px; color: var(--text-primary); font-size: 1.1rem;">Deixe seu comentário</h4>
+                    <form id="commentForm" onsubmit="submitComment(event)">
+                        <input type="hidden" id="commentParentId">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                            <div>
+                                <input type="text" id="commentName" placeholder="Seu nome *" required style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem;">
+                            </div>
+                            <div>
+                                <input type="email" id="commentEmail" placeholder="Seu email *" required style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 0.85rem; color: var(--text-secondary);">Dica: Use [texto](url) para criar links</label>
+                                <button type="button" onclick="insertLink()" style="padding: 4px 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-link"></i> Adicionar Link
+                                </button>
+                            </div>
+                            <textarea id="commentText" placeholder="Seu comentário * (Use [texto](url) para links)" required rows="3" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+                        <div id="replyToInfo" style="display: none; margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: 6px; border-left: 3px solid var(--primary);">
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">Respondendo a: <strong id="replyToName"></strong></strong></span>
+                            <button type="button" onclick="cancelReply()" style="margin-left: 10px; padding: 4px 10px; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem;">Cancelar</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.9rem;">
+                            <i class="fas fa-paper-plane"></i> Publicar Comentário
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Comentários -->
+                <div id="commentsList" class="comments-list"></div>
             </div>
 
             <div id="relatedPosts" class="related-posts" style="display: none;">
@@ -392,6 +1015,29 @@
                 <div id="relatedPostsGrid" class="related-posts-grid"></div>
             </div>
         </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" style="display: none;">
+            <!-- Categories Widget -->
+            <div class="sidebar-widget">
+                <h3><i class="fas fa-folder"></i> Categorias</h3>
+                <ul id="categoriesList" class="category-list">
+                    <li class="category-item">
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">Carregando...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Latest Posts Widget -->
+            <div class="sidebar-widget">
+                <h3><i class="fas fa-clock"></i> Últimos Posts</h3>
+                <ul id="latestPostsList" class="latest-posts-list">
+                    <li>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">Carregando...</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
     </div>
 
     <script>
@@ -424,6 +1070,7 @@
             
             if (slug) {
                 loadPost(slug);
+                loadSidebar();
             } else {
                 showError('Slug do post não fornecido');
             }
@@ -439,12 +1086,21 @@
                     postId = currentPost.id;
                     displayPost(currentPost);
                     
-                    // Registrar visualização
-                    registerView(postId);
+                    // Registrar visualização (após um pequeno delay)
+                    setTimeout(() => {
+                        registerView(postId);
+                    }, 1000);
                     
                     // Carregar posts relacionados
                     if (result.data.relatedPosts && result.data.relatedPosts.length > 0) {
                         displayRelatedPosts(result.data.relatedPosts);
+                    }
+                    
+                    // Carregar comentários
+                    if (currentPost.comments) {
+                        displayComments(currentPost.comments);
+                    } else {
+                        loadComments();
                     }
                 } else {
                     showError('Post não encontrado');
@@ -452,6 +1108,471 @@
             } catch (error) {
                 console.error('Erro ao carregar post:', error);
                 showError('Erro ao carregar post. Tente novamente.');
+            }
+        }
+        
+        async function loadComments() {
+            if (!postId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/posts/${currentPost.slug}`);
+                const result = await response.json();
+                
+                if (result.success && result.data.post && result.data.post.comments) {
+                    displayComments(result.data.post.comments);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar comentários:', error);
+            }
+        }
+        
+        function displayComments(comments) {
+            const container = document.getElementById('commentsList');
+            const countSpan = document.getElementById('commentsCount');
+            
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<div class="empty-comments"><p>Nenhum comentário ainda. Seja o primeiro a comentar!</p></div>';
+                countSpan.textContent = '(0)';
+                return;
+            }
+            
+            // Contar total de comentários (incluindo respostas)
+            const totalComments = comments.reduce((total, comment) => {
+                return total + 1 + (comment.replies ? comment.replies.length : 0);
+            }, 0);
+            
+            countSpan.textContent = `(${totalComments})`;
+            
+            container.innerHTML = comments.map(comment => renderComment(comment)).join('');
+        }
+        
+        function renderComment(comment, isReply = false) {
+            const reactions = comment.reactions || { like: 0, bad: 0, heart: 0, fire: 0 };
+            const initials = comment.name ? comment.name.substring(0, 2).toUpperCase() : 'AN';
+            const replies = comment.replies || [];
+            
+            return `
+                <div class="comment-item ${isReply ? 'comment-reply' : ''}" data-comment-id="${comment.id}">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <div class="comment-avatar">${initials}</div>
+                            <div class="comment-author-info">
+                                <h4>${escapeHtml(comment.name)}</h4>
+                                <span>${formatDate(comment.created_at)}</span>
+                            </div>
+                        </div>
+                        <div class="comment-actions">
+                            <button class="comment-action-btn" onclick="replyToComment('${comment.id}', '${escapeHtml(comment.name)}')">
+                                <i class="fas fa-reply"></i> Responder
+                            </button>
+                        </div>
+                    </div>
+                    <div class="comment-content-wrapper">
+                        ${formatCommentContent(comment.comment, comment.id)}
+                    </div>
+                    <div class="comment-reactions">
+                        <button class="reaction-btn" onclick="addReaction('${comment.id}', 'like', event)" title="Curtir">
+                            <i class="fas fa-thumbs-up"></i> <span>${reactions.like || 0}</span>
+                        </button>
+                        <button class="reaction-btn" onclick="addReaction('${comment.id}', 'heart', event)" title="Coração">
+                            <i class="fas fa-heart"></i> <span>${reactions.heart || 0}</span>
+                        </button>
+                        <button class="reaction-btn" onclick="addReaction('${comment.id}', 'fire', event)" title="Fogo">
+                            <i class="fas fa-fire"></i> <span>${reactions.fire || 0}</span>
+                        </button>
+                    </div>
+                    ${replies.length > 0 ? `
+                        <div class="comment-replies">
+                            ${replies.map(reply => renderComment(reply, true)).join('')}
+                        </div>
+                    ` : ''}
+                    <div id="replyForm-${comment.id}" class="comment-reply-form">
+                        <form onsubmit="submitReply(event, '${comment.id}')">
+                            <div style="margin-bottom: 12px;">
+                                <input type="text" id="replyName-${comment.id}" placeholder="Seu nome" required style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <input type="email" id="replyEmail-${comment.id}" placeholder="Seu email" required style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <label style="font-size: 0.85rem; color: var(--text-secondary);">Dica: Use [texto](url) para criar links</label>
+                                    <button type="button" onclick="insertLinkInReply('${comment.id}')" style="padding: 4px 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-link"></i> Link
+                                    </button>
+                                </div>
+                                <textarea id="replyText-${comment.id}" placeholder="Sua resposta... (Use [texto](url) para links)" required rows="3" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-family: inherit; resize: vertical; font-size: 0.9rem;"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1; padding: 8px 16px; font-size: 0.9rem;">
+                                    <i class="fas fa-paper-plane"></i> Responder
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelReply('${comment.id}')" style="padding: 8px 16px; font-size: 0.9rem;">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Função para processar links no formato [texto](url)
+        function processLinks(text) {
+            if (!text) return '';
+            
+            // Regex para encontrar links no formato [texto](url)
+            const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+            let lastIndex = 0;
+            let result = '';
+            let match;
+            
+            // Processar cada link encontrado
+            while ((match = linkRegex.exec(text)) !== null) {
+                // Adicionar texto antes do link (escapado)
+                result += escapeHtml(text.substring(lastIndex, match.index));
+                
+                // Processar o link
+                const linkText = match[1];
+                let url = match[2].trim();
+                
+                // Adicionar https:// se não tiver protocolo
+                if (!url.match(/^https?:\/\//i)) {
+                    url = 'https://' + url;
+                }
+                
+                // Validar URL
+                try {
+                    new URL(url);
+                    // Adicionar link HTML (com texto e URL escapados)
+                    result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkText)}</a>`;
+                } catch (e) {
+                    // Se URL inválida, apenas mostrar o texto escapado
+                    result += escapeHtml(linkText);
+                }
+                
+                lastIndex = linkRegex.lastIndex;
+            }
+            
+            // Adicionar texto restante (escapado)
+            result += escapeHtml(text.substring(lastIndex));
+            
+            return result;
+        }
+
+        // Função para formatar conteúdo do comentário com "Ver mais"
+        function formatCommentContent(text, commentId) {
+            if (!text) return '';
+            
+            const maxLength = 200; // Limite de caracteres antes de mostrar "Ver mais"
+            // Processar links primeiro (antes de escapar)
+            const processedText = processLinks(text);
+            
+            if (text.length <= maxLength) {
+                // Comentário curto, mostrar tudo
+                return `<div class="comment-content">${processedText}</div>`;
+            }
+            
+            // Comentário longo, mostrar preview e "Ver mais"
+            // Para o preview, precisamos cortar o texto original (não o HTML processado)
+            // e depois processar os links
+            const originalText = text;
+            const previewOriginal = originalText.substring(0, maxLength);
+            const previewProcessed = processLinks(previewOriginal) + '...';
+            const fullProcessed = processedText;
+            
+            return `
+                <div class="comment-content-preview" id="preview-${commentId}">
+                    ${previewProcessed}
+                    <button class="read-more-btn" onclick="toggleCommentContent('${commentId}')">
+                        Ver mais
+                    </button>
+                </div>
+                <div class="comment-content-full" id="full-${commentId}">
+                    ${fullProcessed}
+                    <button class="read-more-btn" onclick="toggleCommentContent('${commentId}')">
+                        Ver menos
+                    </button>
+                </div>
+            `;
+        }
+
+        // Função para alternar entre preview e conteúdo completo
+        function toggleCommentContent(commentId) {
+            const preview = document.getElementById(`preview-${commentId}`);
+            const full = document.getElementById(`full-${commentId}`);
+            
+            if (preview && full) {
+                if (preview.classList.contains('hide')) {
+                    // Mostrar preview, esconder full
+                    preview.classList.remove('hide');
+                    full.classList.remove('show');
+                } else {
+                    // Esconder preview, mostrar full
+                    preview.classList.add('hide');
+                    full.classList.add('show');
+                }
+            }
+        }
+
+        // Função para inserir link no textarea principal
+        function insertLink() {
+            const textarea = document.getElementById('commentText');
+            if (!textarea) return;
+            
+            const linkText = prompt('Digite o texto do link:');
+            if (!linkText) return;
+            
+            const linkUrl = prompt('Digite a URL do link:');
+            if (!linkUrl) return;
+            
+            // Obter posição do cursor
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            // Criar link no formato [texto](url)
+            const linkMarkdown = `[${linkText}](${linkUrl})`;
+            
+            // Inserir link na posição do cursor
+            const newText = text.substring(0, start) + linkMarkdown + text.substring(end);
+            textarea.value = newText;
+            
+            // Reposicionar cursor após o link inserido
+            const newCursorPos = start + linkMarkdown.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+        }
+
+        // Função para inserir link no textarea de resposta
+        function insertLinkInReply(commentId) {
+            const textarea = document.getElementById(`replyText-${commentId}`);
+            if (!textarea) return;
+            
+            const linkText = prompt('Digite o texto do link:');
+            if (!linkText) return;
+            
+            const linkUrl = prompt('Digite a URL do link:');
+            if (!linkUrl) return;
+            
+            // Obter posição do cursor
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            // Criar link no formato [texto](url)
+            const linkMarkdown = `[${linkText}](${linkUrl})`;
+            
+            // Inserir link na posição do cursor
+            const newText = text.substring(0, start) + linkMarkdown + text.substring(end);
+            textarea.value = newText;
+            
+            // Reposicionar cursor após o link inserido
+            const newCursorPos = start + linkMarkdown.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+        }
+        
+        function replyToComment(commentId, authorName) {
+            // Verificar se é resposta inline ou no formulário principal
+            const inlineForm = document.getElementById(`replyForm-${commentId}`);
+            
+            if (inlineForm) {
+                // Mostrar formulário inline
+                inlineForm.classList.add('active');
+                document.getElementById(`replyName-${commentId}`).focus();
+            } else {
+                // Usar formulário principal
+                document.getElementById('commentParentId').value = commentId;
+                document.getElementById('replyToName').textContent = authorName;
+                document.getElementById('replyToInfo').style.display = 'block';
+                document.getElementById('commentText').focus();
+                
+                // Scroll para o formulário
+                document.getElementById('commentForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function cancelReply(commentId = null) {
+            if (commentId) {
+                // Cancelar resposta inline
+                const inlineForm = document.getElementById(`replyForm-${commentId}`);
+                if (inlineForm) {
+                    inlineForm.classList.remove('active');
+                    document.getElementById(`replyName-${commentId}`).value = '';
+                    document.getElementById(`replyEmail-${commentId}`).value = '';
+                    document.getElementById(`replyText-${commentId}`).value = '';
+                }
+            } else {
+                // Cancelar resposta no formulário principal
+                document.getElementById('commentParentId').value = '';
+                document.getElementById('replyToInfo').style.display = 'none';
+            }
+        }
+        
+        async function submitComment(event) {
+            event.preventDefault();
+            
+            if (!postId) {
+                alert('Erro: Post não carregado');
+                return;
+            }
+            
+            const name = document.getElementById('commentName').value.trim();
+            const email = document.getElementById('commentEmail').value.trim();
+            const comment = document.getElementById('commentText').value.trim();
+            const parentId = document.getElementById('commentParentId').value || null;
+            
+            if (!name || !email || !comment) {
+                alert('Por favor, preencha todos os campos obrigatórios');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        name: name,
+                        email: email,
+                        comment: comment,
+                        parent_id: parentId
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Limpar formulário
+                    document.getElementById('commentForm').reset();
+                    cancelReply();
+                    
+                    // Recarregar comentários
+                    loadComments();
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('Comentário publicado com sucesso!');
+                } else {
+                    throw new Error(result.message || 'Erro ao publicar comentário');
+                }
+            } catch (error) {
+                console.error('Erro ao publicar comentário:', error);
+                alert('Erro ao publicar comentário: ' + error.message);
+            }
+        }
+        
+        async function submitReply(event, parentId) {
+            event.preventDefault();
+            
+            const name = document.getElementById(`replyName-${parentId}`).value.trim();
+            const email = document.getElementById(`replyEmail-${parentId}`).value.trim();
+            const comment = document.getElementById(`replyText-${parentId}`).value.trim();
+            
+            if (!name || !email || !comment) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        name: name,
+                        email: email,
+                        comment: comment,
+                        parent_id: parentId
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Ocultar formulário de resposta
+                    document.getElementById(`replyForm-${parentId}`).classList.remove('active');
+                    
+                    // Limpar formulário
+                    document.getElementById(`replyName-${parentId}`).value = '';
+                    document.getElementById(`replyEmail-${parentId}`).value = '';
+                    document.getElementById(`replyText-${parentId}`).value = '';
+                    
+                    // Recarregar comentários
+                    loadComments();
+                } else {
+                    throw new Error(result.message || 'Erro ao publicar resposta');
+                }
+            } catch (error) {
+                console.error('Erro ao publicar resposta:', error);
+                alert('Erro ao publicar resposta: ' + error.message);
+            }
+        }
+        
+        async function addReaction(commentId, reaction, event) {
+            // Verificar se já reagiu (usando localStorage)
+            const reactionKey = `comment_reaction_${commentId}_${reaction}`;
+            const hasReacted = localStorage.getItem(reactionKey);
+            
+            if (hasReacted === 'true') {
+                // Permitir múltiplas reações, mas mostrar feedback
+                const button = event?.target?.closest('.reaction-btn');
+                if (button) {
+                    button.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        button.style.transform = '';
+                    }, 200);
+                }
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/comments/${commentId}/reaction`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reaction: reaction })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Marcar como reagido
+                    localStorage.setItem(reactionKey, 'true');
+                    
+                    // Atualizar apenas o botão específico sem recarregar tudo
+                    const button = event?.target?.closest('.reaction-btn');
+                    if (button) {
+                        const span = button.querySelector('span');
+                        if (span && result.data.reactions) {
+                            span.textContent = result.data.reactions[reaction] || 0;
+                        }
+                        button.classList.add('active');
+                        setTimeout(() => {
+                            button.classList.remove('active');
+                        }, 1000);
+                    } else {
+                        // Se não encontrar o botão, recarregar comentários
+                        loadComments();
+                    }
+                } else {
+                    throw new Error(result.message || 'Erro ao adicionar reação');
+                }
+            } catch (error) {
+                console.error('Erro ao adicionar reação:', error);
+                // Não mostrar alerta para não interromper a experiência
+                console.log('Erro ao adicionar reação: ' + error.message);
             }
         }
 
@@ -528,29 +1649,112 @@
         }
 
         async function registerView(postId) {
+            if (!postId) return;
+            
+            // Verificar se já visualizou hoje (usando localStorage)
+            const viewKey = `post_view_${postId}`;
+            const lastView = localStorage.getItem(viewKey);
+            const today = new Date().toDateString();
+            
+            if (lastView === today) {
+                return; // Já visualizou hoje
+            }
+            
             try {
-                await fetch(`${API_BASE}/api/blog/posts/${postId}/view`, {
+                const response = await fetch(`${API_BASE}/api/blog/posts/${postId}/view`, {
                     method: 'POST'
                 });
+                
+                if (response.ok) {
+                    // Marcar como visualizado hoje
+                    localStorage.setItem(viewKey, today);
+                    
+                    // Atualizar contador na página
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        document.getElementById('postViews').textContent = result.data.views || 0;
+                    }
+                }
             } catch (error) {
                 console.error('Erro ao registrar visualização:', error);
             }
         }
 
         async function likePost() {
-            if (!postId) return;
+            if (!postId) {
+                console.error('❌ postId não definido:', { postId, currentPost });
+                alert('Erro: Post não carregado');
+                return;
+            }
+
+            // Verificar se já curtiu (usando localStorage)
+            const likeKey = `post_like_${postId}`;
+            const hasLiked = localStorage.getItem(likeKey);
+            
+            if (hasLiked === 'true') {
+                alert('Você já curtiu este post!');
+                return;
+            }
 
             try {
-                const response = await fetch(`${API_BASE}/api/blog/posts/${postId}/like`, {
-                    method: 'POST'
+                const button = document.querySelector('.post-actions .btn-primary');
+                if (!button) return;
+                
+                const originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Curtindo...';
+
+                const url = `${API_BASE}/api/blog/posts/${postId}/like`;
+                console.log('📤 Enviando like para:', url, { postId });
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
+                
+                console.log('📥 Resposta recebida:', { status: response.status, statusText: response.statusText, url: response.url });
+                
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('❌ Resposta não é JSON:', text.substring(0, 200));
+                    throw new Error(`Erro do servidor (${response.status}): ${response.status === 404 ? 'Rota não encontrada. Verifique se o postId está correto.' : 'Resposta inválida'}`);
+                }
+                
                 const result = await response.json();
+                console.log('✅ Resultado do like:', result);
 
                 if (result.success) {
-                    document.getElementById('postLikes').textContent = result.data.likes;
+                    // Atualizar contador
+                    const likesElement = document.getElementById('postLikes');
+                    if (likesElement) {
+                        likesElement.textContent = result.data.likes || 0;
+                    }
+                    
+                    // Marcar como curtido
+                    localStorage.setItem(likeKey, 'true');
+                    
+                    button.innerHTML = '<i class="fas fa-heart"></i> Curtido!';
+                    button.style.background = 'var(--secondary)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-heart"></i> Curtido';
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Erro ao curtir post');
                 }
             } catch (error) {
                 console.error('Erro ao curtir post:', error);
+                alert('Erro ao curtir post: ' + error.message);
+                const button = document.querySelector('.post-actions .btn-primary');
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-heart"></i> Curtir';
+                }
             }
         }
 
@@ -560,6 +1764,216 @@
             document.getElementById('error').innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i> ${message}
             `;
+        }
+
+        // Carregar sidebar (categorias e últimos posts)
+        async function loadSidebar() {
+            try {
+                // Carregar categorias
+                const categoriesResponse = await fetch(`${API_BASE}/api/blog/categories`);
+                const categoriesResult = await categoriesResponse.json();
+                
+                if (categoriesResult.success && categoriesResult.data) {
+                    displayCategories(categoriesResult.data);
+                }
+
+                // Carregar últimos posts
+                const postsResponse = await fetch(`${API_BASE}/api/blog/posts?limit=5&sort=published_at`);
+                const postsResult = await postsResponse.json();
+                
+                if (postsResult.success && postsResult.data) {
+                    displayLatestPosts(postsResult.data);
+                }
+
+                // Mostrar sidebar
+                document.getElementById('sidebar').style.display = 'block';
+            } catch (error) {
+                console.error('Erro ao carregar sidebar:', error);
+            }
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categoriesList');
+            
+            if (!categories || categories.length === 0) {
+                container.innerHTML = '<li class="category-item"><span style="color: var(--text-secondary); font-size: 0.9rem;">Nenhuma categoria encontrada</span></li>';
+                return;
+            }
+
+            container.innerHTML = categories.map(cat => {
+                const categoryName = cat.category || 'Sem categoria';
+                const count = cat.count || 0;
+                return `
+                    <li class="category-item">
+                        <a href="/blog.html?category=${encodeURIComponent(categoryName)}" class="category-link">
+                            <span>${escapeHtml(categoryName)}</span>
+                            <span class="category-count">${count}</span>
+                        </a>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function displayLatestPosts(posts) {
+            const container = document.getElementById('latestPostsList');
+            
+            if (!posts || posts.length === 0) {
+                container.innerHTML = '<li><span style="color: var(--text-secondary); font-size: 0.9rem;">Nenhum post encontrado</span></li>';
+                return;
+            }
+
+            container.innerHTML = posts.map(post => {
+                const image = post.image ? `<img src="${post.image}" alt="${escapeHtml(post.title)}" class="latest-post-image">` : '';
+                return `
+                    <li>
+                        <a href="blog-post.html?slug=${post.slug}" class="latest-post-item">
+                            ${image}
+                            <div class="latest-post-content">
+                                <div class="latest-post-title">${escapeHtml(post.title)}</div>
+                                <div class="latest-post-date">${formatDate(post.published_at || post.created_at)}</div>
+                            </div>
+                        </a>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Funções de compartilhamento social
+        function shareOnFacebook(event) {
+            event.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(currentPost?.title || '');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnTwitter(event) {
+            event.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(currentPost?.title || '');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+        }
+
+        function shareOnWhatsApp(event) {
+            event.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`${currentPost?.title || ''} - ${url}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function shareOnLinkedIn(event) {
+            event.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function copyLink(event) {
+            event.preventDefault();
+            const url = window.location.href;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    const btn = event.target.closest('.share-btn');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Link Copiado!';
+                    btn.style.background = 'var(--secondary)';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = 'var(--secondary)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    fallbackCopyLink(url, event);
+                });
+            } else {
+                fallbackCopyLink(url, event);
+            }
+        }
+
+        function fallbackCopyLink(url, event) {
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                const btn = event.target.closest('.share-btn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Link Copiado!';
+                btn.style.background = 'var(--secondary)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--secondary)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar link. Por favor, copie manualmente: ' + url);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Newsletter subscription
+        async function subscribeNewsletter(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('newsletterEmail').value.trim();
+            const button = event.target.querySelector('button[type="submit"]');
+            
+            if (!email) {
+                alert('Por favor, insira um e-mail válido');
+                return;
+            }
+
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inscrevendo...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/blog/newsletter/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        notificar_novos_posts: true
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    button.innerHTML = '<i class="fas fa-check"></i> Inscrito!';
+                    button.style.background = 'var(--secondary)';
+                    document.getElementById('newsletterEmail').value = '';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '';
+                        button.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error(result.message || 'Erro ao inscrever-se');
+                }
+            } catch (error) {
+                console.error('Erro ao inscrever na newsletter:', error);
+                alert('Erro ao inscrever-se: ' + error.message);
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
         }
     </script>
 </body>

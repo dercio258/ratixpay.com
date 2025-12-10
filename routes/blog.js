@@ -5,8 +5,14 @@ const { authenticateToken, isAdmin } = require('../middleware/auth');
 const { Op } = require('sequelize');
 const fs = require('fs').promises;
 const path = require('path');
+const BlogPageGenerator = require('../services/blogPageGenerator');
 
 // ======================== ROTAS PÚBLICAS ========================
+
+// Rota de teste para verificar se o router está funcionando
+router.get('/test', (req, res) => {
+    res.json({ success: true, message: 'Blog router está funcionando!' });
+});
 
 // Função auxiliar para carregar posts do JSON
 async function loadPostsFromJSON() {
@@ -20,76 +26,57 @@ async function loadPostsFromJSON() {
     }
 }
 
-// GET /api/blog/posts - Listar posts publicados (JSON local)
+// GET /api/blog/posts - Listar posts publicados (do banco de dados)
 router.get('/posts', async (req, res) => {
     try {
         const { page = 1, limit = 12, category, search, sort = 'published_at' } = req.query;
-        const data = await loadPostsFromJSON();
-        
-        // Filtrar apenas posts publicados
-        let posts = data.posts.filter(post => post.status === 'published');
-        
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+
+        const where = {
+            status: 'published'
+        };
+
         // Filtro por categoria
         if (category) {
-            posts = posts.filter(post => post.category === category);
+            where.category = category;
         }
-        
+
         // Busca por texto
         if (search) {
-            const searchLower = search.toLowerCase();
-            posts = posts.filter(post => 
-                post.title.toLowerCase().includes(searchLower) ||
-                post.subtitle.toLowerCase().includes(searchLower) ||
-                post.content.toLowerCase().includes(searchLower)
-            );
+            where[Op.or] = [
+                { title: { [Op.iLike]: `%${search}%` } },
+                { subtitle: { [Op.iLike]: `%${search}%` } },
+                { content: { [Op.iLike]: `%${search}%` } }
+            ];
         }
-        
+
         // Ordenação
-        if (sort === 'views') {
-            posts.sort((a, b) => (b.views || 0) - (a.views || 0));
-        } else if (sort === 'likes') {
-            posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        } else if (sort === 'title') {
-            posts.sort((a, b) => a.title.localeCompare(b.title));
-        } else {
-            // Ordenação padrão por data de publicação
-            posts.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
-        }
-        
-        // Paginação
-        const pageNum = parseInt(page);
-        const limitNum = parseInt(limit);
-        const offset = (pageNum - 1) * limitNum;
-        const total = posts.length;
-        const paginatedPosts = posts.slice(offset, offset + limitNum);
-        
-        // Formatar resposta similar à estrutura do banco
-        const formattedPosts = paginatedPosts.map(post => ({
-            id: post.id,
-            title: post.title,
-            slug: post.slug,
-            subtitle: post.subtitle,
-            image: post.image,
-            category: post.category,
-            tags: post.tags,
-            views: post.views || 0,
-            likes: post.likes || 0,
-            published_at: post.published_at,
-            created_at: post.created_at,
-            author: {
-                nome_completo: post.author?.name || 'Admin',
-                email: post.author?.email || 'contato@ratixpay.com'
-            }
-        }));
-        
+        let order = [['published_at', 'DESC']];
+        if (sort === 'views') order = [['views', 'DESC']];
+        if (sort === 'likes') order = [['likes', 'DESC']];
+        if (sort === 'title') order = [['title', 'ASC']];
+
+        const { count, rows } = await BlogPost.findAndCountAll({
+            where,
+            include: [{
+                model: Usuario,
+                as: 'author',
+                attributes: ['id', 'nome_completo', 'email']
+            }],
+            order,
+            limit: parseInt(limit),
+            offset,
+            attributes: ['id', 'title', 'slug', 'subtitle', 'image', 'category', 'tags', 'views', 'likes', 'published_at', 'created_at']
+        });
+
         res.json({
             success: true,
-            data: formattedPosts,
+            data: rows,
             pagination: {
-                total,
-                page: pageNum,
-                limit: limitNum,
-                pages: Math.ceil(total / limitNum)
+                total: count,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(count / parseInt(limit))
             }
         });
     } catch (error) {
@@ -98,152 +85,21 @@ router.get('/posts', async (req, res) => {
     }
 });
 
-// GET /api/blog/posts/:slug - Obter post por slug (JSON local)
-router.get('/posts/:slug', async (req, res) => {
-    try {
-        const { slug } = req.params;
-        const data = await loadPostsFromJSON();
-        
-        const post = data.posts.find(p => p.slug === slug && p.status === 'published');
-        
-        if (!post) {
-            return res.status(404).json({ success: false, message: 'Post não encontrado' });
-        }
-        
-        // Buscar posts relacionados (mesma categoria)
-        const relatedPosts = data.posts
-            .filter(p => 
-                p.category === post.category && 
-                p.id !== post.id && 
-                p.status === 'published'
-            )
-            .sort((a, b) => (b.views || 0) - (a.views || 0))
-            .slice(0, 3)
-            .map(p => ({
-                id: p.id,
-                title: p.title,
-                slug: p.slug,
-                subtitle: p.subtitle,
-                image: p.image,
-                category: p.category,
-                views: p.views || 0,
-                published_at: p.published_at
-            }));
-        
-        // Formatar post
-        const formattedPost = {
-            id: post.id,
-            title: post.title,
-            slug: post.slug,
-            subtitle: post.subtitle,
-            content: post.content,
-            image: post.image,
-            category: post.category,
-            tags: post.tags,
-            views: post.views || 0,
-            likes: post.likes || 0,
-            published_at: post.published_at,
-            created_at: post.created_at,
-            meta_description: post.meta_description,
-            meta_keywords: post.meta_keywords,
-            author: {
-                nome_completo: post.author?.name || 'Admin',
-                email: post.author?.email || 'contato@ratixpay.com'
-            },
-            comments: [] // Comentários ainda vêm do banco se necessário
-        };
-        
-        res.json({
-            success: true,
-            data: {
-                post: formattedPost,
-                relatedPosts
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao obter post:', error);
-        res.status(500).json({ success: false, message: 'Erro ao obter post', error: error.message });
-    }
-});
-
-// GET /api/blog/categories - Listar categorias (JSON local)
-router.get('/categories', async (req, res) => {
-    try {
-        const data = await loadPostsFromJSON();
-        
-        // Contar posts por categoria
-        const categoryCounts = {};
-        data.posts
-            .filter(post => post.status === 'published' && post.category)
-            .forEach(post => {
-                categoryCounts[post.category] = (categoryCounts[post.category] || 0) + 1;
-            });
-        
-        const categories = Object.keys(categoryCounts).map(category => ({
-            category,
-            count: categoryCounts[category]
-        }));
-        
-        res.json({
-            success: true,
-            data: categories
-        });
-    } catch (error) {
-        console.error('Erro ao listar categorias:', error);
-        res.status(500).json({ success: false, message: 'Erro ao listar categorias', error: error.message });
-    }
-});
-
-// GET /api/blog/popular - Posts mais populares (JSON local)
-router.get('/popular', async (req, res) => {
-    try {
-        const { limit = 5 } = req.query;
-        const data = await loadPostsFromJSON();
-        
-        const posts = data.posts
-            .filter(post => post.status === 'published')
-            .sort((a, b) => (b.views || 0) - (a.views || 0))
-            .slice(0, parseInt(limit))
-            .map(post => ({
-                id: post.id,
-                title: post.title,
-                slug: post.slug,
-                subtitle: post.subtitle,
-                image: post.image,
-                category: post.category,
-                views: post.views || 0,
-                published_at: post.published_at,
-                author: {
-                    nome_completo: post.author?.name || 'Admin'
-                }
-            }));
-        
-        res.json({
-            success: true,
-            data: posts
-        });
-    } catch (error) {
-        console.error('Erro ao obter posts populares:', error);
-        res.status(500).json({ success: false, message: 'Erro ao obter posts populares', error: error.message });
-    }
-});
-
-// POST /api/blog/posts/:id/like - Curtir post (JSON local - apenas incrementa views no JSON)
+// POST /api/blog/posts/:id/like - Curtir post (DEVE VIR ANTES DA ROTA :slug)
 router.post('/posts/:id/like', async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await loadPostsFromJSON();
-        
-        const post = data.posts.find(p => p.id === parseInt(id));
+
+        const post = await BlogPost.findByPk(id);
         if (!post) {
             return res.status(404).json({ success: false, message: 'Post não encontrado' });
         }
+
+        await post.increment('likes');
         
-        post.likes = (post.likes || 0) + 1;
-        
-        // Salvar de volta no JSON (opcional - pode ser apenas em memória)
-        // await savePostsToJSON(data);
-        
+        // Recarregar para obter o valor atualizado
+        await post.reload();
+
         res.json({
             success: true,
             data: { likes: post.likes }
@@ -254,22 +110,172 @@ router.post('/posts/:id/like', async (req, res) => {
     }
 });
 
-// POST /api/blog/posts/:id/view - Registrar visualização (JSON local)
+// POST /api/blog/posts/:id/view - Registrar visualização (DEVE VIR ANTES DA ROTA :slug)
 router.post('/posts/:id/view', async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await loadPostsFromJSON();
-        
-        const post = data.posts.find(p => p.id === parseInt(id));
+
+        const post = await BlogPost.findByPk(id);
         if (!post) {
             return res.status(404).json({ success: false, message: 'Post não encontrado' });
         }
+
+        await post.increment('views');
         
-        post.views = (post.views || 0) + 1;
+        // Recarregar para obter o valor atualizado
+        await post.reload();
+
+        res.json({
+            success: true,
+            data: { views: post.views }
+        });
+    } catch (error) {
+        console.error('Erro ao registrar visualização:', error);
+        res.status(500).json({ success: false, message: 'Erro ao registrar visualização', error: error.message });
+    }
+});
+
+// GET /api/blog/posts/:slug - Obter post por slug (do banco de dados)
+router.get('/posts/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params;
+
+        const post = await BlogPost.findOne({
+            where: {
+                slug,
+                status: 'published'
+            },
+            include: [
+                {
+                    model: Usuario,
+                    as: 'author',
+                    attributes: ['id', 'nome_completo', 'email']
+                },
+                {
+                    model: BlogComment,
+                    as: 'comments',
+                    where: { status: 'approved' },
+                    required: false,
+                    include: [
+                        {
+                            model: Usuario,
+                            as: 'user',
+                            attributes: ['id', 'nome_completo', 'email'],
+                            required: false
+                        },
+                        {
+                            model: BlogComment,
+                            as: 'replies',
+                            where: { status: 'approved' },
+                            required: false,
+                            include: [{
+                                model: Usuario,
+                                as: 'user',
+                                attributes: ['id', 'nome_completo', 'email'],
+                                required: false
+                            }]
+                        }
+                    ],
+                    order: [['created_at', 'ASC']]
+                }
+            ]
+        });
+
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Post não encontrado' });
+        }
+
+        // Buscar posts relacionados (mesma categoria)
+        const relatedPosts = await BlogPost.findAll({
+            where: {
+                category: post.category,
+                status: 'published',
+                id: { [Op.ne]: post.id }
+            },
+            limit: 3,
+            order: [['views', 'DESC']],
+            attributes: ['id', 'title', 'slug', 'subtitle', 'image', 'category', 'views', 'published_at']
+        });
+
+        res.json({
+            success: true,
+            data: {
+                post,
+                relatedPosts
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao obter post:', error);
+        res.status(500).json({ success: false, message: 'Erro ao obter post', error: error.message });
+    }
+});
+
+// GET /api/blog/categories - Listar categorias (do banco de dados)
+router.get('/categories', async (req, res) => {
+    try {
+        const categories = await BlogPost.findAll({
+            where: { status: 'published' },
+            attributes: [
+                [sequelize.fn('DISTINCT', sequelize.col('category')), 'category'],
+                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+            ],
+            group: ['category'],
+            having: sequelize.where(sequelize.col('category'), { [Op.ne]: null }),
+            raw: true
+        });
+
+        res.json({
+            success: true,
+            data: categories
+        });
+    } catch (error) {
+        console.error('Erro ao listar categorias:', error);
+        res.status(500).json({ success: false, message: 'Erro ao listar categorias', error: error.message });
+    }
+});
+
+// GET /api/blog/popular - Posts mais populares (do banco de dados)
+router.get('/popular', async (req, res) => {
+    try {
+        const { limit = 5 } = req.query;
+
+        const posts = await BlogPost.findAll({
+            where: { status: 'published' },
+            order: [['views', 'DESC']],
+            limit: parseInt(limit),
+            attributes: ['id', 'title', 'slug', 'subtitle', 'image', 'category', 'views', 'published_at'],
+            include: [{
+                model: Usuario,
+                as: 'author',
+                attributes: ['id', 'nome_completo']
+            }]
+        });
+
+        res.json({
+            success: true,
+            data: posts
+        });
+    } catch (error) {
+        console.error('Erro ao obter posts populares:', error);
+        res.status(500).json({ success: false, message: 'Erro ao obter posts populares', error: error.message });
+    }
+});
+
+// POST /api/blog/posts/:id/view - Registrar visualização (do banco de dados)
+router.post('/posts/:id/view', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const post = await BlogPost.findByPk(id);
+        if (!post) {
+            return res.status(404).json({ success: false, message: 'Post não encontrado' });
+        }
+
+        await post.increment('views');
         
-        // Salvar de volta no JSON (opcional - pode ser apenas em memória)
-        // await savePostsToJSON(data);
-        
+        // Recarregar para obter o valor atualizado
+        await post.reload();
+
         res.json({
             success: true,
             data: { views: post.views }
@@ -470,55 +476,6 @@ router.get('/popular', async (req, res) => {
     }
 });
 
-// POST /api/blog/posts/:id/like - Curtir post
-router.post('/posts/:id/like', async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const post = await BlogPost.findByPk(id);
-        if (!post) {
-            return res.status(404).json({ success: false, message: 'Post não encontrado' });
-        }
-
-        await post.increment('likes');
-        
-        // Recarregar para obter o valor atualizado
-        await post.reload();
-
-        res.json({
-            success: true,
-            data: { likes: post.likes }
-        });
-    } catch (error) {
-        console.error('Erro ao curtir post:', error);
-        res.status(500).json({ success: false, message: 'Erro ao curtir post', error: error.message });
-    }
-});
-
-// POST /api/blog/posts/:id/view - Registrar visualização
-router.post('/posts/:id/view', async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const post = await BlogPost.findByPk(id);
-        if (!post) {
-            return res.status(404).json({ success: false, message: 'Post não encontrado' });
-        }
-
-        await post.increment('views');
-        
-        // Recarregar para obter o valor atualizado
-        await post.reload();
-
-        res.json({
-            success: true,
-            data: { views: post.views }
-        });
-    } catch (error) {
-        console.error('Erro ao registrar visualização:', error);
-        res.status(500).json({ success: false, message: 'Erro ao registrar visualização', error: error.message });
-    }
-});
 */
 
 // POST /api/blog/comments - Criar comentário
@@ -765,6 +722,8 @@ router.get('/admin/posts', authenticateToken, isAdmin, async (req, res) => {
 // POST /api/blog/admin/posts - Criar novo post
 router.post('/admin/posts', authenticateToken, isAdmin, async (req, res) => {
     try {
+        console.log('📝 POST /admin/posts - Recebida requisição');
+        console.log('📋 Body recebido:', { ...req.body, content: req.body.content?.substring(0, 50) + '...' });
         const { title, subtitle, content, image, category, tags, status, published_at, meta_description, meta_keywords } = req.body;
 
         if (!title || !content) {
@@ -807,6 +766,18 @@ router.post('/admin/posts', authenticateToken, isAdmin, async (req, res) => {
                 attributes: ['id', 'nome_completo', 'email']
             }]
         });
+
+        // Gerar página dinâmica automaticamente
+        try {
+            await BlogPageGenerator.gerarPaginaPost({
+                ...postWithAuthor.toJSON(),
+                author: postWithAuthor.author
+            });
+            console.log('✅ Página dinâmica gerada para o post');
+        } catch (pageError) {
+            console.error('⚠️ Erro ao gerar página dinâmica (continuando):', pageError);
+            // Não falhar a criação do post por erro na geração da página
+        }
 
         // Notificar todos os usuários se o post foi publicado
         if (status === 'published') {
@@ -925,6 +896,18 @@ router.put('/admin/posts/:id', authenticateToken, isAdmin, async (req, res) => {
             }]
         });
 
+        // Atualizar página dinâmica automaticamente
+        try {
+            await BlogPageGenerator.gerarPaginaPost({
+                ...updatedPost.toJSON(),
+                author: updatedPost.author
+            });
+            console.log('✅ Página dinâmica atualizada para o post');
+        } catch (pageError) {
+            console.error('⚠️ Erro ao atualizar página dinâmica (continuando):', pageError);
+            // Não falhar a atualização do post por erro na geração da página
+        }
+
         // Notificar todos os usuários se o post foi publicado agora
         if (foiPublicado) {
             try {
@@ -988,7 +971,18 @@ router.delete('/admin/posts/:id', authenticateToken, isAdmin, async (req, res) =
             return res.status(404).json({ success: false, message: 'Post não encontrado' });
         }
 
+        const slug = post.slug;
+
         await post.destroy();
+
+        // Deletar página dinâmica
+        try {
+            await BlogPageGenerator.deletarPaginaPost(slug);
+            console.log('✅ Página dinâmica deletada');
+        } catch (pageError) {
+            console.error('⚠️ Erro ao deletar página dinâmica (continuando):', pageError);
+            // Não falhar a deleção do post por erro na deleção da página
+        }
 
         res.json({
             success: true,
@@ -1434,6 +1428,14 @@ router.get('/newsletter/status', async (req, res, next) => {
         console.error('Erro ao verificar status da newsletter:', error);
         res.status(500).json({ success: false, message: 'Erro ao verificar status', error: error.message });
     }
+});
+
+// Log para verificar se as rotas foram carregadas
+console.log('✅ Rotas do blog carregadas:', {
+    'GET /admin/posts': '✅',
+    'POST /admin/posts': '✅',
+    'PUT /admin/posts/:id': '✅',
+    'DELETE /admin/posts/:id': '✅'
 });
 
 module.exports = router;

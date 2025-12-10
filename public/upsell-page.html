@@ -2187,8 +2187,140 @@
             console.log('✅ Vídeo embed protegido com overlay e canvas');
         }
 
+        // Função para corrigir HTML mal formatado (tags sem < >)
+        function corrigirHtmlMalFormatado(html) {
+            if (!html || typeof html !== 'string') return '';
+            
+            // Verificar se já tem HTML válido (múltiplas tags)
+            const tagCount = (html.match(/<[^>]+>/g) || []).length;
+            if (tagCount > 5 && html.includes('<!DOCTYPE') || html.includes('<html')) {
+                // HTML parece válido, apenas retornar
+                return html;
+            }
+            
+            // Decodificar entidades HTML se necessário
+            if (html.includes('&lt;') || html.includes('&gt;')) {
+                const textarea = document.createElement('textarea');
+                textarea.innerHTML = html;
+                html = textarea.value;
+                if (html.includes('<') && html.includes('>')) {
+                    return html;
+                }
+            }
+            
+            let fixed = html;
+            let previousFixed = '';
+            let iterations = 0;
+            const maxIterations = 10;
+            
+            // Processar em múltiplas passadas até não haver mais mudanças
+            while (fixed !== previousFixed && iterations < maxIterations) {
+                previousFixed = fixed;
+                iterations++;
+                
+            // Corrigir padrão específico: !DOCTYPE htmlhtml -> <!DOCTYPE html><html
+            fixed = fixed.replace(/^!DOCTYPE\s+html\s*html/gi, '<!DOCTYPE html><html');
+            
+            // Corrigir padrão: htmlhtml -> <html
+            fixed = fixed.replace(/(?<!<)\bhtml\s*html/gi, '<html');
+            
+            // Corrigir padrão: !DOCTYPE html -> <!DOCTYPE html>
+            fixed = fixed.replace(/^!DOCTYPE\s+html/gi, '<!DOCTYPE html>');
+            
+            // Corrigir padrão: html lang="..." -> <html lang="...">
+            fixed = fixed.replace(/(<html|^html)\s+lang="([^"]+)"/gi, '<html lang="$2"');
+            
+            // Corrigir padrão: html lang="..." sem < > -> <html lang="...">
+            fixed = fixed.replace(/(?<!<)\bhtml\s+lang="([^"]+)"/gi, '<html lang="$1"');
+            
+            // Corrigir padrão: head -> <head>
+            fixed = fixed.replace(/(?<!<)\bhead\b(?!>)/gi, '<head>');
+            
+            // Corrigir padrão: meta charset="..." -> <meta charset="...">
+            fixed = fixed.replace(/(?<!<)\bmeta\s+charset="([^"]+)"/gi, '<meta charset="$1"');
+            
+            // Corrigir padrão: meta name="..." content="..." -> <meta name="..." content="...">
+            fixed = fixed.replace(/(?<!<)\bmeta\s+name="([^"]+)"\s+content="([^"]+)"/gi, '<meta name="$1" content="$2"');
+            
+            // Corrigir padrão: meta name="viewport" c"width=..." -> <meta name="viewport" content="width=...">
+            fixed = fixed.replace(/(?<!<)\bmeta\s+name="viewport"\s+c"([^"]+)"/gi, '<meta name="viewport" content="$1"');
+            
+            // Corrigir padrão: meta name="viewport" content="width=..." sem < > -> <meta name="viewport" content="width=...">
+            fixed = fixed.replace(/(?<!<)\bmeta\s+name="viewport"\s+content="([^"]+)"/gi, '<meta name="viewport" content="$1"');
+            
+            // Corrigir padrão: titleConteudo/title -> <title>Conteudo</title>
+            fixed = fixed.replace(/(?<!<)\btitle([^/<>]+)\/title/gi, '<title>$1</title>');
+            
+            // Corrigir padrão: link href="..." rel="..." -> <link href="..." rel="...">
+            fixed = fixed.replace(/(?<!<)\blink\s+href="([^"]+)"\s+rel="([^"]+)"/gi, '<link href="$1" rel="$2"');
+            
+            // Corrigir padrão: style -> <style>
+            fixed = fixed.replace(/(?<!<)\bstyle\b(?!>)/gi, '<style>');
+            
+            // Corrigir padrão: /style -> </style>
+            fixed = fixed.replace(/\/style\b/gi, '</style>');
+            
+            // Corrigir padrão: /head -> </head>
+            fixed = fixed.replace(/\/head\b/gi, '</head>');
+            
+            // Corrigir padrão: body -> <body>
+            fixed = fixed.replace(/(?<!<)\bbody\b(?!>)/gi, '<body>');
+            
+            // Corrigir padrão: /body -> </body>
+            fixed = fixed.replace(/\/body\b/gi, '</body>');
+            
+            // Corrigir padrão: /html -> </html>
+            fixed = fixed.replace(/\/html\b/gi, '</html>');
+            
+            // Corrigir tags sem < > - padrão comum: tagConteudo/tag
+            const tags = ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                         'a', 'img', 'ul', 'ol', 'li', 'button', 'form', 'input', 'textarea',
+                         'section', 'article', 'header', 'footer', 'main', 'nav', 'aside', 'script'];
+            
+            // Corrigir padrão: tagConteudo/tag -> <tag>Conteudo</tag>
+            tags.forEach(tag => {
+                const pattern = new RegExp(`(?<!<)\\b${tag}([^/<>]+)\\/${tag}(?![a-z0-9])`, 'gi');
+                fixed = fixed.replace(pattern, (match, text) => {
+                    if (text.trim() && !text.trim().startsWith('<') && !text.trim().startsWith('>')) {
+                        return `<${tag}>${text.trim()}</${tag}>`;
+                    }
+                    return match;
+                });
+            });
+            
+            // Corrigir padrão: tag class="..."Conteudo/tag -> <tag class="...">Conteudo</tag>
+            tags.forEach(tag => {
+                const pattern = new RegExp(`(?<!<)\\b${tag}\\s+class="([^"]+)"([^/<>]+)\\/${tag}`, 'gi');
+                fixed = fixed.replace(pattern, (match, className, text) => {
+                    if (text.trim()) {
+                        return `<${tag} class="${className}">${text.trim()}</${tag}>`;
+                    }
+                    return match;
+                });
+            });
+            
+            // Corrigir padrão: tag atributo="valor"Conteudo/tag -> <tag atributo="valor">Conteudo</tag>
+            tags.forEach(tag => {
+                const pattern = new RegExp(`(?<!<)\\b${tag}\\s+([^=]+)="([^"]+)"([^/<>]+)\\/${tag}`, 'gi');
+                fixed = fixed.replace(pattern, (match, attr, value, text) => {
+                    if (text.trim()) {
+                        return `<${tag} ${attr}="${value}">${text.trim()}</${tag}>`;
+                    }
+                    return match;
+                });
+            });
+            
+            } // Fim do loop while
+            
+            console.log(`✅ HTML corrigido em ${iterations} iterações`);
+            return fixed;
+        }
+
         // Função para sanitizar template HTML - remove scripts conflitantes
         function sanitizarTemplateParaUpsell(html) {
+            // Nota: A correção de HTML mal formatado já foi feita antes de chamar esta função
+            // Não chamar corrigirHtmlMalFormatado aqui para evitar processamento duplicado
+            
             // Remover scripts inline usando regex (mais seguro que DOM parsing)
             // Mantém CDN externos mas remove scripts que declaram variáveis conflitantes
             
@@ -2218,6 +2350,19 @@
                 // Se houver template_html salvo, usar ele (template modificado pelo usuário)
                 if (page.template_html) {
                     templateHtml = page.template_html;
+                    
+                    // Verificar se o HTML está mal formatado (sem tags < > ou com poucas tags)
+                    const hasValidHtml = templateHtml.includes('<!DOCTYPE') || 
+                                       (templateHtml.includes('<html') && templateHtml.includes('</html>')) ||
+                                       (templateHtml.includes('<') && templateHtml.includes('>') && 
+                                        templateHtml.match(/<[^>]+>/g) && templateHtml.match(/<[^>]+>/g).length > 10);
+                    
+                    if (!hasValidHtml) {
+                        console.log('⚠️ HTML mal formatado detectado, corrigindo...');
+                        console.log('📝 Primeiros 500 caracteres do HTML original:', templateHtml.substring(0, 500));
+                        templateHtml = corrigirHtmlMalFormatado(templateHtml);
+                        console.log('✅ HTML corrigido. Primeiros 500 caracteres:', templateHtml.substring(0, 500));
+                    }
                 } else {
                     // Caso contrário, carregar template original
                     const templateResponse = await fetch(`/templates/upsell/${page.template_id}.html`);

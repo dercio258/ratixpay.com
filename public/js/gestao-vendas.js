@@ -582,8 +582,11 @@ function renderizarVendasPagina(vendas) {
         // Buscar WhatsApp de múltiplas fontes possíveis
         const clienteWhatsapp = venda.cliente_whatsapp || venda.cliente?.whatsapp || null;
         
-        // Formatar contato - mostrar botão WhatsApp se disponível
+        // Formatar contato - mostrar telefone de pagamento e ícone WhatsApp se disponível
         let contatoFormatado = '-';
+        
+        // Verificar se tem telefone de pagamento
+        const telefonePagamento = clienteTelefone && clienteTelefone !== '-' ? clienteTelefone : null;
         
         // Verificar se tem WhatsApp válido (não vazio, não null, não undefined, não '-')
         const hasWhatsapp = clienteWhatsapp && 
@@ -593,19 +596,33 @@ function renderizarVendasPagina(vendas) {
                            clienteWhatsapp.toString().trim() !== '';
         
         let whatsappNumber = '';
+        let whatsappLink = '';
+        
         if (hasWhatsapp) {
-            // Criar botão do WhatsApp
             whatsappNumber = clienteWhatsapp.toString().replace(/\D/g, '');
             if (whatsappNumber && whatsappNumber.length > 0) {
-                const whatsappLink = `https://wa.me/258${whatsappNumber}`;
-                contatoFormatado = `<a href="${whatsappLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background-color: #25D366; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; transition: background-color 0.2s; white-space: nowrap;" onmouseover="this.style.backgroundColor='#20BA5A'" onmouseout="this.style.backgroundColor='#25D366'"><i class="fab fa-whatsapp" style="font-size: 18px;"></i><span>Conversar com cliente</span></a>`;
-            } else if (clienteTelefone && clienteTelefone !== '-') {
-                // Se o WhatsApp não tem número válido, mostrar telefone
-                contatoFormatado = `📞 ${clienteTelefone}`;
+                // Adicionar código do país se não tiver (assumindo Moçambique +258)
+                if (!whatsappNumber.startsWith('258')) {
+                    whatsappNumber = '258' + whatsappNumber;
+                }
+                whatsappLink = `https://wa.me/${whatsappNumber}`;
             }
-        } else if (clienteTelefone && clienteTelefone !== '-') {
-            // Se não tem WhatsApp mas tem telefone, mostrar apenas telefone
-            contatoFormatado = `📞 ${clienteTelefone}`;
+        }
+        
+        // Montar contato formatado: telefone + ícone WhatsApp (se disponível)
+        if (telefonePagamento) {
+            contatoFormatado = `<span style="display: inline-flex; align-items: center; gap: 8px;">`;
+            contatoFormatado += `<span>${telefonePagamento}</span>`;
+            
+            // Adicionar ícone WhatsApp se disponível
+            if (whatsappLink) {
+                contatoFormatado += `<a href="${whatsappLink}" target="_blank" title="Abrir WhatsApp: ${whatsappNumber}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'"><i class="fab fa-whatsapp" style="font-size: 16px;"></i></a>`;
+            }
+            
+            contatoFormatado += `</span>`;
+        } else if (whatsappLink) {
+            // Se não tem telefone mas tem WhatsApp, mostrar apenas WhatsApp
+            contatoFormatado = `<a href="${whatsappLink}" target="_blank" title="Abrir WhatsApp: ${whatsappNumber}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'"><i class="fab fa-whatsapp" style="font-size: 16px;"></i></a>`;
         }
         
         // Extrair dados do pagamento com segurança - CORRIGIDO
@@ -806,7 +823,8 @@ function renderizarVendasPagina(vendas) {
                 hasWhatsapp: hasWhatsapp,
                 whatsappNumber: whatsappNumber || 'N/A',
                 clienteTelefone: clienteTelefone,
-                contatoFormatado: contatoFormatado.includes('whatsapp') ? 'Botão WhatsApp criado' : contatoFormatado
+                telefonePagamento: telefonePagamento,
+                contatoFormatado: contatoFormatado.includes('whatsapp') ? 'Ícone WhatsApp criado' : contatoFormatado
             });
         }
         
