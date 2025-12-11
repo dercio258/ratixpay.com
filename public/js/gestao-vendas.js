@@ -722,13 +722,12 @@ function renderizarVendasPagina(vendas) {
                 numeroCompacto = numeroCompacto.replace('+258', '');
             }
             
-            contatoFormatado = `<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
+            // Estilos inline fortes para evitar que seja renderizado como botão
+            contatoFormatado = `<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer" class="whatsapp-link-compact"
                    title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
-                   style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: var(--text-main); transition: all 0.2s;" 
-                   onmouseover="this.style.color='#25D366';" 
-                   onmouseout="this.style.color='var(--text-main)';">
-                    <i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i>
-                    <span style="font-size: 0.875rem;">${numeroCompacto}</span>
+                   style="display: inline-flex !important; align-items: center !important; gap: 4px !important; text-decoration: none !important; color: var(--text-main) !important; transition: color 0.2s !important; background: transparent !important; border: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; font-weight: normal !important; box-shadow: none !important; font-size: 0.875rem !important; line-height: 1.4 !important;">
+                    <i class="fab fa-whatsapp" style="font-size: 14px !important; color: #25D366 !important; width: auto !important; height: auto !important;"></i>
+                    <span style="font-size: 0.875rem !important; line-height: 1.4 !important;">${numeroCompacto}</span>
                 </a>`;
         }
         

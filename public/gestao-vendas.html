@@ -351,6 +351,38 @@
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
         }
+        
+        /* Estilos específicos para links de contato na tabela - evitar renderização como botão */
+        .table td a[href*="wa.me"] {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            text-decoration: none !important;
+            color: var(--text-main) !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            font-weight: normal !important;
+            box-shadow: none !important;
+            font-size: 0.875rem !important;
+            line-height: 1.4 !important;
+            transition: color 0.2s !important;
+        }
+        
+        .table td a[href*="wa.me"]:hover {
+            color: #25D366 !important;
+            background: transparent !important;
+            transform: none !important;
+        }
+        
+        .table td a[href*="wa.me"] i {
+            font-size: 14px !important;
+            color: #25D366 !important;
+            width: auto !important;
+            height: auto !important;
+        }
     </style>
     <!-- Sistema de Autenticação Global -->
     <script>
