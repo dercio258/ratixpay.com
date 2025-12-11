@@ -357,7 +357,7 @@
 
             <!-- Controles de Filtro -->
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="filtroStatus" class="form-label">Status:</label>
                     <select class="form-select" id="filtroStatus" onchange="aplicarFiltros()">
                         <option value="">Todos</option>
@@ -369,11 +369,23 @@
                         <option value="failed">Falhou</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="filtroMetodo" class="form-label">Método:</label>
+                    <select class="form-select" id="filtroMetodo" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="e-Mola">e-Mola</option>
+                        <option value="eMola">eMola</option>
+                        <option value="M-Pesa">M-Pesa</option>
+                        <option value="MPesa">MPesa</option>
+                        <option value="Mpesa">Mpesa</option>
+                        <option value="Emola">Emola</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label for="filtroData" class="form-label">Data:</label>
                     <input type="date" class="form-control" id="filtroData" onchange="aplicarFiltros()">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="buscaTransacao" class="form-label">Buscar:</label>
                     <input type="text" class="form-control" id="buscaTransacao" placeholder="ID, produto, cliente, telefone..." onkeyup="aplicarFiltros()">
                 </div>
@@ -996,6 +1008,7 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
         // Aplicar filtros
         function aplicarFiltros() {
             const filtroStatus = document.getElementById('filtroStatus').value;
+            const filtroMetodo = document.getElementById('filtroMetodo').value;
             const filtroData = document.getElementById('filtroData').value;
             const buscaTransacao = document.getElementById('buscaTransacao').value.toLowerCase();
             
@@ -1016,6 +1029,34 @@ Relat�rio gerado automaticamente pelo sistema RatixPay
                         return statusLower === 'error' || statusLower === 'failed' || statusLower === 'cancelada';
                     }
                     return statusLower.includes(filtroLower);
+                });
+            }
+            
+            // Filtro por método
+            if (filtroMetodo) {
+                transacoesFiltradas = transacoesFiltradas.filter(t => {
+                    const metodoPagamento = (t.metodo_pagamento || t.metodo || '').toString();
+                    const metodoLower = metodoPagamento.toLowerCase();
+                    const filtroLower = filtroMetodo.toLowerCase();
+                    
+                    // Mapear diferentes variações de método
+                    if (filtroLower === 'e-mola' || filtroLower === 'emola') {
+                        return metodoLower === 'e-mola' || 
+                               metodoLower === 'emola' || 
+                               metodoLower === 'e-mola' ||
+                               metodoPagamento === 'e-Mola' ||
+                               metodoPagamento === 'eMola' ||
+                               metodoPagamento === 'Emola';
+                    } else if (filtroLower === 'm-pesa' || filtroLower === 'mpesa' || filtroLower === 'mpesa') {
+                        return metodoLower === 'm-pesa' || 
+                               metodoLower === 'mpesa' ||
+                               metodoPagamento === 'M-Pesa' ||
+                               metodoPagamento === 'MPesa' ||
+                               metodoPagamento === 'Mpesa';
+                    }
+                    
+                    // Comparação direta (case-insensitive)
+                    return metodoLower.includes(filtroLower) || metodoPagamento === filtroMetodo;
                 });
             }
             

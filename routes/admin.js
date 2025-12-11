@@ -1890,12 +1890,35 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
             // Formato: B2C + timestamp + ID único + sufixo (sem underscores)
             reference = `B2C${timestamp}${uniqueId}${randomSuffix}`;
             
-            // Verificar se a referência já existe no banco
-            const existingTransfer = await TransferenciaB2C.findOne({
-                where: { 
-                    id_transacao_e2payment: reference 
+            // Verificar se a referência já existe no banco (sem balance_after)
+            let existingTransfer;
+            try {
+                existingTransfer = await TransferenciaB2C.findOne({
+                    where: { 
+                        id_transacao_e2payment: reference 
+                    },
+                    attributes: {
+                        exclude: ['balance_after']
+                    }
+                });
+            } catch (findError) {
+                // Se falhar com Sequelize, usar query SQL direta
+                if (findError.message && findError.message.includes('balance_after')) {
+                    const result = await sequelize.query(
+                        `SELECT id, id_transacao_e2payment 
+                         FROM transferencias_b2c 
+                         WHERE id_transacao_e2payment = :reference 
+                         LIMIT 1`,
+                        {
+                            replacements: { reference },
+                            type: sequelize.QueryTypes.SELECT
+                        }
+                    );
+                    existingTransfer = result && result.length > 0 ? result[0] : null;
+                } else {
+                    throw findError;
                 }
-            });
+            }
             
             if (!existingTransfer) {
                 referenceExists = false;
@@ -1934,7 +1957,8 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
                                     'pendente';
             
             // Criar registro na tabela de transferências B2C
-            await TransferenciaB2C.create({
+            // Não incluir balance_after pois a coluna não existe na tabela
+            const transferenciaData = {
                 id_transacao: resultado.transaction_id || resultado.data?.transaction_id || `B2C-${Date.now()}`,
                 metodo: 'mpesa',
                 valor: valor,
@@ -1943,11 +1967,58 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
                 status: statusTransacao,
                 id_transacao_e2payment: resultado.transaction_id || resultado.data?.transaction_id,
                 resposta_e2payment: JSON.stringify(resultado),
-                balance_after: balanceAfter,
                 observacoes: `Saldo antes da transferência: MZN ${saldoAntesTransferencia.toFixed(2)}${balanceAfter ? ` | Saldo após: MZN ${balanceAfter.toFixed(2)}` : ''}`,
                 data_processamento: new Date(),
                 processado_por: req.user.id
-            });
+            };
+            
+            // Tentar criar com Sequelize, se falhar usar query SQL direta
+            try {
+                await TransferenciaB2C.create(transferenciaData);
+            } catch (createError) {
+                console.warn('⚠️ Erro ao criar com Sequelize, usando query SQL direta:', createError.message);
+                // Usar query SQL direta sem balance_after
+                // Gerar UUID usando crypto (Node.js 14.17.0+) ou fallback
+                const crypto = require('crypto');
+                let uuid;
+                if (crypto.randomUUID) {
+                    uuid = crypto.randomUUID();
+                } else {
+                    // Fallback para versões antigas do Node.js
+                    uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                }
+                await sequelize.query(
+                    `INSERT INTO transferencias_b2c 
+                     (id, id_transacao, metodo, valor, nome_destinatario, telefone, status, 
+                      id_transacao_e2payment, resposta_e2payment, observacoes, data_processamento, 
+                      processado_por, created_at, updated_at)
+                     VALUES 
+                     (:id, :id_transacao, :metodo, :valor, :nome_destinatario, :telefone, :status,
+                      :id_transacao_e2payment, :resposta_e2payment, :observacoes, :data_processamento,
+                      :processado_por, NOW(), NOW())`,
+                    {
+                        replacements: {
+                            id: uuid,
+                            id_transacao: transferenciaData.id_transacao,
+                            metodo: transferenciaData.metodo,
+                            valor: transferenciaData.valor,
+                            nome_destinatario: transferenciaData.nome_destinatario,
+                            telefone: transferenciaData.telefone,
+                            status: transferenciaData.status,
+                            id_transacao_e2payment: transferenciaData.id_transacao_e2payment,
+                            resposta_e2payment: transferenciaData.resposta_e2payment,
+                            observacoes: transferenciaData.observacoes,
+                            data_processamento: transferenciaData.data_processamento,
+                            processado_por: transferenciaData.processado_por
+                        },
+                        type: sequelize.QueryTypes.INSERT
+                    }
+                );
+            }
             
             // Subtrair valor do saldo do admin
             await SaldoAdminService.subtrairSaldo(valor, 'Transferência B2C M-Pesa (GibraPay)');
@@ -1977,7 +2048,8 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
                 balanceAfter = parseFloat(resultado.data.balance_after);
             }
             
-            await TransferenciaB2C.create({
+            // Criar registro de transferência falhada (sem balance_after)
+            const transferenciaFalhadaData = {
                 id_transacao: resultado.transaction_id || resultado.data?.transaction_id || `B2C-${Date.now()}`,
                 metodo: 'mpesa',
                 valor: valor,
@@ -1986,11 +2058,58 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
                 status: 'falha',
                 id_transacao_e2payment: resultado.transaction_id || resultado.data?.transaction_id,
                 resposta_e2payment: JSON.stringify(resultado),
-                balance_after: balanceAfter,
                 observacoes: `Erro: ${resultado.message || 'Erro desconhecido'}`,
                 data_processamento: new Date(),
                 processado_por: req.user.id
-            });
+            };
+            
+            // Tentar criar com Sequelize, se falhar usar query SQL direta
+            try {
+                await TransferenciaB2C.create(transferenciaFalhadaData);
+            } catch (createError) {
+                console.warn('⚠️ Erro ao criar transferência falhada com Sequelize, usando query SQL direta:', createError.message);
+                // Usar query SQL direta sem balance_after
+                // Gerar UUID usando crypto (Node.js 14.17.0+) ou fallback
+                const crypto = require('crypto');
+                let uuid;
+                if (crypto.randomUUID) {
+                    uuid = crypto.randomUUID();
+                } else {
+                    // Fallback para versões antigas do Node.js
+                    uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                }
+                await sequelize.query(
+                    `INSERT INTO transferencias_b2c 
+                     (id, id_transacao, metodo, valor, nome_destinatario, telefone, status, 
+                      id_transacao_e2payment, resposta_e2payment, observacoes, data_processamento, 
+                      processado_por, created_at, updated_at)
+                     VALUES 
+                     (:id, :id_transacao, :metodo, :valor, :nome_destinatario, :telefone, :status,
+                      :id_transacao_e2payment, :resposta_e2payment, :observacoes, :data_processamento,
+                      :processado_por, NOW(), NOW())`,
+                    {
+                        replacements: {
+                            id: uuid,
+                            id_transacao: transferenciaFalhadaData.id_transacao,
+                            metodo: transferenciaFalhadaData.metodo,
+                            valor: transferenciaFalhadaData.valor,
+                            nome_destinatario: transferenciaFalhadaData.nome_destinatario,
+                            telefone: transferenciaFalhadaData.telefone,
+                            status: transferenciaFalhadaData.status,
+                            id_transacao_e2payment: transferenciaFalhadaData.id_transacao_e2payment,
+                            resposta_e2payment: transferenciaFalhadaData.resposta_e2payment,
+                            observacoes: transferenciaFalhadaData.observacoes,
+                            data_processamento: transferenciaFalhadaData.data_processamento,
+                            processado_por: transferenciaFalhadaData.processado_por
+                        },
+                        type: sequelize.QueryTypes.INSERT
+                    }
+                );
+            }
             
             res.status(400).json({
                 success: false,
@@ -2015,32 +2134,52 @@ router.get('/transferencias-b2c', authenticateToken, checkAdminAccess, async (re
     try {
         console.log('🔄 Buscando transferências B2C...');
         
+        // Verificar se a tabela existe
+        let tableExists = false;
+        try {
+            await sequelize.query('SELECT 1 FROM transferencias_b2c LIMIT 1', { type: sequelize.QueryTypes.SELECT });
+            tableExists = true;
+        } catch (tableError) {
+            console.warn('⚠️ Tabela transferencias_b2c não existe ou não está acessível:', tableError.message);
+            return res.json({
+                success: true,
+                transferencias: []
+            });
+        }
+        
         // Buscar transferências B2C da tabela dedicada
-        // Usar query SQL direta para evitar problemas com colunas que podem não existir
+        // Usar query SQL direta sem balance_after (coluna não existe na tabela)
         let transferencias;
         try {
-            transferencias = await TransferenciaB2C.findAll({
-                order: [['created_at', 'DESC']]
-            });
-        } catch (dbError) {
-            // Se houver erro relacionado à coluna balance_after, tentar sem ela
-            if (dbError.message && dbError.message.includes('balance_after')) {
-                console.log('⚠️ Coluna balance_after não existe, buscando sem ela...');
+            // Usar query SQL direta para evitar problemas com colunas que não existem
+            transferencias = await sequelize.query(
+                `SELECT id, id_transacao, metodo, valor, nome_destinatario, telefone, status, 
+                 id_transacao_e2payment, resposta_e2payment, observacoes, data_processamento, 
+                 created_at, updated_at, processado_por
+                 FROM transferencias_b2c 
+                 ORDER BY created_at DESC`,
+                { type: sequelize.QueryTypes.SELECT }
+            );
+        } catch (sqlError) {
+            // Se ainda falhar, pode ser que a tabela tenha estrutura diferente
+            console.warn('⚠️ Erro ao buscar transferências, tentando colunas básicas:', sqlError.message);
+            try {
+                // Tentar buscar apenas colunas básicas que certamente existem
                 transferencias = await sequelize.query(
                     `SELECT id, id_transacao, metodo, valor, nome_destinatario, telefone, status, 
-                     id_transacao_e2payment, resposta_e2payment, observacoes, data_processamento, 
-                     created_at, updated_at, processado_por
+                     created_at, updated_at
                      FROM transferencias_b2c 
                      ORDER BY created_at DESC`,
                     { type: sequelize.QueryTypes.SELECT }
                 );
-            } else {
-                throw dbError;
+            } catch (fallbackError) {
+                console.error('❌ Erro ao buscar transferências mesmo com colunas básicas:', fallbackError.message);
+                transferencias = [];
             }
         }
         
         // Converter para JSON simples e garantir que balance_after seja incluído
-        const transferenciasFormatadas = transferencias.map(t => {
+        const transferenciasFormatadas = (transferencias || []).map(t => {
             const data = t.toJSON ? t.toJSON() : t;
             return {
                 ...data,
@@ -2072,20 +2211,57 @@ router.get('/transferencias-b2c/totais', authenticateToken, checkAdminAccess, as
     try {
         console.log('🔄 Calculando totais de transferências B2C...');
         
-        // Calcular totais por método da tabela dedicada
-        const transferenciasEmola = await TransferenciaB2C.sum('valor', {
-            where: { 
-                metodo: 'emola',
-                status: 'sucesso'
-            }
-        });
+        // Verificar se a tabela existe
+        try {
+            await sequelize.query('SELECT 1 FROM transferencias_b2c LIMIT 1', { type: sequelize.QueryTypes.SELECT });
+        } catch (tableError) {
+            console.warn('⚠️ Tabela transferencias_b2c não existe:', tableError.message);
+            return res.json({
+                success: true,
+                emola: 0,
+                mpesa: 0
+            });
+        }
         
-        const transferenciasMpesa = await TransferenciaB2C.sum('valor', {
-            where: { 
-                metodo: 'mpesa',
-                status: 'sucesso'
-            }
-        });
+        // Calcular totais por método da tabela dedicada
+        let transferenciasEmola = 0;
+        let transferenciasMpesa = 0;
+        
+        try {
+            transferenciasEmola = await TransferenciaB2C.sum('valor', {
+                where: { 
+                    metodo: 'emola',
+                    status: 'sucesso'
+                }
+            }) || 0;
+        } catch (error) {
+            console.warn('⚠️ Erro ao calcular total Emola, usando query SQL:', error.message);
+            const result = await sequelize.query(
+                `SELECT COALESCE(SUM(valor), 0) as total 
+                 FROM transferencias_b2c 
+                 WHERE metodo = 'emola' AND status = 'sucesso'`,
+                { type: sequelize.QueryTypes.SELECT }
+            );
+            transferenciasEmola = parseFloat(result[0]?.total || 0);
+        }
+        
+        try {
+            transferenciasMpesa = await TransferenciaB2C.sum('valor', {
+                where: { 
+                    metodo: 'mpesa',
+                    status: 'sucesso'
+                }
+            }) || 0;
+        } catch (error) {
+            console.warn('⚠️ Erro ao calcular total M-Pesa, usando query SQL:', error.message);
+            const result = await sequelize.query(
+                `SELECT COALESCE(SUM(valor), 0) as total 
+                 FROM transferencias_b2c 
+                 WHERE metodo = 'mpesa' AND status = 'sucesso'`,
+                { type: sequelize.QueryTypes.SELECT }
+            );
+            transferenciasMpesa = parseFloat(result[0]?.total || 0);
+        }
         
         console.log('✅ Totais calculados com sucesso');
         
@@ -2097,10 +2273,12 @@ router.get('/transferencias-b2c/totais', authenticateToken, checkAdminAccess, as
         
     } catch (error) {
         console.error('❌ Erro ao calcular totais de transferências:', error);
+        console.error('❌ Stack trace:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Erro ao calcular totais de transferências',
-            error: error.message
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
@@ -3002,19 +3180,59 @@ router.get('/saques-por-metodo/emola', authenticateToken, checkAdminAccess, asyn
     try {
         console.log('🔄 Buscando total de saques Emola...');
         
-        const totalSaquesEmola = await Pagamento.sum('valor', {
-            where: { 
-                status: 'pago',
-                metodo: 'Emola'
-            }
-        });
+        let totalSaquesEmola = 0;
+        let totalTransferenciasEmola = 0;
         
-        const totalTransferenciasEmola = await TransferenciaB2C.sum('valor', {
-            where: { 
-                metodo: 'emola',
-                status: 'sucesso'
+        // Buscar total de saques Emola
+        try {
+            totalSaquesEmola = await Pagamento.sum('valor', {
+                where: { 
+                    status: 'pago',
+                    metodo: 'Emola'
+                }
+            }) || 0;
+        } catch (error) {
+            console.warn('⚠️ Erro ao buscar saques Emola, usando query SQL:', error.message);
+            try {
+                const result = await sequelize.query(
+                    `SELECT COALESCE(SUM(valor), 0) as total 
+                     FROM pagamentos 
+                     WHERE status = 'pago' AND metodo = 'Emola'`,
+                    { type: sequelize.QueryTypes.SELECT }
+                );
+                totalSaquesEmola = parseFloat(result[0]?.total || 0);
+            } catch (sqlError) {
+                console.error('❌ Erro ao buscar saques com SQL:', sqlError.message);
+                totalSaquesEmola = 0;
             }
-        });
+        }
+        
+        // Buscar total de transferências Emola
+        try {
+            // Verificar se a tabela existe
+            await sequelize.query('SELECT 1 FROM transferencias_b2c LIMIT 1', { type: sequelize.QueryTypes.SELECT });
+            
+            totalTransferenciasEmola = await TransferenciaB2C.sum('valor', {
+                where: { 
+                    metodo: 'emola',
+                    status: 'sucesso'
+                }
+            }) || 0;
+        } catch (error) {
+            console.warn('⚠️ Erro ao buscar transferências Emola, usando query SQL:', error.message);
+            try {
+                const result = await sequelize.query(
+                    `SELECT COALESCE(SUM(valor), 0) as total 
+                     FROM transferencias_b2c 
+                     WHERE metodo = 'emola' AND status = 'sucesso'`,
+                    { type: sequelize.QueryTypes.SELECT }
+                );
+                totalTransferenciasEmola = parseFloat(result[0]?.total || 0);
+            } catch (sqlError) {
+                console.warn('⚠️ Tabela transferencias_b2c não existe ou erro ao buscar:', sqlError.message);
+                totalTransferenciasEmola = 0;
+            }
+        }
         
         const saldoDisponivel = (totalSaquesEmola || 0) - (totalTransferenciasEmola || 0);
         
@@ -3030,10 +3248,12 @@ router.get('/saques-por-metodo/emola', authenticateToken, checkAdminAccess, asyn
         
     } catch (error) {
         console.error('❌ Erro ao calcular total de saques Emola:', error);
+        console.error('❌ Stack trace:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Erro ao calcular total de saques Emola',
-            error: error.message
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });

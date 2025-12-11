@@ -1977,6 +1977,12 @@ const TransferenciaB2C = sequelize.define('TransferenciaB2C', {
     tableName: 'transferencias_b2c',
     timestamps: true,
     underscored: true,
+    // Excluir balance_after das queries padrão (coluna não existe na tabela)
+    defaultScope: {
+        attributes: {
+            exclude: ['balance_after']
+        }
+    },
     indexes: [
         { fields: ['metodo'] },
         { fields: ['status'] },

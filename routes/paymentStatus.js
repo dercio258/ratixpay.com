@@ -39,6 +39,17 @@ router.post('/initiate', paymentMiddleware.initiatePayment(), async (req, res) =
             );
         }
 
+        // Verificar rate limit primeiro
+        if (paymentResult.status === 'rate_limited' || paymentResult.error === 'RATE_LIMIT_EXCEEDED') {
+            return res.status(429).json({
+                success: false,
+                status: 'rate_limited',
+                message: paymentResult.message || 'Muitas requisições seguidas. Por favor, aguarde alguns instantes antes de tentar novamente.',
+                error: 'RATE_LIMIT_EXCEEDED',
+                retry_after: 60
+            });
+        }
+
         if (paymentResult.success) {
             res.status(200).json({
                 success: true,

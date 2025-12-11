@@ -1540,6 +1540,17 @@ router.post('/processar', async (req, res) => {
             );
         }
 
+        // Verificar rate limit primeiro
+        if (paymozResult.status === 'rate_limited' || paymozResult.error === 'RATE_LIMIT_EXCEEDED') {
+            return res.status(429).json({
+                success: false,
+                status: 'rate_limited',
+                message: paymozResult.message || 'Muitas requisições seguidas. Por favor, aguarde alguns instantes antes de tentar novamente.',
+                error: 'RATE_LIMIT_EXCEEDED',
+                retry_after: 60
+            });
+        }
+
         // Verificar se o pagamento foi processado com sucesso
         if (!paymozResult.success) {
             return res.status(400).json({

@@ -1899,6 +1899,23 @@ router.post('/pagar', async (req, res) => {
             console.log(`📊 Verificação de erro: ${isError}`);
             console.log(`📊 Verificação de cancelamento: ${isCancelled}`);
 
+            // Tratar rate limit primeiro (erro temporário que requer retry)
+            const isRateLimited = resultadoPagamento.status === 'rate_limited' || 
+                                 resultadoPagamento.error === 'RATE_LIMIT_EXCEEDED';
+            
+            if (isRateLimited) {
+                // Rate limit excedido - retornar mensagem apropriada ao usuário
+                console.warn('⚠️ Rate Limit Exceeded - PayMoz bloqueou temporariamente');
+                
+                return res.status(429).json({
+                    success: false,
+                    status: 'rate_limited',
+                    message: resultadoPagamento.message || 'Muitas requisições seguidas. Por favor, aguarde alguns instantes antes de tentar novamente.',
+                    error: 'RATE_LIMIT_EXCEEDED',
+                    retry_after: 60 // Sugerir aguardar 60 segundos
+                });
+            }
+
             // Tratar erro primeiro - mas NÃO forçar cancelamento
             // Apenas usar status real retornado pela API (PayMoz ou GibraPay)
             if (isError) {
@@ -4570,6 +4587,17 @@ router.post('/checkout', async (req, res) => {
                 phone,
                 reference
             );
+        }
+
+        // Verificar rate limit
+        if (response.status === 'rate_limited' || response.error === 'RATE_LIMIT_EXCEEDED') {
+            return res.status(429).json({
+                success: false,
+                status: 'rate_limited',
+                message: response.message || 'Muitas requisições seguidas. Por favor, aguarde alguns instantes antes de tentar novamente.',
+                error: 'RATE_LIMIT_EXCEEDED',
+                retry_after: 60
+            });
         }
 
         res.json({
