@@ -706,18 +706,24 @@ function renderizarVendasPagina(vendas) {
                 <span style="font-size: 0.875rem;">${telefoneEscapado}</span>
             </div>`;
         } else if (whatsappLink) {
-            // Só tem WhatsApp
+            // Só tem WhatsApp - mostrar de forma compacta: número com ícone pequeno inline
             const whatsappDisplayEscapado = whatsappDisplay.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            contatoFormatado = `<div style="display: inline-flex; align-items: center; gap: 8px;">
-                <a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
+            // Formatar número para exibição mais compacta (remover código do país se for +258)
+            let numeroCompacto = whatsappDisplayEscapado;
+            if (numeroCompacto.startsWith('+258 ')) {
+                numeroCompacto = numeroCompacto.replace('+258 ', '');
+            } else if (numeroCompacto.startsWith('+258')) {
+                numeroCompacto = numeroCompacto.replace('+258', '');
+            }
+            
+            contatoFormatado = `<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
                    title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
-                   style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" 
-                   onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" 
-                   onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'">
-                    <i class="fab fa-whatsapp" style="font-size: 15px;"></i>
-                </a>
-                <span style="font-size: 0.875rem;">${whatsappDisplayEscapado}</span>
-            </div>`;
+                   style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: var(--text-main); transition: all 0.2s;" 
+                   onmouseover="this.style.color='#25D366';" 
+                   onmouseout="this.style.color='var(--text-main)';">
+                    <i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i>
+                    <span style="font-size: 0.875rem;">${numeroCompacto}</span>
+                </a>`;
         }
         
         // Extrair dados do pagamento com segurança - CORRIGIDO
