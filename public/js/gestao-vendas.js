@@ -321,20 +321,17 @@ async function carregarVendasDetalhadas() {
 function popularFiltrosDetalhados(vendas) {
     
     const selectProduto = document.getElementById('filtroProduto');
-    const selectEmail = document.getElementById('filtroEmail');
     
-    if (!selectProduto || !selectEmail) {
-        console.warn('Elementos de filtro não encontrados');
+    if (!selectProduto) {
+        console.warn('Elemento de filtro de produto não encontrado');
         return;
     }
     
     // Limpar opções existentes (manter a primeira opção vazia)
-    selectProduto.innerHTML = '<option value="">Todos os Produtos</option>';
-    selectEmail.innerHTML = '<option value="">Todos os Emails</option>';
+    selectProduto.innerHTML = '<option value="">Todos</option>';
     
-    // Conjuntos para armazenar valores únicos
+    // Conjunto para armazenar valores únicos
     const produtosSet = new Set();
-    const emailsSet = new Set();
     
     // Coletar valores únicos das vendas
     vendas.forEach(venda => {
@@ -353,33 +350,19 @@ function popularFiltrosDetalhados(vendas) {
             produtoNome = venda.produto;
         }
         
-        // Extrair nome do cliente com segurança
-        let clienteNome = venda.cliente_nome || venda.cliente?.nome || '-';
-        let clienteEmail = venda.cliente_email || venda.cliente?.email || '-';
-        
-        // Adicionar apenas valores válidos aos conjuntos (usando apenas ID Custom)
+        // Adicionar apenas valores válidos aos conjuntos (usando apenas ID Custom ou nome)
         const produtoDisplay = produtoCustomId || produtoId || produtoNome;
         if (produtoDisplay && produtoDisplay !== '-' && produtoDisplay !== 'Produto não identificado') {
             produtosSet.add(produtoDisplay);
         }
-        if (clienteEmail && clienteEmail !== '-') {
-            emailsSet.add(clienteEmail);
-        }
     });
     
-    // Preencher os selects com as opções únicas
+    // Preencher o select com as opções únicas
     Array.from(produtosSet).sort().forEach(produto => {
         const opt = document.createElement('option');
         opt.value = produto;
         opt.textContent = produto;
         selectProduto.appendChild(opt);
-    });
-    
-    Array.from(emailsSet).sort().forEach(email => {
-        const opt = document.createElement('option');
-        opt.value = email;
-        opt.textContent = email;
-        selectEmail.appendChild(opt);
     });
 }
 
@@ -848,11 +831,9 @@ let todasVendasOriginais = [];
 // Função para aplicar filtros
 function aplicarFiltros() {
     
+    const searchInput = document.getElementById('searchInput')?.value || '';
     const filtroProduto = document.getElementById('filtroProduto')?.value || '';
-    const filtroCliente = document.getElementById('filtroCliente')?.value || '';
-    const filtroEmail = document.getElementById('filtroEmail')?.value || '';
     const filtroStatus = document.getElementById('filtroStatus')?.value || '';
-    const filtroDataHora = document.getElementById('filtroDataHora')?.value || '';
     const filtroDataInicio = document.getElementById('filtroDataInicio')?.value || '';
     const filtroDataFim = document.getElementById('filtroDataFim')?.value || '';
     
@@ -863,6 +844,24 @@ function aplicarFiltros() {
     const vendasFiltradas = vendasParaFiltrar.filter(venda => {
         if (!venda) return false;
         
+        // Filtro de busca geral (nome, email, ID)
+        if (searchInput) {
+            const searchLower = searchInput.toLowerCase();
+            const clienteNome = (venda.cliente_nome || venda.cliente?.nome || '').toLowerCase();
+            const clienteEmail = (venda.cliente_email || venda.cliente?.email || '').toLowerCase();
+            const vendaId = (venda.id || venda.public_id || venda.numero_pedido || '').toString().toLowerCase();
+            const produtoNome = (venda.produto?.nome || '').toLowerCase();
+            
+            const matchesSearch = clienteNome.includes(searchLower) || 
+                                 clienteEmail.includes(searchLower) || 
+                                 vendaId.includes(searchLower) ||
+                                 produtoNome.includes(searchLower);
+            
+            if (!matchesSearch) {
+                return false;
+            }
+        }
+        
         // Filtro por produto (ID Custom)
         if (filtroProduto) {
             const produtoCustomId = venda.produto?.custom_id || '';
@@ -871,14 +870,6 @@ function aplicarFiltros() {
             const produtoDisplay = produtoCustomId || produtoId || produtoNome;
             
             if (!produtoDisplay.toLowerCase().includes(filtroProduto.toLowerCase())) {
-                return false;
-            }
-        }
-        
-        // Filtro por email
-        if (filtroEmail) {
-            const clienteEmail = venda.cliente_email || venda.cliente?.email || '';
-            if (!clienteEmail.toLowerCase().includes(filtroEmail.toLowerCase())) {
                 return false;
             }
         }
@@ -903,10 +894,28 @@ function aplicarFiltros() {
         
         // Filtro por período (data início e fim)
         if (filtroDataInicio || filtroDataFim) {
-            if (!venda.data_venda) return false;
+            // Tentar múltiplos campos de data
+            let dataVenda = venda.created_at || venda.createdAt || venda.data_venda || venda.updated_at || venda.updatedAt;
+            
+            if (!dataVenda) return false;
             
             try {
-                const dataVenda = new Date(venda.data_venda);
+                // Converter para Date se necessário
+                if (typeof dataVenda === 'string') {
+                    dataVenda = new Date(dataVenda);
+                } else if (typeof dataVenda === 'number') {
+                    // Se for timestamp em segundos, converter para milissegundos
+                    if (dataVenda.toString().length === 10) {
+                        dataVenda = new Date(dataVenda * 1000);
+                    } else {
+                        dataVenda = new Date(dataVenda);
+                    }
+                }
+                
+                if (isNaN(dataVenda.getTime())) {
+                    return false;
+                }
+                
                 const dataVendaStr = dataVenda.toISOString().split('T')[0];
                 
                 // Se apenas data início fornecida
@@ -947,7 +956,7 @@ function aplicarFiltros() {
 function limparFiltros() {
     
     // Limpar campos de filtro
-    const filtros = ['filtroProduto', 'filtroEmail', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
+    const filtros = ['searchInput', 'filtroProduto', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
     filtros.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
@@ -1020,11 +1029,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         // Configurar filtros
-        const btnLupaFiltroDetalhado = document.getElementById('btnLupaFiltroDetalhado');
-        if (btnLupaFiltroDetalhado) {
-            btnLupaFiltroDetalhado.addEventListener('click', aplicarFiltros);
+        const btnAplicarFiltros = document.getElementById('btnAplicarFiltros');
+        if (btnAplicarFiltros) {
+            btnAplicarFiltros.addEventListener('click', aplicarFiltros);
+        } else {
+            console.warn('⚠️ Botão de aplicar filtros não encontrado');
         }
-        // Botão da lupa é opcional - não gerar aviso se não existir
         
         // Configurar botão de limpar filtros
         const btnLimparFiltros = document.getElementById('btnLimparFiltros');
@@ -1035,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         // Configurar filtros para funcionar com Enter
-        const filtros = ['filtroProduto', 'filtroEmail', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
+        const filtros = ['searchInput', 'filtroProduto', 'filtroStatus', 'filtroDataInicio', 'filtroDataFim'];
         filtros.forEach(id => {
             const elemento = document.getElementById(id);
             if (elemento) {
