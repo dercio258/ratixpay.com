@@ -371,12 +371,16 @@ async function carregarVendasDetalhadas() {
 
 // Função para popular filtros detalhados
 function popularFiltrosDetalhados(vendas) {
+    // Verificar se vendas é válido
+    if (!vendas || !Array.isArray(vendas) || vendas.length === 0) {
+        return; // Silenciosamente retornar se não houver vendas
+    }
     
     const selectProduto = document.getElementById('filtroProduto');
     
+    // Se o elemento não existe, retornar silenciosamente (pode não estar carregado ainda)
     if (!selectProduto) {
-        console.warn('Elemento de filtro de produto não encontrado');
-        return;
+        return; // Não gerar warning, pode ser que o DOM ainda não esteja pronto
     }
     
     // Limpar opções existentes (manter a primeira opção vazia)
@@ -489,7 +493,15 @@ function renderizarVendasDetalhadas(vendas) {
         todasVendas = vendas; // Atualizar array global
         currentPageVendas = 1; // Resetar para primeira página
         const vendasPagina = calcularPaginação();
-        popularFiltrosDetalhados(todasVendas); // Usar todas as vendas para filtros
+        // Popular filtros apenas se o DOM estiver pronto
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            popularFiltrosDetalhados(todasVendas); // Usar todas as vendas para filtros
+        } else {
+            // Aguardar DOM estar pronto
+            document.addEventListener('DOMContentLoaded', () => {
+                popularFiltrosDetalhados(todasVendas);
+            });
+        }
         renderizarVendasPagina(vendasPagina);
     } else {
         // Usar vendas já calculadas
