@@ -679,30 +679,36 @@ function renderizarVendasPagina(vendas) {
         
         // Montar contato formatado: telefone + ícone WhatsApp (se disponível)
         if (telefoneFormatado && whatsappLink) {
-            // Tem telefone e WhatsApp - mostrar ambos de forma compacta
+            // Tem telefone e WhatsApp - mostrar ambos de forma compacta em linha
             const telefoneEscapado = telefoneFormatado.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const whatsappDisplayEscapado = whatsappDisplay.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            contatoFormatado = `<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-                <div style="display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.8em;"></i>
-                    <span style="font-size: 0.875rem;">${telefoneEscapado}</span>
+            // Formatar número WhatsApp para exibição mais compacta
+            let numeroCompacto = whatsappDisplayEscapado;
+            if (numeroCompacto.startsWith('+258 ')) {
+                numeroCompacto = numeroCompacto.replace('+258 ', '');
+            } else if (numeroCompacto.startsWith('+258')) {
+                numeroCompacto = numeroCompacto.replace('+258', '');
+            }
+            
+            contatoFormatado = `<div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-start;">
+                <div style="display: inline-flex; align-items: center; gap: 4px;">
+                    <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.75em;"></i>
+                    <span style="font-size: 0.85rem;">${telefoneEscapado}</span>
                 </div>
-                <div style="display: inline-flex; align-items: center; gap: 6px;">
-                    <a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
-                       title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
-                       style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" 
-                       onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" 
-                       onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'">
-                        <i class="fab fa-whatsapp" style="font-size: 13px;"></i>
-                    </a>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">${whatsappDisplayEscapado}</span>
-                </div>
+                <a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
+                   title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
+                   style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: var(--text-main); transition: all 0.2s;" 
+                   onmouseover="this.style.color='#25D366';" 
+                   onmouseout="this.style.color='var(--text-main)';">
+                    <i class="fab fa-whatsapp" style="font-size: 13px; color: #25D366;"></i>
+                    <span style="font-size: 0.85rem;">${numeroCompacto}</span>
+                </a>
             </div>`;
         } else if (telefoneFormatado) {
             // Só tem telefone
             const telefoneEscapado = telefoneFormatado.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            contatoFormatado = `<div style="display: inline-flex; align-items: center; gap: 6px;">
-                <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.8em;"></i>
+            contatoFormatado = `<div style="display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.75em;"></i>
                 <span style="font-size: 0.875rem;">${telefoneEscapado}</span>
             </div>`;
         } else if (whatsappLink) {
