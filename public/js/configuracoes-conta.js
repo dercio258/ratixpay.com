@@ -123,7 +123,7 @@ async function handleAccountUpdate(event) {
         
         console.log('💾 Atualizando dados da conta:', formData);
         
-        const response = await fetch(`${window.API_BASE}/auth/update-profile`, {
+        const response = await fetch(`${window.API_BASE}/auth/profile`, {
             method: 'PUT',
             credentials: 'include',
             headers: {

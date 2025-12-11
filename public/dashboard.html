@@ -456,18 +456,19 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                padding: 20px;
+                padding: 16px;
                 min-height: 0;
             }
             
             .stat-number {
-                font-size: 1.5rem;
-                margin-bottom: 8px;
-                text-align: center;
+                font-size: 1.3rem;
+                margin-bottom: 6px;
+                text-align: justify;
+                line-height: 1.2;
             }
             
             .stat-label {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 line-height: 1.2;
                 text-align: justify;
             }
@@ -482,17 +483,35 @@
             }
             
             .stat-card {
-                padding: 16px;
+                padding: 12px;
             }
             
             .stat-number {
-                font-size: 1.35rem;
-                text-align: center;
+                font-size: 1.1rem;
+                text-align: justify;
+                line-height: 1.1;
             }
             
             .stat-label {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 text-align: justify;
+                line-height: 1.1;
+            }
+        }
+        
+        /* Tablet: Ajuste intermediário */
+        @media (min-width: 481px) and (max-width: 1023px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
             }
         }
         
@@ -510,12 +529,26 @@
             overflow: hidden;
         }
         
-        .stat-number {
-            text-align: center;
+        .stat-card .stat-number,
+        .stat-card .stat-label {
+            text-align: justify;
         }
         
-        .stat-label {
-            text-align: justify;
+        /* Cores específicas para os valores */
+        #receitaTotal {
+            color: #ff8c42 !important; /* Laranja */
+        }
+        
+        #vendasAprovadas {
+            color: #10b981 !important; /* Verde */
+        }
+        
+        #vendasCanceladas {
+            color: #ef4444 !important; /* Vermelho */
+        }
+        
+        #vendasPendentes {
+            color: #f59e0b !important; /* Amarelo */
         }
         
         .stat-card:hover {
@@ -543,7 +576,9 @@
             color: var(--text-main);
             margin-bottom: 4px;
             letter-spacing: -0.5px;
-            text-align: center;
+            text-align: justify;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
         .stat-label {
@@ -553,6 +588,8 @@
             letter-spacing: 0.5px;
             font-weight: 600;
             text-align: justify;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
         /* Spinner Loading */
@@ -830,9 +867,6 @@
                 <div class="chart-canvas">
                     <canvas id="salesChart"></canvas>
                 </div>
-                <small id="lastUpdate" style="color: var(--text-muted); font-size: 0.75rem; margin-top: 15px; display: block; text-align: right;">
-                    <i class="fas fa-sync-alt" style="font-size: 10px; margin-right: 4px;"></i> Atualizado agora
-                </small>
             </div>
             
         </div>

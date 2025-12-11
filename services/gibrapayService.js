@@ -143,11 +143,24 @@ class GibraPayService {
             // URL do endpoint
             const url = `${this.baseUrl}/v1/mpesa/payment`;
 
+            // Garantir que a referência seja única
+            // Se não for fornecida ou for vazia, gerar uma única
+            // Usar formato simples: apenas números e letras, sem caracteres especiais
+            let finalReference = reference;
+            if (!finalReference || finalReference.trim() === '' || finalReference === 'gibrpay' || finalReference.length < 10) {
+                const crypto = require('crypto');
+                // Gerar referência única usando apenas números e letras minúsculas
+                const uniqueId = crypto.randomBytes(6).toString('hex');
+                const timestamp = Date.now().toString().slice(-10); // Últimos 10 dígitos do timestamp
+                // Formato: B2C + timestamp + ID único (sem underscores ou caracteres especiais)
+                finalReference = `B2C${timestamp}${uniqueId}`;
+            }
+            
             // Payload conforme documentação da API
             const payload = {
                 type: "b2c",
                 phone: String(phone).trim(),
-                reference: reference || `gibrpay_${Date.now()}`,
+                reference: finalReference.trim(),
                 amount: Math.round(valor) // API espera valor inteiro
             };
 
@@ -155,8 +168,18 @@ class GibraPayService {
                 type: payload.type,
                 amount: payload.amount,
                 phone: payload.phone.substring(0, 3) + '***',
-                reference: payload.reference
+                reference: payload.reference,
+                referenceLength: payload.reference.length
             });
+            
+            // Validar que a referência não seja "gibrpay" ou muito curta
+            // Remover caracteres especiais que podem causar problemas
+            payload.reference = payload.reference.replace(/[^a-zA-Z0-9]/g, '');
+            
+            if (payload.reference === 'gibrpay' || payload.reference.length < 10) {
+                console.error('❌ Referência inválida detectada:', payload.reference);
+                throw new Error('Referência inválida. Deve ser única e ter pelo menos 10 caracteres.');
+            }
 
             // Fazer requisição
             const response = await axios.post(url, payload, {
@@ -177,6 +200,19 @@ class GibraPayService {
             });
 
             // Verificar se a resposta tem sucesso
+            // Verificar se há erro na resposta mesmo com status 200/201
+            if (data.status === 'error' || data.status === 'failed' || data.message?.toLowerCase().includes('error') || data.message?.toLowerCase().includes('invalid')) {
+                const errorMessage = data.message || data.error || 'Erro ao processar transferência B2C';
+                console.error('❌ GibraPay retornou erro na resposta:', errorMessage);
+                
+                return {
+                    success: false,
+                    status: 'error',
+                    message: errorMessage,
+                    data: data
+                };
+            }
+            
             if (response.status === 200 || response.status === 201) {
                 return {
                     success: true,

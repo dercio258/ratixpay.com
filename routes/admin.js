@@ -1656,12 +1656,47 @@ router.get('/saldo-emola', authenticateToken, checkAdminAccess, async (req, res)
     }
 });
 
+// GET - Buscar saldo da carteira M-Pesa via GibraPay API
+router.get('/saldo-mpesa-gibrapay', authenticateToken, checkAdminAccess, async (req, res) => {
+    try {
+        console.log('🔄 Buscando saldo da carteira M-Pesa via GibraPay...');
+        
+        const gibrapayService = require('../services/gibrapayService');
+        const resultado = await gibrapayService.getBalance();
+        
+        if (resultado.success) {
+            console.log('✅ Saldo da carteira M-Pesa via GibraPay buscado com sucesso:', resultado.balance);
+            
+            res.json({
+                success: true,
+                saldo: resultado.balance || 0
+            });
+        } else {
+            console.error('❌ Erro ao buscar saldo via GibraPay:', resultado.message);
+            res.status(500).json({
+                success: false,
+                message: resultado.message || 'Erro ao buscar saldo da GibraPay',
+                saldo: 0
+            });
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao buscar saldo da carteira M-Pesa via GibraPay:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao buscar saldo da carteira M-Pesa via GibraPay',
+            error: error.message,
+            saldo: 0
+        });
+    }
+});
+
 // GET - Buscar total de saques (M-Pesa)
 router.get('/total-saques', authenticateToken, checkAdminAccess, async (req, res) => {
     try {
         console.log('🔄 Buscando total de saques...');
         
-        const totalSaques = await Pagamento.sum('valor_solicitado', {
+        const totalSaques = await Pagamento.sum('valor', {
             where: { status: 'pago' }
         });
         
@@ -1704,6 +1739,16 @@ router.post('/transferencia-b2c/emola', authenticateToken, checkAdminAccess, asy
                 success: false,
                 message: 'Saldo insuficiente'
             });
+        }
+        
+        // Buscar saldo disponível ANTES da transferência
+        let saldoAntesTransferencia = 0;
+        try {
+            const saldo = await SaldoAdminService.buscarSaldo();
+            saldoAntesTransferencia = parseFloat(saldo.saldoDisponivel || 0);
+            console.log(`💰 Saldo Emola antes da transferência: MZN ${saldoAntesTransferencia.toFixed(2)}`);
+        } catch (error) {
+            console.error('⚠️ Erro ao buscar saldo antes da transferência:', error.message);
         }
         
         // Fazer transferência via E2Payment API
@@ -1750,7 +1795,7 @@ router.post('/transferencia-b2c/emola', authenticateToken, checkAdminAccess, asy
                 status: 'sucesso',
                 id_transacao_e2payment: resultado.transacao_id,
                 resposta_e2payment: JSON.stringify(resultado),
-                observacoes: 'Transferência B2C Emola realizada com sucesso',
+                observacoes: `Saldo antes da transferência: MZN ${saldoAntesTransferencia.toFixed(2)}`,
                 data_processamento: new Date(),
                 processado_por: req.user.id
             });
@@ -1806,29 +1851,68 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
             });
         }
         
-        // Verificar total de saques disponível
-        const totalSaques = await Pagamento.sum('valor_solicitado', {
-            where: { status: 'pago' }
-        });
-        
-        if (totalSaques < valor) {
+        // Validar telefone - deve ter 9 dígitos
+        if (!telefone || !/^[0-9]{9}$/.test(telefone.trim())) {
             return res.status(400).json({
                 success: false,
-                message: 'Valor excede o total de saques disponível'
-            });
-        }
-        
-        // Validar telefone - apenas 843357697 é permitido para MPESA nesta página
-        if (!telefone || telefone.trim() !== '843357697') {
-            return res.status(400).json({
-                success: false,
-                message: 'Para transferências B2C M-Pesa, apenas o número 843357697 é permitido nesta página'
+                message: 'Telefone inválido. Deve conter 9 dígitos numéricos.'
             });
         }
         
         // Fazer transferência via GibraPay API (para MPESA)
         const gibrapayService = require('../services/gibrapayService');
-        const reference = `b2c_mpesa_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Buscar saldo atual da GibraPay ANTES da transferência
+        let saldoAntesTransferencia = 0;
+        try {
+            const saldoResult = await gibrapayService.getBalance();
+            if (saldoResult.success) {
+                saldoAntesTransferencia = parseFloat(saldoResult.balance || 0);
+                console.log(`💰 Saldo M-Pesa antes da transferência: MZN ${saldoAntesTransferencia.toFixed(2)}`);
+            }
+        } catch (error) {
+            console.error('⚠️ Erro ao buscar saldo antes da transferência:', error.message);
+        }
+        
+        // Gerar referência única usando timestamp, random e UUID se disponível
+        const crypto = require('crypto');
+        let reference;
+        let referenceExists = true;
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        // Garantir que a referência seja única
+        // Usar formato simples sem caracteres especiais para evitar problemas com a API
+        while (referenceExists && attempts < maxAttempts) {
+            const uniqueId = crypto.randomBytes(6).toString('hex');
+            const timestamp = Date.now().toString().slice(-10); // Últimos 10 dígitos
+            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            // Formato: B2C + timestamp + ID único + sufixo (sem underscores)
+            reference = `B2C${timestamp}${uniqueId}${randomSuffix}`;
+            
+            // Verificar se a referência já existe no banco
+            const existingTransfer = await TransferenciaB2C.findOne({
+                where: { 
+                    id_transacao_e2payment: reference 
+                }
+            });
+            
+            if (!existingTransfer) {
+                referenceExists = false;
+            } else {
+                attempts++;
+                // Aguardar um pouco antes de tentar novamente
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+        
+        if (referenceExists) {
+            return res.status(500).json({
+                success: false,
+                message: 'Erro ao gerar referência única. Tente novamente.'
+            });
+        }
+        
         const resultado = await gibrapayService.processB2C(
             valor,
             telefone,
@@ -1836,41 +1920,31 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
         );
         
         if (resultado.success) {
-            // Verificar se há saques suficientes para transferir
-            const totalSaquesMpesa = await Pagamento.sum('valor', {
-                where: { 
-                    status: 'pago',
-                    metodo: 'Mpesa'
-                }
-            });
-            
-            const totalTransferenciasMpesa = await TransferenciaB2C.sum('valor', {
-                where: { 
-                    metodo: 'mpesa',
-                    status: 'sucesso'
-                }
-            });
-            
-            const saldoDisponivelMpesa = (totalSaquesMpesa || 0) - (totalTransferenciasMpesa || 0);
-            
-            if (valor > saldoDisponivelMpesa) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Valor insuficiente. Disponível: MZN ${saldoDisponivelMpesa.toFixed(2)}`
-                });
+            // Extrair balance_after da resposta do GibraPay
+            let balanceAfter = null;
+            if (resultado.data && resultado.data.balance_after) {
+                balanceAfter = parseFloat(resultado.data.balance_after);
+            } else if (resultado.balance_after) {
+                balanceAfter = parseFloat(resultado.balance_after);
             }
+            
+            // Determinar status da transação baseado na resposta
+            const statusTransacao = resultado.data?.status === 'success' ? 'sucesso' : 
+                                    resultado.status === 'approved' ? 'sucesso' : 
+                                    'pendente';
             
             // Criar registro na tabela de transferências B2C
             await TransferenciaB2C.create({
-                id_transacao: resultado.transaction_id || `B2C-${Date.now()}`,
+                id_transacao: resultado.transaction_id || resultado.data?.transaction_id || `B2C-${Date.now()}`,
                 metodo: 'mpesa',
                 valor: valor,
                 nome_destinatario: nome || 'Destinatário M-Pesa',
                 telefone: telefone,
-                status: 'sucesso',
-                id_transacao_e2payment: resultado.transaction_id,
+                status: statusTransacao,
+                id_transacao_e2payment: resultado.transaction_id || resultado.data?.transaction_id,
                 resposta_e2payment: JSON.stringify(resultado),
-                observacoes: 'Transferência B2C M-Pesa realizada com sucesso via GibraPay',
+                balance_after: balanceAfter,
+                observacoes: `Saldo antes da transferência: MZN ${saldoAntesTransferencia.toFixed(2)}${balanceAfter ? ` | Saldo após: MZN ${balanceAfter.toFixed(2)}` : ''}`,
                 data_processamento: new Date(),
                 processado_por: req.user.id
             });
@@ -1888,13 +1962,35 @@ router.post('/transferencia-b2c/mpesa', authenticateToken, checkAdminAccess, asy
                     telefone: telefone,
                     nome: nome,
                     metodo: 'mpesa',
-                    transacao_id: resultado.transaction_id,
-                    referencia: resultado.reference,
-                    saldo_restante: saldoDisponivelMpesa - valor
+                    transacao_id: resultado.transaction_id || resultado.data?.transaction_id,
+                    referencia: resultado.reference || resultado.data?.reference,
+                    balance_after: balanceAfter,
+                    saldo_antes: saldoAntesTransferencia
                 }
             });
         } else {
             console.log(`❌ Erro na transferência B2C para M-Pesa: ${resultado.message}`);
+            
+            // Registrar transferência falhada na tabela
+            let balanceAfter = null;
+            if (resultado.data && resultado.data.balance_after) {
+                balanceAfter = parseFloat(resultado.data.balance_after);
+            }
+            
+            await TransferenciaB2C.create({
+                id_transacao: resultado.transaction_id || resultado.data?.transaction_id || `B2C-${Date.now()}`,
+                metodo: 'mpesa',
+                valor: valor,
+                nome_destinatario: nome || 'Destinatário M-Pesa',
+                telefone: telefone,
+                status: 'falha',
+                id_transacao_e2payment: resultado.transaction_id || resultado.data?.transaction_id,
+                resposta_e2payment: JSON.stringify(resultado),
+                balance_after: balanceAfter,
+                observacoes: `Erro: ${resultado.message || 'Erro desconhecido'}`,
+                data_processamento: new Date(),
+                processado_por: req.user.id
+            });
             
             res.status(400).json({
                 success: false,
@@ -1920,23 +2016,53 @@ router.get('/transferencias-b2c', authenticateToken, checkAdminAccess, async (re
         console.log('🔄 Buscando transferências B2C...');
         
         // Buscar transferências B2C da tabela dedicada
-        const transferencias = await TransferenciaB2C.findAll({
-            order: [['data_transferencia', 'DESC']]
+        // Usar query SQL direta para evitar problemas com colunas que podem não existir
+        let transferencias;
+        try {
+            transferencias = await TransferenciaB2C.findAll({
+                order: [['created_at', 'DESC']]
+            });
+        } catch (dbError) {
+            // Se houver erro relacionado à coluna balance_after, tentar sem ela
+            if (dbError.message && dbError.message.includes('balance_after')) {
+                console.log('⚠️ Coluna balance_after não existe, buscando sem ela...');
+                transferencias = await sequelize.query(
+                    `SELECT id, id_transacao, metodo, valor, nome_destinatario, telefone, status, 
+                     id_transacao_e2payment, resposta_e2payment, observacoes, data_processamento, 
+                     created_at, updated_at, processado_por
+                     FROM transferencias_b2c 
+                     ORDER BY created_at DESC`,
+                    { type: sequelize.QueryTypes.SELECT }
+                );
+            } else {
+                throw dbError;
+            }
+        }
+        
+        // Converter para JSON simples e garantir que balance_after seja incluído
+        const transferenciasFormatadas = transferencias.map(t => {
+            const data = t.toJSON ? t.toJSON() : t;
+            return {
+                ...data,
+                balance_after: data.balance_after || null
+            };
         });
         
-        console.log(`✅ ${transferencias.length} transferências B2C encontradas`);
+        console.log(`✅ ${transferenciasFormatadas.length} transferências B2C encontradas`);
         
         res.json({
             success: true,
-            transferencias: transferencias
+            transferencias: transferenciasFormatadas
         });
         
     } catch (error) {
         console.error('❌ Erro ao buscar transferências B2C:', error);
+        console.error('❌ Stack trace:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Erro ao buscar transferências B2C',
-            error: error.message
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
@@ -1995,7 +2121,7 @@ router.get('/receita-disponivel-todos', authenticateToken, checkAdminAccess, asy
         // Buscar todos os saques processados (pagos)
         const saquesProcessados = await Pagamento.findAll({
             where: { status: 'pago' },
-            attributes: ['vendedor_id', 'valor_solicitado']
+            attributes: ['vendedor_id', 'valor']
         });
         
         // Calcular receita total por vendedor
@@ -2015,7 +2141,7 @@ router.get('/receita-disponivel-todos', authenticateToken, checkAdminAccess, asy
             if (!saquesPorVendedor[vendedorId]) {
                 saquesPorVendedor[vendedorId] = 0;
             }
-            saquesPorVendedor[vendedorId] += parseFloat(saque.valor_solicitado || 0);
+            saquesPorVendedor[vendedorId] += parseFloat(saque.valor || 0);
         });
         
         // Calcular receita disponível total

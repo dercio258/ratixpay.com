@@ -10,10 +10,10 @@
     
     <title>RatixPay - Pagamentos</title>
     
-    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
     <!-- Sistema Unificado de Dark Mode -->
     <link rel="stylesheet" href="/css/dark-mode-unified.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -198,20 +198,20 @@
         
         /* 1. Card de Saldo Melhorado */
         .balance-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #f64c00 0%, #ff8c42 100%) !important;
             border-radius: var(--radius-lg);
             padding: 2rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 24px rgba(246, 76, 0, 0.3) !important;
             margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(246, 76, 0, 0.2);
+            border: 1px solid rgba(246, 76, 0, 0.4) !important;
         }
         
         body.dark-mode .balance-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-            border-color: rgba(246, 76, 0, 0.3);
+            background: linear-gradient(135deg, #f64c00 0%, #ff8c42 100%) !important;
+            border-color: rgba(246, 76, 0, 0.5) !important;
         }
 
         .balance-card:hover {
@@ -856,6 +856,7 @@
 
             .balance-card {
                 padding: 1.5rem;
+                background: linear-gradient(135deg, #f64c00 0%, #ff8c42 100%) !important;
             }
 
             .receita-valor {

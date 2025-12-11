@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Gestão Financeira - RatixPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="js/server-check.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/admin-utils.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .navigation-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: white;
+            color: var(--primary-color);
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: var(--secondary-color);
+        }
+
+        .nav-btn.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .carteira-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .carteira-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .carteira-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-bg);
+        }
+
+        .carteira-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .carteira-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .carteira-status.ativa {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .carteira-status.inativa {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .saldo-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--info-color) 0%, var(--primary-color) 100%);
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .saldo-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .saldo-valor {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .carteira-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 10px;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-edit {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-add {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-subtract {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .resumo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resumo-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .resumo-total {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .resumo-total-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .resumo-total-valor {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid var(--light-bg);
+            padding: 10px 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .text-secondary {
+            color: #6b7280 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <div class="admin-title">
+                <i class="fas fa-calculator"></i>
+                Gestão Financeira
+            </div>
+            <div class="admin-subtitle">Gerenciamento de Carteiras Administrativas</div>
+        </div>
+
+        <!-- Navegação -->
+        <div class="navigation-bar">
+            <a href="admin-dashboard.html" class="nav-btn">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="admin-gestao-financeira.html" class="nav-btn active">
+                <i class="fas fa-calculator"></i>
+                Financeiro
+            </a>
+            <a href="admin-gestao-saques.html" class="nav-btn">
+                <i class="fas fa-money-bill-wave"></i>
+                Saques
+            </a>
+            <a href="admin-produtos.html" class="nav-btn">
+                <i class="fas fa-box"></i>
+                Produtos
+            </a>
+            <a href="admin-blog.html" class="nav-btn">
+                <i class="fas fa-blog"></i>
+                Blog
+            </a>
+        </div>
+
+        <!-- Resumo Total -->
+        <div class="resumo-card">
+            <div class="resumo-title">
+                <i class="fas fa-chart-line"></i>
+                Resumo Financeiro
+            </div>
+            <div class="resumo-total" id="resumoTotal">
+                <div class="resumo-total-label">Saldo Total</div>
+                <div class="resumo-total-valor" id="saldoTotal">0,00 MZN</div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loadingState" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-3">Carregando carteiras...</p>
+        </div>
+
+        <!-- Carteiras -->
+        <div id="carteirasContainer"></div>
+    </div>
+
+    <!-- Modal Editar Carteira -->
+    <div class="modal fade" id="editCarteiraModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Carteira</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCarteiraForm">
+                        <input type="hidden" id="editCarteiraTipo">
+                        <div class="mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="editCarteiraNome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contacto</label>
+                            <input type="text" class="form-control" id="editCarteiraContacto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Titular</label>
+                            <input type="text" class="form-control" id="editCarteiraNomeTitular" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editCarteiraEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="editCarteiraAtiva">
+                                <option value="true">Ativa</option>
+                                <option value="false">Inativa</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" id="editCarteiraObservacoes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarCarteira()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar/Subtrair Saldo -->
+    <div class="modal fade" id="saldoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saldoModalTitle">Adicionar Saldo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="saldoForm">
+                        <input type="hidden" id="saldoCarteiraTipo">
+                        <input type="hidden" id="saldoOperacao">
+                        <div class="mb-3">
+                            <label class="form-label">Valor (MZN)</label>
+                            <input type="number" class="form-control" id="saldoValor" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observação</label>
+                            <textarea class="form-control" id="saldoObservacao" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="processarSaldo()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = window.API_BASE_URL || '/api';
+        let carteiras = [];
+
+        // Carregar carteiras ao iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            verificarAutenticacao();
+            carregarCarteiras();
+            
+            // Atualizar a cada 30 segundos
+            setInterval(carregarCarteiras, 30000);
+        });
+
+        function verificarAutenticacao() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+            if (!token) {
+                alert('Sessão expirada. Por favor, faça login novamente.');
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function carregarCarteiras() {
+            try {
+                document.getElementById('loadingState').style.display = 'block';
+                
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                
+                // Carregar resumo
+                const resumoRes = await fetch(`${API_BASE}/admin/financeiro/resumo`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!resumoRes.ok) {
+                    throw new Error('Erro ao carregar resumo financeiro');
+                }
+                
+                const resumoData = await resumoRes.json();
+                if (resumoData.success) {
+                    const saldoTotal = resumoData.data.saldo_total || 0;
+                    document.getElementById('saldoTotal').textContent = formatarMoeda(saldoTotal);
+                }
+                
+                // Carregar carteiras
+                const res = await fetch(`${API_BASE}/admin/financeiro/carteiras`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Erro ao carregar carteiras');
+                }
+                
+                const data = await res.json();
+                if (data.success) {
+                    carteiras = data.data;
+                    renderizarCarteiras();
+                } else {
+                    throw new Error(data.message || 'Erro ao carregar carteiras');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar carteiras:', error);
+                alert('Erro ao carregar carteiras: ' + error.message);
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+        function renderizarCarteiras() {
+            const container = document.getElementById('carteirasContainer');
+            container.innerHTML = '';
+            
+            carteiras.forEach(carteira => {
+                const card = document.createElement('div');
+                card.className = 'carteira-card';
+                card.innerHTML = `
+                    <div class="carteira-header">
+                        <div class="carteira-title">
+                            <i class="fas fa-wallet"></i>
+                            ${carteira.nome}
+                        </div>
+                        <span class="carteira-status ${carteira.ativa ? 'ativa' : 'inativa'}">
+                            ${carteira.ativa ? 'Ativa' : 'Inativa'}
+                        </span>
+                    </div>
+                    
+                    <div class="saldo-display">
+                        <div class="saldo-label">Saldo Disponível</div>
+                        <div class="saldo-valor">${formatarMoeda(carteira.saldo)}</div>
+                    </div>
+                    
+                    <div class="carteira-info">
+                        <div class="info-item">
+                            <div class="info-label">Tipo</div>
+                            <div class="info-value">${carteira.tipo.toUpperCase()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Contacto</div>
+                            <div class="info-value">${carteira.contacto || 'Não informado'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Titular</div>
+                            <div class="info-value">${carteira.nome_titular}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">${carteira.email || 'Não informado'}</div>
+                        </div>
+                    </div>
+                    
+                    ${carteira.observacoes ? `
+                        <div class="info-item mt-3">
+                            <div class="info-label">Observações</div>
+                            <div class="info-value">${carteira.observacoes}</div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="action-buttons mt-3">
+                        <button class="btn-action btn-edit" onclick="editarCarteira('${carteira.tipo}')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn-action btn-add" onclick="abrirModalSaldo('${carteira.tipo}', 'adicionar')">
+                            <i class="fas fa-plus"></i>
+                            Adicionar Saldo
+                        </button>
+                        <button class="btn-action btn-subtract" onclick="abrirModalSaldo('${carteira.tipo}', 'subtrair')">
+                            <i class="fas fa-minus"></i>
+                            Subtrair Saldo
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function editarCarteira(tipo) {
+            const carteira = carteiras.find(c => c.tipo === tipo);
+            if (!carteira) return;
+            
+            document.getElementById('editCarteiraTipo').value = carteira.tipo;
+            document.getElementById('editCarteiraNome').value = carteira.nome;
+            document.getElementById('editCarteiraContacto').value = carteira.contacto || '';
+            document.getElementById('editCarteiraNomeTitular').value = carteira.nome_titular;
+            document.getElementById('editCarteiraEmail').value = carteira.email || '';
+            document.getElementById('editCarteiraAtiva').value = carteira.ativa ? 'true' : 'false';
+            document.getElementById('editCarteiraObservacoes').value = carteira.observacoes || '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('editCarteiraModal'));
+            modal.show();
+        }
+
+        async function salvarCarteira() {
+            try {
+                const tipo = document.getElementById('editCarteiraTipo').value;
+                const dados = {
+                    nome: document.getElementById('editCarteiraNome').value,
+                    contacto: document.getElementById('editCarteiraContacto').value,
+                    nome_titular: document.getElementById('editCarteiraNomeTitular').value,
+                    email: document.getElementById('editCarteiraEmail').value,
+                    ativa: document.getElementById('editCarteiraAtiva').value === 'true',
+                    observacoes: document.getElementById('editCarteiraObservacoes').value
+                };
+                
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                
+                const res = await fetch(`${API_BASE}/admin/financeiro/carteira/${tipo}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('Carteira atualizada com sucesso!');
+                    bootstrap.Modal.getInstance(document.getElementById('editCarteiraModal')).hide();
+                    carregarCarteiras();
+                } else {
+                    throw new Error(data.message || 'Erro ao atualizar carteira');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar carteira:', error);
+                alert('Erro ao salvar carteira: ' + error.message);
+            }
+        }
+
+        function abrirModalSaldo(tipo, operacao) {
+            document.getElementById('saldoCarteiraTipo').value = tipo;
+            document.getElementById('saldoOperacao').value = operacao;
+            document.getElementById('saldoValor').value = '';
+            document.getElementById('saldoObservacao').value = '';
+            document.getElementById('saldoModalTitle').textContent = operacao === 'adicionar' ? 'Adicionar Saldo' : 'Subtrair Saldo';
+            
+            const modal = new bootstrap.Modal(document.getElementById('saldoModal'));
+            modal.show();
+        }
+
+        async function processarSaldo() {
+            try {
+                const tipo = document.getElementById('saldoCarteiraTipo').value;
+                const operacao = document.getElementById('saldoOperacao').value;
+                const valor = parseFloat(document.getElementById('saldoValor').value);
+                const observacao = document.getElementById('saldoObservacao').value;
+                
+                if (!valor || valor <= 0) {
+                    alert('Valor deve ser maior que zero');
+                    return;
+                }
+                
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('adminToken');
+                const endpoint = operacao === 'adicionar' ? 'adicionar-saldo' : 'subtrair-saldo';
+                
+                const res = await fetch(`${API_BASE}/admin/financeiro/carteira/${tipo}/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        valor: valor,
+                        observacao: observacao
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(`Saldo ${operacao === 'adicionar' ? 'adicionado' : 'subtraído'} com sucesso!`);
+                    bootstrap.Modal.getInstance(document.getElementById('saldoModal')).hide();
+                    carregarCarteiras();
+                } else {
+                    throw new Error(data.message || `Erro ao ${operacao} saldo`);
+                }
+            } catch (error) {
+                console.error('Erro ao processar saldo:', error);
+                alert('Erro ao processar saldo: ' + error.message);
+            }
+        }
+
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-MZ', {
+                style: 'currency',
+                currency: 'MZN',
+                minimumFractionDigits: 2
+            }).format(valor);
+        }
+    </script>
+</body>
+</html>
+

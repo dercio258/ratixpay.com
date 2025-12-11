@@ -1845,6 +1845,145 @@ const BlogNewsletter = sequelize.define('BlogNewsletter', {
     ]
 });
 
+// CarteiraAdmin - Carteiras do administrador (M-Pesa e Emola)
+const CarteiraAdmin = sequelize.define('CarteiraAdmin', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    tipo: {
+        type: DataTypes.ENUM('mpesa', 'emola'),
+        allowNull: false,
+        unique: true,
+        comment: 'Tipo de carteira: M-Pesa ou Emola'
+    },
+    nome: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome da carteira'
+    },
+    contacto: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        comment: 'Número de contacto'
+    },
+    nome_titular: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        comment: 'Nome do titular'
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Email do titular'
+    },
+    saldo: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0,
+        allowNull: false,
+        comment: 'Saldo atual da carteira'
+    },
+    ativa: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        comment: 'Se a carteira está ativa'
+    },
+    observacoes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Observações sobre a carteira'
+    }
+}, {
+    tableName: 'carteiras_admin',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['tipo'], unique: true }
+    ]
+});
+
+// TransferenciaB2C - Modelo para transferências B2C
+const TransferenciaB2C = sequelize.define('TransferenciaB2C', {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false
+    },
+    id_transacao: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'ID da transação gerado pelo sistema'
+    },
+    metodo: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        comment: 'Método de transferência (mpesa, emola)'
+    },
+    valor: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        comment: 'Valor da transferência'
+    },
+    nome_destinatario: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Nome do destinatário'
+    },
+    telefone: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        comment: 'Telefone do destinatário'
+    },
+    status: {
+        type: DataTypes.STRING(50),
+        defaultValue: 'pendente',
+        allowNull: false,
+        comment: 'Status da transferência (pendente, sucesso, falha)'
+    },
+    id_transacao_e2payment: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'ID da transação retornado pela API de pagamento'
+    },
+    resposta_e2payment: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Resposta completa da API de pagamento (JSON)'
+    },
+    observacoes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Observações sobre a transferência'
+    },
+    data_processamento: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'Data de processamento da transferência'
+    },
+    processado_por: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        comment: 'ID do usuário que processou a transferência'
+    },
+    balance_after: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Saldo após a transferência (retornado pela API GibraPay)'
+    }
+}, {
+    tableName: 'transferencias_b2c',
+    timestamps: true,
+    underscored: true,
+    indexes: [
+        { fields: ['metodo'] },
+        { fields: ['status'] },
+        { fields: ['id_transacao_e2payment'] }
+    ]
+});
+
 const databaseManager = new LocalDatabaseManager();
 
 // Log para debug - verificar se Webhook está definido antes de exportar
@@ -1890,7 +2029,9 @@ const models = {
     BlogPost,
     BlogComment,
     BlogPage,
-    BlogNewsletter
+    BlogNewsletter,
+    CarteiraAdmin,
+    TransferenciaB2C
 };
 
 // Verificar se Webhook está no objeto de exportação

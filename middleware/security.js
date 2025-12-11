@@ -126,8 +126,19 @@ const validateProduct = [
 
 // Middleware de sanitização
 const sanitizeInput = (req, res, next) => {
+    // Rotas que precisam preservar HTML no content
+    const htmlContentRoutes = [
+        '/api/blog/admin/posts',
+        '/api/blog/admin/pages',
+        '/api/blog/posts'
+    ];
+    
+    const isHtmlContentRoute = htmlContentRoutes.some(route => 
+        req.path.startsWith(route)
+    );
+    
     // Função recursiva para sanitizar objetos aninhados
-    const sanitizeValue = (value) => {
+    const sanitizeValue = (value, key = null) => {
         // Preservar null e undefined
         if (value === null || value === undefined) {
             return value;
@@ -135,6 +146,16 @@ const sanitizeInput = (req, res, next) => {
         
         // Sanitizar strings
         if (typeof value === 'string') {
+            // Se for campo 'content' em rotas de blog, preservar HTML
+            if (isHtmlContentRoute && (key === 'content' || key === 'pageContent')) {
+                // Apenas remover javascript: e event handlers, mas preservar tags HTML
+                return value
+                    .replace(/javascript:/gi, '')
+                    .replace(/on\w+\s*=/gi, '')
+                    .trim();
+            }
+            
+            // Para outros campos, sanitizar normalmente
             return value
                 .replace(/[<>]/g, '')
                 .replace(/javascript:/gi, '')
@@ -144,14 +165,14 @@ const sanitizeInput = (req, res, next) => {
         
         // Sanitizar arrays recursivamente
         if (Array.isArray(value)) {
-            return value.map(item => sanitizeValue(item));
+            return value.map(item => sanitizeValue(item, key));
         }
         
         // Sanitizar objetos recursivamente
         if (typeof value === 'object') {
             const sanitized = {};
-            for (const [key, val] of Object.entries(value)) {
-                sanitized[key] = sanitizeValue(val);
+            for (const [objKey, val] of Object.entries(value)) {
+                sanitized[objKey] = sanitizeValue(val, objKey);
             }
             return sanitized;
         }
@@ -162,17 +183,17 @@ const sanitizeInput = (req, res, next) => {
 
     // Sanitizar body
     if (req.body && typeof req.body === 'object') {
-        req.body = sanitizeValue(req.body);
+        req.body = sanitizeValue(req.body, null);
     }
 
     // Sanitizar query
     if (req.query && typeof req.query === 'object') {
-        req.query = sanitizeValue(req.query);
+        req.query = sanitizeValue(req.query, null);
     }
 
     // Sanitizar params
     if (req.params && typeof req.params === 'object') {
-        req.params = sanitizeValue(req.params);
+        req.params = sanitizeValue(req.params, null);
     }
 
     next();

@@ -710,6 +710,37 @@
             color: #dc3545;
         }
 
+        .btn-retry {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(246, 76, 0, 0.3);
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(246, 76, 0, 0.4);
+        }
+
+        .btn-retry:active {
+            transform: translateY(0);
+        }
+
+        .btn-retry:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Responsivo */
         @media (max-width: 768px) {
             .upsell-page {
@@ -745,9 +776,15 @@
 
         <!-- Error State -->
         <div id="errorState" class="error-state" style="display: none;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px; color: var(--primary-color);"></i>
             <h3>Erro ao carregar oferta</h3>
-            <p>Você será redirecionado em instantes...</p>
+            <p id="errorMessage">Não foi possível carregar a oferta especial.</p>
+            <button id="btnRetry" class="btn-retry" onclick="retryLoadUpsell()">
+                <i class="fas fa-redo"></i> Tentar Novamente
+            </button>
+            <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+                Ou você será redirecionado automaticamente em <span id="countdown">5</span> segundos...
+            </p>
         </div>
 
         <!-- Content State -->
@@ -851,8 +888,24 @@
     </div>
 
     <script>
-        // Configuração
-        const API_BASE = window.location.origin + '/api';
+        // Configuração - Garantir que não use ambiente de desenvolvimento
+        const API_BASE = (() => {
+            const origin = window.location.origin;
+            // Garantir que sempre use a API de produção
+            if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes(':3000') || origin.includes(':8080')) {
+                // Se estiver em desenvolvimento local, usar a origem atual
+                return origin + '/api';
+            }
+            // Em produção, usar a origem atual
+            return origin + '/api';
+        })();
+        
+        // Garantir consistência - não carregar recursos de desenvolvimento
+        if (typeof window !== 'undefined') {
+            // Remover qualquer referência a desenvolvimento
+            const devScripts = document.querySelectorAll('script[src*="dev"], script[src*="localhost"], script[src*="127.0.0.1"]');
+            devScripts.forEach(script => script.remove());
+        }
         
         // Obter parâmetros da URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -868,31 +921,197 @@
         let orderBumpProducts = []; // Produtos complementares disponíveis
         let selectedOrderBumpProducts = []; // Produtos complementares selecionados
         window.selectedOrderBumpProducts = selectedOrderBumpProducts; // Disponibilizar globalmente
+        
+        // Controle de tentativas e redirecionamento
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+        let countdownInterval = null;
+        let redirectTimeout = null;
 
         // Função para redirecionar para payment-success
         function redirectToSuccess() {
+            // Limpar intervalos
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            if (redirectTimeout) {
+                clearTimeout(redirectTimeout);
+                redirectTimeout = null;
+            }
+            
             const params = `pedido=${pedido}&productId=${productId}&clientName=${encodeURIComponent(clientName)}&amount=${amount}`;
             window.location.href = `/payment-success.html?${params}`;
         }
+        
+        // Função para iniciar contador regressivo
+        function startCountdown(seconds = 5) {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            const countdownEl = document.getElementById('countdown');
+            if (!countdownEl) return;
+            
+            let remaining = seconds;
+            countdownEl.textContent = remaining;
+            
+            countdownInterval = setInterval(() => {
+                remaining--;
+                if (countdownEl) {
+                    countdownEl.textContent = remaining;
+                }
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    redirectToSuccess();
+                }
+            }, 1000);
+        }
+        
+        // Função para mostrar erro com opção de retry
+        function showErrorState(message = 'Não foi possível carregar a oferta especial.') {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const contentState = document.getElementById('contentState');
+            const errorMessage = document.getElementById('errorMessage');
+            const btnRetry = document.getElementById('btnRetry');
+            
+            if (loadingState) loadingState.style.display = 'none';
+            if (contentState) contentState.style.display = 'none';
+            if (errorState) {
+                errorState.style.display = 'block';
+            }
+            if (errorMessage) {
+                errorMessage.textContent = message;
+            }
+            if (btnRetry) {
+                btnRetry.disabled = false;
+                btnRetry.innerHTML = '<i class="fas fa-redo"></i> Tentar Novamente';
+            }
+            
+            // Iniciar contador regressivo
+            startCountdown(5);
+            
+            // Configurar timeout de redirecionamento
+            if (redirectTimeout) {
+                clearTimeout(redirectTimeout);
+            }
+            redirectTimeout = setTimeout(redirectToSuccess, 5000);
+        }
+        
+        // Função para tentar novamente
+        window.retryLoadUpsell = async function() {
+            retryCount++;
+            
+            if (retryCount > MAX_RETRIES) {
+                showErrorState('Número máximo de tentativas atingido. Redirecionando...');
+                setTimeout(redirectToSuccess, 2000);
+                return;
+            }
+            
+            const btnRetry = document.getElementById('btnRetry');
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            
+            // Mostrar loading
+            if (errorState) errorState.style.display = 'none';
+            if (loadingState) loadingState.style.display = 'block';
+            if (btnRetry) {
+                btnRetry.disabled = true;
+                btnRetry.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Tentando novamente...';
+            }
+            
+            // Limpar intervalos anteriores
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            if (redirectTimeout) {
+                clearTimeout(redirectTimeout);
+                redirectTimeout = null;
+            }
+            
+            // Aguardar um pouco antes de tentar novamente
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Tentar carregar novamente
+            try {
+                await loadUpsellPage();
+            } catch (error) {
+                console.error('❌ Erro ao tentar novamente:', error);
+                if (retryCount >= MAX_RETRIES) {
+                    showErrorState('Não foi possível carregar após várias tentativas. Redirecionando...');
+                } else {
+                    showErrorState(`Erro ao carregar. Tentativa ${retryCount}/${MAX_RETRIES}`);
+                }
+            }
+        };
 
         // Função para carregar página de upsell
         async function loadUpsellPage() {
             try {
+                // Resetar contador de retry em caso de sucesso
+                retryCount = 0;
+                
+                // Limpar intervalos anteriores
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                if (redirectTimeout) {
+                    clearTimeout(redirectTimeout);
+                    redirectTimeout = null;
+                }
+                
+                // Garantir que API_BASE não seja de desenvolvimento
+                if (API_BASE.includes('localhost') || API_BASE.includes('127.0.0.1')) {
+                    console.warn('⚠️ Ambiente de desenvolvimento detectado');
+                }
+                
                 // Se tiver pageId, usar diretamente
                 if (pageId) {
-                    const response = await fetch(`${API_BASE}/upsell/pages/public/${pageId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.success && data.page) {
-                            upsellPage = data.page;
-                            // Carregar produtos do vendedor
-                            await loadVendedorProdutos(upsellPage.vendedor_id);
-                            showContent(upsellPage);
-                            
-                            // Carregar produtos complementares (Order Bumps)
-                            await loadOrderBumpProducts();
-                return;
-            }
+                    // Criar AbortController para timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos
+                    
+                    try {
+                        const response = await fetch(`${API_BASE}/upsell/pages/public/${pageId}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            cache: 'no-cache',
+                            signal: controller.signal
+                        });
+                        
+                        clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    if (data.success && data.page) {
+                        upsellPage = data.page;
+                        // Carregar produtos do vendedor
+                        await loadVendedorProdutos(upsellPage.vendedor_id);
+                        showContent(upsellPage);
+                        
+                        // Carregar produtos complementares (Order Bumps)
+                        await loadOrderBumpProducts();
+                        return;
+                    } else {
+                        throw new Error('Página de upsell não encontrada ou inválida');
+                    }
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        if (fetchError.name === 'AbortError') {
+                            throw new Error('Tempo de espera esgotado. Tente novamente.');
+                        }
+                        throw fetchError;
                     }
                 }
 
@@ -903,16 +1122,50 @@
                     return;
                 }
 
-                const response = await fetch(`${API_BASE}/upsell/produto/${productId}`);
+                // Criar AbortController para timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos
+                
+                let response;
+                try {
+                    response = await fetch(`${API_BASE}/upsell/produto/${productId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-cache',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (fetchError) {
+                    clearTimeout(timeoutId);
+                    if (fetchError.name === 'AbortError') {
+                        throw new Error('Tempo de espera esgotado. Tente novamente.');
+                    }
+                    throw fetchError;
+                }
 
                 if (!response.ok) {
-                    throw new Error('Erro ao buscar página de upsell');
+                    const errorText = await response.text();
+                    let errorMessage = `Erro ao buscar página de upsell: ${response.status}`;
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorData.error || errorMessage;
+                    } catch (e) {
+                        // Se não for JSON, usar o texto
+                        if (errorText) {
+                            errorMessage = errorText.substring(0, 100);
+                        }
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 const data = await response.json();
 
                 if (!data.success || !data.hasUpsell || !data.page) {
                     console.log('ℹ️ Nenhuma página de upsell encontrada para este produto');
+                    // Não é um erro crítico, apenas redirecionar
                     setTimeout(redirectToSuccess, 1000);
                     return;
                 }
@@ -931,7 +1184,22 @@
 
             } catch (error) {
                 console.error('❌ Erro ao carregar upsell:', error);
-                setTimeout(redirectToSuccess, 1000);
+                
+                // Determinar mensagem de erro apropriada
+                let errorMsg = 'Erro ao carregar oferta especial.';
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMsg = 'Erro de conexão. Verifique sua internet e tente novamente.';
+                } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+                    errorMsg = 'Tempo de espera esgotado. Tente novamente.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMsg = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+                } else if (error.message) {
+                    errorMsg = error.message;
+                }
+                
+                // Mostrar estado de erro com opção de retry
+                showErrorState(errorMsg);
             }
         }
 
@@ -1206,21 +1474,49 @@
 
         // Função para mostrar conteúdo
         async function showContent(page) {
-            // Verificar se há template personalizado
-            if (page.template_id && page.template_id !== 'default') {
-                try {
-                    await renderizarTemplate(page);
-                    return;
-                } catch (error) {
-                    console.error('Erro ao renderizar template:', error);
-                    // Continuar com renderização padrão se falhar
+            try {
+                // Validar página
+                if (!page) {
+                    throw new Error('Página de upsell inválida');
                 }
-            }
-            
-            // Renderização padrão (comportamento original)
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'none';
-            document.getElementById('contentState').style.display = 'block';
+                
+                // Verificar se há template personalizado
+                if (page.template_id && page.template_id !== 'default') {
+                    try {
+                        await renderizarTemplate(page);
+                        return;
+                    } catch (error) {
+                        console.error('Erro ao renderizar template:', error);
+                        // Continuar com renderização padrão se falhar
+                    }
+                }
+                
+                // Renderização padrão (comportamento original)
+                // Garantir que os elementos existam antes de manipular
+                const loadingState = document.getElementById('loadingState');
+                const errorState = document.getElementById('errorState');
+                const contentState = document.getElementById('contentState');
+                
+                if (!contentState) {
+                    throw new Error('Elemento contentState não encontrado no DOM');
+                }
+                
+                if (loadingState) loadingState.style.display = 'none';
+                if (errorState) errorState.style.display = 'none';
+                
+                // Sempre mostrar o conteúdo, mesmo se houver erros parciais
+                contentState.style.display = 'block';
+                contentState.style.visibility = 'visible';
+                contentState.style.opacity = '1';
+                
+                // Garantir que o body esteja visível
+                if (document.body) {
+                    document.body.style.display = 'block';
+                    document.body.style.visibility = 'visible';
+                }
+                
+                // Forçar reflow para garantir renderização
+                void contentState.offsetHeight;
 
             // Declarar produtos uma única vez no início
             // Garantir que produtos_relacionados seja sempre um array
@@ -1243,7 +1539,8 @@
 
             // 1️⃣ Headline - usar título da página (configurável) ou padrão
             const headlineText = page.titulo || 'Espere! Oferta especial antes de você finalizar.';
-            document.getElementById('headlineText').textContent = headlineText;
+            const headlineEl = document.getElementById('headlineText');
+            if (headlineEl) headlineEl.textContent = headlineText;
 
             // 2️⃣ Subheadline - usar nome do produto selecionado diretamente
             let nomeProdutoUpsell = '';
@@ -1256,7 +1553,8 @@
                 (nomeProdutoUpsell
                     ? `Você pode adicionar "${nomeProdutoUpsell}" ao seu pedido com condições especiais.`
                     : 'Você pode adicionar este produto ao seu pedido com condições especiais.');
-            document.getElementById('subheadlineText').textContent = subheadlineText;
+            const subheadlineEl = document.getElementById('subheadlineText');
+            if (subheadlineEl) subheadlineEl.textContent = subheadlineText;
 
             // 3️⃣ Módulo de Mídia (vídeo, imagem ou nenhum) - SEM AUTOPLAY
             const mediaModule = document.getElementById('mediaModule');
@@ -1407,15 +1705,19 @@
 
             // 6️⃣ Urgência - usar texto configurável ou padrão
             const urgencyText = page.texto_urgencia || 'Oferta disponível somente nesta página. Esta é sua única chance de garantir esse upgrade.';
-            document.getElementById('urgencyText').textContent = urgencyText;
-            document.getElementById('urgencySection').style.display = 'block';
+            const urgencyTextEl = document.getElementById('urgencyText');
+            const urgencySectionEl = document.getElementById('urgencySection');
+            if (urgencyTextEl) urgencyTextEl.textContent = urgencyText;
+            if (urgencySectionEl) urgencySectionEl.style.display = 'block';
 
             // 7️⃣ Texto dos botões - usar textos configuráveis
             const btnAcceptText = page.texto_botao_aceitar || 'Aceitar Oferta';
-            document.getElementById('btnAcceptText').textContent = btnAcceptText;
+            const btnAcceptTextEl = document.getElementById('btnAcceptText');
+            if (btnAcceptTextEl) btnAcceptTextEl.textContent = btnAcceptText;
             
             const btnRejectText = page.texto_botao_recusar || 'Não, obrigado. Quero continuar sem esta oferta.';
-            document.getElementById('btnReject').textContent = btnRejectText;
+            const btnRejectEl = document.getElementById('btnReject');
+            if (btnRejectEl) btnRejectEl.textContent = btnRejectText;
 
             // 9️⃣ Prova Social (opcional - configurável)
             if (page.prova_social) {
@@ -1451,8 +1753,10 @@
 
             // 🔟 Reforço Final - usar texto configurável ou padrão
             const reinforcementText = page.reforco_final || 'Esta é sua única chance de garantir esse upgrade com condições especiais. Não perca esta oportunidade!';
-            document.getElementById('reinforcementText').textContent = reinforcementText;
-            document.getElementById('reinforcement').style.display = 'block';
+            const reinforcementTextEl = document.getElementById('reinforcementText');
+            const reinforcementEl = document.getElementById('reinforcement');
+            if (reinforcementTextEl) reinforcementTextEl.textContent = reinforcementText;
+            if (reinforcementEl) reinforcementEl.style.display = 'block';
 
             // Botão sempre habilitado - o cliente pode pagar a qualquer momento
             const btnAccept = document.getElementById('btnAccept');
@@ -1485,6 +1789,13 @@
                     }
                 }, 500);
             }
+            
+            console.log('✅ Conteúdo exibido com sucesso');
+        } catch (error) {
+            console.error('❌ Erro ao exibir conteúdo:', error);
+            // Mostrar estado de erro com opção de retry
+            showErrorState('Erro ao exibir conteúdo da oferta. Tente novamente.');
+        }
         }
         
         // Função para configurar listeners de vídeo embed (YouTube/Vimeo)
@@ -4522,18 +4833,53 @@
 
         // Inicializar quando a página carregar
         document.addEventListener('DOMContentLoaded', async () => {
-            // Carregar info do cliente em paralelo com a página de upsell
-            const clientePromise = carregarInfoCliente();
-            
-            // Carregar página de upsell
-            await loadUpsellPage();
-            
-            // Após carregar, exibir info do cliente se disponível
-            const clienteData = await clientePromise;
-            if (selectedProduct) {
-                exibirInfoClienteProduto(clienteData, selectedProduct);
+            try {
+                // Garantir que o body esteja visível
+                if (document.body) {
+                    document.body.style.display = 'block';
+                    document.body.style.visibility = 'visible';
+                }
+                
+                // Carregar info do cliente em paralelo com a página de upsell
+                const clientePromise = carregarInfoCliente();
+                
+                // Carregar página de upsell
+                await loadUpsellPage();
+                
+                // Após carregar, exibir info do cliente se disponível
+                const clienteData = await clientePromise;
+                if (selectedProduct) {
+                    exibirInfoClienteProduto(clienteData, selectedProduct);
+                }
+            } catch (error) {
+                console.error('❌ Erro na inicialização:', error);
+                showErrorState('Erro ao inicializar página. Tente novamente.');
             }
         });
+        
+        // Fallback: se o DOM já estiver carregado
+        if (document.readyState === 'loading') {
+            // Já está sendo tratado acima
+        } else {
+            // DOM já carregado, executar imediatamente
+            (async () => {
+                try {
+                    if (document.body) {
+                        document.body.style.display = 'block';
+                        document.body.style.visibility = 'visible';
+                    }
+                    const clientePromise = carregarInfoCliente();
+                    await loadUpsellPage();
+                    const clienteData = await clientePromise;
+                    if (selectedProduct) {
+                        exibirInfoClienteProduto(clienteData, selectedProduct);
+                    }
+                } catch (error) {
+                    console.error('❌ Erro na inicialização (fallback):', error);
+                    showErrorState('Erro ao inicializar página. Tente novamente.');
+                }
+            })();
+        }
     </script>
 </body>
 </html>

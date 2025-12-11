@@ -228,6 +228,7 @@ function loadRoutes(app) {
     app.use('/api/admin', require('../routes/admin-produtos'));
     app.use('/api/admin', require('../routes/admin-cancelamentos'));
     app.use('/api/admin/notificacoes', require('../routes/adminNotifications'));
+    app.use('/api/admin/financeiro', require('../routes/admin-financeiro'));
 
     // Other Services
     app.use('/api/chatbot', require('../routes/chatbot'));

@@ -1115,4 +1115,122 @@ router.put('/profile', authenticateToken, async (req, res) => {
     }
 });
 
+// Rota para alterar senha
+router.put('/change-password', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { currentPassword, newPassword } = req.body;
+        
+        console.log(`🔐 Alterando senha do usuário ${userId}...`);
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                error: 'Senha atual e nova senha são obrigatórias'
+            });
+        }
+        
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                error: 'A nova senha deve ter pelo menos 6 caracteres'
+            });
+        }
+        
+        // Buscar usuário
+        const user = await Usuario.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Usuário não encontrado'
+            });
+        }
+        
+        // Verificar senha atual
+        const bcrypt = require('bcrypt');
+        const passwordToCheck = user.password_hash || user.password;
+        const isPasswordValid = await bcrypt.compare(currentPassword, passwordToCheck);
+        
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                success: false,
+                error: 'Senha atual incorreta'
+            });
+        }
+        
+        // Hash da nova senha
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        // Atualizar senha
+        user.password_hash = hashedPassword;
+        user.password = hashedPassword; // Manter compatibilidade
+        await user.save();
+        
+        console.log(`✅ Senha do usuário ${userId} alterada com sucesso`);
+        
+        res.json({
+            success: true,
+            message: 'Senha alterada com sucesso'
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao alterar senha:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Erro interno do servidor'
+        });
+    }
+});
+
+// Alias para compatibilidade - atualizar perfil
+router.put('/update-profile', authenticateToken, async (req, res) => {
+    // Reutilizar a mesma lógica de /profile
+    const userId = req.user.id;
+    const { nome, nome_completo, telefone, whatsapp_contact, whatsapp_enabled, whatsapp_notification_types, avatar_url } = req.body;
+    
+    try {
+        console.log(`🔄 Atualizando perfil do usuário ${userId} (via /update-profile)...`);
+        
+        const user = await Usuario.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'Usuário não encontrado'
+            });
+        }
+        
+        const updateData = {};
+        if (nome !== undefined) updateData.nome = nome;
+        if (nome_completo !== undefined) updateData.nome_completo = nome_completo;
+        if (telefone !== undefined) updateData.telefone = telefone;
+        if (whatsapp_contact !== undefined) updateData.whatsapp_contact = whatsapp_contact;
+        if (whatsapp_enabled !== undefined) updateData.whatsapp_enabled = whatsapp_enabled;
+        if (whatsapp_notification_types !== undefined) updateData.whatsapp_notification_types = whatsapp_notification_types;
+        if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+        
+        await user.update(updateData);
+        
+        res.json({
+            success: true,
+            message: 'Perfil atualizado com sucesso',
+            user: {
+                id: user.id,
+                nome: user.nome,
+                nome_completo: user.nome_completo,
+                telefone: user.telefone,
+                whatsapp_contact: user.whatsapp_contact,
+                whatsapp_enabled: user.whatsapp_enabled,
+                whatsapp_notification_types: user.whatsapp_notification_types || [],
+                avatar_url: user.avatar_url
+            }
+        });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar perfil:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Erro interno do servidor'
+        });
+    }
+});
+
 module.exports = router;
