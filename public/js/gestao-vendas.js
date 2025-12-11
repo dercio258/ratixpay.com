@@ -807,21 +807,19 @@ function renderizarVendasPagina(vendas) {
         if (dataParaFormatar) {
             dataHora = formatarDataHora(dataParaFormatar);
             
-            // Log de debug para verificar formatação
-            if (dataHora !== '-') {
-                console.log(`✅ Data formatada para venda ${index + 1}:`, {
-                    formatada: dataHora,
-                    original: dataParaFormatar,
-                });
-            } else {
+            // Log de debug apenas se houver erro (removido log de sucesso)
+            if (dataHora === '-') {
                 console.warn(`⚠️ Não foi possível formatar data para venda ${index + 1}:`, {
                     created_at: venda.created_at,
                 });
             }
         } else {
-            console.warn(`⚠️ Nenhum campo de data encontrado para venda ${index + 1}:`, {
-                id: venda.id,
-            });
+            // Log apenas se realmente não houver campo de data
+            if (index === 0) { // Log apenas para primeira venda sem data
+                console.warn(`⚠️ Nenhum campo de data encontrado para venda ${index + 1}:`, {
+                    id: venda.id,
+                });
+            }
             dataHora = '-';
         }
         
@@ -900,19 +898,11 @@ function renderizarVendasPagina(vendas) {
             }
         }
         
-        // Log para debug (apenas se houver problema com data)
+        // Log apenas se houver problema com data (removido log de sucesso)
         if (dataHoraFinal === '-') {
             console.warn(`⚠️ Venda ${index + 1} sem data/hora válida na coluna Data/Hora:`, {
                 id: venda.id,
             });
-        } else {
-            // Log de sucesso para primeira venda
-            if (index === 0) {
-                console.log(`✅ Data formatada com sucesso:`, {
-                    formatada: dataHoraFinal,
-                    original: dataParaFormatar,
-                });
-            }
         }
         
         // Criar linha da tabela com todas as 7 colunas na ordem correta
