@@ -9,6 +9,31 @@ let totalVendas = 0;
 const itemsPerPage = 5; // Limite de 5 transações por página
 let todasVendas = []; // Array com todas as vendas para paginação
 
+// Função auxiliar para fazer requisição com retry
+async function fetchWithRetry(url, options, maxRetries = 2) {
+    let lastError;
+    for (let i = 0; i <= maxRetries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+            // Se não for erro de servidor (5xx), não tentar novamente
+            if (response.status < 500) {
+                return response;
+            }
+            lastError = new Error(`Erro ${response.status}: ${response.statusText}`);
+        } catch (error) {
+            lastError = error;
+            if (i < maxRetries) {
+                // Aguardar antes de tentar novamente (backoff exponencial)
+                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            }
+        }
+    }
+    throw lastError;
+}
+
 // Função para carregar dados das vendas
 async function carregarDadosVendas() {
     try {
@@ -37,16 +62,28 @@ async function carregarDadosVendas() {
         }
         
         // Fazer a requisição para a API usando endpoint do dashboard
-        const response = await fetch(`${window.API_BASE}/dashboard/vendedor/resumo`, {
+        // Adicionar timestamp para evitar cache
+        const timestamp = new Date().getTime();
+        const url = `${window.API_BASE}/dashboard/vendedor/resumo?_t=${timestamp}`;
+        const options = {
+            method: 'GET',
             credentials: 'include',
+            cache: 'no-store',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
             }
-        });
+        };
+        
+        const response = await fetchWithRetry(url, options, 2);
         
         // Verificar se a resposta foi bem-sucedida
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro na resposta:', response.status, errorText);
             throw new Error(`Erro na requisição: ${response.status} ${response.statusText}`);
         }
         
@@ -75,7 +112,7 @@ async function carregarDadosVendas() {
             atualizarEstatisticas(dadosMapeados);
             
             // Carregar também as vendas detalhadas
-            carregarVendasDetalhadas();
+            await carregarVendasDetalhadas();
         } else {
             console.error('❌ Erro nos dados retornados:', data.message || 'Erro desconhecido');
             throw new Error(data.message || 'Erro desconhecido');
@@ -92,6 +129,11 @@ async function carregarDadosVendas() {
                 element.classList.add('error');
             }
         });
+        
+        // Mostrar notificação de erro se disponível
+        if (typeof mostrarNotificacao === 'function') {
+            mostrarNotificacao('Erro ao carregar dados: ' + error.message, 'error');
+        }
     }
 }
 
@@ -196,13 +238,23 @@ async function carregarVendasDetalhadas() {
         }
         
         // Fazer a requisição para a API de vendas do vendedor (inclui informações de afiliado)
-        const response = await fetch(`${window.API_BASE}/vendas/vendedor?limite=1000&pagina=1`, {
+        // Adicionar timestamp para evitar cache
+        const timestamp = new Date().getTime();
+        const url = `${window.API_BASE}/vendas/vendedor?limite=1000&pagina=1&_t=${timestamp}`;
+        const options = {
+            method: 'GET',
             credentials: 'include',
+            cache: 'no-store',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
             }
-        });
+        };
+        
+        const response = await fetchWithRetry(url, options, 2);
         
         // Verificar se a resposta foi bem-sucedida
         if (!response.ok) {
@@ -1057,10 +1109,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 btnAtualizar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...';
                 
                 try {
+                    // Limpar cache antes de atualizar
+                    if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(
+                            cacheNames.map(cacheName => caches.delete(cacheName))
+                        );
+                    }
+                    
+                    // Forçar atualização completa
                     await carregarDadosVendas();
+                    
+                    // Mostrar feedback visual de sucesso
+                    btnAtualizar.innerHTML = '<i class="fas fa-check"></i> Atualizado!';
+                    setTimeout(() => {
+                        btnAtualizar.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
+                    }, 2000);
+                } catch (error) {
+                    console.error('Erro ao atualizar:', error);
+                    btnAtualizar.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
+                    setTimeout(() => {
+                        btnAtualizar.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
+                    }, 2000);
                 } finally {
                     btnAtualizar.disabled = false;
-                    btnAtualizar.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar Dados';
                 }
             });
         }
