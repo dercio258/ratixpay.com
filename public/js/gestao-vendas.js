@@ -561,51 +561,111 @@ function renderizarVendasPagina(vendas) {
         // Extrair dados do cliente com segurança
         const clienteNome = venda.cliente_nome || venda.cliente?.nome || 'Cliente não identificado';
         const clienteEmail = venda.cliente_email || venda.cliente?.email || '-';
-        const clienteTelefone = venda.cliente_telefone || venda.cliente?.telefone || '-';
-        // Buscar WhatsApp de múltiplas fontes possíveis
-        const clienteWhatsapp = venda.cliente_whatsapp || venda.cliente?.whatsapp || null;
         
-        // Formatar contato - mostrar telefone de pagamento e ícone WhatsApp se disponível
+        // Buscar telefone de múltiplas fontes possíveis
+        const clienteTelefone = venda.cliente_telefone || 
+                               venda.cliente?.telefone || 
+                               venda.pagamento?.telefone ||
+                               venda.pagamento_telefone ||
+                               venda.telefone ||
+                               null;
+        
+        // Buscar WhatsApp de múltiplas fontes possíveis
+        const clienteWhatsapp = venda.cliente_whatsapp || 
+                               venda.cliente?.whatsapp || 
+                               venda.pagamento?.whatsapp ||
+                               venda.pagamento_whatsapp ||
+                               venda.whatsapp ||
+                               null;
+        
+        // Formatar contato - mostrar telefone e ícone WhatsApp se disponível
         let contatoFormatado = '-';
         
-        // Verificar se tem telefone de pagamento
-        const telefonePagamento = clienteTelefone && clienteTelefone !== '-' ? clienteTelefone : null;
+        // Normalizar telefone (remover caracteres não numéricos)
+        let telefoneFormatado = null;
+        if (clienteTelefone && clienteTelefone !== '-' && clienteTelefone !== 'null' && clienteTelefone.toString().trim() !== '') {
+            telefoneFormatado = clienteTelefone.toString().trim();
+        }
         
-        // Verificar se tem WhatsApp válido (não vazio, não null, não undefined, não '-')
-        const hasWhatsapp = clienteWhatsapp && 
-                           clienteWhatsapp !== '-' && 
-                           clienteWhatsapp !== null && 
-                           clienteWhatsapp !== undefined && 
-                           clienteWhatsapp.toString().trim() !== '';
-        
+        // Normalizar e processar WhatsApp
         let whatsappNumber = '';
         let whatsappLink = '';
+        let whatsappDisplay = '';
         
-        if (hasWhatsapp) {
+        if (clienteWhatsapp && 
+            clienteWhatsapp !== '-' && 
+            clienteWhatsapp !== 'null' && 
+            clienteWhatsapp !== null && 
+            clienteWhatsapp !== undefined && 
+            clienteWhatsapp.toString().trim() !== '') {
+            
+            // Remover todos os caracteres não numéricos
             whatsappNumber = clienteWhatsapp.toString().replace(/\D/g, '');
+            
             if (whatsappNumber && whatsappNumber.length > 0) {
                 // Adicionar código do país se não tiver (assumindo Moçambique +258)
-                if (!whatsappNumber.startsWith('258')) {
+                if (!whatsappNumber.startsWith('258') && !whatsappNumber.startsWith('+258')) {
                     whatsappNumber = '258' + whatsappNumber;
+                } else if (whatsappNumber.startsWith('+258')) {
+                    whatsappNumber = whatsappNumber.replace('+', '');
                 }
+                
+                // Formatar para exibição (ex: +258 84 123 4567)
+                if (whatsappNumber.length >= 12) {
+                    const codigoPais = whatsappNumber.substring(0, 3);
+                    const operadora = whatsappNumber.substring(3, 5);
+                    const parte1 = whatsappNumber.substring(5, 8);
+                    const parte2 = whatsappNumber.substring(8);
+                    whatsappDisplay = `+${codigoPais} ${operadora} ${parte1} ${parte2}`;
+                } else {
+                    whatsappDisplay = '+' + whatsappNumber;
+                }
+                
                 whatsappLink = `https://wa.me/${whatsappNumber}`;
             }
         }
         
         // Montar contato formatado: telefone + ícone WhatsApp (se disponível)
-        if (telefonePagamento) {
-            contatoFormatado = `<span style="display: inline-flex; align-items: center; gap: 8px;">`;
-            contatoFormatado += `<span>${telefonePagamento}</span>`;
-            
-            // Adicionar ícone WhatsApp se disponível
-            if (whatsappLink) {
-                contatoFormatado += `<a href="${whatsappLink}" target="_blank" title="Abrir WhatsApp: ${whatsappNumber}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'"><i class="fab fa-whatsapp" style="font-size: 16px;"></i></a>`;
-            }
-            
-            contatoFormatado += `</span>`;
+        if (telefoneFormatado && whatsappLink) {
+            // Tem telefone e WhatsApp - mostrar ambos de forma compacta
+            const telefoneEscapado = telefoneFormatado.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const whatsappDisplayEscapado = whatsappDisplay.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            contatoFormatado = `<div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.8em;"></i>
+                    <span style="font-size: 0.875rem;">${telefoneEscapado}</span>
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
+                       title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
+                       style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" 
+                       onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" 
+                       onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'">
+                        <i class="fab fa-whatsapp" style="font-size: 13px;"></i>
+                    </a>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">${whatsappDisplayEscapado}</span>
+                </div>
+            </div>`;
+        } else if (telefoneFormatado) {
+            // Só tem telefone
+            const telefoneEscapado = telefoneFormatado.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            contatoFormatado = `<div style="display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-phone" style="color: var(--text-muted); font-size: 0.8em;"></i>
+                <span style="font-size: 0.875rem;">${telefoneEscapado}</span>
+            </div>`;
         } else if (whatsappLink) {
-            // Se não tem telefone mas tem WhatsApp, mostrar apenas WhatsApp
-            contatoFormatado = `<a href="${whatsappLink}" target="_blank" title="Abrir WhatsApp: ${whatsappNumber}" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'"><i class="fab fa-whatsapp" style="font-size: 16px;"></i></a>`;
+            // Só tem WhatsApp
+            const whatsappDisplayEscapado = whatsappDisplay.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            contatoFormatado = `<div style="display: inline-flex; align-items: center; gap: 8px;">
+                <a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"
+                   title="Abrir WhatsApp: ${whatsappDisplayEscapado}" 
+                   style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background-color: #25D366; color: white; border-radius: 50%; text-decoration: none; transition: all 0.2s; flex-shrink: 0;" 
+                   onmouseover="this.style.backgroundColor='#20BA5A'; this.style.transform='scale(1.1)'" 
+                   onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='scale(1)'">
+                    <i class="fab fa-whatsapp" style="font-size: 15px;"></i>
+                </a>
+                <span style="font-size: 0.875rem;">${whatsappDisplayEscapado}</span>
+            </div>`;
         }
         
         // Extrair dados do pagamento com segurança - CORRIGIDO
@@ -733,7 +793,8 @@ function renderizarVendasPagina(vendas) {
         const produtoFinal = (produtoDisplay && produtoDisplay !== 'Produto não identificado') ? produtoDisplay : '-';
         const clienteFinal = (clienteNome && clienteNome !== 'Cliente não identificado') ? clienteNome : '-';
         const emailFinal = (clienteEmail && clienteEmail !== '-') ? clienteEmail : '-';
-        const contatoFinal = (contatoFormatado && contatoFormatado !== '-') ? contatoFormatado : '-';
+        // Contato pode conter HTML, então não sanitizar aqui
+        const contatoFinal = (contatoFormatado && contatoFormatado !== '-' && contatoFormatado.trim() !== '') ? contatoFormatado : '-';
         const afiliadoFinal = (afiliadoDisplay && afiliadoDisplay !== '-') ? afiliadoDisplay : '-';
         const statusFinal = (status && status !== 'Pendente') ? status : (status || 'Pendente');
         const valorFinalFormatado = (valorFinal && valorFinal !== '-') ? valorFinal : '-';
@@ -798,18 +859,6 @@ function renderizarVendasPagina(vendas) {
             <td>${sanitizeHTML(valorFinalFormatado)}</td>
             <td class="data-hora">${dataHoraFinal}</td>
         `;
-        
-        // Debug: Log para primeira venda com WhatsApp (apenas para debug)
-        if (index === 0) {
-            console.log('🔍 Debug Contato - Primeira venda:', {
-                clienteWhatsapp: clienteWhatsapp,
-                hasWhatsapp: hasWhatsapp,
-                whatsappNumber: whatsappNumber || 'N/A',
-                clienteTelefone: clienteTelefone,
-                telefonePagamento: telefonePagamento,
-                contatoFormatado: contatoFormatado.includes('whatsapp') ? 'Ícone WhatsApp criado' : contatoFormatado
-            });
-        }
         
         tbody.appendChild(row);
         
