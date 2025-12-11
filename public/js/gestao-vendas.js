@@ -925,6 +925,26 @@ function renderizarVendasPagina(vendas) {
         
         tbody.appendChild(row);
         
+        // Forçar remoção de estilos de botão dos links do WhatsApp após inserção
+        const whatsappLinks = row.querySelectorAll('a[href*="wa.me"]');
+        whatsappLinks.forEach(link => {
+            // Remover qualquer classe que possa ter estilos de botão
+            link.classList.remove('btn', 'button', 'btn-primary', 'btn-success', 'btn-action');
+            // Forçar estilos inline
+            link.style.cssText = 'display: inline-flex !important; align-items: center !important; gap: 4px !important; text-decoration: none !important; color: var(--text-main) !important; background: transparent !important; border: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; font-weight: normal !important; box-shadow: none !important; font-size: 0.875rem !important; line-height: 1.4 !important; transition: color 0.2s !important;';
+            // Remover texto "Conversar com cliente" se existir
+            if (link.textContent && link.textContent.includes('Conversar')) {
+                const icon = link.querySelector('i.fab.fa-whatsapp');
+                const span = link.querySelector('span');
+                if (icon && span) {
+                    link.innerHTML = icon.outerHTML + span.outerHTML;
+                } else if (icon) {
+                    const numero = link.getAttribute('title')?.match(/\d+/)?.[0] || '';
+                    link.innerHTML = icon.outerHTML + `<span style="font-size: 0.875rem !important;">${numero}</span>`;
+                }
+            }
+        });
+        
         // Log de sucesso apenas para primeira venda
         if (index === 0) {
             console.log(`✅ Primeira venda renderizada:`, {
